@@ -22,5 +22,5 @@ RUN yum install -y \
 
 WORKDIR /opt/src/seiscomp3/build
 
-CMD cmake ..
+CMD cmake .. && make
 
