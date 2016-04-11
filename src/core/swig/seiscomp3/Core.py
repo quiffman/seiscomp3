@@ -506,6 +506,7 @@ class FrameworkVersion(_object):
         try: self.this.append(this)
         except: self.this = this
     def toString(self): return _Core.FrameworkVersion_toString(self)
+    def systemInfo(self): return _Core.FrameworkVersion_systemInfo(self)
     __swig_destroy__ = _Core.delete_FrameworkVersion
     __del__ = lambda self : None;
 FrameworkVersion_swigregister = _Core.FrameworkVersion_swigregister

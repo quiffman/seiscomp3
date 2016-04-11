@@ -809,11 +809,20 @@ void AmpTool::emitAmplitude(const AmplitudeProcessor *proc,
 		return;
 	}
 
-	amp->setAmplitude(RealQuantity(res.amplitude));
+	amp->setAmplitude(
+		RealQuantity(
+			res.amplitude.value, Core::None,
+			res.amplitude.lowerUncertainty, res.amplitude.upperUncertainty,
+			Core::None
+		)
+	);
+
 	if ( res.period > 0 ) amp->setPeriod(RealQuantity(res.period));
 	if ( res.snr >= 0 ) amp->setSnr(res.snr);
 	amp->setType(proc->type());
-	amp->setTimeWindow(DataModel::TimeWindow(res.time, res.timeWindowBegin, res.timeWindowEnd));
+	amp->setTimeWindow(
+		DataModel::TimeWindow(res.time.reference, res.time.begin, res.time.end)
+	);
 
 	if ( res.component <= WaveformProcessor::SecondHorizontal )
 		amp->setWaveformID(

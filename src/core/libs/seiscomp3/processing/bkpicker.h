@@ -58,6 +58,8 @@ class SC_CORE_PROCESSING_API BKPicker : public Picker {
 		// picker parameters
 		double thrshl1; // threshold to trigger for pick (c.f. paper), default 10 
 		double thrshl2; //  threshold for updating sigma  (c.f. paper), default 20 
+
+		int    debugOutput;
 		
 		void bk_wrapper(int n, double *data, int &kmin, double &snr, double samplespersec=120);
 		bool calculatePick(int n, const double *data,

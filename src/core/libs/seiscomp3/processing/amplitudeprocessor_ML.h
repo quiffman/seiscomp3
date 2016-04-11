@@ -64,8 +64,8 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor_ML : public AmplitudeProcessor {
 		bool computeAmplitude(const DoubleArray &data,
 		                      size_t i1, size_t i2,
 		                      size_t si1, size_t si2,
-		                      double offset, double *dt,
-		                      double *amplitude, double *width,
+		                      double offset,
+		                      AmplitudeIndex *dt, AmplitudeValue *amplitude,
 		                      double *period, double *snr);
 
 		const AmplitudeProcessor *componentProcessor(Component comp) const;
@@ -84,6 +84,11 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor_ML : public AmplitudeProcessor {
 
 
 	private:
+		struct ComponentResult {
+			AmplitudeValue value;
+			AmplitudeTime  time;
+		};
+
 		enum CombinerProc {
 			TakeMin,
 			TakeMax,
@@ -92,12 +97,8 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor_ML : public AmplitudeProcessor {
 
 		mutable
 		AmplitudeProcessor_MLh _ampE, _ampN;
-		OPT(double)            _amplitudes[2];
-		double                 _amplitudeWidths[2];
-		Core::Time             _times[2];
-		double                 _timeWindowBegin;
-		double                 _timeWindowEnd;
 		CombinerProc           _combiner;
+		OPT(ComponentResult)   _results[2];
 };
 
 

@@ -36,6 +36,8 @@ namespace Processing {
 REGISTER_POSTPICKPROCESSOR(BKPicker, "BK");
 
 bool BKPicker::setup(const Settings &settings){
+	if ( !Picker::setup(settings) ) return false;
+
 	// do config stuff here
 
 	try {
@@ -111,6 +113,13 @@ bool BKPicker::setup(const Settings &settings){
 		SEISCOMP_DEBUG("thrshl2 default: %f",thrshl2);
 	}
 
+	try {
+		debugOutput = settings.getBool("picker.BK.debug")?1:0;
+	}
+	catch ( ... ) {
+		debugOutput = 0;
+	}
+
 	return true;
 }
 
@@ -152,7 +161,6 @@ void BKPicker::bk_wrapper(int n, double *data, int &kmin, double &snr,
 	int noisetime;
 	int signal; // maximum signal amplitude
 	int signaltime; // sample number of signal amplitude
-	int test=1; // print debug info if test != 0
 	int nanf;
 	int nend;
 	int skip=0; // number of samples of data[] to skip. if skip==0 it's 3 * samplespersec
@@ -164,7 +172,7 @@ void BKPicker::bk_wrapper(int n, double *data, int &kmin, double &snr,
 	      &ipkflg, &uptime, ptime, &pamp, &pamptime,
 	      &preptime, &prepamp, &prepamptime,
 	      &ifrst, &noise, &noisetime, &signal,
-	      &signaltime, &test, &nanf, &nend,
+	      &signaltime, &debugOutput, &nanf, &nend,
 	      &skip, &prset, &pickduration,
 	      &samplespersec, &pfm);
 
@@ -179,6 +187,16 @@ void BKPicker::bk_wrapper(int n, double *data, int &kmin, double &snr,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 BKPicker::BKPicker() { 
 	setMinSNR(0.);
+	// Setup defaults
+	_config.signalBegin = -20;
+	_config.signalEnd = 80;
+	filterType = "BP"; // default is Bandpass Filter
+	filterPoles = 2; // defaults to 2 poles
+	f1 =  5;
+	f2 = 20;
+	thrshl1 = 10;
+	thrshl2 = 20;
+	debugOutput = 0;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

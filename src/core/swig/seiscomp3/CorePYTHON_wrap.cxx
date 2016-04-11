@@ -7015,6 +7015,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FrameworkVersion_systemInfo(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Core::FrameworkVersion *arg1 = (Seiscomp::Core::FrameworkVersion *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:FrameworkVersion_systemInfo",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Core__FrameworkVersion, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FrameworkVersion_systemInfo" "', argument " "1"" of type '" "Seiscomp::Core::FrameworkVersion const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Core::FrameworkVersion * >(argp1);
+  result = ((Seiscomp::Core::FrameworkVersion const *)arg1)->systemInfo();
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_FrameworkVersion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Core::FrameworkVersion *arg1 = (Seiscomp::Core::FrameworkVersion *) 0 ;
@@ -28100,6 +28122,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Version_swigregister", Version_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_FrameworkVersion", _wrap_new_FrameworkVersion, METH_VARARGS, NULL},
 	 { (char *)"FrameworkVersion_toString", _wrap_FrameworkVersion_toString, METH_VARARGS, NULL},
+	 { (char *)"FrameworkVersion_systemInfo", _wrap_FrameworkVersion_systemInfo, METH_VARARGS, NULL},
 	 { (char *)"delete_FrameworkVersion", _wrap_delete_FrameworkVersion, METH_VARARGS, NULL},
 	 { (char *)"FrameworkVersion_swigregister", FrameworkVersion_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_GenericArchive", _wrap_delete_GenericArchive, METH_VARARGS, NULL},

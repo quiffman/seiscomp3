@@ -96,11 +96,11 @@ namespace Applications {
 namespace Picker {
 
 
-StreamConfig::StreamConfig() {}
+StreamConfig::StreamConfig() : enabled(true) {}
 
 
 StreamConfig::StreamConfig(double on, double off, double tcorr, const std::string &f)
-: triggerOn(on), triggerOff(off), timeCorrection(tcorr), filter(f) {}
+: triggerOn(on), triggerOff(off), timeCorrection(tcorr), enabled(true), filter(f) {}
 
 
 StationConfig::StationConfig() {}
@@ -108,6 +108,48 @@ StationConfig::StationConfig() {}
 
 void StationConfig::setDefault(const StreamConfig &entry) {
 	_default = entry;
+}
+
+
+const StreamConfig *
+StationConfig::read(const Seiscomp::Config *config, const std::string &mod,
+                    DataModel::ParameterSet *params,
+                    const std::string &net, const std::string &sta) {
+	std::string loc, cha, filter = _default.filter;
+	double trigOn = *_default.triggerOn, trigOff = *_default.triggerOff;
+	double tcorr = *_default.timeCorrection;
+	bool enabled = true;
+	Processing::ParametersPtr parameters;
+
+	if ( params ) {
+		parameters = new Processing::Parameters;
+		parameters->readFrom(params);
+	}
+
+	Processing::Settings settings(mod, net, sta, "", "", config, parameters.get());
+
+	settings.getValue(loc, "detecLocid");
+	settings.getValue(cha, "detecStream");
+	settings.getValue(trigOn, "trigOn");
+	settings.getValue(trigOff, "trigOff");
+	settings.getValue(tcorr, "timeCorr");
+	if ( settings.getValue(filter, "detecFilter") ) {
+		if ( filter.empty() )
+			filter = _default.filter;
+	}
+	settings.getValue(enabled, "detecEnable");
+
+	StreamConfig &sc = _stationConfigs[Key(net,sta)];
+	sc.updatable = true;
+	sc.locCode = loc;
+	sc.channel = cha;
+	sc.triggerOn = trigOn;
+	sc.triggerOff = trigOff;
+	sc.timeCorrection = tcorr;
+	sc.filter = filter;
+	sc.enabled = enabled;
+	sc.parameters = parameters;
+	return &sc;
 }
 
 
@@ -134,39 +176,8 @@ void StationConfig::read(const Seiscomp::Config *localConfig, const DataModel::C
 				continue;
 			}
 	
-			std::string net, sta, loc, cha, filter = _default.filter;
-			double trigOn = *_default.triggerOn, trigOff = *_default.triggerOff;
-			double tcorr = *_default.timeCorrection;
-
-			net = station->networkCode();
-			sta = station->stationCode();
-
-			Processing::ParametersPtr parameters = new Processing::Parameters;
-			parameters->readFrom(ps);
-
-			Processing::Settings settings(module->name(), net, sta, "", "", localConfig, parameters.get());
-
-			settings.getValue(loc, "detecLocid");
-			settings.getValue(cha, "detecStream");
-			settings.getValue(trigOn, "trigOn");
-			settings.getValue(trigOff, "trigOff");
-			settings.getValue(tcorr, "timeCorr");
-			if ( settings.getValue(filter, "detecFilter") ) {
-				if ( filter.empty() )
-					filter = _default.filter;
-			}
-	
-			if ( !cha.empty() ) {
-				StreamConfig &sc = _stationConfigs[Key(net,sta)];
-				sc.updatable = true;
-				sc.locCode = loc;
-				sc.channel = cha;
-				sc.triggerOn = trigOn;
-				sc.triggerOff = trigOff;
-				sc.timeCorrection = tcorr;
-				sc.filter = filter;
-				sc.parameters = parameters;
-			}
+			read(localConfig, module->name(), ps,
+			     station->networkCode(), station->stationCode());
 		}
 	}
 }
@@ -309,13 +320,19 @@ const StreamConfig *StationConfig::getBestWildcard(const std::string &net, const
 }
 
 
-const StreamConfig *StationConfig::get(const std::string &net, const std::string &sta) const {
+const StreamConfig *
+StationConfig::get(const Seiscomp::Config *config, const std::string &mod,
+                   const std::string &net, const std::string &sta) {
 	ConfigMap::const_iterator it;
 	it = _stationConfigs.find(Key(net,sta));
 	if ( it != _stationConfigs.end() )
 		return &it->second;
 
-	return getBestWildcard(net, sta);
+	const StreamConfig *sc = getBestWildcard(net, sta);
+	if ( !sc )
+		sc = read(config, mod, NULL, net, sta);
+
+	return sc;
 }
 
 
@@ -334,6 +351,7 @@ void StationConfig::dump() const {
 	ConfigMap::const_iterator it = _stationConfigs.begin();
 	for ( ; it != _stationConfigs.end(); ++it ) {
 		if ( it->first.first == "*" || it->first.second == "*" ) continue;
+		if ( !it->second.enabled ) printf("#");
 		std::string streamID;
 		if ( it->second.channel.empty() )
 			streamID = it->first.first + "." + it->first.second;

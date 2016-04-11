@@ -152,8 +152,8 @@ double AmplitudeProcessor_Mwp::timeWindowLength(double distance) const {
 bool AmplitudeProcessor_Mwp::computeAmplitude(const DoubleArray &data,
                                               size_t i1, size_t i2,
                                               size_t si1, size_t si2, double offset,
-                                              double *ipos,
-                                              double *amplitude, double *width,
+                                              AmplitudeIndex *dt,
+                                              AmplitudeValue *amplitude,
                                               double *period, double *snr) {
 	size_t imax = find_absmax(data.size(), (const double*)data.data(), si1, si2, offset);
 	double amax = fabs(data[imax] - offset);
@@ -184,9 +184,9 @@ bool AmplitudeProcessor_Mwp::computeAmplitude(const DoubleArray &data,
 	Mwp_double_integration(n, _processedData.typedData(), onset, _fsamp);
 
 	// Amplitude in nanometers
-	*amplitude = 1.E9*Mwp_amplitude(si2, _processedData.typedData(), si1, &onset);
+	amplitude->value = 1.E9*Mwp_amplitude(si2, _processedData.typedData(), si1, &onset);
 
-	*ipos = onset; // FIXME
+	dt->index = onset; // FIXME
 	*period = 0.0;
 
 	delete flt;

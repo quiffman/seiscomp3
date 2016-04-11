@@ -139,7 +139,6 @@ bool PostgreSQLDatabase::execute(const char* command) {
 
 	endQuery();
 
-	SEISCOMP_DEBUG("statement: %s", command);
 	_result = PQexec(_handle, command);
 	if ( _result == NULL ) {
 		SEISCOMP_ERROR("execute(\"%s\"): %s", command, PQerrorMessage(_handle));

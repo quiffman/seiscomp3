@@ -56,6 +56,7 @@ enum LogLevel {
 	\endcode
 */
 
+#define STR(X) #X
 
 /*! @def _scMessageDef
   Defines a static Publisher and points it to the registration function for
@@ -64,12 +65,14 @@ enum LogLevel {
 */
 #ifdef __FUNCTION__
 #define _scMessageDef(ID, COMPONENT) \
-  static Seiscomp::Logging::PublishLoc ID ={&Seiscomp::Logging::Register, 0, LOG_STR(COMPONENT), \
-      __FILE__, __FUNCTION__, __LINE__, 0};
+  static Seiscomp::Logging::PublishLoc ID SEISCOMP_SECTION = {& ID ## _enabled, \
+      &Seiscomp::Logging::Register, 0, STR(COMPONENT), __FILE__, \
+      __FUNCTION__, __LINE__, 0};
 #else
 #define _scMessageDef(ID, COMPONENT) \
-  static Seiscomp::Logging::PublishLoc ID ={&Seiscomp::Logging::Register, 0, LOG_STR(COMPONENT), \
-      __FILE__, "[unknown]", __LINE__, 0};
+  static Seiscomp::Logging::PublishLoc ID SEISCOMP_SECTION = {& ID ## _enabled, \
+      &Seiscomp::Logging::Register, 0, STR(COMPONENT), __FILE__, \
+      "[unknown]", __LINE__, 0};
 #endif
 
 /*! @def _scMessageCall
@@ -77,12 +80,19 @@ enum LogLevel {
   @internal
 */
 #if HAVE_PRINTF_FP || !HAVE_PRINTF_ATTR
-#  define _scMessageCall(ID, CHANNEL, ...) \
-  if(unlikely(ID.publish!=0)) (*ID.publish)( &ID, CHANNEL, ##__VA_ARGS__ );
-#else // no PRINTF attributes..
-# define _scMessageCall(ID, CHANNEL, ...) \
-  if(unlikely(ID.publish!=0))  \
+# define _scMessageCall(ID, COMPONENT, CHANNEL, ...) \
+  static bool ID ## _enabled = true; \
+  if ( unlikely(ID ## _enabled) ) \
   { \
+    _scMessageDef(ID, COMPONENT) \
+    (*ID.publish)(&ID, CHANNEL, ##__VA_ARGS__); \
+  }
+#else // no PRINTF attributes..
+# define _scMessageCall(ID, COMPONENT, CHANNEL, ...) \
+  static bool ID ## _enabled = true; \
+  if ( unlikely(ID ## _enabled) ) \
+  { \
+    _scMessageDef(ID, COMPONENT) \
     (*ID.publish)( &ID, CHANNEL, ##__VA_ARGS__ ); \
     Seiscomp::Logging::__checkArgs( 0, ##__VA_ARGS__ ); \
   }
@@ -98,8 +108,7 @@ enum LogLevel {
   @internal
 */
 #define _scMessage(ID, CHANNEL, ... ) \
-  do { _scMessageDef(ID, SEISCOMP_COMPONENT) \
-       _scMessageCall(ID, CHANNEL, ##__VA_ARGS__ ) } while(0)
+  do { _scMessageCall(ID, SEISCOMP_COMPONENT, CHANNEL, ##__VA_ARGS__ ) } while(0)
 
 /*! @addtogroup LoggingMacros
   These macros are the primary interface for logging messages:

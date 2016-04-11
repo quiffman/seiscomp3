@@ -237,7 +237,7 @@ class SC_CORE_CORE_API MetaObject {
 	// ----------------------------------------------------------------------
 	public:
 		//! Constructor
-		MetaObject(const RTTI* rtti);
+		MetaObject(const RTTI* rtti, const MetaObject *base = NULL);
 		~MetaObject();
 
 
@@ -247,6 +247,9 @@ class SC_CORE_CORE_API MetaObject {
 	public:
 		//! Returns the corresponding RTTI object
 		const RTTI *rtti() const;
+
+		//! Returns the base MetaObject if available
+		const MetaObject *base() const;
 
 		//! Returns the number of properties set
 		size_t propertyCount() const;
@@ -279,6 +282,7 @@ class SC_CORE_CORE_API MetaObject {
 	// ----------------------------------------------------------------------
 	private:
 		const RTTI* _rtti;
+		const MetaObject *_base;
 		std::vector<MetaPropertyHandle> _properties;
 };
 
@@ -298,12 +302,19 @@ typedef boost::shared_ptr<MetaObject> MetaObjectHandle;
 
 #define DECLARE_METAOBJECT \
 	DECLARE_METAOBJECT_INTERFACE; \
-	private: \
+	protected: \
 		class MetaObject  : public Seiscomp::Core::MetaObject { \
 			public: \
 				MetaObject(const Seiscomp::Core::RTTI* rtti); \
 		}
 
+#define DECLARE_METAOBJECT_DERIVED \
+	DECLARE_METAOBJECT_INTERFACE; \
+	protected: \
+		class MetaObject  : public Seiscomp::Core::MetaObject { \
+			public: \
+				MetaObject(const Seiscomp::Core::RTTI* rtti, const Seiscomp::Core::MetaObject *base = NULL); \
+		}
 
 #define IMPLEMENT_METAOBJECT_EMPTY_METHODS(CLASS) \
 	const Seiscomp::Core::MetaObject *CLASS::Meta() { \
@@ -327,6 +338,13 @@ typedef boost::shared_ptr<MetaObject> MetaObjectHandle;
 		return &classMetaObject; \
 	}
 
+
+#define IMPLEMENT_METAOBJECT_DERIVED(CLASS, BASECLASS) \
+	IMPLEMENT_METAOBJECT_METHODS(CLASS) \
+	const Seiscomp::Core::MetaObject *CLASS::Meta() { \
+		static CLASS::MetaObject classMetaObject(&CLASS::TypeInfo(), BASECLASS::Meta()); \
+		return &classMetaObject; \
+	}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

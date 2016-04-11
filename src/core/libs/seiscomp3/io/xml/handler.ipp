@@ -21,7 +21,14 @@ void TypedClassHandler<T>::addProperty(const char *t, const char *ns, Type opt, 
 	const Core::MetaObject *obj = T::Meta();
 	if ( obj == NULL )
 		throw Core::TypeException(std::string(T::ClassName()) + ": no metaobject");
-	const Core::MetaProperty *prop = obj->property(property);
+
+	const Core::MetaProperty *prop = NULL;
+
+	while ( obj && prop == NULL ) {
+		prop = obj->property(property);
+		obj = obj->base();
+	}
+
 	if ( prop == NULL )
 		throw Core::TypeException(std::string(T::ClassName()) + ": no metaproperty " + property);
 
@@ -34,7 +41,14 @@ void TypedClassHandler<T>::addChildProperty(const char *t, const char *ns, const
 	const Core::MetaObject *obj = T::Meta();
 	if ( obj == NULL )
 		throw Core::TypeException(std::string(T::ClassName()) + ": no metaobject");
-	const Core::MetaProperty *prop = obj->property(property);
+
+	const Core::MetaProperty *prop = NULL;
+
+	while ( obj && prop == NULL ) {
+		prop = obj->property(property);
+		obj = obj->base();
+	}
+
 	if ( prop == NULL )
 		throw Core::TypeException(std::string(T::ClassName()) + ": no metaproperty " + property);
 

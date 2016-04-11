@@ -11,7 +11,9 @@
  ***************************************************************************/
 
 
+#define SEISCOMP_COMPONENT AICPicker
 
+#include <seiscomp3/logging/log.h>
 #include <seiscomp3/processing/araicpicker.h>
 
 
@@ -156,6 +158,34 @@ ARAICPicker::ARAICPicker(const Core::Time& trigger)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ARAICPicker::~ARAICPicker() {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ARAICPicker::setup(const Settings &settings) {
+	if ( !Picker::setup(settings) ) return false;
+
+	settings.getValue(_config.signalBegin, "picker.AIC.signalBegin");
+	settings.getValue(_config.signalEnd, "picker.AIC.signalEnd");
+	settings.getValue(_config.snrMin, "picker.AIC.minSNR");
+
+	std::string filter;
+	settings.getValue(filter, "picker.AIC.filter");
+	if ( !filter.empty() ) {
+		std::string error;
+		Filter *f = Filter::Create(filter, &error);
+		if ( f == NULL ) {
+			SEISCOMP_ERROR("failed to create filter '%s': %s",
+			               filter.c_str(), error.c_str());
+			return false;
+		}
+		setFilter(f);
+	}
+
+	return true;
+}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

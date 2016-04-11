@@ -22,6 +22,80 @@
 namespace Seiscomp {
 namespace Processing {
 
+namespace {
+
+AmplitudeProcessor::AmplitudeValue average(
+	const AmplitudeProcessor::AmplitudeValue &v0,
+	const AmplitudeProcessor::AmplitudeValue &v1)
+{
+	AmplitudeProcessor::AmplitudeValue v;
+	// Average both values
+	v.value = (v0.value + v1.value) * 0.5;
+
+	// Compute lower and upper uncertainty
+	double v0l = v0.value;
+	double v0u = v0.value;
+	double v1l = v1.value;
+	double v1u = v1.value;
+
+	if ( v0.lowerUncertainty ) v0l -= *v0.lowerUncertainty;
+	if ( v0.upperUncertainty ) v0u += *v0.upperUncertainty;
+	if ( v1.lowerUncertainty ) v1l -= *v1.lowerUncertainty;
+	if ( v1.upperUncertainty ) v1u += *v1.upperUncertainty;
+
+	double l = 0, u = 0;
+
+	l = std::max(l, v.value - v0l);
+	l = std::max(l, v.value - v0u);
+	l = std::max(l, v.value - v1l);
+	l = std::max(l, v.value - v1u);
+
+	u = std::max(l, v0l - v.value);
+	u = std::max(l, v0u - v.value);
+	u = std::max(l, v1l - v.value);
+	u = std::max(l, v1u - v.value);
+
+	v.lowerUncertainty = l;
+	v.upperUncertainty = u;
+
+	return v;
+}
+
+
+AmplitudeProcessor::AmplitudeTime average(
+	const AmplitudeProcessor::AmplitudeTime &t0,
+	const AmplitudeProcessor::AmplitudeTime &t1)
+{
+	AmplitudeProcessor::AmplitudeTime t;
+	t.reference = Core::Time((double(t0.reference) + double(t1.reference)) * 0.5);
+
+	// Compute lower and upper uncertainty
+	Core::Time t0b = t0.reference + Core::TimeSpan(t0.begin);
+	Core::Time t0e = t0.reference + Core::TimeSpan(t0.end);
+	Core::Time t1b = t1.reference + Core::TimeSpan(t1.begin);
+	Core::Time t1e = t1.reference + Core::TimeSpan(t1.end);
+
+	Core::Time minTime = t.reference;
+	Core::Time maxTime = t.reference;
+
+	minTime = std::min(minTime, t0b);
+	minTime = std::min(minTime, t0e);
+	minTime = std::min(minTime, t1b);
+	minTime = std::min(minTime, t1e);
+
+	maxTime = std::max(maxTime, t0b);
+	maxTime = std::max(maxTime, t0e);
+	maxTime = std::max(maxTime, t1b);
+	maxTime = std::max(maxTime, t1e);
+
+	t.begin = (double)(minTime - t.reference);
+	t.end = (double)(maxTime - t.reference);
+
+	return t;
+}
+
+}
+
 
 IMPLEMENT_SC_CLASS_DERIVED(AmplitudeProcessor_ML, AmplitudeProcessor, "AmplitudeProcessor_ML");
 REGISTER_AMPLITUDEPROCESSOR(AmplitudeProcessor_ML, "ML");
@@ -86,8 +160,7 @@ void AmplitudeProcessor_ML::reprocess(OPT(double) searchBegin, OPT(double) searc
 	_ampN.setConfig(config());
 	_ampE.setConfig(config());
 
-	_amplitudes[0] = _amplitudes[1] = Core::None;
-	_times[0] = _times[1] = Core::Time();
+	_results[0] = _results[1] = Core::None;
 
 	_ampN.reprocess(searchBegin, searchEnd);
 	_ampE.reprocess(searchBegin, searchEnd);
@@ -188,8 +261,7 @@ double AmplitudeProcessor_ML::timeWindowLength(double distance_deg) const {
 void AmplitudeProcessor_ML::reset() {
 	AmplitudeProcessor::reset();
 
-	_amplitudes[0] = _amplitudes[1] = Core::None;
-	_times[0] = _times[1] = Core::Time();
+	_results[0] = _results[1] = Core::None;
 
 	_ampE.reset();
 	_ampN.reset();
@@ -246,8 +318,9 @@ bool AmplitudeProcessor_ML::feed(const Record *record) {
 bool AmplitudeProcessor_ML::computeAmplitude(const DoubleArray &data,
                                              size_t i1, size_t i2,
                                              size_t si1, size_t si2,
-                                             double offset, double *dt,
-                                             double *amplitude, double *width,
+                                             double offset,
+                                             AmplitudeIndex *dt,
+                                             AmplitudeValue *amplitude,
                                              double *period, double *snr) {
 	return false;
 }
@@ -258,11 +331,6 @@ void AmplitudeProcessor_ML::newAmplitude(const AmplitudeProcessor *proc,
 
 	if ( isFinished() ) return;
 
-	if ( !_amplitudes[0] && !_amplitudes[1] ) {
-		_timeWindowBegin = res.timeWindowBegin;
-		_timeWindowEnd = res.timeWindowEnd;
-	}
-
 	int idx = 0;
 
 	if ( proc == &_ampE ) {
@@ -272,53 +340,42 @@ void AmplitudeProcessor_ML::newAmplitude(const AmplitudeProcessor *proc,
 		idx = 1;
 	}
 
-	if ( res.timeWindowBegin < _timeWindowBegin )
-		_timeWindowBegin = res.timeWindowBegin;
+	_results[idx] = ComponentResult();
+	_results[idx]->value = res.amplitude;
+	_results[idx]->time = res.time;
 
-	if ( res.timeWindowEnd < _timeWindowEnd )
-		_timeWindowEnd = res.timeWindowEnd;
-
-	_amplitudes[idx] = res.amplitude;
-	_amplitudeWidths[idx] = res.amplitudeWidth;
-	_times[idx] = res.time;
-
-	if ( _amplitudes[0] && _amplitudes[1] ) {
+	if ( _results[0] && _results[1] ) {
 		setStatus(Finished, 100.);
 		Result newRes;
 		newRes.record = res.record;
 
 		switch ( _combiner ) {
 			case TakeAverage:
-				newRes.amplitude = (*_amplitudes[0] + *_amplitudes[1]) * 0.5;
-				newRes.time = Core::Time((double(_times[0]) + double(_times[1])) / 2);
+				newRes.amplitude = average(_results[0]->value, _results[1]->value);
+				newRes.time = average(_results[0]->time, _results[1]->time);
 				newRes.component = Horizontal;
-				newRes.amplitudeWidth = fabs(double(newRes.time-_times[0]));
 				break;
 			case TakeMin:
-				if ( *_amplitudes[0] < *_amplitudes[1] ) {
-					newRes.amplitude = *_amplitudes[0];
-					newRes.amplitudeWidth = _amplitudeWidths[0];
-					newRes.time = double(_times[0]);
+				if ( _results[0]->value.value >= _results[1]->value.value ) {
+					newRes.amplitude =  _results[0]->value;
+					newRes.time = _results[0]->time;
 					newRes.component = _ampE.usedComponent();
 				}
 				else {
-					newRes.amplitude = *_amplitudes[1];
-					newRes.amplitudeWidth = _amplitudeWidths[1];
-					newRes.time = double(_times[1]);
+					newRes.amplitude =  _results[1]->value;
+					newRes.time = _results[1]->time;
 					newRes.component = _ampN.usedComponent();
 				}
 				break;
 			case TakeMax:
-				if ( *_amplitudes[0] > *_amplitudes[1] ) {
-					newRes.amplitude = *_amplitudes[0];
-					newRes.amplitudeWidth = _amplitudeWidths[0];
-					newRes.time = double(_times[0]);
+				if ( _results[0]->value.value <= _results[1]->value.value ) {
+					newRes.amplitude =  _results[0]->value;
+					newRes.time = _results[0]->time;
 					newRes.component = _ampE.usedComponent();
 				}
 				else {
-					newRes.amplitude = *_amplitudes[1];
-					newRes.amplitudeWidth = _amplitudeWidths[1];
-					newRes.time = double(_times[1]);
+					newRes.amplitude =  _results[1]->value;
+					newRes.time = _results[1]->time;
 					newRes.component = _ampN.usedComponent();
 				}
 				break;
@@ -326,8 +383,6 @@ void AmplitudeProcessor_ML::newAmplitude(const AmplitudeProcessor *proc,
 
 		newRes.period = -1;
 		newRes.snr = -1;
-		newRes.timeWindowBegin = _timeWindowBegin;
-		newRes.timeWindowEnd = _timeWindowEnd;
 		emitAmplitude(newRes);
 	}
 }

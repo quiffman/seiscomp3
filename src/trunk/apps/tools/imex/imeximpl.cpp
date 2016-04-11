@@ -1085,7 +1085,7 @@ void ImExImpl::serializeMessage(const std::string& destination, Core::Message* m
 		networkMessage->setSize(networkMessage->data().size());
 	}
 	else {
-		networkMessage = Communication::NetworkMessage::Encode(message, _messageEncoding);
+		networkMessage = Communication::NetworkMessage::Encode(message, _messageEncoding, _sink->schemaVersion().packed);
 	}
 
 	NetworkMessageWrapper messageWrapper(destination, networkMessage);

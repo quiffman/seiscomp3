@@ -46,6 +46,7 @@ class SC_CORE_PROCESSING_API Detector : public WaveformProcessor {
 
 		virtual const std::string &methodID() const = 0;
 
+		virtual void reset();
 
 	protected:
 		virtual bool emitPick(const Record* rec, const Core::Time& t);
@@ -77,6 +78,8 @@ class SC_CORE_PROCESSING_API SimpleDetector : public Detector {
 		//! 'on' threshold and calls validateOn or goes below the 'off'
 		//! threshold and calls validateOff.
 		void process(const Record *record, const DoubleArray &filteredData);
+
+		void reset();
 
 	protected:
 		bool isOn() const { return _triggered; }

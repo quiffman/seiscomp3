@@ -28,6 +28,7 @@ namespace Applications {
 
 Picker::Config::Config() {
 	amplitudeGroup = "AMPLITUDE";
+	phaseHint = "P";
 
 	test = false;
 	offline = false;
@@ -69,6 +70,9 @@ Picker::Config::Config() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Picker::Config::init(const Client::Application *app) {
 	try { amplitudeGroup = app->configGetString("connection.amplitudeGroup"); }
+	catch ( ... ) {}
+
+	try { phaseHint = app->configGetString("phaseHint"); }
 	catch ( ... ) {}
 
 	try { staConfFile = Environment::Instance()->absolutePath(app->configGetString("stationConfig")); }

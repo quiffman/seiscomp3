@@ -115,14 +115,15 @@ bool AmplitudeProcessor_Mjma::computeAmplitude(
 		const DoubleArray &data,
 		size_t i1, size_t i2,
 		size_t si1, size_t si2,
-		double offset, double *dt,
-		double *amplitude, double *width, double *period, double *snr)
+		double offset,AmplitudeIndex *dt,
+		AmplitudeValue *amplitude,
+		double *period, double *snr)
 {
 	double amax;
 
 	size_t imax = find_absmax(data.size(), data.typedData(), si1, si2, offset);
 	amax = fabs(data[imax] - offset);
-	*dt = imax;
+	dt->index = imax;
 
 	if ( *_noiseAmplitude == 0. )
 		*snr = 1000000.0;
@@ -136,20 +137,20 @@ bool AmplitudeProcessor_Mjma::computeAmplitude(
 
 	*period = -1;
 
-	*amplitude = amax;
+	amplitude->value = amax;
 
 	if ( _streamConfig[_usedComponent].gain != 0.0 )
-		*amplitude /= _streamConfig[_usedComponent].gain;
+		amplitude->value /= _streamConfig[_usedComponent].gain;
 	else {
 		setStatus(MissingGain, 0.0);
 		return false;
 	}
 
 	// - convert to micrometer
-	*amplitude *= 1E06;
+	amplitude->value *= 1E06;
 
 	// - estimate peak-to-peak from absmax amplitude
-	*amplitude *= 2.0;
+	amplitude->value *= 2.0;
 
 	return true;
 }

@@ -90,13 +90,23 @@ void Picker::computeTimeWindow() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Picker::handleGap(Filter *filter, const Core::TimeSpan& span,
-                                  double lastSample, double nextSample,
-                                  size_t missingSamples) {
+                       double lastSample, double nextSample,
+                       size_t missingSamples) {
 	setStatus(QCError, -1);
 	terminate();
 
 	//TODO: Handle gaps
 	return false;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Picker::reset() {
+	TimeWindowProcessor::reset();
+	_trigger = Core::Time();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

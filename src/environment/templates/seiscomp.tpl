@@ -110,7 +110,7 @@ _init_globals() {
     done
     
     Ask ORGANIZATION "Name of Data Center" "$ORGANIZATION"
-    Ask CONTACT_EMAIL "Email of the responssible of the datacenter" "$CONTACT_EMAIL"
+    Ask CONTACT_EMAIL "E-mail address of a contact responsible for the data center" "$CONTACT_EMAIL"
     Ask SDS_PATH "Path to waveform archive" "$SDS_PATH"
 
     if [ "$CONFIG_STYLE" != simple ]; then

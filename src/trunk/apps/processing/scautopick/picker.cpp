@@ -294,6 +294,13 @@ bool App::init() {
 		// Ignore undefined channels
 		if ( it->second.channel.empty() ) continue;
 
+		// Ignore disabled channels
+		if ( !it->second.enabled ) {
+			SEISCOMP_INFO("Detector on station %s.%s disabled by config",
+			              it->first.first.c_str(), it->first.second.c_str());
+			continue;
+		}
+
 		DataModel::SensorLocation *loc =
 			Client::Inventory::Instance()->getSensorLocation(it->first.first, it->first.second, it->second.locCode, now);
 
@@ -438,7 +445,8 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
 		proc->streamConfig(comp) = *proc_stream;
 	}
 
-	const StreamConfig *sc = _stationConfig.get(networkCode, stationCode);
+	const StreamConfig *sc = _stationConfig.get(&configuration(), configModuleName(),
+	                                            networkCode, stationCode);
 	return proc->setup(Settings(configModuleName(), networkCode, stationCode,
 	                   locationCode, channelCode, &configuration(),
 	                   sc?sc->parameters.get():NULL));
@@ -455,12 +463,20 @@ bool App::initDetector(const string &streamID,
                        const string &locationCode,
                        const string &channelCode,
                        const Core::Time &time) {
-	double trigOn = _config.defaultTriggerOnThreshold, trigOff = _config.defaultTriggerOffThreshold;
+	double trigOn = _config.defaultTriggerOnThreshold;
+	double trigOff = _config.defaultTriggerOffThreshold;
 	double tcorr = _config.defaultTimeCorrection;
 	string filter = _config.defaultFilter;
 
-	const StreamConfig *sc = _stationConfig.get(networkCode, stationCode);
+	const StreamConfig *sc = _stationConfig.get(&configuration(), configModuleName(),
+	                                            networkCode, stationCode);
 	if ( sc != NULL ) {
+		if ( !sc->enabled ) {
+			SEISCOMP_INFO("Detector on station %s.%s disabled by config",
+			              networkCode.c_str(), stationCode.c_str());
+			return true;
+		}
+
 		if ( sc->triggerOn ) trigOn = *sc->triggerOn;
 		if ( sc->triggerOff ) trigOff = *sc->triggerOff;
 		if ( !sc->filter.empty() ) filter = sc->filter;
@@ -647,7 +663,7 @@ void App::emitPPick(const Processing::Picker *proc,
 	else
 		pick->setEvaluationMode(DataModel::EvaluationMode(DataModel::AUTOMATIC));
 
-	pick->setPhaseHint(DataModel::Phase("P"));
+	pick->setPhaseHint(DataModel::Phase(_config.phaseHint));
 	pick->setWaveformID(DataModel::WaveformStreamID(
 		res.record->networkCode(),
 		res.record->stationCode(),
@@ -742,7 +758,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 	pick->setTime(time);
 	pick->setMethodID(proc->methodID());
 	pick->setEvaluationMode(DataModel::EvaluationMode(DataModel::AUTOMATIC));
-	pick->setPhaseHint(DataModel::Phase("P"));
+	pick->setPhaseHint(DataModel::Phase(_config.phaseHint));
 	pick->setWaveformID(DataModel::WaveformStreamID(
 		rec->networkCode(),
 		rec->stationCode(),
@@ -799,9 +815,9 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 
 	bool update = true;
 	DataModel::TimeWindow tw;
-	tw.setReference(res.time);
-	tw.setBegin(res.timeWindowBegin);
-	tw.setEnd(res.timeWindowEnd);
+	tw.setReference(res.time.reference);
+	tw.setBegin(res.time.begin);
+	tw.setEnd(res.time.end);
 
 	DataModel::AmplitudePtr amp = (DataModel::Amplitude*)ampProc->userData();
 	Core::Time now = Core::Time::GMT();
@@ -844,7 +860,13 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 	amp->setTimeWindow(tw);
 	if ( res.period > 0 ) amp->setPeriod(DataModel::RealQuantity(res.period));
 	if ( res.snr >= 0 ) amp->setSnr(res.snr);
-	amp->setAmplitude(DataModel::RealQuantity(res.amplitude));
+	amp->setAmplitude(
+		DataModel::RealQuantity(
+			res.amplitude.value, Core::None,
+			res.amplitude.lowerUncertainty, res.amplitude.upperUncertainty,
+			Core::None
+		)
+	);
 
 	if ( !isMessagingEnabled() ) {
 		//cout << amp.get();
@@ -854,7 +876,7 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 			       res.record->networkCode().c_str(), res.record->stationCode().c_str(),
 			       res.record->channelCode().c_str(),
 			       res.record->locationCode().empty()?"__":res.record->locationCode().c_str(),
-			       amp->type() == "snr"?res.amplitude:-1.0, amp->type() == "mb"?res.amplitude:-1.0,
+			       amp->type() == "snr"?res.amplitude.value:-1.0, amp->type() == "mb"?res.amplitude.value:-1.0,
 			       amp->type() == "mb"?res.period:-1.0, 'A',
 			       amp->pickID().c_str());
 		}

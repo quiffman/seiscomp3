@@ -43,6 +43,7 @@ struct StreamConfig {
 	OPT(double)  triggerOn;
 	OPT(double)  triggerOff;
 	OPT(double)  timeCorrection;
+	bool         enabled;
 
 	std::string  filter;
 
@@ -64,10 +65,15 @@ class StationConfig {
 
 		void setDefault(const StreamConfig &entry);
 
-		void read(const Seiscomp::Config *config, const DataModel::ConfigModule *module);
-		bool read(const std::string &staConfFile);
+		const StreamConfig *read(const Seiscomp::Config *config, const std::string &mod,
+		                         DataModel::ParameterSet *params,
+		                         const std::string &net, const std::string &sta);
 
-		const StreamConfig *get(const std::string &net, const std::string &sta) const;
+		bool read(const std::string &staConfFile);
+		void read(const Seiscomp::Config *config, const DataModel::ConfigModule *module);
+
+		const StreamConfig *get(const Seiscomp::Config *config, const std::string &mod,
+		                        const std::string &net, const std::string &sta);
 
 		const_iterator begin() const;
 		const_iterator end() const;

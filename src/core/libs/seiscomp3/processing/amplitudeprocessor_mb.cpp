@@ -161,7 +161,8 @@ bool AmplitudeProcessor_mb::computeAmplitude(
 	size_t i1, size_t i2,
 	size_t si1, size_t si2,
 	double offset,
-	double *dt, double *amplitude, double *width,
+	AmplitudeIndex *dt,
+	AmplitudeValue *amplitude,
 	double *period, double *snr)
 {
 	const int n = data.size();
@@ -215,22 +216,22 @@ bool AmplitudeProcessor_mb::computeAmplitude(
 		return false;
 	}
 
-	*dt = imax;
+	dt->index = imax;
 
 	if(pmax>0)
 		*period = pmax;
 
-	*amplitude = amax;
+	amplitude->value = amax;
 
 	if ( _streamConfig[_usedComponent].gain != 0.0 )
-		*amplitude /= _streamConfig[_usedComponent].gain;
+		amplitude->value /= _streamConfig[_usedComponent].gain;
 	else {
 		setStatus(MissingGain, 0.0);
 		return false;
 	}
 
 	// Convert m/s to nm/s
-	*amplitude *= 1.E9;
+	amplitude->value *= 1.E9;
 
 	return true;
 }

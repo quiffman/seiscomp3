@@ -16,6 +16,8 @@
 #include <seiscomp3/logging/publisher.h>
 #include <seiscomp3/logging/fd.h>
 
+#include <boost/thread/mutex.hpp>
+
 
 namespace Seiscomp {
 namespace Logging {
@@ -25,29 +27,34 @@ namespace Logging {
 #endif
 
 void Register(PublishLoc *loc, Channel *channel, const char *format, ... ) {
-	// prevent any other calls to Register for now..
-	loc->publish = 0;
+	static boost::mutex registrationLock;
+	boost::mutex::scoped_lock lock(registrationLock);
+
 	loc->channel = channel;
 
 	Publisher *pub = new Publisher(loc);
 
 	loc->pub = pub;
+	loc->publish = Publisher::Publish;
 
 	if ( pub->enabled() ) {
-		loc->publish = Publisher::Publish;
+		loc->enable();
 
 		// pass through to the publication function since it is active at
 		// birth.
 		va_list args;
-		va_start(args, format);
+		va_start (args, format);
 		Publisher::PublishVA(loc, channel, format, args);
 		va_end( args );
 	}
+	else
+		loc->disable();
 }
 
 
 PublishLoc::~PublishLoc() {
-	if ( pub ) {
+	disable();
+	if ( pub != NULL ) {
 		delete pub;
 		pub = NULL;
 	}

@@ -150,7 +150,7 @@ class ChildPropertyHandler : public MemberHandler {
 		}
 
 		bool get(Core::BaseObject *object, void *, NodeHandler *h) {
-			h->propagate(Core::ClassFactory::Create(_property->type().c_str()), true, true);
+			h->propagate(_property->createClass(), true, true);
 			return true;
 		}
 

@@ -295,6 +295,22 @@ void Inventory::loadStations(DataModel::DatabaseReader* reader) {
 	}
 
 	it.close();
+
+	// Read auxStreams
+	it = reader->getObjects(NULL, DataModel::AuxStream::TypeInfo());
+	for ( DataModel::ObjectPtr obj; (obj = *it); ++it ) {
+		DataModel::AuxStreamPtr auxStream = DataModel::AuxStream::Cast(obj);
+		if ( auxStream ) {
+//			std::cout << "_oid=" << it.oid() << ", _parent_oid=" << it.parentOid() << ", " << seisStream->code() << std::endl;
+			std::map<int, DataModel::SensorLocationPtr>::iterator p = sensorLocations.find(it.parentOid());
+			if ( p != sensorLocations.end() )
+				p->second->add(auxStream.get());
+			else
+				std::cerr << "cannot find AuxStream parent SensorLocation with " << it.parentOid() << std::endl;
+		}
+	}
+
+	it.close();
 }
 
 

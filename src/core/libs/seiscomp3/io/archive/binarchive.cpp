@@ -98,7 +98,7 @@ namespace IO {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-BinaryArchive::BinaryArchive() : _buf(NULL) {
+BinaryArchive::BinaryArchive() : _buf(NULL), _deleteOnClose(false) {
 	_sequenceSize = -1;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -60,7 +60,7 @@ DROP TABLE Meta;
 
 CREATE TABLE Meta (
 	name CHAR NOT NULL,
-	value BLOB NOT NULL,
+	value VARCHAR NOT NULL,
 	PRIMARY KEY(name)
 );
 

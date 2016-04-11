@@ -66,7 +66,7 @@ CREATE FUNCTION update_modified() returns trigger as $$begin new._last_modified 
 
 CREATE TABLE Meta (
 	name VARCHAR(80) NOT NULL,
-	value BYTEA NOT NULL,
+	value VARCHAR(255) NOT NULL,
 	PRIMARY KEY(name)
 );
 

@@ -35,8 +35,8 @@ class AmplitudeProcessor_SNR : public Processing::AmplitudeProcessor {
 		bool computeAmplitude(const DoubleArray &data,
 		                      size_t i1, size_t i2,
 		                      size_t si1, size_t si2,
-		                      double offset, double *dt,
-		                      double *amplitude, double *width,
+		                      double offset,AmplitudeIndex *dt,
+		                      AmplitudeValue *amplitude,
 		                      double *period, double *snr) {
 			return false;
 		}
@@ -143,6 +143,21 @@ void Detector::setMinAmplitudeOffset(double at) {
 void Detector::setDurations(double minDur, double maxDur) {
 	_minDuration = minDur;
 	_maxDuration = maxDur;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Detector::reset() {
+	Processing::SimpleDetector::reset();
+	_lastPick = Core::Time();
+	_lastAmplitude = Core::None;
+	_currentPick = Core::Time();
+	_currentPickRecord = NULL;
+	_minAmplitude = Core::None;
+	_triggeredAmplitude = 0;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -353,12 +368,12 @@ void Detector::sendMaxAmplitude(const Record *record) {
 		AmplitudeProcessor_SNR ampProc(_lastPick + this->offset());
 		Processing::AmplitudeProcessor::Result res;
 		ampProc.setReferencingPickID(_pickID);
-		res.amplitude = *_lastAmplitude;
+		res.amplitude.value = *_lastAmplitude;
 		res.period = 0.;
 		res.snr = -1.;
-		res.time = t;
-		res.timeWindowBegin = -offset;
-		res.timeWindowEnd = (double)_twMax-offset;
+		res.time.reference = t;
+		res.time.begin = -offset;
+		res.time.end = (double)_twMax-offset;
 		res.record = record;
 		_amplPublish(&ampProc, res);
 	}

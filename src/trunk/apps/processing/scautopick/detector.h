@@ -43,6 +43,8 @@ class Detector : public Processing::SimpleDetector {
 		void setMinAmplitudeOffset(double);
 		void setDurations(double minDur, double maxDur);
 
+		void reset();
+
 
 	protected:
 		bool handleGap(Filter *filter, const Core::TimeSpan&,

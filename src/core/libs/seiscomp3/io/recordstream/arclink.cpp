@@ -292,8 +292,6 @@ std::istream& ArclinkConnection::stream() {
 					SEISCOMP_ERROR("Invalid ArcLink response: %s", r.c_str());
 					throw ArclinkException("invalid response");
 				}
-				else
-					SEISCOMP_DEBUG("Reading next chunk with %d bytes", _remainingBytes);
 			}
 			else
 				SEISCOMP_DEBUG("Received status: %s", r.c_str());

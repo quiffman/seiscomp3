@@ -156,7 +156,6 @@ bool PropertyHandler::get(Core::BaseObject *object, void *n, NodeHandler *h) {
 
 	std::string v = h->content(n);
 	if ( v.empty() ) return false;
-
 	return _property->writeString(object, v);
 }
 

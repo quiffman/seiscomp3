@@ -87,8 +87,8 @@ double AmplitudeProcessor_mB::timeWindowLength(double distance) const {
 bool AmplitudeProcessor_mB::computeAmplitude(const DoubleArray &data,
                                              size_t i1, size_t i2,
                                              size_t si1, size_t si2,
-                                             double offset, double *dt,
-                                             double *amplitude, double *width,
+                                             double offset,AmplitudeIndex *dt,
+                                             AmplitudeValue *amplitude,
                                              double *period, double *snr) {
 	/*
 	* Low-level signal amplitude computation. This is magnitude specific.
@@ -128,21 +128,21 @@ bool AmplitudeProcessor_mB::computeAmplitude(const DoubleArray &data,
 		return false;
 	}
 
-	*dt = imax;
+	dt->index = imax;
 	// Amplitudes are send in nanometers
 	*period = pmax;
 
-	*amplitude = amax;
+	amplitude->value = amax;
 
 	if ( _streamConfig[_usedComponent].gain != 0.0 )
-		*amplitude /= _streamConfig[_usedComponent].gain;
+		amplitude->value /= _streamConfig[_usedComponent].gain;
 	else {
 		setStatus(MissingGain, 0.0);
 		return false;
 	}
 
 	// Convert m/s to nm/s
-	*amplitude *= 1.E09;
+	amplitude->value *= 1.E09;
 
 	return true;
 }

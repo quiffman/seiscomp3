@@ -149,8 +149,8 @@ AmplitudeProcessor_msbb::AmplitudeProcessor_msbb(const Core::Time& trigger, doub
 bool AmplitudeProcessor_msbb::computeAmplitude(const DoubleArray &data,
                                                size_t i1, size_t i2,
                                                size_t si1, size_t si2, double offset,
-                                               double *dt,
-                                               double *amplitude, double *width,
+                                               AmplitudeIndex *dt,
+                                               AmplitudeValue *amplitude,
                                                double *period, double *snr) {
 	/*
 	* Low-level signal amplitude computation. This is magnitude specific.
@@ -179,18 +179,18 @@ bool AmplitudeProcessor_msbb::computeAmplitude(const DoubleArray &data,
 		pmax = -1;
 
 	if ( amax < *_noiseAmplitude * _config.snrMin ) {
-		*amplitude = amax / *_noiseAmplitude;
-		setStatus(LowSNR, *amplitude);
+		amplitude->value = amax / *_noiseAmplitude;
+		setStatus(LowSNR, amplitude->value);
 		return false;
 	}
 
-	*dt = imax;
+	dt->index = imax;
 	*period = pmax;
-	*amplitude = amax;
+	amplitude->value = amax;
 
 	if ( _usedComponent <= SecondHorizontal ) {
 		if ( _streamConfig[_usedComponent].gain != 0.0 )
-			*amplitude /= _streamConfig[_usedComponent].gain;
+			amplitude->value /= _streamConfig[_usedComponent].gain;
 		else {
 			setStatus(MissingGain, 0.0);
 			return false;

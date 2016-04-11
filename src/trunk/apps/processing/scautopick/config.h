@@ -44,6 +44,7 @@ class Config {
 		void init(const Client::CommandLine &config);
 
 		std::string amplitudeGroup;
+		std::string phaseHint;
 
 		// Sets the test mode. When enabled no picks and
 		// amplitudes are send via the messaging.

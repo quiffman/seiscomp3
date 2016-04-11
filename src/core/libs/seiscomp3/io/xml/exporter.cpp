@@ -18,6 +18,7 @@
 #include <iostream>
 #include <set>
 #include <ostream>
+#include <libxml/xmlreader.h>
 
 
 namespace Seiscomp {
@@ -68,6 +69,52 @@ class NamespaceCollector : public OutputHandler {
 		TypeMap *typemap;
 		std::set<std::string> namespaces;
 };
+
+
+std::string convertUTF8(const std::string &in, const char *encoding, bool fromEncoding) {
+	if ( in.empty() ) return in;
+
+	xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler(encoding);
+	if ( handler == NULL ) {
+		SEISCOMP_ERROR("No encoding handler found for '%s'\n",
+		encoding ? encoding : "");
+		return in;
+	}
+
+	int size = in.size(),
+	bytesIn = size,
+	bytesOut;
+
+	int (*func)(unsigned char*, int*, const unsigned char*, int*) = NULL;
+	if ( fromEncoding ) {
+		func = handler->input;
+		bytesOut = size * 2 + 1;
+	}
+	else {
+		func = handler->output;
+		bytesOut = size + 1;
+	}
+
+	xmlChar* out = new xmlChar[bytesOut];
+	if ( out == NULL ) return in;
+
+	int ret = func(out, &bytesOut, (const xmlChar *) in.c_str(), &bytesIn);
+	if ((ret < 0) || (bytesIn != size) ) {
+		if ( bytesIn < 0 )
+			SEISCOMP_ERROR("Transcoding of %s failed with code %d", in.c_str(), bytesIn);
+
+		delete[] out;
+		return in;
+	}
+
+	out = (unsigned char *) realloc(out, bytesOut + 1);
+	out[bytesOut] = 0;
+
+	std::string result = (char*)out;
+	delete[] out;
+
+	return result;
+}
 
 
 }
@@ -170,9 +217,13 @@ void Exporter::openElement(const char *name, const char *ns) {
 
 	if ( ns != NULL && *ns != '\0' ) {
 		NamespaceMap::iterator it = _namespaces.find(ns);
-		if ( it != _namespaces.end() )
+		if ( it != _namespaces.end() ) {
 			// Reuse namespace prefix
-			_ostr << it->second << ":" << name;
+			if ( !it->second.empty() )
+				_ostr << it->second << ":" << name;
+			else
+				_ostr << name;
+		}
 		else {
 			// !Error
 		}
@@ -182,7 +233,10 @@ void Exporter::openElement(const char *name, const char *ns) {
 
 	if ( _firstElement ) {
 		for ( NamespaceMap::iterator it = _namespaces.begin(); it != _namespaces.end(); ++it )
-			_ostr << " xmlns:" << it->second << "=\"" << it->first << "\"";
+			if ( it->second.empty() )
+				_ostr << " xmlns=\"" << it->first << "\"";
+			else
+				_ostr << " xmlns:" << it->second << "=\"" << it->first << "\"";
 		_firstElement = false;
 	}
 
@@ -228,9 +282,11 @@ void Exporter::closeElement(const char *name, const char *ns) {
 		_ostr << "</";
 		if ( ns != NULL && *ns != '\0' ) {
 			NamespaceMap::iterator it = _namespaces.find(ns);
-			if ( it != _namespaces.end() )
+			if ( it != _namespaces.end() ) {
 				// Reuse namespace prefix
-				_ostr << it->second << ":";
+				if ( !it->second.empty() )
+					_ostr << it->second << ":";
+			}
 			else
 				throw Core::StreamException("No namespace prefix found for closing tag: this should never happen");
 		}
@@ -244,32 +300,32 @@ void Exporter::closeElement(const char *name, const char *ns) {
 
 void Exporter::writeString(const char *content) {
 	// &amp; refers to an ampersand (&)
-        // &lt; refers to a less-than symbol (<)
-        // &gt; refers to a greater-than symbol (>)
-        // &quot; refers to a double-quote mark (")
-        // &apos; refers to an apostrophe (')
-        while ( *content != '\0' ) {
-                switch ( *content ) {
-                        case '&':
-                                _ostr << "&amp;";
-                                break;
-                        case '<':
-                                _ostr << "&lt;";
-                                break;
-                        case '>':
-                                _ostr << "&gt;";
-                                break;
-                        case '\'':
-                                _ostr << "&apos;";
-                                break;
-                        case '\"':
-                                _ostr << "&quot;";
-                                break;
-                        default:
-                                _ostr << *content;
-                }
-                ++content;
-        }
+	// &lt; refers to a less-than symbol (<)
+	// &gt; refers to a greater-than symbol (>)
+	// &quot; refers to a double-quote mark (")
+	// &apos; refers to an apostrophe (')
+	while ( *content != '\0' ) {
+		switch ( *content ) {
+			case '&':
+				_ostr << "&amp;";
+				break;
+			case '<':
+				_ostr << "&lt;";
+				break;
+			case '>':
+				_ostr << "&gt;";
+				break;
+			case '\'':
+				_ostr << "&apos;";
+				break;
+			case '\"':
+				_ostr << "&quot;";
+				break;
+			default:
+				_ostr << *content;
+		}
+		++content;
+	}
 }
 
 

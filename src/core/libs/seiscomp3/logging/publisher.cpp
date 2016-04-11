@@ -77,103 +77,96 @@ Publisher::Publisher()
 {
 }
 
-Publisher::Publisher(PublishLoc *loc)
-    : Node()
-    , src( loc )
+Publisher::Publisher(PublishLoc *loc) : Node(), src( loc )
 {
-    // link to channel for channel based subscriptions
-    // Lookup the componentized version
-    Node *channelNode = getComponentChannel( src->component,
-	    src->channel->name().c_str(), src->channel->logLevel() );
-    channelNode->addPublisher( this );
+	// link to channel for channel based subscriptions
+	// Lookup the componentized version
+	Node *channelNode = getComponentChannel( src->component,
+	   src->channel->name().c_str(), src->channel->logLevel() );
+	channelNode->addPublisher( this );
 
-    // link to file
-    Node *fileNode = FileNode::Lookup(src->component, src->fileName);
-    fileNode->addPublisher(this);
+	// link to file
+	Node *fileNode = FileNode::Lookup(src->component, src->fileName);
+	fileNode->addPublisher(this);
 }
 
 Publisher::~Publisher()
 {
-    clear();
+	clear();
 }
 
-void
-Publisher::setEnabled(bool active)
+void Publisher::setEnabled(bool active)
 {
-    if(src)
-	src->publish = active ? Publisher::Publish : 0;
+	if ( src ) {
+		if ( active )
+			src->enable();
+		else
+			src->disable();
+	}
 }
 
 void Publisher::Publish( PublishLoc *loc, Channel *channel,
 	const char *format, ...)
 {
-    va_list args;
-    va_start( args, format );
-    PublishVA( loc, channel, format, args );
-    va_end( args );
+	va_list args;
+	va_start( args, format );
+	PublishVA( loc, channel, format, args );
+	va_end( args );
 }
 
 void Publisher::PublishVA( PublishLoc *loc, Channel *,
 	const char *format, va_list ap )
 {
-    // check just in case it got set to 0 before our call... unlikely
-    if(unlikely(loc->publish == 0))
-	return;
+	Data data;
 
-    Data data;
+	data.publisher = loc;
+	data.time = time(0);
+	data.msg = 0;
 
-    data.publisher = loc;
-    data.time = time(0);
-    data.msg = 0;
+	char msgBuf[64];
+	char *buf = msgBuf;
+	int bufSize = sizeof(msgBuf);
 
-    char msgBuf[64];
-    char *buf = msgBuf;
-    size_t bufSize = sizeof(msgBuf);
+	// loop until we have allocated enough space for the message
+	for ( int numTries = 10; numTries; --numTries ) {
+		va_list args;
 
-    // loop until we have allocated enough space for the message
-    for(int numTries = 10; numTries; --numTries)
-    {
-	va_list args;
-
-	// va_copy() is defined in C99, __va_copy() in earlier definitions, and
-	// automake says to fall back on memcpy if neither exist...
-	//
-	// FIXME: memcpy doesn't work for compilers which use array type for
-	//        va_list such as Watcom
+		// va_copy() is defined in C99, __va_copy() in earlier definitions, and
+		// automake says to fall back on memcpy if neither exist...
+		//
+		// FIXME: memcpy doesn't work for compilers which use array type for
+		//        va_list such as Watcom
 #if defined( va_copy )
-	va_copy( args, ap );
+		va_copy( args, ap );
 #elif defined( __va_copy )
-	__va_copy( args, ap );
+		__va_copy( args, ap );
 #else
-	memcpy( &args, &ap, sizeof(va_list) );
+		memcpy( &args, &ap, sizeof(va_list) );
 #endif
 
-	int ncpy = vsnprintf( buf , bufSize, format, args );
-	va_end( args );
+		int ncpy = vsnprintf( buf , bufSize, format, args );
+		va_end( args );
 
-	// if it worked, then return the buffer
-	if( ncpy > -1 && ncpy < (int)bufSize )
-	{
-	    data.msg = buf;
-	    break;
-	} else
-	{
-	    // newer implementations of vsnprintf return # bytes needed..
-	    if(ncpy > 0) 
-		bufSize = ncpy + 1;
-	    else
-		bufSize *= 2; // try twice as much space as before
+		// if it worked, then return the buffer
+		if ( ncpy > -1 && ncpy < bufSize ) {
+			data.msg = buf;
+			break;
+		}
+		else {
+			// newer implementations of vsnprintf return # bytes needed..
+			if ( ncpy > 0 )
+				bufSize = ncpy + 1;
+			else
+				bufSize *= 2; // try twice as much space as before
 
-	    if(buf != msgBuf)
-		delete[] buf;
+			if ( buf != msgBuf ) delete[] buf;
 
-	    buf = new char[bufSize];
+			buf = new char[bufSize];
+		}
 	}
-    }
 
-    loc->pub->publish( data );
+	loc->pub->publish( data );
 
-    if(buf != msgBuf)
-	delete[] buf;
+	if ( buf != msgBuf ) delete[] buf;
 }
 

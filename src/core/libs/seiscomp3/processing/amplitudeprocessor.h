@@ -67,16 +67,34 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor : public TimeWindowProcessor {
 			double respMaxFreq;
 		};
 
+		struct AmplitudeIndex {
+			double  index;
+			double  begin;
+			double  end;
+		};
+
+		struct AmplitudeTime {
+			AmplitudeTime() : begin(0), end(0) {}
+			AmplitudeTime(const Core::Time &ref)
+			: reference(ref), begin(0), end(0) {}
+			Core::Time  reference;
+			double      begin;
+			double      end;
+		};
+
+		struct AmplitudeValue {
+			double      value;
+			OPT(double) lowerUncertainty;
+			OPT(double) upperUncertainty;
+		};
+
 		struct Result {
 			StreamComponent component;
 			const Record   *record;
-			double          amplitude;
-			double          amplitudeWidth;
+			AmplitudeValue  amplitude;
+			AmplitudeTime   time;
 			double          period;
 			double          snr;
-			Core::Time      time;
-			double          timeWindowBegin;
-			double          timeWindowEnd; 
 		};
 
 		typedef std::vector<std::string> IDList;
@@ -267,17 +285,21 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor : public TimeWindowProcessor {
 		//! Output:
 		//! -----------------------------------------------------------------------
 		//!  - dt: the picked data index (can be a subindex if required)
-		//!  - amplitude: the picked amplitude value
-		//!  - width: the width of the amplitude in samples (e.g. peak-to-peak).
-		//!           defaults to 0 and needs to be set only if actually calculated.
+		//!        the dt.begin and dt.end are the begin/end of the timewindow
+		//!        in samples relativ to the picked index. dt.begin and dt.end
+		//!        do not need to be in order, they are ordered afterwards
+		//!        automatically. The default values for begin/end are 0.
+		//!  - amplitude: the picked amplitude value with optional uncertainties.
 		//!  - period: the period in samples and not seconds (-1 if not calculated)
 		//!  - snr: signal-to-noise ratio
 		//! -----------------------------------------------------------------------
 		virtual bool computeAmplitude(const DoubleArray &data,
 		                              size_t i1, size_t i2,
 		                              size_t si1, size_t si2,
-		                              double offset, double *dt, double *amplitude,
-		                              double *width, double *period, double *snr) = 0;
+		                              double offset,
+		                              AmplitudeIndex *dt,
+		                              AmplitudeValue *amplitude,
+		                              double *period, double *snr) = 0;
 
 		//! Computes the noise of data in the range [i1,i2] and returns the offfset and
 		//! the amplitude in 'offset' and 'amplitude'

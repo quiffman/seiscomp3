@@ -190,16 +190,28 @@ Autoloc::Origin *Seiscomp::Applications::Autoloc::App::convertFromSC3(const Seis
 	::Autoloc::Origin *origin = new ::Autoloc::Origin(lat, lon, dep, time);
 
 	try { origin->laterr  = 0.5*(sc3origin->latitude().lowerUncertainty() + sc3origin->latitude().upperUncertainty()); }
-	catch ( ... ) { origin->laterr  = sc3origin->latitude().uncertainty(); }
+	catch ( ... ) {
+		try { origin->laterr  = sc3origin->latitude().uncertainty(); }
+		catch ( ... ) { origin->laterr = 0; }
+	}
 
 	try { origin->lonerr  = 0.5*(sc3origin->longitude().lowerUncertainty()+ sc3origin->longitude().upperUncertainty()); }
-	catch ( ... ) { origin->lonerr  = sc3origin->longitude().uncertainty(); }
+	catch ( ... ) {
+		try { origin->lonerr  = sc3origin->longitude().uncertainty(); }
+		catch ( ... ) { origin->lonerr = 0; }
+	}
 
 	try { origin->deperr  = 0.5*(sc3origin->depth().lowerUncertainty()    + sc3origin->depth().upperUncertainty()); }
-	catch ( ... ) { origin->deperr  = sc3origin->depth().uncertainty(); }
+	catch ( ... ) {
+		try { origin->deperr  = sc3origin->depth().uncertainty(); }
+		catch ( ... ) { origin->deperr = 0; }
+	}
 
 	try { origin->timeerr = 0.5*(sc3origin->time().lowerUncertainty()     + sc3origin->time().upperUncertainty()); }
-	catch ( ... ) { origin->timeerr = sc3origin->time().uncertainty(); }
+	catch ( ... ) {
+		try { origin->timeerr = sc3origin->time().uncertainty(); }
+		catch ( ... ) { origin->timeerr = 0; }
+	}
 
 	int arrivalCount = sc3origin->arrivalCount();
 	for (int i=0; i<arrivalCount; i++) {

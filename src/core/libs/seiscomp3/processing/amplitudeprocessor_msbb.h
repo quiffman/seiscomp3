@@ -35,8 +35,9 @@ class SC_CORE_PROCESSING_API AmplitudeProcessor_msbb : public AmplitudeProcessor
 		bool computeAmplitude(const DoubleArray &data,
 		                      size_t i1, size_t i2,
 		                      size_t si1, size_t si2,
-		                      double offset, double *dt,
-		                      double *amplitude, double *width,
+		                      double offset,
+		                      AmplitudeIndex *dt,
+		                      AmplitudeValue *amplitude,
 		                      double *period, double *snr);
 
 		double timeWindowLength(double distance) const;

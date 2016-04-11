@@ -250,6 +250,7 @@ void AmplitudeProcessor::reset() {
 	_noiseAmplitude = Core::None;
 	_noiseOffset = Core::None;
 	_responseApplied = false;
+	_trigger = Core::Time();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -343,11 +344,20 @@ void AmplitudeProcessor::process(const Record *record) {
 			_noiseAmplitude = amp;
 		}
 
+		AmplitudeIndex index;
 		Result res;
 		res.component = _usedComponent;
 		res.record = record;
-		res.period = -1; res.amplitude = -1; res.snr = -1;
-		double dt = -1;
+		res.period = -1;
+		res.snr = -1;
+
+		res.amplitude.value = -1;
+		res.amplitude.lowerUncertainty = Core::None;
+		res.amplitude.upperUncertainty = Core::None;
+
+		index.index = -1;
+		index.begin = 0;
+		index.end = 0;
 
 		double dtsw1, dtsw2;
 
@@ -373,10 +383,8 @@ void AmplitudeProcessor::process(const Record *record) {
 		si1 = std::max(si1, i1);
 		si2 = std::min(si2, i2);
 
-		res.amplitudeWidth = 0;
-
 		if ( !computeAmplitude(_data, i1, i2, si1, si2, *_noiseOffset,
-		                       &dt, &res.amplitude, &res.amplitudeWidth, &res.period, &res.snr) ) {
+		                       &index, &res.amplitude, &res.period, &res.snr) ) {
 			if ( progress >= 100 ) {
 				if ( status() == LowSNR )
 					SEISCOMP_INFO("Amplitude %s computation for stream %s failed because of low SNR (%.2f < %.2f)",
@@ -394,7 +402,7 @@ void AmplitudeProcessor::process(const Record *record) {
 		}
 
 		if ( _lastAmplitude ) {
-			if ( res.amplitude <= *_lastAmplitude ) {
+			if ( res.amplitude.value <= *_lastAmplitude ) {
 				if ( progress >= 100 ) {
 					setStatus(Finished, 100.);
 					_lastAmplitude = Core::None;
@@ -404,19 +412,17 @@ void AmplitudeProcessor::process(const Record *record) {
 			}
 		}
 
-		_lastAmplitude = res.amplitude;
+		_lastAmplitude = res.amplitude.value;
 
-		dt /= _fsamp;  res.period /= _fsamp;
-		res.amplitudeWidth /= _fsamp;
+		double dt = index.index / _fsamp;
+		res.period /= _fsamp;
+
+		if ( index.begin > index.end ) std::swap(index.begin, index.end);
 
 		// Update status information
-		res.time = dataTimeWindow().startTime() + Core::TimeSpan(dt);
-		double dtend = dataTimeWindow().endTime() - _trigger;
-		if (dtend > _config.signalEnd)
-			dtend =_config.signalEnd;
-
-		res.timeWindowBegin = dt0 - dt + _config.signalBegin;
-		res.timeWindowEnd = dt0 - dt + dtend;
+		res.time.reference = dataTimeWindow().startTime() + Core::TimeSpan(dt);
+		res.time.begin = index.begin / _fsamp;
+		res.time.end = index.end / _fsamp;
 
 		if ( progress >= 100 ) {
 			setStatus(Finished, 100.);
@@ -436,7 +442,10 @@ bool AmplitudeProcessor::handleGap(Filter *filter, const Core::TimeSpan& span,
                                    double lastSample, double nextSample,
                                    size_t missingSamples) {
 	if ( _lastSampleTime+span < timeWindow().startTime() ) {
+		// Save trigger, because reset will unset it
+		Core::Time t = _trigger;
 		reset();
+		_trigger = t;
 		return true;
 	}
 
@@ -573,7 +582,7 @@ bool AmplitudeProcessor::computeNoise(const DoubleArray &data, size_t i1, size_t
 
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool AmplitudeProcessor::setup(const Settings &settings) {
 	try {
 		if ( settings.getBool("amplitudes." + _type + ".enable") == false )

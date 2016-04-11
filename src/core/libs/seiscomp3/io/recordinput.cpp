@@ -92,35 +92,40 @@ RecordIterator RecordInput::end() {
 
 Seiscomp::Record* RecordInput::next() throw(Core::GeneralException) {
 	Record *pms = 0;
-	std::istream &istr = _in->stream();
+	while ( true ) {
+		std::istream &istr = _in->stream();
 
-	if (istr.good()) {
-		pms = _in->createRecord(_datatype, _hint);
-		if ( pms ) {
-			try {
-				pms->read(istr);
+		if (istr.good()) {
+			pms = _in->createRecord(_datatype, _hint);
+			if ( pms ) {
+				try {
+					pms->read(istr);
+				}
+				catch ( Core::EndOfStreamException & ) {
+					SEISCOMP_INFO("End of stream detected");
+					delete pms;
+					break;
+				}
+				catch ( Core::StreamException &e ) {
+					SEISCOMP_ERROR("RecordStream read exception: %s", e.what());
+					delete pms;
+					pms = 0;
+					continue;
+				}
 			}
-			catch ( Core::EndOfStreamException & ) {
-				SEISCOMP_INFO("End of stream detected");
-				delete pms;
-				pms = 0;
-			}
-			catch ( Core::StreamException &e ) {
-				SEISCOMP_ERROR("RecordStream read exception: %s", e.what());
-				delete pms;
-				pms = 0;
-			}
+
+			// Notify the stream about the read record
+			_in->recordStored(pms);
+			return pms;
 		}
-
-		// Notify the stream about the read record
-		_in->recordStored(pms);
-	}
-	else {
-		if (istr.eof())
-			SEISCOMP_DEBUG("RecordStream's end reached");
-		else
-			SEISCOMP_DEBUG("RecordStream is not 'good'");
+		else {
+			if (istr.eof())
+				SEISCOMP_DEBUG("RecordStream's end reached");
+			else
+				SEISCOMP_DEBUG("RecordStream is not 'good'");
+			break;
+		}
 	}
 
-	return pms;
+	return NULL;
 }

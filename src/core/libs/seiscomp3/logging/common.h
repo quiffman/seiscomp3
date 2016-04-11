@@ -54,10 +54,15 @@
 
 # define PRINTF(FMT,X) __attribute__ (( __format__ ( __printf__, FMT, X)))
 # define HAVE_PRINTF_ATTR 1
+//# define SEISCOMP_SECTION __attribute__ (( section("SEISCOMP_DATA") ))
+# define SEISCOMP_SECTION
 
-# if !defined( __builtin_expect )
-#  define __builtin_expect(x,expected_value) (x)
-# endif
+#if __GNUC__ >= 3
+# define expect(foo, bar) __builtin_expect((foo),bar)
+#else
+# define expect(foo, bar) (foo)
+#endif
+
 
 # define   likely(x)  __builtin_expect((x),1)
 # define unlikely(x)  __builtin_expect((x),0)
@@ -76,6 +81,7 @@
 */
 # define PRINTF(FMT,X)
 # define HAVE_PRINTF_ATTR 0
+# define SEISCOMP_SECTION
 /*!
 */
 # define   likely(x)  (x)

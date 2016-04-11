@@ -66,6 +66,9 @@ MSeedRecord::MSeedRecord(MSRecord *rec, Array::DataType dt, Hint h)
 			try {
 				_setDataAttributes(rec->reclen,rec->record);
 			} catch (LibmseedException e) {
+				_nsamp = 0;
+				_fsamp = 0;
+				_data = NULL;
 				SEISCOMP_ERROR("LibmseedException in MSeedRecord constructor %s", e.what());
 			}
 	_srnum = 0;
@@ -402,6 +405,8 @@ void MSeedRecord::read(std::istream &is) throw(Core::StreamException) {
 				if (msr_unpack(&rawrec[0],reclen,&prec,0,0) == MS_NOERROR) {
 					*this = MSeedRecord(prec,this->_datatype,this->_hint);
 					msr_free(&prec);
+					if ( _fsamp <= 0 )
+						throw LibmseedException("Unpacking of Mini SEED record failed.");
 				} else {
 					throw LibmseedException("Unpacking of Mini SEED record failed.");
 				}

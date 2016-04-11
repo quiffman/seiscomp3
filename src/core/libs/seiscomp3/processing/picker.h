@@ -87,6 +87,8 @@ class SC_CORE_PROCESSING_API Picker : public TimeWindowProcessor {
 		//! settings has been set to calculate the timewindow
 		void computeTimeWindow();
 
+		void reset();
+
 
 	// ----------------------------------------------------------------------
 	//  Public Interface
