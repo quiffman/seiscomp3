@@ -303,6 +303,11 @@ void PublicObjectCache::push(PublicObject* obj) {
 	if ( !itp.second ) {
 		item = itp.first->second;
 
+		if ( (item->object != obj) && !item->object->registered() ) {
+			// Object leak -> replace is allowed
+			item->object = obj;
+		}
+
 		// Release item
 		if ( item->prev != NULL )
 			item->prev->next = item->next;

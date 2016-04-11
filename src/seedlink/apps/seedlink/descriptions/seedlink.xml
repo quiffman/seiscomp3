@@ -102,6 +102,12 @@
 					Reset FIR filters if an input channel has time gap larger than this (microseconds).
 				</description>
 			</parameter>
+			<parameter name="backfill_buffer" type="float" default="0" unit="s">
+				<description>
+					Enable backfilling buffer for out-of-order records.
+					This values defines its capacity in seconds.
+				</description>
+			</parameter>
 			<parameter name="seq_gap_limit" type="int" default="100000">
 				<description>
 					Maximum allowed deviation from the sequence number of oldest packet if
@@ -208,6 +214,12 @@
 				<description>
 					Encoding of Mini-SEED records created by SeedLink. The value must be
 					steim1 or steim2. If omitted, the global encoding parameter is used.
+				</description>
+			</parameter>
+			<parameter name="backfill_buffer" type="float" default="0" unit="s">
+				<description>
+					Enable backfilling buffer for out-of-order records when raw samples
+					are transmitted. This values defines its capacity in seconds.
 				</description>
 			</parameter>
 		</configuration>

@@ -127,8 +127,8 @@ if verbose:
 
 def _time(rec):
     if endtime:
-        return rec.endTime()
-    return rec.startTime()
+        return seiscomp3.Core.Time(rec.endTime())
+    return seiscomp3.Core.Time(rec.startTime())
 
 if not ffile:
 

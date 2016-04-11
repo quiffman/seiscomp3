@@ -103,13 +103,13 @@ Autoloc3::Config::Config()
 	tryDefaultDepth = true;
 	adoptManualDepth = false;
 	minimumDepth = 5;
-	maxDepth = 700.0;
+	maxDepth = 1000.0; // so effectively by default there is no maximum depth
 	minPickSNR = 3;
 	minPickAffinity = 0.05;
 	minStaCountIgnorePKP = 15;
 	minScoreBypassNucleator = 40;
 	maxAllowedFakeProbability = 0.2; // TODO make this configurable
-	distSlope = 1.5; // TODO: Make this configurable after testing
+	distSlope = 1.0; // TODO: Make this configurable after testing
 	test = false;
 	offline = false;
 	playback = false;

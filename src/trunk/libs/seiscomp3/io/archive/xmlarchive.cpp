@@ -370,10 +370,10 @@ bool XMLArchive::create(bool writeVersion, bool headerNode) {
 		return false;
 
 	if ( writeVersion ) {
-		if ( _forceWriteVersion < 0 )
-			setVersion(Core::Version(DataModel::Version::Major, DataModel::Version::Minor));
-		else
+		if ( _forceWriteVersion >= 0 )
 			setVersion(Core::Version(_forceWriteVersion));
+		else if ( versionMajor() == 0 && versionMinor() == 0 )
+			setVersion(Core::Version(DataModel::Version::Major, DataModel::Version::Minor));
 	}
 	else
 		setVersion(Core::Version(0,0));

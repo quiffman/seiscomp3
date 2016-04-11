@@ -8,7 +8,8 @@ from nettab.lineType import Nw, Sa, Na, Ia
 from nettab.basesc3 import sc3
 
 class Rules(object):
-    def __init__(self):
+    def __init__(self, relaxed = False):
+        self.relaxed = relaxed
         self.attributes = {}
         self.iattributes = []
         return
@@ -72,7 +73,7 @@ class Rules(object):
     def getStationAttributes(self, key, ncode, scode, lcode, ccode, start, end):
         att = {}
         for item in self.attributes[key]["Sa"]:
-            if item.match(scode, lcode, ccode, start, end):
+            if item.match(scode, lcode, ccode, start, end, self.relaxed):
                 att[item.Key] = item.Value 
         return att
 
@@ -82,6 +83,7 @@ class InventoryModifier(Client.Application):
         self.setMessagingUsername("iModify")
 
         self.rules = None
+        self.relaxed = False
         self.outputFile = None
 
     def _digest(self, tabFilename, rules = None):
@@ -89,7 +91,7 @@ class InventoryModifier(Client.Application):
             raise Exception("Supplied filename is invalid.")
         
         if not rules:
-            rules = Rules()
+            rules = Rules(self.relaxed)
     
         try:
             fd = open(tabFilename)
@@ -147,6 +149,9 @@ class InventoryModifier(Client.Application):
         if self.commandline().hasOption("output"):
             outputFile = self.commandline().optionString("output")
 
+        if self.commandline().hasOption("relaxed"):
+            self.relaxed = True
+
         if self.commandline().hasOption("inventory-db") and outputFile is None:
             print >>sys.stderr,"Cannot send notifiers when loading inventory from file."
             return False
@@ -172,9 +177,10 @@ class InventoryModifier(Client.Application):
 
     def createCommandLineDescription(self):
         Client.Application.createCommandLineDescription(self)
-        
+
         self.commandline().addGroup("Rules")
         self.commandline().addStringOption("Rules", "rules,r", "Input XML filename")
+        self.commandline().addOption("Rules", "relaxed,e", "Relax rules for matching NSLC items")
 
         self.commandline().addGroup("Dump")
         self.commandline().addStringOption("Dump", "output,o", "Output XML filename")

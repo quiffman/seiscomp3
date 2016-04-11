@@ -83,7 +83,7 @@ class SeedlinkPluginHandler:
     return (key,map)
 
 
-  # Flush does nothing
+  # Flush generates the map file(s)
   def flush(self, seedlink):
     for x in self.idMap.keys():
       if len(self.idMap[x]) > 1:

@@ -873,8 +873,9 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), true) )
 		return;
 
-	SEISCOMP_DEBUG("%s: created secondary picker %s",
-	               rec->streamID().c_str(), _config.secondaryPickerType.c_str());
+	SEISCOMP_DEBUG("%s: created secondary picker %s (rec ref: %d)",
+	               rec->streamID().c_str(), _config.secondaryPickerType.c_str(),
+	               rec->referenceCount());
 
 	switch ( proc->usedComponent() ) {
 		case Processing::WaveformProcessor::Vertical:
@@ -913,7 +914,7 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 			break;
 	}
 
-
+	SEISCOMP_DEBUG("check for expired procs (rec ref: %d)", rec->referenceCount());
 	ProcList &list = _runningStreamProcs[rec->streamID()];
 
 	// Check for secondary procs that are still running but where the

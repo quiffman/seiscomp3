@@ -122,6 +122,8 @@ class InventoryManager : public Client::Application,
 			commandline().addOption("Manager", "level",
 			                        "Information level (net, sta, cha or resp) used by ls.",
 			                        &_level);
+			commandline().addOption("Manager", "compact",
+			                        "Enabled compact output for ls.");
 			commandline().addGroup("Merge");
 			commandline().addOption("Merge", "strip",
 			                        "Remove unreferenced objects (dataloggers, "
@@ -1118,6 +1120,7 @@ class InventoryManager : public Client::Application,
 			merger.merge(false);
 			cerr << "done" << endl;
 
+			bool compact = commandline().hasOption("compact");
 			int level = 2;
 			if ( _level == "net" )
 				level = 0;
@@ -1137,14 +1140,17 @@ class InventoryManager : public Client::Application,
 
 			for ( size_t n = 0; n < nets.size(); ++n ) {
 				DataModel::Network *net = nets[n];
-				cout << "  network " << net->code();
-				if ( !net->description().empty() ) {
-					cout << setfill(' ') << setw(8-net->code().size()) << ' ';
-					cout << " " << net->description();
+				if ( compact )
+					cout << net->code() << "\t" << epochToStr(net) << endl;
+				else {
+					cout << "  network " << net->code();
+					if ( !net->description().empty() ) {
+						cout << setfill(' ') << setw(8-net->code().size()) << ' ';
+						cout << " " << net->description();
+					}
+					cout << endl;
+					cout << "    epoch " << epochToStr(net) << endl;
 				}
-				cout << endl;
-
-				cout << "    epoch " << epochToStr(net) << endl;
 
 				std::vector<DataModel::Station*> stas;
 
@@ -1157,14 +1163,17 @@ class InventoryManager : public Client::Application,
 
 				for ( size_t s = 0; s < stas.size(); ++s ) {
 					DataModel::Station *sta = stas[s];
-					cout << "    station " << sta->code();
-					if ( !sta->description().empty() ) {
-						cout << setfill(' ') << setw(6-sta->code().size()) << ' ';
-						cout << " " << sta->description();
+					if ( compact )
+						cout << " " << sta->code() << "\t" << epochToStr(sta) << endl;
+					else {
+						cout << "    station " << sta->code();
+						if ( !sta->description().empty() ) {
+							cout << setfill(' ') << setw(6-sta->code().size()) << ' ';
+							cout << " " << sta->description();
+						}
+						cout << endl;
+						cout << "      epoch " << epochToStr(sta) << endl;
 					}
-					cout << endl;
-
-					cout << "      epoch " << epochToStr(sta) << endl;
 
 					std::vector<DataModel::SensorLocation*> locs;
 
@@ -1177,14 +1186,24 @@ class InventoryManager : public Client::Application,
 
 					for ( size_t l = 0; l < locs.size(); ++l ) {
 						DataModel::SensorLocation *loc = locs[l];
-						cout << "      location ";
-						if ( loc->code().empty() )
-							cout << "__";
-						else
-							cout << loc->code();
-						cout << endl;
+						if ( compact ) {
+							cout << "  ";
+							if ( loc->code().empty() )
+								cout << "__";
+							else
+								cout << loc->code();
+							cout << "\t" << epochToStr(loc) << endl;
+						}
+						else {
+							cout << "      location ";
+							if ( loc->code().empty() )
+								cout << "__";
+							else
+								cout << loc->code();
+							cout << endl;
 
-						cout << "        epoch " << epochToStr(loc) << endl;
+							cout << "        epoch " << epochToStr(loc) << endl;
+						}
 
 						std::vector<DataModel::Stream*> streams;
 
@@ -1195,10 +1214,14 @@ class InventoryManager : public Client::Application,
 
 						for ( size_t s = 0; s < streams.size(); ++s ) {
 							DataModel::Stream *str = streams[s];
-							cout << "        channel ";
-							cout << str->code() << endl;
+							if ( compact )
+								cout << "   " << str->code() << "\t" << epochToStr(str) << endl;
+							else {
+								cout << "        channel ";
+								cout << str->code() << endl;
 
-							cout << "          epoch " << epochToStr(str) << endl;
+								cout << "          epoch " << epochToStr(str) << endl;
+							}
 
 							if ( level >= 3 ) {
 								const DataModel::Sensor *sens;

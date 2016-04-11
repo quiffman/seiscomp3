@@ -54,6 +54,10 @@ proc_gap_flush = "$proc_gap_flush"
 * Reset FIR filters if an input channel has time gap larger than 1 s
 proc_gap_reset = "$proc_gap_reset"
 
+* Enable backfilling buffer for out-of-order records.
+* This values defines its capacity in seconds.
+backfill_buffer = "$backfill_buffer"
+
 * Maximum allowed deviation from the sequence number of oldest packet if
 * packet with requested sequence number is not found. If seq_gap_limit is
 * exceeded, data flow starts from the next packet coming in, otherwise

@@ -36,7 +36,7 @@ DEFINE_SMARTPOINTER(DatabaseArchive);
  * stored somewhere else.
  * The iterator does not destroy or end a started query in its
  * destructor. The query will be finished after iterating over all
- * objects. To stop an iteration you have to call stop() explicitly
+ * objects. To stop an iteration you have to call close() explicitly
  * unless you receive a NULL object at the end of iteration.
  */
 class SC_SYSTEM_CORE_API DatabaseIterator : public Seiscomp::Core::BaseObject {

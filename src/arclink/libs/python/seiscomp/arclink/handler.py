@@ -563,6 +563,14 @@ class _FSEED_Volume(object):
         self.__mseed_fd = TemporaryFile()
         self.status = None
 
+        # strip webinterface UUID
+        if label.startswith("WI:"):
+            try:
+                self.__label = label.split(':', 2)[2]
+
+            except IndexError:
+                pass
+
     def write(self, data):
         self.__mseed_fd.write(data)
 

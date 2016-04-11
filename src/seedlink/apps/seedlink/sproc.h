@@ -15,6 +15,8 @@
 #define SPROC_H
 
 #include <string>
+#include <vector>
+#include <list>
 
 #include "qtime.h"
 
@@ -34,18 +36,75 @@ using namespace CfgParser;
 // Abstract base classes
 //*****************************************************************************
 
-class Input
+struct DataPacket
   {
-  public:
-    virtual void set_time(const INT_TIME &it, int usec_correction,
-      int timing_quality) =0;
-    virtual void add_ticks(int n, int usec_correction,
-      int timing_quality) =0;
-    virtual void send_data(const int32_t *data, int len) =0;
-    virtual void flush() =0;
-    virtual void reset() =0;
-    virtual double time_gap() =0;
-    virtual ~Input() {}
+  DataPacket() : flush(false) {}
+  void set_data(const int32_t *d, int len, const INT_TIME &time,
+                int usec_correction, int timing_quality,
+                const int freqn, const int freqd);
+  void append_data(const int32_t *d, int len, const int freqn, const int freqd);
+
+  INT_TIME stime;
+  INT_TIME etime;
+  int usec_correction;
+  int timing_quality;
+  vector<int32_t> data;
+  bool flush;
+  };
+
+
+bool gt(const INT_TIME &it1, const INT_TIME &it2);
+
+template <typename PACKET>
+struct Backfilling
+  {
+  typedef PACKET Packet;
+  typedef rc_ptr<Packet> PacketPtr;
+  typedef list<PacketPtr> PacketList;
+
+  Backfilling(double cap = -1) : capacity(cap), current(NULL), comitted(false) {}
+  bool is_enabled() const { return capacity > 0; }
+  //! Insert a packet sorted into the buffer
+  void insert(PacketPtr packet)
+    {
+      typename PacketList::iterator it;
+      for(it = buffer.begin(); it != buffer.end(); ++it)
+        {
+          if(gt((*it)->etime,packet->etime))
+            {
+              buffer.insert(it, packet);
+              return;
+            }
+        }
+
+      buffer.push_back(packet);
+    }
+
+  double capacity; // capacity in seconds
+  PacketList buffer;
+  PacketPtr  current;
+  INT_TIME last_commit;
+  bool comitted;
+  };
+
+typedef Backfilling<DataPacket> InputBackfilling;
+
+struct Input
+  {
+  Input(int freqn, int freqd, double backfill_capacity = -1)
+  : clk(freqn, freqd), backfilling(backfill_capacity) {}
+  virtual void set_time(const INT_TIME &it, int usec_correction,
+    int timing_quality) =0;
+  virtual void add_ticks(int n, int usec_correction,
+    int timing_quality) =0;
+  virtual void send_data(const int32_t *data, int len) =0;
+  virtual void flush() =0;
+  virtual void reset() =0;
+  virtual double time_gap() =0;
+  virtual ~Input() {}
+
+  SPClock clk;
+  InputBackfilling backfilling;
   };
 
 class StreamProcessor
@@ -54,10 +113,17 @@ class StreamProcessor
     StreamProcessor(const string &name_init): name(name_init) {}
   
   public:
+    struct InputVisitor
+      {
+        virtual ~InputVisitor() {}
+        virtual void visit(const string &channel_name, rc_ptr<Input> input, void *data = NULL) = 0;
+      };
+
     const string name;
     
     virtual rc_ptr<Input> get_input(const string &channel_name) =0;
     virtual void flush() =0;
+    virtual void visit_inputs(InputVisitor &, void *data = NULL) =0;
     virtual ~StreamProcessor() {}
   };
 
@@ -132,6 +198,8 @@ using SProc_private::Input;
 using SProc_private::StreamProcessor;
 using SProc_private::EncoderSpec;
 using SProc_private::StreamProcessorSpec;
+using SProc_private::Backfilling;
+using SProc_private::InputBackfilling;
 using SProc_private::make_encoder_spec;
 using SProc_private::make_stream_proc_cfg;
 

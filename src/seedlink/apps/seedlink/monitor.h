@@ -235,6 +235,19 @@ class MasterMonitor
     virtual ~MasterMonitor() {}
   };
 
+
+//*****************************************************************************
+// Some utility functions
+//*****************************************************************************
+
+int packet_type(const sl_fsdh_s *fsdh, int size);
+double packet_sample_rate(const sl_fsdh_s *fsdh);
+INT_TIME packet_begin_time(const sl_fsdh_s *fsdh);
+INT_TIME packet_end_time(const sl_fsdh_s *fsdh);
+int packet_type2int(const char *type);
+const char *packet_type2string(int type);
+
+
 //*****************************************************************************
 // Entry Point
 //*****************************************************************************
@@ -264,6 +277,12 @@ using SeedlinkMonitor_private::IPACL;
 using SeedlinkMonitor_private::ConnectionMonitor;
 using SeedlinkMonitor_private::StationMonitor;
 using SeedlinkMonitor_private::MasterMonitor;
+using SeedlinkMonitor_private::packet_type;
+using SeedlinkMonitor_private::packet_sample_rate;
+using SeedlinkMonitor_private::packet_begin_time;
+using SeedlinkMonitor_private::packet_end_time;
+using SeedlinkMonitor_private::packet_type2int;
+using SeedlinkMonitor_private::packet_type2string;
 using SeedlinkMonitor_private::make_master_monitor;
 
 } // namespace SeedlinkMonitor

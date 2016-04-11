@@ -623,7 +623,7 @@ void App::handleMessage(Core::Message* msg) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void App::handleTimeout() {
 
-	if ( ! _config.playback ) {
+	if ( !_config.playback || _inputFileXML.empty() ) {
 		_flush();
 		return;
 	}
@@ -631,7 +631,7 @@ void App::handleTimeout() {
 
 	// The following is relevant (and executed) only for XML playback.
 
-	while ( ! _objects.empty() && ! _exitRequested ) {
+	while ( ! _objects.empty() && !isExitRequested() ) {
 
 		Core::Time t;
 		DataModel::PublicObjectPtr o = _objects.front();
@@ -663,8 +663,8 @@ void App::handleTimeout() {
 	}
 
 	// for an XML playback, we're done once the object queue is empty
-	if ( _objects.empty())
-		_exitRequested = true;
+	if ( _objects.empty() )
+		quit();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

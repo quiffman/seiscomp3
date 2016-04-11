@@ -1,4 +1,4 @@
-/***************************************************************************** 
+/*****************************************************************************
  * seedlink.cc
  *
  * SeedLink daemon
@@ -38,6 +38,7 @@
 #include <getopt.h>
 #endif
 
+#include "libslink.h"
 #include "qutils.h"
 #include "qtime.h"
 
@@ -57,7 +58,7 @@
 #include "plugin.h"
 #include "diag.h"
 
-#define MYVERSION "3.1 (2011.088)"
+#define MYVERSION "3.1 (2013.231)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/seedlink.ini"
@@ -133,6 +134,7 @@ int untrusted_info_level = 1;
 int plugin_timeout = 0;
 int plugin_start_retry = 0;
 int plugin_shutdown_wait = 0;
+double backfill_capacity = 0;
 int proc_gap_warn_default = 2;
 int proc_gap_flush_default = 0;
 int proc_gap_reset_default = 0;
@@ -569,13 +571,47 @@ bool Plugin::read(PluginPacketHeader &head, void *data)
 
 list<rc_ptr<Plugin> > plugins;
 
+
+//*****************************************************************************
+// Backfilling MiniSEED
+//*****************************************************************************
+
+struct MSEEDPacket
+  {
+  MSEEDPacket() {}
+  void set_data(const void *rec, const INT_TIME &stime_init, const INT_TIME &etime_init)
+    {
+      memcpy(data, rec, (1 << MSEED_RECLEN));
+      stime = stime_init;
+      etime = etime_init;
+    }
+
+  INT_TIME stime;
+  INT_TIME etime;
+  char data[1 << MSEED_RECLEN];
+  };
+
+
 //*****************************************************************************
 // Station
 //*****************************************************************************
 
-class Station
+bool lt(const INT_TIME &it1, const INT_TIME &it2)
+  {
+    if(it1.year < it2.year) return true;
+    if(it1.year > it2.year) return false;
+    if(it1.second < it2.second) return true;
+    if(it1.second > it2.second) return false;
+    if(it1.usec < it2.usec) return true;
+    if(it1.usec > it2.usec) return false;
+    return false;
+  }
+
+class Station : public StreamProcessor::InputVisitor
   {
   private:
+    typedef SProc::Backfilling<MSEEDPacket> MSEEDBackfilling;
+
     rc_ptr<BufferStore> bufs;
     rc_ptr<Format> log_format;
     rc_ptr<StreamProcessor> sproc;
@@ -583,25 +619,51 @@ class Station
     int proc_gap_flush;
     int proc_gap_reset;
     bool raw_ignored;
+    double backfill_capacity;
+    map<string, rc_ptr<MSEEDBackfilling> > mseed_backfilling;
     set<string> missing_inputs;
 
     INT_TIME pt_to_it(const ptime &pt);
     rc_ptr<Input> get_input(const string &channel_name);
+    void visit(const string &channel_name, rc_ptr<Input> input, void *data);
+
+    rc_ptr<MSEEDBackfilling> get_mseed_backfilling(const char *id)
+      {
+        // Insert new backfilling structure on demand
+        pair< map<string, rc_ptr<MSEEDBackfilling> >::iterator, bool> itp;
+        itp = mseed_backfilling.insert(make_pair(id, rc_ptr<MSEEDBackfilling>()));
+        if(itp.first->second == NULL)
+          {
+            itp.first->second = new MSEEDBackfilling(backfill_capacity);
+          }
+        return itp.first->second;
+      }
 
   public:
     const string name;
 
     Station(const string &name_init, rc_ptr<BufferStore> bufs_init,
       rc_ptr<Format> log_format_init, rc_ptr<StreamProcessor> sproc_init,
-      int proc_gap_warn_init, int proc_gap_flush_init, int proc_gap_reset_init):
+      int proc_gap_warn_init, int proc_gap_flush_init, int proc_gap_reset_init,
+      double backfill_capacity_init):
       bufs(bufs_init), log_format(log_format_init), sproc(sproc_init),
       proc_gap_warn(proc_gap_warn_init), proc_gap_flush(proc_gap_flush_init),
-      proc_gap_reset(proc_gap_reset_init), raw_ignored(false), name(name_init) {}
+      proc_gap_reset(proc_gap_reset_init), raw_ignored(false),
+      backfill_capacity(backfill_capacity_init), name(name_init) {
+      // initialize inputs regarding backfilling
+      if (sproc != NULL) sproc->visit_inputs(*this, (void*)0x01);
+    }
 
     Station(const string &name_init):
       bufs(NULL), log_format(NULL), sproc(NULL), proc_gap_warn(0),
-      proc_gap_flush(0), proc_gap_reset(0), raw_ignored(true), name(name_init) {}
-    
+      proc_gap_flush(0), proc_gap_reset(0), raw_ignored(true),
+      backfill_capacity(-1.0), name(name_init) {
+      // initialize inputs regarding backfilling
+      if (sproc != NULL) sproc->visit_inputs(*this, (void*)0x01);
+      }
+
+    virtual ~Station() {}
+
     void send_mseed(const void *rec);
     void send_log(const ptime &pt, const char *msg, int msglen);
     void send_raw_with_time(const string &input_name, const ptime &pt,
@@ -613,9 +675,36 @@ class Station
       int timing_quality, int number_of_samples);
     void send_flush(const string &input_name);
 
+    void commit_mseed(const void *rec);
+    void commit_data(const string &input_name, rc_ptr<Input> input,
+                     const INT_TIME &it, int usec_correction, int timing_quality,
+                     const int32_t *data, int number_of_samples);
+    void commit_packet(const string &input_name, rc_ptr<Input> input,
+                       const InputBackfilling::PacketPtr &pkt);
+
+    void sync_buffer(const string &input_name, rc_ptr<Input> input);
+    void sync_buffer(const char *name, rc_ptr<MSEEDBackfilling> bf);
+
     void flush()
       {
-        if(sproc != NULL) sproc->flush();
+        // Visit all inputs and flush the backfilling buffer
+        if(sproc != NULL)
+          {
+            sproc->visit_inputs(*this, NULL);
+            sproc->flush();
+          }
+
+        // flush all MiniSEED buffers
+        map<string, rc_ptr<MSEEDBackfilling> >::iterator it;
+        for(it = mseed_backfilling.begin(); it != mseed_backfilling.end(); ++it)
+          {
+            rc_ptr<MSEEDBackfilling> bf = it->second;
+            MSEEDBackfilling::PacketList::iterator pit;
+            for(pit = bf->buffer.begin(); pit != bf->buffer.end(); ++pit)
+              {
+                commit_mseed((*pit)->data);
+              }
+          }
       }
   };
 
@@ -649,10 +738,112 @@ rc_ptr<Input> Station::get_input(const string &input_name)
     return input;
   }
 
+void Station::visit(const string &channel_name, rc_ptr<Input> input, void *data)
+  {
+    // No data -> flush
+    if(data == NULL)
+      {
+        // Send all pending packets even if there are gaps. This is only
+        // called during Station::flush which is called after a shutdown
+        // request.
+        InputBackfilling::PacketList::iterator it;
+        for(it = input->backfilling.buffer.begin();
+            it != input->backfilling.buffer.end(); ++it)
+          {
+            commit_packet(channel_name, input, *it);
+          }
+      }
+    // Init inputs
+    else if (data == (void*)0x01)
+      {
+        // Set backfill capacity
+        input->backfilling.capacity = backfill_capacity;
+      }
+  }
+
 void Station::send_mseed(const void *rec)
   {
     if(bufs == NULL) return;
-    
+
+    if(backfill_capacity > 0)
+      {
+        const sl_fsdh_s* fsdh = static_cast<const sl_fsdh_s *>(rec);
+        INT_TIME stime = packet_begin_time(fsdh);
+        INT_TIME etime = packet_end_time(fsdh);
+        char id[6];
+        id[6] = '\0';
+        memcpy(id, fsdh->location, 2);
+        memcpy(id+2, fsdh->channel, 3);
+        rc_ptr<MSEEDBackfilling> backfilling = get_mseed_backfilling(id);
+
+        if(backfilling->comitted)
+          {
+            double gap = tdiff(stime, backfilling->last_commit)*1E-6;
+            // A gap larger than one sample?
+            if(gap*packet_sample_rate(fsdh) >= 1)
+              {
+                MSEEDBackfilling::PacketPtr pkt = new MSEEDBackfilling::Packet;
+                pkt->set_data(rec, stime, etime);
+
+                // Insert packet into the buffer (sorted by start time)
+                backfilling->insert(pkt);
+                logs(LOG_DEBUG) << name << " channel " << id
+                                << " data queued (currently " << backfilling->buffer.size()
+                                << " pkts) due to a gap of " << gap << "s"
+                                << endl;
+                sync_buffer(id, backfilling);
+                return;
+              }
+            else
+              {
+                // Record before the last commit? Just flush it, its too old
+                if ( lt(etime, backfilling->last_commit) )
+                  {
+                    logs(LOG_DEBUG) << name << " channel " << id
+                                    << " sent out-of-order record, buffer too small?"
+                                    << endl;
+                    commit_mseed(rec);
+                    return;
+                  }
+
+                backfilling->last_commit = etime;
+                backfilling->comitted = true;
+                commit_mseed(rec);
+
+                sync_buffer(id, backfilling);
+              }
+          }
+        else
+          {
+            // Instead of charging the backfill buffer we are sending the
+            // first packet. Both options would work with all their advantages/
+            // disadvantages. This could be made configurable later.
+            /*
+            MSEEDBackfilling::PacketPtr pkt = new MSEEDBackfilling::Packet;
+            pkt->set_data(rec, stime, etime);
+
+            // Insert packet into the buffer (sorted by start time)
+            backfilling->insert(pkt);
+            logs(LOG_DEBUG) << name << " channel " << id
+                                    << " charging backfilling buffer (currently "
+                                    << backfilling->buffer.size() << " pkts)"
+                                    << endl;
+            sync_buffer(id, backfilling);
+            */
+
+            // Release the packet
+            backfilling->last_commit = etime;
+            backfilling->comitted = true;
+            commit_mseed(rec);
+          }
+        return;
+      }
+
+    commit_mseed(rec);
+  }
+
+void Station::commit_mseed(const void *rec)
+  {
     Buffer* buf = bufs->get_buffer();
     memcpy(buf->data(), rec, (1 << MSEED_RECLEN));
     bufs->queue_buffer(buf);
@@ -689,23 +880,92 @@ void Station::send_raw_with_time(const string &input_name, const ptime &pt,
     if((input = get_input(input_name)) == NULL)
         return;
 
-    input->set_time(pt_to_it(pt), usec_correction, timing_quality);
-    
-    if(proc_gap_warn != 0 &&
-      (input->time_gap() <= -proc_gap_warn || input->time_gap() >= proc_gap_warn))
-        logs(LOG_WARNING) << name << " : " << input_name << " time gap " <<
-          setprecision(6) << input->time_gap() / 1000000.0 << " seconds " <<
-          "(detected)" << endl;
+    INT_TIME stime = pt_to_it(pt);
 
-    if(proc_gap_reset != 0 &&
-      (input->time_gap() <= -proc_gap_reset || input->time_gap() >= proc_gap_reset))
-        input->reset();
-    
-    else if(proc_gap_flush != 0 &&
-      (input->time_gap() <= -proc_gap_flush || input->time_gap() >= proc_gap_flush))
-        input->flush();
-    
-    input->send_data(data, number_of_samples);
+    if(input->backfilling.is_enabled())
+      {
+        if(input->backfilling.comitted)
+          {
+            double gap = tdiff(stime, input->backfilling.last_commit)*1E-6;
+            // A gap larger than one sample?
+            if(gap*input->clk.freqn >= input->clk.freqd)
+              {
+                input->backfilling.current = new InputBackfilling::Packet;
+                input->backfilling.current->set_data(data, number_of_samples, stime,
+                                                     usec_correction, timing_quality,
+                                                     input->clk.freqn, input->clk.freqd);
+
+                // Insert packet into the buffer (sorted by start time)
+                input->backfilling.insert(input->backfilling.current);
+                logs(LOG_DEBUG) << name << " channel " << input_name
+                                << " data queued (currently " << input->backfilling.buffer.size()
+                                << " pkts) due to a gap of " << gap << "s"
+                                << endl;
+                sync_buffer(input_name, input);
+                // And done for now
+                return;
+              }
+            else
+              {
+                // Otherwise we continue as without backfilling
+                input->backfilling.current = NULL;
+
+                INT_TIME etime;
+                etime = add_dtime(stime, 1000000 * (double(number_of_samples) * double(input->clk.freqd) / double(input->clk.freqn)));
+
+                // Record before the last commit? Just flush it, its too old
+                if ( lt(etime, input->backfilling.last_commit) )
+                  {
+                    logs(LOG_DEBUG) << name << " channel " << input_name
+                                    << " sent out-of-order record, buffer too small?"
+                                    << endl;
+                    commit_data(input_name, input, stime, usec_correction,
+                                timing_quality, data, number_of_samples);
+                    return;
+                  }
+
+                input->backfilling.last_commit = etime;
+                input->backfilling.comitted = true;
+                commit_data(input_name, input, stime, usec_correction,
+                            timing_quality, data, number_of_samples);
+
+                sync_buffer(input_name, input);
+              }
+          }
+        else
+          {
+            // Instead of charging the backfill buffer we are sending the
+            // first packet. Both options would work with all their advantages/
+            // disadvantages.
+            /*
+            input->backfilling.current = new InputBackfilling::Packet;
+            input->backfilling.current->set_data(data, number_of_samples, stime,
+                                                 usec_correction, timing_quality,
+                                                 input->clk.freqn, input->clk.freqd);
+
+            // Insert packet into the buffer (sorted by start time)
+            input->backfilling.insert(input->backfilling.current);
+            logs(LOG_DEBUG) << name << " channel " << input_name
+                                    << " charging backfilling buffer (currently "
+                                    << input->backfilling.buffer.size() << " pkts)"
+                                    << endl;
+            sync_buffer(input_name, input);
+            */
+
+            // Release the packet
+            INT_TIME etime;
+            etime = add_dtime(stime, 1000000 * (double(number_of_samples) * double(input->clk.freqd) / double(input->clk.freqn)));
+
+            input->backfilling.last_commit = etime;
+            input->backfilling.comitted = true;
+            commit_data(input_name, input, stime, usec_correction,
+                        timing_quality, data, number_of_samples);
+          }
+        return;
+      }
+
+    commit_data(input_name, input, stime, usec_correction,
+                timing_quality, data, number_of_samples);
   }
 
 void Station::send_raw(const string &input_name, const int32_t *data,
@@ -726,7 +986,20 @@ void Station::send_raw(const string &input_name, const int32_t *data,
     if((input = get_input(input_name)) == NULL)
         return;
 
+    if(input->backfilling.current != NULL)
+      {
+        input->backfilling.current->append_data(data, number_of_samples,
+                                                input->clk.freqn, input->clk.freqd);
+        sync_buffer(input_name, input);
+        return;
+      }
+
     input->send_data(data, number_of_samples);
+
+    // Update last commit time
+    if(input->backfilling.is_enabled())
+        input->backfilling.last_commit =
+            add_dtime(input->backfilling.last_commit, 1000000 * (double(number_of_samples) * double(input->clk.freqd) / double(input->clk.freqn)));
   }
 
 void Station::send_gap(const string &input_name, int usec_correction,
@@ -748,7 +1021,7 @@ void Station::send_gap(const string &input_name, int usec_correction,
         return;
 
     input->add_ticks(number_of_samples, usec_correction, timing_quality);
-    
+
     if(proc_gap_warn != 0 &&
       (input->time_gap() <= -proc_gap_warn || input->time_gap() >= proc_gap_warn))
         logs(LOG_WARNING) << name << " : " << input_name << " time gap " <<
@@ -758,7 +1031,7 @@ void Station::send_gap(const string &input_name, int usec_correction,
     if(proc_gap_reset != 0 &&
       (input->time_gap() <= -proc_gap_reset || input->time_gap() >= proc_gap_reset))
         input->reset();
-    
+
     else if(proc_gap_flush != 0 &&
       (input->time_gap() <= -proc_gap_flush || input->time_gap() >= proc_gap_flush))
         input->flush();
@@ -781,8 +1054,146 @@ void Station::send_flush(const string &input_name)
     if((input = get_input(input_name)) == NULL)
         return;
 
-    input->flush();
+    if(input->backfilling.current!=NULL)
+        input->backfilling.current->flush = true;
+    else
+        input->flush();
   }
+
+
+void Station::commit_data(const string &input_name, rc_ptr<Input> input,
+                          const INT_TIME &it, int usec_correction,
+                          int timing_quality,
+                          const int32_t *data, int number_of_samples)
+  {
+    input->set_time(it, usec_correction, timing_quality);
+
+    if(proc_gap_warn != 0 &&
+      (input->time_gap() <= -proc_gap_warn || input->time_gap() >= proc_gap_warn))
+        logs(LOG_WARNING) << name << " : " << input_name << " time gap " <<
+          setprecision(6) << input->time_gap() / 1000000.0 << " seconds " <<
+          "(detected)" << endl;
+
+    if(proc_gap_reset != 0 &&
+      (input->time_gap() <= -proc_gap_reset || input->time_gap() >= proc_gap_reset))
+        input->reset();
+
+    else if(proc_gap_flush != 0 &&
+      (input->time_gap() <= -proc_gap_flush || input->time_gap() >= proc_gap_flush))
+        input->flush();
+
+    input->send_data(data, number_of_samples);
+  }
+
+void Station::commit_packet(const string &input_name, rc_ptr<Input> input,
+                            const InputBackfilling::PacketPtr &pkt)
+  {
+    input->backfilling.last_commit = pkt->etime;
+	input->backfilling.comitted = true;
+    commit_data(input_name, input, pkt->stime, pkt->usec_correction,
+                pkt->timing_quality, pkt->data.data(), pkt->data.size());
+
+    if(pkt->flush)
+      {
+        if(sproc == NULL)
+          {
+            if(!raw_ignored)
+              {
+                logs(LOG_WARNING) << name << " raw data ignored" << endl;
+                raw_ignored = true;
+              }
+
+            return;
+          }
+
+        input->flush();
+      }
+  }
+
+
+void Station::sync_buffer(const string &input_name, rc_ptr<Input> input)
+  {
+    // Cut the buffer to its capacity
+    while(!input->backfilling.buffer.empty() &&
+          tdiff(input->backfilling.buffer.back()->etime, input->backfilling.buffer.front()->stime)*1E-6 >= input->backfilling.capacity)
+      {
+        // Commit first packet
+        InputBackfilling::PacketPtr &pkt = input->backfilling.buffer.front();
+        commit_packet(input_name, input, pkt);
+        input->backfilling.buffer.pop_front();
+
+        logs(LOG_DEBUG) << name << " channel " << input_name
+                        << " trimming buffer to its capacity (still "
+                        << input->backfilling.buffer.size() << " pkts)"
+                        << endl;
+      }
+
+    if(!input->backfilling.comitted) return;
+
+    // Check if this packet filled a gap to the buffer
+    while(!input->backfilling.buffer.empty())
+      {
+        InputBackfilling::PacketPtr &bpkt = input->backfilling.buffer.front();
+        double gap = tdiff(bpkt->stime, input->backfilling.last_commit)*1E-6;
+        // A gap larger than one sample -> break flushing
+        if(gap*input->clk.freqn >= input->clk.freqd) break;
+
+        // commit data and check the next packet
+        commit_packet(input_name, input, bpkt);
+        input->backfilling.buffer.pop_front();
+
+        logs(LOG_DEBUG) << name << " channel " << input_name
+                        << " flushed continuous records from buffer (still "
+                        << input->backfilling.buffer.size() << " pkts)"
+                        << endl;
+      }
+  }
+
+void Station::sync_buffer(const char* cha, rc_ptr<MSEEDBackfilling> bf)
+  {
+    double used_capacity;
+
+    // Cut the buffer to its capacity
+    while(!bf->buffer.empty() &&
+          (used_capacity = tdiff(bf->buffer.back()->etime, bf->buffer.front()->stime)*1E-6) >= bf->capacity)
+      {
+        // Commit first packet
+        MSEEDBackfilling::PacketPtr &pkt = bf->buffer.front();
+        commit_mseed(pkt->data);
+        bf->last_commit = pkt->etime;
+        bf->comitted = true;
+        bf->buffer.pop_front();
+
+        logs(LOG_DEBUG) << name << " channel " << cha
+                        << " trimming buffer to its capacity ("
+                        << used_capacity << " > " << bf->capacity << ", still "
+                        << bf->buffer.size() << " pkts)"
+                        << endl;
+      }
+
+    if(!bf->comitted) return;
+
+    // Check if this packet filled a gap to the buffer
+    while(!bf->buffer.empty())
+      {
+        MSEEDBackfilling::PacketPtr &bpkt = bf->buffer.front();
+        const sl_fsdh_s* fsdh = reinterpret_cast<const sl_fsdh_s *>(bpkt->data);
+        double gap = tdiff(bpkt->stime, bf->last_commit)*1E-6;
+        // A gap larger than one sample -> break flushing
+        if(gap*packet_sample_rate(fsdh) >= 1) break;
+
+        // commit data and check the next packet
+        commit_mseed(bpkt->data);
+        bf->last_commit = bpkt->etime;
+        bf->buffer.pop_front();
+
+        logs(LOG_DEBUG) << name << " channel " << cha
+                        << " flushed continuous records from buffer (still "
+                        << bf->buffer.size() << " pkts)"
+                        << endl;
+      }
+  }
+
 
 map<string, rc_ptr<Station> > stations;
 
@@ -865,6 +1276,7 @@ class StationDef: public CfgElement
     int proc_gap_warn;
     int proc_gap_flush;
     int proc_gap_reset;
+    double backfill_capacity;
     bool request_log;
     bool stream_check;
     list<string> ip_access_str;
@@ -898,6 +1310,7 @@ rc_ptr<CfgAttributeMap> StationDef::start_attributes(ostream &cfglog,
     proc_gap_warn = ::proc_gap_warn_default;
     proc_gap_flush = ::proc_gap_flush_default;
     proc_gap_reset = ::proc_gap_reset_default;
+    backfill_capacity = ::backfill_capacity;
     stream_check = ::stream_check;
     ip_access_str.clear();
     
@@ -916,6 +1329,7 @@ rc_ptr<CfgAttributeMap> StationDef::start_attributes(ostream &cfglog,
     atts->add_item(IntAttribute("proc_gap_warn", proc_gap_warn, 0, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("proc_gap_flush", proc_gap_flush, 0, 100, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("proc_gap_reset", proc_gap_reset, 0, 100, IntAttribute::lower_bound));
+    atts->add_item(FloatAttribute("backfill_buffer", backfill_capacity,  0, 86400, FloatAttribute::upper_bound));
     atts->add_item(BoolAttribute("request_log", request_log, "enabled", "disabled"));
     atts->add_item(BoolAttribute("stream_check", stream_check, "enabled", "disabled"));
     atts->add_item(StringListAttribute("access", ip_access_str, ", "));
@@ -1034,7 +1448,7 @@ try
       }
     
     insert_object(stations, new Station(station_key, bufs, log_format, sp,
-      proc_gap_warn, proc_gap_flush, proc_gap_reset));
+      proc_gap_warn, proc_gap_flush, proc_gap_reset, backfill_capacity));
   }
 catch(MonitorRegexError &e)
   {
@@ -1274,6 +1688,7 @@ rc_ptr<CfgAttributeMap> SeedlinkDef::start_attributes(ostream &cfglog,
     atts->add_item(IntAttribute("proc_gap_warn", proc_gap_warn_default, 0, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("proc_gap_flush", proc_gap_flush_default, 0, 100, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("proc_gap_reset", proc_gap_reset_default, 0, 100, IntAttribute::lower_bound));
+    atts->add_item(FloatAttribute("backfill_buffer", backfill_capacity,  86400, 0, FloatAttribute::upper_bound));
     atts->add_item(IntAttribute("port", tcp_port, 1, 65535));
     atts->add_item(BoolAttribute("request_log", request_log, "enabled", "disabled"));
     atts->add_item(BoolAttribute("stream_check", stream_check, "enabled", "disabled"));

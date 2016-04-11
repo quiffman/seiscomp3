@@ -29,8 +29,8 @@ class QueryInterface:
     self._database = database
   def cnvCol(self, col):
     return self._database.convertColumnName(col)
-  def getTables(self, tables):
-    return False
+  def getTables(self):
+    return []
   def deleteObjectQuery(self, *v):
     return ""
   def deleteJournalQuery(self, *v):
@@ -43,7 +43,7 @@ class QueryInterface:
 class MySQLDB(QueryInterface):
   def __init__(self, database):
     QueryInterface.__init__(self, database)
-  def getTables(self, tables):
+  def getTables(self):
     tables = []
     if self._database.beginQuery("show tables") == False:
          return False
@@ -52,7 +52,7 @@ class MySQLDB(QueryInterface):
       tables.append(self._database.getRowFieldString(0))
 
     self._database.endQuery()
-    return True
+    return tables
 
   def deleteObjectQuery(self, *v):
     if v[0]:
@@ -127,7 +127,7 @@ class MySQLDB(QueryInterface):
 class PostgresDB(QueryInterface):
   def __init__(self, database):
     QueryInterface.__init__(self, database)
-  def getTables(self, tables):
+  def getTables(self):
     tables = []
     if self._database.beginQuery("SELECT table_schema || '.' || table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');") == False:
       return False
@@ -136,7 +136,7 @@ class PostgresDB(QueryInterface):
       tables.append(self._database.getRowFieldString(0))
 
     self._database.endQuery()
-    return True
+    return tables
 
   def deleteObjectQuery(self, *v):
     if v[0]:
@@ -302,7 +302,7 @@ class DBCleaner(seiscomp3.Client.Application):
       output.write("Error: Database interface %s is not supported\n" % (classname))
       output.flush()
       return False
-        
+
     try:
       self._timer.restart()
 
@@ -331,12 +331,13 @@ class DBCleaner(seiscomp3.Client.Application):
 
       output.write("[INFO] Check objects older than %s\n" % timestamp.toString("%Y-%m-%d %H:%M:%S"))
 
-      tables = []
-      if self._query.getTables(tables) == False:
+      tables = self._query.getTables()
+      if len(tables) == 0:
          return False
 
       if "Object" in tables: tables.remove("Object")
       if "PublicObject" in tables: tables.remove("PublicObject")
+      if "Meta" in tables: tables.remove("Meta")
 
       self._steps = len(tables) + 1
 

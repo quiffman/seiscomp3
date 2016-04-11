@@ -198,7 +198,7 @@ void Inspector::selectionChanged() {
 		if ( prop->isClass() ) continue;
 
 		addProperty(prop->name(), prop->type(), propToString(prop, obj),
-		            prop->isIndex(), prop->isOptional());
+		            prop->isIndex(), prop->isOptional(), prop->isReference());
 	}
 
 	_ui.tableWidget->resizeColumnsToContents();

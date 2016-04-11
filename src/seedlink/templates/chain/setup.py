@@ -22,7 +22,7 @@ class SeedlinkPluginHandler:
 
   # Generates the group tag
   def generateGroupTag(self, seedlink, source_address):
-    try: maxDialupConnections = int(seedlink.param('plugins.chain.dialupConnections'))
+    try: maxDialupConnections = int(seedlink.param('plugins.chain.dialupConnections', False))
     except: maxDialupConnections = 0
 
     dialup = seedlink._get('sources.chain.dialup.enable').lower() in ("yes", "true", "1")
@@ -229,7 +229,7 @@ class SeedlinkPluginHandler:
         fd = open(chainxml, "w")
 
         try:
-          if seedlink.param('plugins.chain.loadTimeTable').lower() in ("yes", "true", "1"):
+          if seedlink.param('plugins.chain.loadTimeTable', False).lower() in ("yes", "true", "1"):
             loadTimeTable = True
           else:
             loadTimeTable = False

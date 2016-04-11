@@ -81,6 +81,11 @@
 					Information level (net, sta, cha or resp) used by ls.
 					</description>
 				</option>
+				<option long-flag="compact">
+					<description>
+					Enabled compact output for ls: each object one line.
+					</description>
+				</option>
 			</group>
 			<group name="Merge">
 				<option long-flag="strip">

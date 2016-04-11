@@ -29,9 +29,18 @@ class SeedlinkPluginHandler:
     
     try:
       channelItems = [ x.strip() for x in seedlink.param('sources.win.channels').split(',') ]
+      map = os.path.join(seedlink.config_dir, "win2sl%d.map" % winId)
+      seedlink.setParam('sources.win.mapFlag',map)
 
     except KeyError:
-      raise Exception("Error: sources.win.channels not defined")
+      try:
+        map = seedlink.param('sources.win.map')
+        if not os.path.isabs(map):
+          map = os.path.join(seedlink.config_dir, map)
+      except: map = os.path.join(seedlink.config_dir, 'win2sl.map')
+
+      seedlink.setParam('sources.win.mapFlag',map)
+      channelItems = []
 
     for item in channelItems:
       mapping = [x.strip() for x in item.split(':')]
@@ -46,15 +55,15 @@ class SeedlinkPluginHandler:
       if not mapping in self.channelMap[winId]:
         self.channelMap[winId].append(mapping)
 
-    try:
-      if not mapping[1] in self.idMap[mapping[0]]:
-        self.idMap[mapping[0]].append(mapping[1])
-    except KeyError:
-      self.idMap[mapping[0]] = [mapping[1]]
+      try:
+        if not mapping[1] in self.idMap[mapping[0]]:
+          self.idMap[mapping[0]].append(mapping[1])
+      except KeyError:
+        self.idMap[mapping[0]] = [mapping[1]]
 
     seedlink.setParam('seedlink.win.id', winId)
     
-    return udpport
+    return (udpport,map)
 
   def flush(self, seedlink):
     for x in self.idMap.keys():
@@ -62,11 +71,14 @@ class SeedlinkPluginHandler:
         raise Exception("Error: WIN plugin has multiple mappings for id(s) %s" % ", ".join(self.idMap.keys()))
 
     for x in self.channelMap.keys():
+      mappings = self.channelMap[x]
+      if len(mappings) == 0: continue
+
       win2slmap = os.path.join(seedlink.config_dir, "win2sl%d.map" % x)
 
       fd = open(win2slmap, "w")
 
-      for c in self.channelMap[x]:
+      for c in mappings:
         fd.write("%s %s\n" % tuple(c))
 
       fd.close()

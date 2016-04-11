@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <vector>
 #include <map>
 
 #include "utils.h"
@@ -35,6 +36,46 @@ using namespace CfgParser;
 const int MAX_CBSIZE = 14;
 const int SPS_RANGE = 65535;  // 1/65535...65535 sps
 
+
+//*****************************************************************************
+// Data packet
+//*****************************************************************************
+
+void DataPacket::set_data(const int32_t *d, int len, const INT_TIME &time,
+                          int usec_corr, int timing_qual,
+                          const int freqn, const int freqd)
+  {
+    data.assign(d, d+len);
+    usec_correction = usec_corr;
+    timing_quality = timing_qual;
+    stime = time;
+    etime = add_dtime(stime, 1000000 * (double(data.size()) * double(freqd) / double(freqn)));
+  }
+
+void DataPacket::append_data(const int32_t *d, int len,
+                             const int freqn, const int freqd)
+  {
+    data.insert(data.end(), d, d+len);
+    etime = add_dtime(stime, 1000000 * (double(data.size()) * double(freqd) / double(freqn)));
+  }
+
+
+//*****************************************************************************
+// Backfilling
+//*****************************************************************************
+
+bool gt(const INT_TIME &it1, const INT_TIME &it2)
+  {
+    if(it1.year > it2.year) return true;
+    if(it1.year < it2.year) return false;
+    if(it1.second > it2.second) return true;
+    if(it1.second < it2.second) return false;
+    if(it1.usec > it2.usec) return true;
+    if(it1.usec < it2.usec) return false;
+    return false;
+  }
+
+
 //*****************************************************************************
 // Node
 //*****************************************************************************
@@ -47,16 +88,16 @@ class Node: public Input
     rc_ptr<Filter> filter;
     CircularBuffer<double> cbuf;
     CircularBuffer<double>::iterator inp;
-    SPClock clk;
 
     void sync_time(const Node &parent);
     void process_data(const Node &parent);
     void reset_child(const Node &parent);
 
   public:
-    Node(rc_ptr<Filter> filter_init, int cbsize, int freqn, int freqd):
-      filter(filter_init), cbuf(cbsize), clk(freqn, freqd) {}
-    
+    Node(rc_ptr<Filter> filter_init, int cbsize, int freqn, int freqd,
+         double backfill_capacity = -1):
+    Input(freqn, freqd, backfill_capacity), filter(filter_init), cbuf(cbsize) {}
+
     void set_time(const INT_TIME &it, int usec_correction,
       int timing_quality);
     void add_ticks(int n, int usec_correction, int timing_quality);
@@ -388,6 +429,7 @@ class StreamProcessorImpl: public StreamProcessor
       const map<string, rc_ptr<InputSpec> > input_specs, rc_ptr<EncoderSpec> encoder_spec);
     rc_ptr<Input> get_input(const string &channel_name);
     void flush();
+    void visit_inputs(InputVisitor &visitor, void *data = NULL);
   };
 
 StreamProcessorImpl::StreamProcessorImpl(const string &name, 
@@ -410,6 +452,13 @@ void StreamProcessorImpl::flush()
     map<string, rc_ptr<Node> >::iterator p;
     for(p = input_nodes.begin(); p != input_nodes.end(); ++p)
         p->second->flush();
+  }
+
+void StreamProcessorImpl::visit_inputs(InputVisitor &v, void *data)
+  {
+    map<string, rc_ptr<Node> >::iterator p;
+    for(p = input_nodes.begin(); p != input_nodes.end(); ++p)
+      v.visit(p->first, p->second, data);
   }
 
 //*****************************************************************************

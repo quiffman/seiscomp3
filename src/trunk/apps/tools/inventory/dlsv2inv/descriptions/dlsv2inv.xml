@@ -36,7 +36,8 @@
 				</option>
 				<option long-flag="net-description" argument="arg">
 					<description>
-						Sets the network description.
+						Sets the network description. It supports the following
+						placeholders: ${code}, ${start}, ${end}, ${class} and ${archive}.
 					</description>
 				</option>
 				<option long-flag="net-start" argument="arg">

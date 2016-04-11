@@ -156,7 +156,43 @@ class EventTool : public Application {
 
 		typedef DataModel::PublicObjectTimeSpanBuffer Cache;
 		typedef std::map<std::string, EventInformationPtr> EventMap;
-		typedef std::set<TodoEntry> TodoList;
+
+		// Bit more complicated class to avoid duplicates and to maintain
+		// the order of incoming requests
+		class TodoList {
+			public:
+				typedef std::deque<TodoEntry>::iterator iterator;
+
+				void insert(const TodoEntry &e) {
+					std::pair<std::set<DataModel::PublicObject*>::iterator, bool> itp;
+					itp = _register.insert(e.primary.get());
+					if ( !itp.second ) return;
+					_entries.push_back(e);
+				}
+
+				iterator begin() { return _entries.begin(); }
+				iterator end() { return _entries.end(); }
+
+				iterator find(const TodoEntry &e) {
+					return std::find(_entries.begin(), _entries.end(), e);
+				}
+
+				void erase(const iterator &it) {
+					_register.erase(_register.find(it->primary.get()));
+					_entries.erase(it);
+				}
+
+				void clear() {
+					_register.clear();
+					_entries.clear();
+				}
+
+			private:
+				std::set<DataModel::PublicObject*> _register;
+				std::deque<TodoEntry> _entries;
+		};
+
+		//typedef std::set<TodoEntry> TodoList;
 
 		struct DelayedObject {
 			DelayedObject(const DataModel::PublicObjectPtr &o, int t)

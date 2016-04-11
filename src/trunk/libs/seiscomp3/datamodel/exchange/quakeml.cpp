@@ -586,8 +586,8 @@ struct TimeWindowHandler : TypedClassHandler<TimeWindow> {
 struct AmplitudeHandler : TypedClassHandler<Amplitude> {
 	AmplitudeHandler() {
 		addPID();
-		// NA: category, unit, evaluationStatus
-		addList("comment, period, snr, timeWindow, waveformID, "
+		// NA: category, evaluationStatus
+		addList("comment, period, snr, unit, timeWindow, waveformID, "
 		        "scalingTime, evaluationMode, creationInfo");
 		add("amplitude", "genericAmplitude");
 		add("type", &__maxLen32);

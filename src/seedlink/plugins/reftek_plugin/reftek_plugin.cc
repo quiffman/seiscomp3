@@ -1,4 +1,4 @@
-/***************************************************************************** 
+/*****************************************************************************
  * reftek_plugin.cc
  *
  * SeedLink plugin for RTPD
@@ -12,6 +12,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <string>
 #include <set>
@@ -19,6 +20,7 @@
 #include <cstdio>
 #include <csignal>
 #include <cerrno>
+#include <map>
 
 #include <unistd.h>
 #include <syslog.h>
@@ -30,6 +32,8 @@
 #if defined(__GNU_LIBRARY__) || defined(__GLIBC__)
 #include <getopt.h>
 #endif
+
+//#define TEST
 
 extern "C" {
 #include "reftek.h"
@@ -44,7 +48,7 @@ extern "C" {
 #include "plugin_exceptions.h"
 #include "diag.h"
 
-#define MYVERSION "1.2 (2010.256)"
+#define MYVERSION "1.3 (2013.226)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/plugins.ini"
@@ -76,6 +80,8 @@ const char *const PHASE_ERROR_MSG = "INTERNAL CLOCK PHASE ERROR OF "; /*K.S.*/
 const char *const SEED_NEWLINE    = "\r\n";
 const char *const ident_str       = "SeedLink RTPD Plugin v" MYVERSION;
 
+typedef map<int, string> Unit2StationMap;
+
 #if defined(__GNU_LIBRARY__) || defined(__GLIBC__)
 const char *const opterr_message = "Try `%s --help' for more information\n";
 const char *const help_message = 
@@ -88,6 +94,7 @@ const char *const help_message =
     "    --verbosity=LEVEL         Set verbosity level\n"
     "-D, --daemon                  Daemon mode\n"
     "-f, --config-file=FILE        Alternative configuration file\n"
+    "-m, --map-file=FILE           Alternative station map file\n"
     "-V, --version                 Show version information\n"
     "-h, --help                    Show this help message\n";
 #else
@@ -114,6 +121,31 @@ void int_handler(int sig)
   {
     terminate_proc = 1;
   }
+
+
+void read_map_file(Unit2StationMap &map, const string &filename)
+  {
+    map.clear();
+    ifstream ifs(filename.data());
+    if ( !ifs.is_open() ) return;
+
+    // read line by line
+    string line;
+    while ( getline(ifs, line) )
+      {
+        if ( line.empty() ) continue;
+        if ( line[0] == '#' ) continue;
+
+        stringstream ss(line);
+        int unit_id;
+        string name;
+        ss >> hex >> unit_id >> name;
+        logs(LOG_INFO) << "adding mapping from unit " << hex << uppercase
+                       << unit_id << " to station " << name << endl;
+        map[unit_id] = name;
+      }
+  }
+
 
 //*****************************************************************************
 // Exceptions
@@ -191,6 +223,8 @@ class LogFunc
 class ReftekUnit
   {
   private:
+    string name;
+    bool mapped;
     const int default_tq;
     const int unlock_tq;
     const bool log_soh;
@@ -204,9 +238,10 @@ class ReftekUnit
     void proc_SH(const struct reftek_sh &sh, const char *msg);
 
   public:
-    ReftekUnit(int default_tq_init, int unlock_tq_init, bool log_soh_init):
-      default_tq(default_tq_init), unlock_tq(unlock_tq_init),
-      log_soh(log_soh_init), gps_msg_received(false),
+    ReftekUnit(const string &name_init, bool mapped_init, int default_tq_init,
+      int unlock_tq_init, bool log_soh_init):
+      name(name_init), mapped(mapped_init), default_tq(default_tq_init),
+      unlock_tq(unlock_tq_init), log_soh(log_soh_init), gps_msg_received(false),
       gps_in_lock(false), gps_phase_error(0), last_recv(0) {}
     
     void proc_pkt(UINT8 *pkt);
@@ -234,10 +269,7 @@ ptime ReftekUnit::depoch2pt(REAL64 depoch)
 void ReftekUnit::proc_DT(const struct reftek_dt &dt)
   {
     ptime pt = depoch2pt(dt.tstamp);
-    
-    char unit_id[5];
-    snprintf(unit_id, 5, "%04X", dt.unit);
-    
+
     char stream_id[4];
     snprintf(stream_id, 4, "%d.%d", dt.stream, dt.chan);
 
@@ -264,9 +296,13 @@ void ReftekUnit::proc_DT(const struct reftek_dt &dt)
                 tq = 90;
         }
     }
- 
-    int r = send_raw3(unit_id, stream_id, &pt, 0, tq, (int32_t *)dt.data,
+
+#ifndef TEST
+    int r = send_raw3(name.data(), stream_id, &pt, 0, tq, (int32_t *)dt.data,
       dt.nsamp);
+#else
+    int r = dt.nsamp;
+#endif
 
     if(r < 0) throw PluginBrokenLink(strerror(errno));
     else if(r == 0 && dt.nsamp != 0) throw PluginBrokenLink();
@@ -275,10 +311,7 @@ void ReftekUnit::proc_DT(const struct reftek_dt &dt)
 void ReftekUnit::proc_SH(const struct reftek_sh &sh, const char *msg)
   {
     ptime pt = depoch2pt(sh.tstamp);
-    
-    char unit_id[5];
-    snprintf(unit_id, 5, "%04X", sh.unit);
-    
+
     char tmpbuf[SHMSGLEN + 1];
     strncpy(tmpbuf, msg, SHMSGLEN);
     tmpbuf[SHMSGLEN] = 0;
@@ -315,7 +348,11 @@ void ReftekUnit::proc_SH(const struct reftek_sh &sh, const char *msg)
             string msgline(p, msglen);
             if(msgout.length() + plugin_id.length() + msgline.length() + 5 > PLUGIN_MAX_MSG_SIZE)
               {
-                int r = send_log3(unit_id, &pt, "%s", msgout.c_str());
+#ifndef TEST
+                int r = send_log3(name.data(), &pt, "%s", msgout.c_str());
+#else
+                int r = 1;
+#endif
                 if(r < 0) throw PluginBrokenLink(strerror(errno));
                 else if(r == 0) throw PluginBrokenLink();
 
@@ -328,7 +365,11 @@ void ReftekUnit::proc_SH(const struct reftek_sh &sh, const char *msg)
 
         if(msgout.length() > 0)
           {
-            int r = send_log3(unit_id, &pt, "%s", msgout.c_str());
+#ifndef TEST
+            int r = send_log3(name.data(), &pt, "%s", msgout.c_str());
+#else
+            int r = 1;
+#endif
             if(r < 0) throw PluginBrokenLink(strerror(errno));
             else if(r == 0) throw PluginBrokenLink();
           }
@@ -351,7 +392,7 @@ void ReftekUnit::proc_pkt(UINT8 *pkt)
         if(dt.dcerr)
             logs(LOG_WARNING) << "decompression error" << endl;
 
-        proc_DT(dt);
+        if(mapped) proc_DT(dt);
       }
     else if(reftek_type(pkt) == REFTEK_SH)
       {
@@ -362,7 +403,7 @@ void ReftekUnit::proc_pkt(UINT8 *pkt)
             return;
           }
 
-        proc_SH(sh, (char *)(pkt + SHMSGOFF));
+        if(mapped) proc_SH(sh, (char *)(pkt + SHMSGOFF));
       }
     else
       {
@@ -385,6 +426,7 @@ class RTPDConnection
     const bool log_soh;
     RTP* rtp;
     time_t last_poll;
+    const Unit2StationMap *unit_map;
     map<int, rc_ptr<ReftekUnit> > reftek_units;
 
     void rtpd_connect(int retry);
@@ -393,7 +435,8 @@ class RTPDConnection
 
   public:
     RTPDConnection(const string &host_init, int port_init, int retry, int tmo,
-      int default_tq_init, int unlock_tq_init, bool log_soh_init);
+      int default_tq_init, int unlock_tq_init, bool log_soh_init,
+      const Unit2StationMap *unit_map_init = NULL);
 
     ~RTPDConnection();
   };
@@ -455,16 +498,41 @@ void RTPDConnection::rtpd_poll(int tmo)
         map<int, rc_ptr<ReftekUnit> >::iterator p = reftek_units.find(unit);
         if(p == reftek_units.end())
           {
+            // The passed station name for Seedlink. Default is a string
+            // representation of the unit id
+            string name;
+            char unit_id[5];
+            bool mapped = false;
+            snprintf(unit_id, 5, "%04X", unit);
+            name = unit_id;
+
+            // Resolve mapping from unit to station name. If not given, use
+            // the unit-id as name
+            if ( unit_map != NULL )
+              {
+                Unit2StationMap::const_iterator mit = unit_map->find(unit);
+                if ( mit != unit_map->end() )
+                  {
+                    mapped = true;
+                    name = mit->second;
+                  }
+              }
+
             logs(LOG_NOTICE) << "unit " << hex << uppercase << setfill('0')
-              << setw(4) << unit << " detected" << dec << endl;
+              << setw(4) << unit << " detected" << dec;
+            if(mapped)
+              logs(LOG_NOTICE) << " mapped to " << name;
+            else
+              logs(LOG_NOTICE) << " (unmapped)";
+            logs(LOG_NOTICE) << endl;
 
             p = reftek_units.insert(make_pair(unit,
-              new ReftekUnit(default_tq, unlock_tq, log_soh))).first;
+              new ReftekUnit(name, mapped, default_tq, unlock_tq, log_soh))).first;
           }
 
         p->second->proc_pkt(buf);
       }
-            
+
     int time_now = time(NULL);
     if(time_now != last_poll)
       {
@@ -487,10 +555,10 @@ void RTPDConnection::rtpd_poll(int tmo)
 
 RTPDConnection::RTPDConnection(const string &host_init, int port_init,
   int retry, int tmo, int default_tq_init, int unlock_tq_init,
-  bool log_soh_init):
+  bool log_soh_init, const Unit2StationMap *unit_map_init):
   host(host_init), port(port_init),  default_tq(default_tq_init),
   unlock_tq(unlock_tq_init), log_soh(log_soh_init), rtp(NULL),
-  last_poll(0)
+  last_poll(0), unit_map(unit_map_init)
   {
     logs(LOG_INFO) << "[" << host << ":" << port << "] "
       "attempting connection" << endl;
@@ -607,6 +675,7 @@ try
         { "verbosity",      required_argument, NULL, 'X' },
         { "daemon",         no_argument,       NULL, 'D' },
         { "config-file",    required_argument, NULL, 'f' },
+        { "map-file",       required_argument, NULL, 'm' },
         { "version",        no_argument,       NULL, 'V' },
         { "help",           no_argument,       NULL, 'h' },
         { NULL }
@@ -614,12 +683,13 @@ try
 #endif
 
     string config_file = CONFIG_FILE;
-    
+    string map_file;
+
     int c;
 #if defined(__GNU_LIBRARY__) || defined(__GLIBC__)
-    while((c = getopt_long(argc, argv, "vDf:Vh", ops, NULL)) != EOF)
+    while((c = getopt_long(argc, argv, "vDf:m:Vh", ops, NULL)) != EOF)
 #else
-    while((c = getopt(argc, argv, "vDf:Vh")) != EOF)
+    while((c = getopt(argc, argv, "vDf:m:Vh")) != EOF)
 #endif
       {
         switch(c)
@@ -628,6 +698,7 @@ try
           case 'X': verbosity = atoi(optarg); break;
           case 'D': daemon_mode = true; break;
           case 'f': config_file = optarg; break;
+          case 'm': map_file = optarg; break;
           case 'V': cout << ident_str << endl;
                     exit(0);
           case 'h': fprintf(stdout, help_message, get_progname(argv[0]).c_str());
@@ -694,8 +765,17 @@ try
 
     read_config_ini(config_file, plugin_id, atts, new CfgElementMap);
 
+    Unit2StationMap unit_map;
+    if ( !map_file.empty() )
+      {
+        logs(LOG_INFO) << "loading map from file '" << map_file << "'"
+          << endl;
+
+        read_map_file(unit_map, map_file);
+      }
+
     RTPDConnection conn(host, port, retry, tmo, default_tq, unlock_tq,
-      log_soh);
+      log_soh, unit_map.empty()?NULL:&unit_map);
   }
 catch(exception &e)
   {

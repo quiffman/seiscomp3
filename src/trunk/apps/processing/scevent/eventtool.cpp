@@ -1629,6 +1629,8 @@ EventInformationPtr EventTool::associateOrigin(Seiscomp::DataModel::Origin *orig
 	}
 	else {
 		SEISCOMP_DEBUG("... found cached event information %s for origin", info->event->publicID().c_str());
+		SEISCOMP_LOG(_infoChannel, "Found matching event %s for origin %s",
+			         info->event->publicID().c_str(), origin->publicID().c_str());
 	}
 
 	if ( info ) {
@@ -1953,6 +1955,10 @@ EventTool::MatchResult EventTool::compare(EventInformation *info,
 	               origin->publicID().c_str(), info->event->publicID().c_str(),
 	               (unsigned long)matchingPicks, (unsigned long)origin->arrivalCount(),
 	               (unsigned long)_config.minMatchingPicks);
+	SEISCOMP_LOG(_infoChannel, "... matching picks of %s and %s = %lu/%lu, need at least %lu",
+	             origin->publicID().c_str(), info->event->publicID().c_str(),
+	             (unsigned long)matchingPicks, (unsigned long)origin->arrivalCount(),
+	             (unsigned long)_config.minMatchingPicks);
 
 	if ( !info->preferredOrigin )
 		return Nothing;
@@ -1965,8 +1971,21 @@ EventTool::MatchResult EventTool::compare(EventInformation *info,
 	                  &dist, &azi1, &azi2);
 
 	// Dist out of range
+	SEISCOMP_DEBUG("... distance of %s to %s = %f, max = %f",
+	               origin->publicID().c_str(), info->event->publicID().c_str(),
+	               dist, _config.maxDist);
+	SEISCOMP_LOG(_infoChannel, "... distance of %s to %s = %f, max = %f",
+	             origin->publicID().c_str(), info->event->publicID().c_str(),
+	             dist, _config.maxDist);
 	if ( dist <= _config.maxDist ) {
 		TimeSpan diffTime = info->preferredOrigin->time().value() - origin->time().value();
+
+		SEISCOMP_DEBUG("... time diff of %s to %s = %.2fs, max = %.2f",
+		               origin->publicID().c_str(), info->event->publicID().c_str(),
+		               (double)diffTime, (double)_config.maxTimeDiff);
+		SEISCOMP_LOG(_infoChannel, "... distance of %s to %s = %f, max = %f",
+		             origin->publicID().c_str(), info->event->publicID().c_str(),
+		             (double)diffTime, (double)_config.maxTimeDiff);
 
 		if ( diffTime.abs() <= _config.maxTimeDiff ) {
 
@@ -1982,18 +2001,26 @@ EventTool::MatchResult EventTool::compare(EventInformation *info,
 		case Nothing:
 			SEISCOMP_DEBUG("... no match for %s and %s",
 			               origin->publicID().c_str(), info->event->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "... no match for %s and %s",
+			             origin->publicID().c_str(), info->event->publicID().c_str());
 			break;
 		case Location:
 			SEISCOMP_DEBUG("... time/location matches for %s and %s",
 			               origin->publicID().c_str(), info->event->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "... time/location matches for %s and %s",
+			             origin->publicID().c_str(), info->event->publicID().c_str());
 			break;
 		case Picks:
 			SEISCOMP_DEBUG("... matching picks for %s and %s",
 			               origin->publicID().c_str(), info->event->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "... matching picks for %s and %s",
+			             origin->publicID().c_str(), info->event->publicID().c_str());
 			break;
 		case PicksAndLocation:
 			SEISCOMP_DEBUG("... matching picks and time/location for %s and %s",
 			               origin->publicID().c_str(), info->event->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "... matching picks and time/location for %s and %s",
+			             origin->publicID().c_str(), info->event->publicID().c_str());
 			break;
 	}
 
@@ -2067,8 +2094,12 @@ EventInformationPtr EventTool::findMatchingEvent(Origin *origin) {
 		}
 	}
 
-	if ( bestInfo )
-		SEISCOMP_DEBUG("... found best matching cached event %s (code: %d)", bestInfo->event->publicID().c_str(), bestResult);
+	if ( bestInfo ) {
+		SEISCOMP_DEBUG("... found best matching cached event %s (code: %d)",
+		               bestInfo->event->publicID().c_str(), bestResult);
+		SEISCOMP_LOG(_infoChannel, "... found best matching cached event %s (code: %d)",
+		             bestInfo->event->publicID().c_str(), bestResult);
+	}
 
 	return bestInfo;
 }
@@ -2891,7 +2922,7 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 	}
 
 	if ( update ) {
-		SEISCOMP_DEBUG("%s: update (created: %d, notifiers enabled: %d)", 
+		SEISCOMP_DEBUG("%s: update (created: %d, notifiers enabled: %d)",
 		               info->event->publicID().c_str(), info->created,
 		               Notifier::IsEnabled());
 

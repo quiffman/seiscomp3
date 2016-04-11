@@ -1946,8 +1946,10 @@ bool Autoloc3::_associate(Origin *origin, const Pick *pick, const std::string &p
 			// recorded at many stations in Europe. In that case
 			// the minPhaseCount criterion might be counter
 			// productive, prevent the association as PKP and
-			// ultimately lead result in fake events.
+			// ultimately result in fake events.
+#ifdef EXTRA_DEBUGGING
 			SEISCOMP_DEBUG_S("aggressive PKP association for station "+station->code);
+#endif
 		}
 		else {
 #ifdef EXTRA_DEBUGGING

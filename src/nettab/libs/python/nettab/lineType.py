@@ -547,16 +547,45 @@ class Sa(object):
 			if self._regexCompare(sta, scode) and self._regexCompare(loc, lcode) and self._regexCompare(cha, ccode):
 				return True
 		return False
-	
+
+	def _matchTimeRelaxed(self, start, end):
+		'''
+		This method is more relaxed about time constrains and only match start date supplied.
+		When the start date supplied is inside the range defined in this object, accept, otherwise
+		reject
+		'''
+		if not self.start and not self.end:
+			return True
+
+		if not start: raise Exception("Cannot compare with an node without start")
+
+		# |-------------------------------------------  Infinite
+		if self.start and not self.end:
+			if start >= self.start: return True
+			return False
+
+		# infinite ----------------------------------| 
+		if self.end and not self.start:
+			if start > self.end: return False
+			return True
+
+		#  |----------------------------------|
+		if self.start and self.end:
+			if start < self.start: return False
+			if start > self.end: return False
+			return True
+
 	def _matchTime(self, start, end):
 		if not self.start and not self.end:
 			return True
+		
+		if not start: raise Exception("Cannot compare with an node without start")
 		
 		# |-------------------------------------------  Infinite 
 		if self.start and not self.end:
 			if start < self.start:
 				if not end or end > self.start:
-					raise Exception("Cross Start")
+					raise Exception("Object cross attribute (Sa) start")
 				else:
 					return False
 			else:
@@ -568,7 +597,7 @@ class Sa(object):
 				return False
 			else:
 				if not end or end > self.end:
-					raise Exception("Cross End")
+					raise Exception("Object cross attribute (Sa) end")
 				else:
 					return True
 		
@@ -576,16 +605,16 @@ class Sa(object):
 		if self.start and self.end:
 			if start < self.start:
 				if not end or end > self.start:
-					raise Exception ("Cross Start")
+					raise Exception ("Object cross attribute (Sa) start")
 				return False
 			elif start <= self.end:
 				if not end or end > self.end:
-					raise Exception("Cross end")
+					raise Exception("Object cross attribute (Sa) end")
 				return True
 			else:
 				return False
 
-	def match(self, scode, lcode, ccode, start, end):
+	def match(self, scode, lcode, ccode, start, end, relaxed = False):
 		A = False
 		B = False
 		if ccode is not None and lcode is not None and scode is not None:
@@ -597,7 +626,12 @@ class Sa(object):
 		else:
 			raise Exception("Invalid Nslc supplied.")
 		
-		if A: B = self._matchTime(start, end)
+		if A:
+			if not relaxed:
+				B = self._matchTime(start, end)
+			else:
+				B = self._matchTimeRelaxed(start, end)
+		
 		return A and B
 
 class Ia(object):

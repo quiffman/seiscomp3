@@ -412,6 +412,7 @@ class DispatchTool : public Seiscomp::Client::Application {
 			timer.restart();
 
 			dispatcher(doc.get());
+			sync();
 			std::cout << std::endl;
 
 			std::cout << "While dispatching " << dispatcher.count() << " objects " << dispatcher.errors() << " errors occured" << std::endl;

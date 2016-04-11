@@ -64,7 +64,7 @@ class Tab(object):
 				elif Type == "Sl":
 					raise Exception("Defaults file can only contain attributes")
 				elif Type == "Ia":
-					ias.append(Ia(Content))				
+					ias.append(Ia(Content))
 				elif Type == "Se":
 					raise Exception("Defaults file can only contain attributes")
 				elif Type == "Dl":

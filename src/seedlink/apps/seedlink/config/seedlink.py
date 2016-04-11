@@ -164,12 +164,12 @@ class TemplateModule(seiscomp3.Kernel.Module):
 
             except KeyError:
                 pass
+        else:
+            try:
+                return self.global_params[name]
 
-        try:
-            return self.global_params[name]
-
-        except KeyError:
-            pass
+            except KeyError:
+                pass
 
         if print_warning:
             if station_scope:
@@ -262,6 +262,18 @@ class Module(TemplateModule):
             ini += '             proc = "%s"\n' % self._get('seedlink.station.sproc')
         if self._get('seedlink.station.access'):
             ini += '             access = "%s"\n' % self._get('seedlink.station.access').replace(',',' ')
+        if self._get('seedlink.station.blanks'):
+            ini += '             blanks = "%s"\n' % self._get('seedlink.station.blanks')
+        if self._get('seedlink.station.encoding'):
+            ini += '             encoding = "%s"\n' % self._get('seedlink.station.encoding')
+        if self._get('seedlink.station.buffers'):
+            ini += '             buffers = "%s"\n' % self._get('seedlink.station.buffers')
+        if self._get('seedlink.station.segments'):
+            ini += '             segments = "%s"\n' % self._get('seedlink.station.segments')
+        if self._get('seedlink.station.segsize'):
+            ini += '             segsize = "%s"\n' % self._get('seedlink.station.segsize')
+        if self._get('seedlink.station.backfill_buffer'):
+            ini += '             backfill_buffer = "%s"\n' % self._get('seedlink.station.backfill_buffer')
         ini += '\n'
         return ini
 
@@ -288,6 +300,12 @@ class Module(TemplateModule):
         self._set('seedlink.station.network', self.net)
         self._set('seedlink.station.access', self._get('access'))
         self._set('seedlink.station.sproc', self._get('proc'))
+        self._set('seedlink.station.blanks', self._get('blanks'))
+        self._set('seedlink.station.encoding', self._get('encoding'))
+        self._set('seedlink.station.buffers', self._get('buffers'))
+        self._set('seedlink.station.segments', self._get('segments'))
+        self._set('seedlink.station.segsize', self._get('segsize'))
+        self._set('seedlink.station.backfill_buffer', self._get('backfill_buffer'))
 
         # Supply station description:
         # 1. try getting station description from a database
@@ -527,7 +545,7 @@ class Module(TemplateModule):
             fd.close()
 
     def _set_default(self, name, value, station_scope = True):
-        try: self.param(name)
+        try: self.param(name, station_scope)
         except: self._set(name, value, station_scope)
 
     def supportsAliases(self):
@@ -560,6 +578,7 @@ class Module(TemplateModule):
         self._set_default("proc_gap_warn", "10", False)
         self._set_default("proc_gap_flush", "100000", False)
         self._set_default("proc_gap_reset", "1000000", False)
+        self._set_default("backfill_buffer", "0", False)
         self._set_default("seq_gap_limit", "100000", False)
         self._set_default("connections", "500", False)
         self._set_default("connections_per_ip", "20", False)
@@ -567,8 +586,8 @@ class Module(TemplateModule):
 
         ## Expand the @Variables@
         e = seiscomp3.System.Environment.Instance()
-        self.setParam("filebase", e.absolutePath(self.param("filebase")), False)
-        self.setParam("lockfile", e.absolutePath(self.param("lockfile")), False)
+        self.setParam("filebase", e.absolutePath(self.param("filebase", False)), False)
+        self.setParam("lockfile", e.absolutePath(self.param("lockfile", False)), False)
 
         if self._get("msrtsimul", False).lower() == "true":
           self.msrtsimul = True

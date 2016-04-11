@@ -1528,6 +1528,8 @@ bool Application::init() {
 			}
 			cout << endl;
 			delete services;
+			exit(-1);
+			return false;
 		}
 	}
 
@@ -1543,6 +1545,8 @@ bool Application::init() {
 			}
 			cout << endl;
 			delete services;
+			exit(-1);
+			return false;
 		}
 	}
 

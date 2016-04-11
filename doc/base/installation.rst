@@ -170,7 +170,7 @@ SQL configuration
 
 * For better performance with a MYSQL database, adjust the following parameters:
 
-  * "innodb_buffer_pool size = 64M"
+  * "innodb_buffer_pool_size = 64M"
   * "innodb_flush_log_at_trx_commit = 2"
 
   The location of the configuration can differ between distributions. For
