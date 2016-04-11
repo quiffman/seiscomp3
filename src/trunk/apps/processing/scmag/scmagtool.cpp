@@ -360,7 +360,7 @@ class MagToolApp : public Seiscomp::Client::Application {
 			}
 	
 			// periodic house keeping
-			if (++_cleanupCounter >= _cleanupInterval) {
+			if ( ++_cleanupCounter >= _cleanupInterval ) {
 				countPublicObjectsByType();
 				_cleanupCounter = 0;
 			}
@@ -370,14 +370,14 @@ class MagToolApp : public Seiscomp::Client::Application {
 
 		void addObject(const std::string& parentID, DataModel::Object* object) {
 			Pick *pick = Pick::Cast(object);
-			if (pick) {
+			if ( pick != NULL ) {
 				logObject(_magtool.inputPickLog, Time::GMT());
 				_magtool.feed(pick);
 				return;
 			}
 
 			Amplitude *ampl = Amplitude::Cast(object);
-			if (ampl) {
+			if ( ampl != NULL ) {
 				logObject(_magtool.inputAmpLog, Time::GMT());
 				Notifier::Enable();
 				_magtool.feed(ampl, false);
@@ -386,7 +386,7 @@ class MagToolApp : public Seiscomp::Client::Application {
 			}
 
 			Origin *origin = Origin::Cast(object);
-			if (origin) {
+			if ( origin != NULL ) {
 				logObject(_magtool.inputOrgLog, Time::GMT());
 				// When an origins arrives the initial magnitudes
 				// have to be sent out immediately
@@ -400,7 +400,7 @@ class MagToolApp : public Seiscomp::Client::Application {
 
 		void updateObject(const std::string&, DataModel::Object* object) {
 			Amplitude *ampl = Amplitude::Cast(object);
-			if (ampl) {
+			if ( ampl != NULL ) {
 				logObject(_magtool.inputAmpLog, Time::GMT());
 				Notifier::Enable();
 				_magtool.feed(ampl, true);
@@ -409,7 +409,7 @@ class MagToolApp : public Seiscomp::Client::Application {
 			}
 
 			Origin *origin = Origin::Cast(object);
-			if (origin) {
+			if ( origin != NULL ) {
 				logObject(_magtool.inputOrgLog, Time::GMT());
 				// When an origins arrives the initial magnitudes
 				// have to be sent out immediately
@@ -431,9 +431,6 @@ class MagToolApp : public Seiscomp::Client::Application {
 		unsigned int _interval;
 		double _fExpiry;
 		TimeSpan _expiry;
-
-		std::set<std::string> _smBlacklist;
-		std::set<std::string> _smWhitelist;
 
 		MagTool::MagnitudeTypes _magTypes;
 		MagTool _magtool;

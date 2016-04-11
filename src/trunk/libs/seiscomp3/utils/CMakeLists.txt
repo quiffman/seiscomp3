@@ -17,6 +17,7 @@ SET(UTILS_HEADERS
 	files.h
 	leparser.h
 	misc.h
+	mutex.h
 )
 
 SC_SETUP_LIB_SUBDIR(UTILS)

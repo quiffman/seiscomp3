@@ -135,6 +135,9 @@ class GeneralException(Exception):
     __swig_destroy__ = _Core.delete_GeneralException
     __del__ = lambda self : None;
     def what(self): return _Core.GeneralException_what(self)
+    def __str__(self):
+            return self.what()
+
 GeneralException_swigregister = _Core.GeneralException_swigregister
 GeneralException_swigregister(GeneralException)
 

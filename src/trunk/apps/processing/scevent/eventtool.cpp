@@ -892,12 +892,10 @@ void EventTool::removeObject(const string &parentID, Object* object) {
 			info->event->setPreferredMagnitudeID("");
 			info->preferredOrigin = NULL;
 			info->preferredMagnitude = NULL;
+			Notifier::Enable();
 			// Select the preferred origin again among all remaining origins
 			updatePreferredOrigin(info.get());
-
-			Notifier::SetEnabled(true);
-			updateEvent(info->event.get());
-			Notifier::SetEnabled(false);
+			Notifier::Disable();
 		}
 	}
 }
@@ -950,7 +948,7 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 			if ( info ) {
 				SEISCOMP_INFO("%s: created", info->event->publicID().c_str());
 				SEISCOMP_LOG(_infoChannel, "Origin %s created a new event %s",
-							 origin->publicID().c_str(), info->event->publicID().c_str());
+				             origin->publicID().c_str(), info->event->publicID().c_str());
 
 				Notifier::Enable();
 				if ( !info->associate(origin.get()) ) {
@@ -1035,14 +1033,9 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 		if ( info->constraints.preferredOriginID.empty() ) {
 			response = createEntry(entry->objectID(), entry->action() + "OK", ":automatic:");
 
-			std::string lastPreferredOriginID = info->event->preferredOriginID();
+			Notifier::Enable();
 			updatePreferredOrigin(info.get());
-
-			if ( info->event->preferredOriginID() != lastPreferredOriginID ) {
-				Notifier::Enable();
-				updateEvent(info->event.get());
-				Notifier::Disable();
-			}
+			Notifier::Disable();
 		}
 		else {
 			if ( info->event->originReference(info->constraints.preferredOriginID) == NULL ) {
@@ -1082,27 +1075,17 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 			else
 				response = createEntry(entry->objectID(), entry->action() + "OK", entry->parameters());
 
-			std::string lastPreferredOriginID = info->event->preferredOriginID();
+			Notifier::Enable();
 			updatePreferredOrigin(info.get());
-
-			if ( info->event->preferredOriginID() != lastPreferredOriginID ) {
-				Notifier::Enable();
-				updateEvent(info->event.get());
-				Notifier::Disable();
-			}
+			Notifier::Disable();
 		}
 	}
 	else if ( entry->action() == "EvPrefOrgAutomatic" ) {
 		response = createEntry(entry->objectID(), entry->action() + "OK", ":automatic mode:");
 
-		std::string lastPreferredOriginID = info->event->preferredOriginID();
+		Notifier::Enable();
 		updatePreferredOrigin(info.get());
-
-		if ( info->event->preferredOriginID() != lastPreferredOriginID ) {
-			Notifier::Enable();
-			updateEvent(info->event.get());
-			Notifier::Disable();
-		}
+		Notifier::Disable();
 	}
 	else if ( entry->action() == "EvType" ) {
 		SEISCOMP_DEBUG("...set event type");
@@ -1278,9 +1261,6 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 						else
 							++i;
 					}
-					Notifier::Disable();
-
-					bool needEventUpdate = false;
 
 					if ( sourceInfo->event->preferredOriginID() == org->publicID() ) {
 						SEISCOMP_DEBUG("%s: removed origin reference was the preferred origin, set to NULL",
@@ -1292,7 +1272,6 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 						sourceInfo->preferredMagnitude = NULL;
 						// Select the preferred origin again among all remaining origins
 						updatePreferredOrigin(sourceInfo.get());
-						needEventUpdate = true;
 					}
 
 					if ( updatedPrefFM ) {
@@ -1301,14 +1280,9 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 						sourceInfo->event->setPreferredFocalMechanismID("");
 						sourceInfo->preferredFocalMechanism = NULL;
 						updatePreferredFocalMechanism(sourceInfo.get());
-						needEventUpdate = true;
 					}
 
-					if ( needEventUpdate ) {
-						Notifier::Enable();
-						updateEvent(sourceInfo->event.get());
-						Notifier::Disable();
-					}
+					Notifier::Disable();
 
 					e = NULL;
 				}
@@ -1326,20 +1300,11 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 					logObject(_outputFMRef, Time::GMT());
 					info->event->add(new FocalMechanismReference(*it));
 				}
-				Notifier::Disable();
-
-				std::string lastPreferredOriginID = info->event->preferredOriginID();
-				std::string lastPreferredFMID = info->event->preferredFocalMechanismID();
 
 				updatePreferredOrigin(info.get());
 				updatePreferredFocalMechanism(info.get());
 
-				if ( info->event->preferredOriginID() != lastPreferredOriginID ||
-				     info->event->preferredFocalMechanismID() != lastPreferredFMID ) {
-					Notifier::Enable();
-					updateEvent(info->event.get());
-					Notifier::Disable();
-				}
+				Notifier::Disable();
 
 				response = createEntry(entry->objectID(), entry->action() + "OK", org->publicID());
 			}
@@ -1386,9 +1351,7 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 							else
 								++i;
 						}
-						Notifier::SetEnabled(false);
-
-						bool needEventUpdate = false;
+						Notifier::Enable();
 
 						if ( info->event->preferredOriginID() == org->publicID() ) {
 							SEISCOMP_DEBUG("%s: removed origin reference was the preferred origin, set to NULL",
@@ -1401,7 +1364,6 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 							// Select the preferred origin again among all remaining origins
 							updatePreferredOrigin(info.get());
 
-							needEventUpdate = true;
 						}
 
 						if ( updatedPrefFM ) {
@@ -1410,14 +1372,9 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 							info->event->setPreferredFocalMechanismID("");
 							info->preferredFocalMechanism = NULL;
 							updatePreferredFocalMechanism(info.get());
-							needEventUpdate = true;
 						}
 
-						if ( needEventUpdate ) {
-							Notifier::Enable();
-							updateEvent(info->event.get());
-							Notifier::Disable();
-						}
+						Notifier::Disable();
 
 						response = createEntry(entry->objectID(), entry->action() + "OK", org->publicID() + " removed by command");
 
@@ -2326,24 +2283,14 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 		if ( isAgencyIDAllowed(objectAgencyID(origin)) || info->constraints.fixOrigin(origin) ) {
 			info->event->setPreferredOriginID(origin->publicID());
 
-			std::string reg = region(origin);
-			EventDescription *ed = eventRegionDescription(info->event.get());
-			if ( ed != NULL ) {
-				if ( ed->text() != reg ) {
-					ed->setText(reg);
-					ed->update();
-				}
-			}
-			else {
-				EventDescriptionPtr ed = new EventDescription(reg, REGION_NAME);
-				info->event->add(ed.get());
-			}
-
-			info->preferredOrigin = origin;
 			SEISCOMP_INFO("%s: set first preferredOriginID to %s",
 			              info->event->publicID().c_str(), origin->publicID().c_str());
 			SEISCOMP_LOG(_infoChannel, "Origin %s has been set preferred in event %s",
 			             origin->publicID().c_str(), info->event->publicID().c_str());
+
+			updateRegionName(info->event.get(), origin);
+
+			info->preferredOrigin = origin;
 			update = true;
 		}
 		else {
@@ -2789,25 +2736,14 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 
 		info->event->setPreferredOriginID(origin->publicID());
 
-		std::string reg = region(origin);
-		EventDescription *ed = eventRegionDescription(info->event.get());
-		if ( ed != NULL ) {
-			if ( ed->text() != reg ) {
-				ed->setText(reg);
-				ed->update();
-			}
-		}
-		else {
-			EventDescriptionPtr ed = new EventDescription(reg, REGION_NAME);
-			info->event->add(ed.get());
-		}
-
-		//info->event->setDescription(region(origin));
-		info->preferredOrigin = origin;
 		SEISCOMP_INFO("%s: set preferredOriginID to %s",
 		              info->event->publicID().c_str(), origin->publicID().c_str());
 		SEISCOMP_LOG(_infoChannel, "Origin %s has been set preferred in event %s",
 		             origin->publicID().c_str(), info->event->publicID().c_str());
+
+		updateRegionName(info->event.get(), origin);
+
+		info->preferredOrigin = origin;
 
 		if ( mag ) {
 			if ( info->event->preferredMagnitudeID() != mag->publicID() ) {
@@ -2864,6 +2800,10 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 	}
 
 	if ( update ) {
+		SEISCOMP_DEBUG("%s: update (created: %d, notifiers enabled: %d)", 
+		               info->event->publicID().c_str(), info->created,
+		               Notifier::IsEnabled());
+
 		if ( !info->created )
 			updateEvent(info->event.get(), callProcessors);
 		else {
@@ -3472,6 +3412,34 @@ void EventTool::updateEvent(DataModel::Event *ev, bool callProcessors) {
 		EventProcessors::iterator it;
 		for ( it = _processors.begin(); it != _processors.end(); ++it )
 			it->second->process(ev);
+	}
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void EventTool::updateRegionName(DataModel::Event *ev, DataModel::Origin *org) {
+	std::string reg = org != NULL?region(org):"";
+	EventDescription *ed = eventRegionDescription(ev);
+	if ( ed != NULL ) {
+		if ( ed->text() != reg ) {
+			SEISCOMP_INFO("%s: updating region name to '%s'",
+			              ev->publicID().c_str(), reg.c_str());
+			SEISCOMP_LOG(_infoChannel, "Event %s region name updated: %s",
+			             ev->publicID().c_str(), reg.c_str());
+			ed->setText(reg);
+			ed->update();
+		}
+	}
+	else {
+		EventDescriptionPtr ed = new EventDescription(reg, REGION_NAME);
+		ev->add(ed.get());
+		SEISCOMP_INFO("%s: adding region name '%s'",
+		              ev->publicID().c_str(), reg.c_str());
+		SEISCOMP_LOG(_infoChannel, "Event %s got new region name: %s",
+		             ev->publicID().c_str(), reg.c_str());
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

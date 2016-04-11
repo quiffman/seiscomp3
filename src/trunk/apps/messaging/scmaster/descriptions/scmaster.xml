@@ -9,6 +9,20 @@
 				CONFIG, LOGGING, SERVICE_REQUEST and SERVICE_PROVIDE are provided.
 				</description>
 			</parameter>
+			<group name="admin">
+				<parameter name="adminname" type="string">
+					<description>
+					Name of admin user used to authenticate with scadmin to manage
+					client connections.
+					</description>
+				</parameter>
+				<parameter name="password" type="string">
+					<description>
+					Password of admin user used to authenticate with scadmin to manage
+					client connections.
+					</description>
+				</parameter>
+			</group>
 			<group name="plugins">
 				<group name="dbPlugin">
 					<description>

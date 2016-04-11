@@ -131,8 +131,29 @@
 					is established. Override these values only if you know what you
 					are doing.
 				</description>
-				<parameter name="type" type="string"/>
-				<parameter name="parameters" type="string"/>
+				<parameter name="type" type="string">
+					<description>
+					Defines the database backend to be used. The name corresponds to
+					the defined name in the database plugin. Examples are: mysql, postgresql or
+					sqlite3.
+					</description>
+				</parameter>
+				<parameter name="parameters" type="string">
+					<description>
+					The database connection parameters. This value depends on the used
+					database backend. E.g. sqlite3 expects the path to the database
+					file whereas MYSQL or PostgreSQL expect an URI in the format
+					user:pwd@host/database?param1=val1&amp;param2=val2.
+					</description>
+				</parameter>
+				<parameter name="inventory" type="string">
+					Load the inventory database from a given XML file if set. This
+					overrides the inventory definitions loaded from the database backend.
+				</parameter>
+				<parameter name="config" type="string">
+					Load the configuration database from a given XML file if set. This
+					overrides the configuration definitions loaded from the database backend.
+				</parameter>
 			</group>
 			<group name="recordstream">
 				<parameter name="service" type="string" default="slink"/>
@@ -395,6 +416,14 @@
 					this station will be skipped for amplitudes and magnitudes.
 					</description>
 				</parameter>
+				<parameter name="saturationThreshold" type="double" default="-1">
+					<description>
+					Defines the saturation threshold for the optional saturation check.
+					By default the saturation check is disabled but giving a value above
+					0 will enable it. Waveforms that are saturated are not used  at all
+					for amplitude calculations.
+					</description>
+				</parameter>
 				<parameter name="enableResponses" type="boolean" default="false">
 					<description>
 					Activates deconvolution for this station. If no responses are
@@ -616,13 +645,6 @@
 						</description>
 					</parameter>
 				</group>
-			</group>
-			<group name="LOCSAT">
-				<parameter name="profiles" type="list:string" default="iasp91,tab">
-					<description>
-					Defines a list of available LOCSAT tab directories.
-					</description>
-				</parameter>
 			</group>
 		</configuration>
 	</binding>

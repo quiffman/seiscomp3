@@ -97,7 +97,8 @@ struct SC_SYSTEM_CLIENT_API Notification {
 		Disconnect,
 		Reconnect,
 		Close,
-		Timeout
+		Timeout,
+		Sync
 	};
 
 	Notification() : object(NULL), type(Object) {}
@@ -603,6 +604,20 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		virtual bool handleInitializationError(Stage stage);
 
 		const std::set<std::string>& subscribedGroups() const;
+
+		/**
+		 * Called when the application starts a sync request. This event can
+		 * be implemented in derived classes to pause other services such
+		 * as record acquisition. The default implementation is empty.
+		 */
+		virtual void handleStartSync();
+
+		/**
+		 * Called when the sync request is finished. This event can be
+		 * implemented to resume paused services. The default implementation
+		 * does nothing.
+		 */
+		virtual void handleEndSync();
 
 
 	// ----------------------------------------------------------------------

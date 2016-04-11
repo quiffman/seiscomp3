@@ -11,6 +11,7 @@
  ***************************************************************************/
 
 #include "editor.h"
+#include <set>
 
 
 namespace {
@@ -350,4 +351,114 @@ void ConfigFileWidget::setError(int r) {
 	_editor->setErrorLine(line);
 	_editor->gotoLine(line);
 	_editor->setFocus();
+}
+
+
+ConfigConflictWidget::ConfigConflictWidget(QWidget *parent) : QWidget(parent) {
+	QVBoxLayout *l = new QVBoxLayout;
+	_list = new QListWidget;
+	l->addWidget(_list);
+	_list->setAlternatingRowColors(true);
+	setLayout(l);
+}
+
+
+void ConfigConflictWidget::setConflicts(const QList<Seiscomp::System::ConfigDelegate::CSConflict> &conflicts) {
+	_conflicts = conflicts;
+	_list->clear();
+
+	for ( int i = 0; i < conflicts.size(); ++i ) {
+		const Seiscomp::System::ConfigDelegate::CSConflict &cs = conflicts[i];
+		QListWidgetItem *line = new QListWidgetItem(
+			QIcon(":/res/icons/warning_small.png"),
+			QString("%1: %2 should be %3")
+			.arg(cs.symbol->uri.c_str())
+			.arg(cs.symbol->name.c_str())
+			.arg(cs.parameter->variableName.c_str())
+		);
+
+		line->setFlags(line->flags() & ~Qt::ItemIsSelectable);
+		line->setFlags(line->flags() | Qt::ItemIsUserCheckable);
+		line->setCheckState(Qt::Unchecked);
+		line->setData(Qt::UserRole, qVariantFromValue((void*)&cs));
+
+		if ( cs.stage != Seiscomp::Environment::CS_CONFIG_APP &&
+			 cs.stage != Seiscomp::Environment::CS_USER_APP )
+			line->setFlags(line->flags() & ~Qt::ItemIsEnabled);
+
+		_list->addItem(line);
+	}
+}
+
+
+struct UpdateFileItem {
+	Seiscomp::System::Module *module;
+	std::string               filename;
+	int                       stage;
+
+	bool operator<(const UpdateFileItem &other) const {
+		if ( module < other.module ) return true;
+		if ( module > other.module ) return false;
+
+		if ( filename < other.filename ) return true;
+		if ( filename > other.filename ) return false;
+
+		return stage < other.stage;
+	}
+};
+
+
+void ConfigConflictWidget::fixConflicts() {
+	std::set<UpdateFileItem> updateFiles;
+	std::set<UpdateFileItem>::iterator it;
+	int checkedFixes = 0;
+
+	for ( int i = 0; i < _list->count(); ++i ) {
+		QListWidgetItem *item = _list->item(i);
+		if ( !(item->flags() & Qt::ItemIsEnabled) ) continue;
+		if ( item->checkState() != Qt::Checked ) continue;
+
+		++checkedFixes;
+
+		const Seiscomp::System::ConfigDelegate::CSConflict *cs =
+			reinterpret_cast<const Seiscomp::System::ConfigDelegate::CSConflict*>(item->data(Qt::UserRole).value<void*>());
+
+		Seiscomp::System::SymbolMapItem *sitem = new Seiscomp::System::SymbolMapItem;
+		sitem->symbol = *cs->symbol;
+		sitem->known = true;
+
+		for ( size_t j = 0; j < cs->module->unknowns.size(); ++j ) {
+			if ( cs->module->unknowns[j]->variableName == cs->symbol->name ) {
+				// Remove unknown parameter for this stage
+				cs->module->unknowns[j]->symbols[cs->stage] = NULL;
+				break;
+			}
+		}
+
+		cs->parameter->symbols[cs->stage] = sitem;
+		cs->parameter->updateFinalValue();
+
+		UpdateFileItem fileItem;
+		fileItem.module = cs->module;
+		fileItem.filename = cs->symbol->uri;
+		fileItem.stage = cs->symbol->stage;
+
+		updateFiles.insert(fileItem);
+
+		delete _list->takeItem(i);
+		--i;
+	}
+
+	if ( !checkedFixes ) {
+		QMessageBox::critical(this, tr("Empty selection"),
+		                      tr("No conflicts selected. Select at least one conflict to "
+		                         "fix. If a line is disabled then nothing can be fixed because "
+		                         "that file is not managed by scconfig."));
+		return;
+	}
+
+	for ( it = updateFiles.begin(); it != updateFiles.end(); ++it ) {
+		const UpdateFileItem &file = *it;
+		file.module->model->writeConfig(file.module, file.filename, file.stage);
+	}
 }

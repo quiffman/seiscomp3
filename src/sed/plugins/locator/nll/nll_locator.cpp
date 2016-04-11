@@ -27,6 +27,7 @@ extern "C" {
 
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/core/strings.h>
+#include <seiscomp3/system/environment.h>
 #include <seiscomp3/datamodel/utils.h>
 #include <seiscomp3/datamodel/comment.h>
 #include <seiscomp3/math/geo.h>
@@ -349,6 +350,8 @@ NLLocator::~NLLocator() {}
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool NLLocator::init(const Config::Config &config) {
+	Environment *env = Environment::Instance();
+
 	try {
 		_publicIDPattern = config.getString("NonLinLoc.publicID");
 	}
@@ -357,7 +360,7 @@ bool NLLocator::init(const Config::Config &config) {
 	}
 
 	try {
-		_outputPath = config.getString("NonLinLoc.outputPath");
+		_outputPath = env->absolutePath(config.getString("NonLinLoc.outputPath"));
 	}
 	catch ( ... ) {
 		_outputPath = "/tmp/sc3.nll";
@@ -376,7 +379,7 @@ bool NLLocator::init(const Config::Config &config) {
 	}
 
 	try {
-		_controlFilePath = config.getString("NonLinLoc.controlFile");
+		_controlFilePath = env->absolutePath(config.getString("NonLinLoc.controlFile"));
 		/*
 		if ( !Util::fileExists(_controlFilePath) ) {
 			SEISCOMP_ERROR("NonLinLoc.controlFile: file %s does not exist",
@@ -412,7 +415,7 @@ bool NLLocator::init(const Config::Config &config) {
 			prof.methodID = "NonLinLoc";
 		}
 
-		try { prof.tablePath = config.getString(prefix + "tablePath"); }
+		try { prof.tablePath = env->absolutePath(config.getString(prefix + "tablePath")); }
 		catch ( ... ) {}
 
 		if ( prof.tablePath.empty() ) {
@@ -453,7 +456,7 @@ bool NLLocator::init(const Config::Config &config) {
 		}
 
 		try {
-			prof.controlFile = config.getString(prefix + "controlFile");
+			prof.controlFile = env->absolutePath(config.getString(prefix + "controlFile"));
 		}
 		catch ( ... ) {}
 

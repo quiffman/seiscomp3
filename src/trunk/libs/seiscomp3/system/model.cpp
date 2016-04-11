@@ -83,6 +83,37 @@ IMPLEMENT_RTTI_METHODS(Model)
 namespace {
 
 
+class CaseSensitivityCheck : public ModelVisitor {
+	public:
+		CaseSensitivityCheck(ConfigDelegate *delegate,
+		                     Module *target, int stage, Config::Symbol *symbol)
+		: _delegate(delegate), _target(target), _stage(stage), _symbol(symbol) {}
+
+	protected:
+		virtual bool visit(Module *m) { return m == _target; }
+		virtual bool visit(Section*) { return true; }
+		virtual bool visit(Group*) { return true; }
+		virtual bool visit(Structure*) { return true; }
+		virtual void visit(Parameter *p, bool unknown) {
+			if ( !unknown && Core::compareNoCase(p->variableName, _symbol->name) == 0 ) {
+				ConfigDelegate::CSConflict csc;
+				csc.module = _target;
+				csc.parameter = p;
+				csc.stage = _stage;
+				csc.symbol = _symbol;
+				if ( _delegate ) _delegate->caseSensitivityConflict(csc);
+			}
+		}
+
+	private:
+		ConfigDelegate *_delegate;
+		Module         *_target;
+		int             _stage;
+		Config::Symbol *_symbol;
+};
+
+
+
 bool createPath(const std::string &pathname) {
 	if ( mkdir(pathname.c_str(), 0755) < 0 ) {
 		if ( errno == ENOENT ) {
@@ -1844,10 +1875,11 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 				ParameterPtr param = unknowns[it->first];
 				if ( param == NULL ) {
 					param = new Parameter(NULL, it->first);
-					param->symbols[stage] = it->second;
-					mod->unknowns.push_back(param);
 					unknowns[it->first] = param;
+					mod->unknowns.push_back(param);
 				}
+
+				param->symbols[stage] = it->second;
 			}
 		}
 
@@ -1858,7 +1890,18 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 
 		// Read available profiles
 		mod->loadProfiles(stationConfigDir(true, mod->definition->name), delegate);
+
+		// Check for case sensitivity conflicts
+		for ( size_t p = 0; p < mod->unknowns.size(); ++ p ) {
+			ParameterPtr param = mod->unknowns[p];
+			for ( int stage = Environment::CS_FIRST; stage <= Environment::CS_LAST; ++stage ) {
+				if ( param->symbols[stage] == NULL ) continue;
+				CaseSensitivityCheck check(delegate, mod, stage, &param->symbols[stage]->symbol);
+				mod->accept(&check);
+			}
+		}
 	}
+
 
 	// Read station module configuration
 	keyDir = stationConfigDir(true);

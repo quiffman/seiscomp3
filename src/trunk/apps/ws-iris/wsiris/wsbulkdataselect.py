@@ -35,9 +35,8 @@ class _BulkDataSelectRequestOptions(RequestOptions):
 	MinTime = Time(0, 1)
 
 	#---------------------------------------------------------------------------
-	def __init__(self, content):
-		RequestOptions.__init__(self, {})
-		self.content = content
+	def __init__(self, args):
+		RequestOptions.__init__(self, args)
 		self.streams = []
 		self.selection = None
 		self.quality = "B"  # [B, D, M, Q, R]
@@ -47,18 +46,6 @@ class _BulkDataSelectRequestOptions(RequestOptions):
 
 	#---------------------------------------------------------------------------
 	def parse(self):
-		# Parse POST data
-		sel = []
-		for l in self.content:
-			l = l.strip()
-			toks = l.split(' ', 1)
-			if len(toks) < 2: continue
-			if toks[0] in ["quality", "minimumlength", "longestonly"]:
-				self._args[toks[0]] = toks[1]
-			else:
-				sel.append(l)
-		self._args["selection"] = sel
-
 		# selection (mandatory)
 		self.parseSelection()
 
@@ -81,9 +68,12 @@ class _BulkDataSelectRequestOptions(RequestOptions):
 
 	#---------------------------------------------------------------------------
 	def parseSelection(self):
+		if "selection" not in self._args:
+			raise ValueError, "Missing mandatory parameter: selection"
+
 		now = Time.GMT()
 		nLine = 0
-		for line in self._args["selection"]:
+		for line in self._args["selection"].splitlines():
 			nLine += 1
 			toks = line.split(' ')
 			if len(toks) != 6:
@@ -146,7 +136,7 @@ class WSBulkDataSelect(resource.Resource):
 
 		# Parse and validate POST parameters
 		try:
-			ro = _BulkDataSelectRequestOptions(req.content)
+			ro = _BulkDataSelectRequestOptions(req.args)
 			ro.parse()
 		except ValueError, e:
 			Logging.warning(str(e))

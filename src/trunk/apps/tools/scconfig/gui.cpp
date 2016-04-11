@@ -11,12 +11,15 @@
  ***************************************************************************/
 
 
+#define SEISCOMP_COMPONENT Configurator
+
 #include <QtGui>
 
 #include <iostream>
 #include <list>
 #include <map>
 
+#include <seiscomp3/logging/log.h>
 #include <seiscomp3/system/environment.h>
 
 #include "gui.h"
@@ -204,7 +207,7 @@ class StageSelectionDialog : public QDialog {
 		};
 
 		StageSelectionDialog(QWidget *parent) : QDialog(parent) {
-			Seiscomp::Environment *env = Seiscomp::Environment::Instance();
+			Environment *env = Environment::Instance();
 
 			QVBoxLayout *layout = new QVBoxLayout;
 			QHBoxLayout *hlayout;
@@ -625,6 +628,68 @@ struct QtConfigDelegate : System::ConfigDelegate {
 		return true;
 	}
 
+	void caseSensitivityConflict(const CSConflict &csc) {
+		SEISCOMP_WARNING("%s: possible cs conflict: %s should be %s",
+		                 csc.symbol->uri.c_str(), csc.symbol->name.c_str(),
+		                 csc.parameter->variableName.c_str());
+		conflicts.append(csc);
+	}
+
+	void showConflicts() {
+		// No conflicts?
+		if ( conflicts.empty() ) return;
+
+		QDialog dlg;
+		QVBoxLayout *l = new QVBoxLayout;
+		l->setSpacing(0);
+		l->setMargin(0);
+		dlg.setLayout(l);
+
+		StatusLabel *headerLabel = new StatusLabel;
+		headerLabel->setWordWrap(true);
+		l->addWidget(headerLabel);
+
+		headerLabel->setWarningText(headerLabel->tr("Found possible conflicts due to "
+		                            "case sensitivity of parameter names.\n"
+		                            "Files which are disabled below are not under control "
+		                            "of scconfig and cannot be changed. This needs to be fixed by "
+		                            "either recreating aliases or updating the default configuration files."));
+
+		ConfigConflictWidget *w = new ConfigConflictWidget;
+		w->setConflicts(conflicts);
+		l->addWidget(w);
+
+		QHBoxLayout *buttonLayout = new QHBoxLayout;
+		buttonLayout->setMargin(4);
+
+		QPushButton *fix = new QPushButton;
+		buttonLayout->addWidget(fix);
+		fix->setText(fix->tr("Fix parameter(s)"));
+		fix->setToolTip(fix->tr("Fixes all selected conflicts by correcting the parameter names."));
+
+		buttonLayout->addStretch();
+
+		QPushButton *close = new QPushButton;
+		buttonLayout->addWidget(close);
+		close->setText(close->tr("Close"));
+
+		QObject::connect(fix, SIGNAL(clicked()), w, SLOT(fixConflicts()));
+		QObject::connect(close, SIGNAL(clicked()), &dlg, SLOT(accept()));
+
+		l->addLayout(buttonLayout);
+
+		dlg.resize(800,600);
+		settings->beginGroup("Conflicts");
+		dlg.restoreGeometry(settings->value("geometry").toByteArray());
+		settings->endGroup();
+
+		dlg.exec();
+
+		settings->beginGroup("Conflicts");
+		settings->setValue("geometry", dlg.saveGeometry());
+		settings->endGroup();
+	}
+
 	QDialog *dialog;
 	QSettings *settings;
 	StatusLabel *headerLabel;
@@ -634,6 +699,7 @@ struct QtConfigDelegate : System::ConfigDelegate {
 	QString lastErrorFile;
 	QList<ConfigFileWidget::Error> errors;
 	bool hasErrors;
+	QList<CSConflict> conflicts;
 };
 
 
@@ -730,8 +796,8 @@ bool ClickFilter::eventFilter(QObject *obj, QEvent *event) {
 
 ConfigurationTreeItemModel::ConfigurationTreeItemModel(
 	QObject *parent,
-	Seiscomp::System::Model *tree,
-	Seiscomp::Environment::ConfigStage stage
+	System::Model *tree,
+	Environment::ConfigStage stage
 ) : QStandardItemModel(parent), _modified(false)
 {
 	if ( tree ) setModel(tree, stage);
@@ -739,8 +805,8 @@ ConfigurationTreeItemModel::ConfigurationTreeItemModel(
 }
 
 
-void ConfigurationTreeItemModel::setModel(Seiscomp::System::Model *tree,
-                                          Seiscomp::Environment::ConfigStage stage) {
+void ConfigurationTreeItemModel::setModel(System::Model *tree,
+                                          Environment::ConfigStage stage) {
 	_model = tree;
 	_configStage = stage;
 
@@ -783,7 +849,7 @@ void ConfigurationTreeItemModel::setModel(Seiscomp::System::Model *tree,
 }
 
 
-void ConfigurationTreeItemModel::setModel(Seiscomp::System::ModuleBinding *b) {
+void ConfigurationTreeItemModel::setModel(System::ModuleBinding *b) {
 	_model = NULL;
 	// The stage for the binding is always config app
 	_configStage = Environment::CS_CONFIG_APP;
@@ -995,8 +1061,8 @@ Qt::ItemFlags ConfigurationTreeItemModel::flags(const QModelIndex &idx) const {
 
 void ConfigurationTreeItemModel::updateDerivedParameters(
 	const QModelIndex &idx,
-	Seiscomp::System::Parameter *super,
-	Seiscomp::System::SymbolMapItem *item
+	System::Parameter *super,
+	System::SymbolMapItem *item
 )
 {
 	if ( idx.isValid() ) {
@@ -1285,11 +1351,6 @@ Configurator::Configurator(Environment::ConfigStage stage, QWidget *parent)
 	help->setShortcut(QKeySequence("F1"));
 	addAction(help);
 
-	_settings.beginGroup(objectName());
-	restoreGeometry(_settings.value("geometry").toByteArray());
-	restoreState(_settings.value("state").toByteArray());
-	_settings.endGroup();
-
 	_firstShow = true;
 
 	connect(&_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimer()));
@@ -1324,6 +1385,8 @@ bool Configurator::setModel(System::Model *model) {
 	QtConfigDelegate cd(&_settings);
 	model->readConfig(Environment::CS_USER_APP, &cd);
 
+	cd.showConflicts();
+
 	if ( _configurationStage == Environment::CS_UNDEFINED ) {
 		StageSelectionDialog dlg(this);
 		if ( dlg.exec() == QDialog::Accepted ) {
@@ -1357,10 +1420,15 @@ bool Configurator::setModel(System::Model *model) {
 
 void Configurator::showEvent(QShowEvent *event) {
 	if ( _firstShow ) {
+		_settings.beginGroup(objectName());
+		restoreGeometry(_settings.value("geometry").toByteArray());
+		restoreState(_settings.value("state").toByteArray());
+		_settings.endGroup();
+
 		_firstShow = false;
 
 		// Check lock file
-		Seiscomp::Environment *env = Seiscomp::Environment::Instance();
+		Environment *env = Environment::Instance();
 
 		QString statDir = QDir::toNativeSeparators(
 			(env->installDir() + "/var/run").c_str());
@@ -1422,8 +1490,8 @@ void Configurator::panelDescriptionChanged(const QString &text) {
 
 
 void Configurator::switchToSystemMode() {
-	if ( _configurationStage == Seiscomp::Environment::CS_CONFIG_APP ) return;
-	_configurationStage = Seiscomp::Environment::CS_CONFIG_APP;
+	if ( _configurationStage == Environment::CS_CONFIG_APP ) return;
+	_configurationStage = Environment::CS_CONFIG_APP;
 	_model->setModel(_model->model(), _configurationStage);
 	foreach ( Panel p, _panels )
 		p.second->setModel(_model);
@@ -1432,8 +1500,8 @@ void Configurator::switchToSystemMode() {
 
 
 void Configurator::switchToUserMode() {
-	if ( _configurationStage == Seiscomp::Environment::CS_USER_APP ) return;
-	_configurationStage = Seiscomp::Environment::CS_USER_APP;
+	if ( _configurationStage == Environment::CS_USER_APP ) return;
+	_configurationStage = Environment::CS_USER_APP;
 	_model->setModel(_model->model(), _configurationStage);
 	foreach ( Panel p, _panels )
 		p.second->setModel(_model);
@@ -1461,7 +1529,7 @@ void Configurator::showWarningMessage(const QString &msg) {
 
 void Configurator::clicked(QObject *o) {
 	if ( _modeLabel == o ) {
-		if ( _configurationStage == Seiscomp::Environment::CS_CONFIG_APP )
+		if ( _configurationStage == Environment::CS_CONFIG_APP )
 			switchToUserMode();
 		else
 			switchToSystemMode();
@@ -1526,6 +1594,7 @@ void Configurator::reload() {
 		_model->setModel(_model->model(), _configurationStage);
 		_model->setModified(false);
 		errors = cd.hasErrors;
+		cd.showConflicts();
 	}
 
 	foreach ( Panel p, _panels )

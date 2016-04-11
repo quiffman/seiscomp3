@@ -15,7 +15,7 @@
  *
  */
 
-#define VERSION "0.93 (2011.137)"
+#define VERSION "0.94 (2013.032)"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +40,8 @@
 
 /* Functions in this source file */
 static void   *MessageReceiver( void * );
-static void   *Heartbeat( void * );
+static int     SocketHeartbeat( void );
+static int     SocketSendAck( char * );
 static void    import_filter( char *, int);
 static int     WriteToSocket( int, char *, MSG_LOGO * );
 static void    dummy_handler(int sig);
@@ -63,6 +64,7 @@ static int     SenderHeartRate;     /* Expect alive messages this often from for
 static char    SenderHeartText[MAX_ALIVE_STR];/* Text making up the sender's heart beat message */
 
 static unsigned int SocketTimeoutLength; /* Length of timeouts on SOCKET_ew calls */
+static int HeartbeatDebug=0;        /* set to 1 in for heartbeat debug messages */
 
 /* Globals: timers, etc, used by both threads */
 #define CONNECT_WAIT_DT 10           /* Seconds wait between connect attempts            */
@@ -72,15 +74,19 @@ static unsigned int SocketTimeoutLength; /* Length of timeouts on SOCKET_ew call
 volatile time_t LastServerBeat;      /* times of heartbeats from the server machine      */
 volatile time_t MyLastInternalBeat;  /* time of last heartbeat into local Earthworm ring */
 volatile time_t MyLastSocketBeat;    /* time of last heartbeat to server - via socket    */
-volatile int HeartThreadStatus = 0;  /* < 0 if server croaks. Set by heartbeat thread    */
 volatile int MessageReceiverStatus =0; /* status of message receiving thread: -1 means bad news */
 volatile int Sd = 0;            /* Socket descriptor                                */
 char     *MsgBuf;               /* incoming message buffer; used by receiver thread */
-pthread_t TidHeart = 0;         /* thread id */
 pthread_t TidMsgRcv = 0;        /* thread id */
 
 unsigned char tracebuf_type;
 MSG_LOGO      heartlogo;
+MSG_LOGO      acklogo;
+
+/* Definitions of export types */
+#define EXPORT_UNKNOWN      0   /* export type not discovered yet        */
+#define EXPORT_OLD          1   /* original no-acknowledgment export     */
+#define EXPORT_ACK          2   /* export which expects acknowledgements */
 
 int main( int argc, char **argv )
 {
@@ -170,18 +176,10 @@ int main( int argc, char **argv )
   gen_log (0,1, "Connected after %d seconds\n", CONNECT_WAIT_DT*(retryCount-1));
   retryCount = 0;
 
-  /* Start the heartbeat thread */
-  HeartThreadStatus=0;                /* set it's status flag to ok */
-  time((time_t*)&MyLastInternalBeat); /* initialize our last heartbeat time */
-  time((time_t*)&MyLastSocketBeat);   /* initialize time of our heartbeat over socket */
-  time((time_t*)&LastServerBeat);     /* initialize time of last heartbeat from 
-                                           serving machine */
-  if ( ThreadStart( &TidHeart, &heart_attr, Heartbeat, NULL ) == -1 )
-    {
-      gen_log (1,0, "cannot start Heartbeat thread. Exiting.\n");
-      free(MsgBuf);
-      return -1;
-    }
+  /* Initialize Socketheartbeat things */
+  MyLastSocketBeat = 0;             /* will send socketbeat first thing */
+  time((time_t*)&LastServerBeat);   /* will think it just got a socketbeat
+                                       from the serving machine */
 
   /* Start the message receiver thread */
   MessageReceiverStatus =0; /* set it's status flag to ok */
@@ -214,22 +212,10 @@ int main( int argc, char **argv )
 	  quit=1;
 	}
 
-      /* How's the heartbeat thread feeling ? */
-      if ( HeartThreadStatus == -1)
-	{
-	  gen_log (1,0, "Heartbeat thread unhappy. Restarting\n");
-	  quit=1;
-	}
-
-      
-      /* Any other shutdown conditions here */
-      /* blah blah blah */
-
       /* restart preparations */
       if (quit == 1)
 	{
 	  pthread_kill( TidMsgRcv, SIGUSR1 );
-	  pthread_kill( TidHeart, SIGUSR1 );
 	  close (Sd);
 	  quit=0;
 	  goto reconnect;
@@ -252,8 +238,7 @@ int main( int argc, char **argv )
   character.  Our problem here is to recognize, and use, the 'real' start- and end-of-
   messge characters, and to 'decloak' any unfortunate look-alikes within the message body.
 */
-static void *
-MessageReceiver( void *dummy )
+static void *MessageReceiver( void *dummy )
 {
   static int  state;
   static char chr, lastChr;
@@ -264,29 +249,33 @@ MessageReceiver( void *dummy )
   static char escape=ESC;                /* our escape character */
   static char inBuffer[INBUFFERSIZE];
   static int  inchar;                    /* counter for raw socket buffer (w/esc) */
+  int         export_type;               /* flavor of export we're talking to */
+  char        seqstr[4];                 /* sequence string for acknowledgments */
+  int         seq;                       /* sequence number */
+  char       *msgptr = NULL;             /* pointer to beginning of logo in MsgBuf */
+  int         msglen;                    /* length of asciilogo + message */
 
-  /* Tell the main thread we're ok */
-  MessageReceiverStatus=0;
-
-  state=SEARCHING_FOR_MESSAGE_START; /* we're initializing */
-  
-  /* Multi-byte Read 
-     Set inchar to be nr-1, so that when inchar is incremented, they will be 
-     the same and a new read from socket will take place.  
-     Set chr to 0 to indicate a null character, since we haven't read any yet.
-     Set nchar to 0 to begin building a new MsgBuffer (with escapes removed).
+  /* Initialize stuff */
+  MessageReceiverStatus = 0;    /* tell the main thread we're OK */
+  export_type = EXPORT_UNKNOWN; /* don't know what kind of export is out there */
+   
+ /* Multi-byte Read
+    Set inchar to be nr-1, so that when inchar is incremented, they will be 
+    the same and a new read from socket will take place.  
+    Set chr to 0 to indicate a null character, since we haven't read any yet.
+    Set nchar to 0 to begin building a new MsgBuffer (with escapes removed).
   */
   inchar = -1;
   nr     =  0;
   chr    =  0;
   nchar  =  0;
 
-
-  /* Working loop: receive and process messages */
+  /* Working loop: receive and process messages, send acks */
   /* We are either (0) initializing: searching for message start
                    (1) expecting a message start: error if not
                    (2) assembling a message.
      The variable "state' determines our mood */
+  state=SEARCHING_FOR_MESSAGE_START; /* we're initializing */
 
   while(1) /* loop over bytes read from socket */
     {
@@ -343,25 +332,86 @@ MessageReceiver( void *dummy )
 	    {
 	      /* We have a complete message */
 	      MsgBuf[nchar]=0; /* terminate as a string */
-	      
-	      if(strcmp(&MsgBuf[9],SenderHeartText)==0) /* Server's heartbeat */
-		{
-		  gen_log (0,2, "Received heartbeat from server\n");
-		  time((time_t*)&LastServerBeat); /* note time of heartbeat */
-		  state=EXPECTING_MESSAGE_START; /* reset for next message */
-		  MsgBuf[0]=' '; MsgBuf[9]=' ';
-		}
-	      else
-		{
-		  /* got a non-heartbeat message */
-		  gen_log (0,3, "Received non-heartbeat from server\n");
-		  time((time_t*)&LastServerBeat); /* note time of (implied) heartbeat */
-		  
-		  import_filter(MsgBuf,nchar); /* process the message via user-routine */
-		}
-	      state=EXPECTING_MESSAGE_START;
-	      continue;
-	    }
+              state=EXPECTING_MESSAGE_START; /* reset for next message */ 
+   
+              /* Discover what type of export we're talking to */
+              if( export_type == EXPORT_UNKNOWN )
+                {
+                  if( strncmp( MsgBuf, "SQ:", 3 ) == 0 )
+                    {
+                      gen_log(0,0,"I will send ACKs to export.\n");
+                      export_type = EXPORT_ACK;
+                    }
+                  else
+                    {
+                      gen_log(0,0,"I will NOT send ACKs to export.\n");
+                      export_type = EXPORT_OLD;
+                    }
+                }
+
+              /* Set the working msg pointer based on type of export;
+                 Get sequence number and send ACK (if necessary) */
+              if( export_type == EXPORT_ACK )
+                {
+                  if( nchar < 15 )  /* too short to be a valid msg from export_acq! */
+                    {
+                      gen_log(1,0,"Skipping msg too short for ack-protocol\n%s\n", MsgBuf );
+                      continue;
+                    }
+                  strncpy( seqstr, &MsgBuf[3], 3 );
+                  seqstr[3] = 0;
+                  seq       = atoi(seqstr); /* stash sequence number */
+                  msgptr    = &MsgBuf[6];   /* point to beginning of ascii logo */
+                  msglen    = nchar - 6;
+                  if( SocketSendAck( seqstr ) != 0 ) goto suicide; /* socket write error */
+                } 
+              else /* export_type == EXPORT_OLD */
+                {  
+                  if( nchar < 9 )  /* too short to be a valid msg from old exports! */
+                    {
+                      gen_log(1,0,"Skipping msg too short for non-ack-protocol\n%s\n", MsgBuf );
+                      continue;
+                    }
+                  seq    = -1;     /* unknown sequence number */
+                  msgptr = MsgBuf; /* point to beginning of ascii logo */
+                  msglen = nchar;  
+                }
+            
+              /* See if the message is server's heartbeat */
+              if( strcmp(&msgptr[9],SenderHeartText)==0 ) 
+                {
+                  if( HeartbeatDebug )
+                    {
+                      gen_log(0,0, "Received heartbeat\n"); 
+                    }
+                }
+
+             /* Seq# told us to expect heartbeat, but text didn't match;
+                might not be talking to the correct export! */
+              else if( seq == HEARTSEQ )
+                {
+                  gen_log(1,0, "Rcvd socket heartbeat <%s> does not match expected <%s>; check config!\n",
+                      &msgptr[9], SenderHeartText );
+                  continue;
+                }
+
+              /* Otherwise, it must be a message to forward along */
+              else                              
+                {
+                  if( HeartbeatDebug )
+                    {
+                      gen_log(0,0, "Received non-heartbeat\n"); 
+                    }
+                  import_filter( msgptr, msglen ); /* process msg via user-routine */
+                }
+              /* All messages and heartbeats prove that export is alive, */
+              /* so we will update our server heartbeat monitor now.     */
+              time((time_t*)&LastServerBeat); 
+
+              /* This is a good time to do socket heartbeat stuff */
+              if( SocketHeartbeat() != 0 ) goto suicide; /* socket write error */
+              continue;
+            }
 	  else
 	    {
 	      /* process the message byte we just read: we know it's not a naked end character*/
@@ -434,42 +484,56 @@ MessageReceiver( void *dummy )
 }  /* end of MessageReceiver thread */
 
 
-/***************************** Heartbeat **************************
+/************************** SocketHeartbeat ***********************
  *           Send a heartbeat to the server via socket            *
- *                 Check on our server's hearbeat                 *
- *           Slam socket shut if no Server heartbeat: that        *
- *               really shakes up the main thread                 *
  ******************************************************************/
-static void *
-Heartbeat( void *dummy )
+int SocketHeartbeat( void )
 {
-  time_t    now;
-  
-  /* once a second, do the rounds. If anything looks bad, set HeartThreadStatus to -1
-     and go into a long sleep. The main thread should note that our status is -1,
-     and launch into re-start procedure, which includes killing and restarting us. */
-  while ( 1 )
-    {
-      safe_usleep (1000000);
-      time(&now);
+   time_t    now;
 
-      /* Beat our heart (over the socket) to our server */
-      if (difftime(now,MyLastSocketBeat) > (double)MyAliveInt && MyAliveInt != 0)
-	{
-	  if ( WriteToSocket( Sd, MyAliveString, &heartlogo ) != 0 )
-            {
-	      /* If we get an error, simply quit */
-	      gen_log (1,0, "problem sending alive msg to socket\n");
-	      HeartThreadStatus=-1;
-	      pthread_exit( (void *)NULL );  /* the main thread will resurect us */
-	      gen_log (1,0, "Fatal system error: Heart thread could not pthread_exit()\n");
-	      exit(-1);
-            }
-	  gen_log (0,2, "Heartbeat sent to export server\n");
-	  MyLastSocketBeat=now;
-	}
-    }
-} /* End of Heartbeat() */
+/* Beat our heart (over the socket) to our server
+ ************************************************/
+   time(&now);
+
+   if( MyAliveInt != 0     &&
+       difftime(now,MyLastSocketBeat) > (double)MyAliveInt ) 
+   {
+      if( WriteToSocket( (int)Sd, MyAliveString, &heartlogo ) != 0 )
+      {
+         gen_log(1,0, "error sending alive msg to socket\n");
+         return( -1 );
+      }
+      if( HeartbeatDebug )
+      {
+         gen_log(1,0,"SocketHeartbeat sent to export\n");
+      }
+      MyLastSocketBeat = now;
+   }
+   return( 0 );
+}
+
+
+/*************************** SocketSendAck ************************
+ *     Send an acknowledgment packet to the server via socket     *
+ ******************************************************************/
+int SocketSendAck( char *seq )
+{
+   char      ackstr[10];
+
+/* Send an acknowledgment (over the socket) to our server
+ ********************************************************/
+   sprintf( ackstr, "ACK:%s", seq );
+   if( WriteToSocket( (int)Sd, ackstr, &acklogo ) != 0 )
+   {
+      gen_log(1,0, "error sending %s to socket\n", ackstr);
+      return( -1 );
+   }
+   if( HeartbeatDebug )
+   {
+      gen_log(1,0,"acknowledgment %s sent to export\n", ackstr);
+   }
+   return( 0 );
+}
 
 
 /************************** import_filter *************************
@@ -638,9 +702,6 @@ dummy_handler(int sig) { }
 static void
 term_handler(int sig)
 {
-  if ( TidHeart )
-    pthread_kill (TidHeart, SIGUSR1);
-  
   if ( TidMsgRcv )
     pthread_kill (TidMsgRcv, SIGUSR1);
 
@@ -710,6 +771,10 @@ config_params( int argcount, char **argvec )
   heartlogo.instid = 0;
   heartlogo.mod    = 0;
   heartlogo.type   = TYPE_HEARTBEAT;
+
+  acklogo.instid = 0;
+  acklogo.mod    = 0;
+  acklogo.type   = TYPE_ACK;
 
   tracebuf_type = TYPE_TRACEBUF;
 
@@ -814,12 +879,16 @@ config_params( int argcount, char **argvec )
 	}
       else
 	{
-	  nptr = cptr++; nptr = '\0';
-	  nptr = dptr++; nptr = '\0';
+	  nptr = cptr++; *nptr = '\0';
+	  nptr = dptr++; *nptr = '\0';
 	  
 	  heartlogo.instid = (unsigned char) atoi(heartlogostr);
 	  heartlogo.mod    = (unsigned char) atoi(cptr);
 	  heartlogo.type   = (unsigned char) atoi(dptr);
+
+	  acklogo.instid = (unsigned char) atoi(heartlogostr);
+	  acklogo.mod    = (unsigned char) atoi(cptr);
+	  acklogo.type   = (unsigned char) atoi(dptr);
 	}
     }
 

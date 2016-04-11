@@ -75,13 +75,26 @@ int RunningAverage::count(const Core::Time &time) const {
 	int count = 0;
 
 	int shiftBins = (int)(_shift + (double)(time - _last));
-	if ( shiftBins < 0 )
+	if ( shiftBins < 0 || shiftBins >= _timeSpan )
 		return count;
+
+	/*
+	for ( size_t i = shiftBins; i < _timeSpan; ++i ) {
+		if ( _front+i < _timeSpan )
+			count += _bins[_front+i];
+		else
+			count += _bins[_front+i-_timeSpan];
+	}
+	*/
 
 	for ( size_t i = _front + shiftBins; i < _timeSpan; ++i )
 		count += _bins[i];
 
-	for ( size_t i = 0; i < _front; ++i )
+	size_t i = 0;
+	if ( _front > _timeSpan-shiftBins )
+		i = _front - (_timeSpan-shiftBins);
+
+	for ( ; i < _front; ++i )
 		count += _bins[i];
 
 	return count;
@@ -101,6 +114,7 @@ Core::Time RunningAverage::last() const {
 void RunningAverage::dumpBins() const {
 	std::cout << "last = " << _last.iso() << std::endl;
 	std::cout << "shift = " << _shift << std::endl;
+	std::cout << "front = " << _front << std::endl;
 	int idx = 0;
 	for ( size_t i = _front; i < _bins.size(); ++i, ++idx )
 		std::cout << "[" << idx << "] " << _bins[i] << std::endl;

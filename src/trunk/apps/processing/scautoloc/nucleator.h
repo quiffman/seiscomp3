@@ -120,6 +120,8 @@ class GridSearch : public Nucleator
 	//	void addStation(const DataModel::StationCPtr* station);
 		bool setGridFile(const std::string &gridfile);
 
+		void setLocatorProfile(const std::string &profile);
+
 	public:
 		// The Nucleator reads Pick's and Amplitude's. Only picks
 		// with associated amplitude can be fed into the Nucleator.

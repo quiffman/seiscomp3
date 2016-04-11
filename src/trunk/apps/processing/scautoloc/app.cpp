@@ -196,9 +196,9 @@ bool App::initConfiguration() {
 	try { _config.minPickAffinity = configGetDouble("autoloc.minPickAffinity"); } catch (...) {}
 
 	try { _config.minPhaseCount = configGetInt("autoloc.minPhaseCount"); } catch (...) {}
-	try { _config.minScore = configGetInt("autoloc.minScore"); } catch (...) {}
+	try { _config.minScore = configGetDouble("autoloc.minScore"); } catch (...) {}
 	try { _config.minPhaseCountXXL = configGetInt("autoloc.minPhaseCountXXL"); } catch (...) {}
-	try { _config.minScoreBypassNucleator = configGetInt("autoloc.minScoreBypassNucleator"); } catch (...) {}
+	try { _config.minScoreBypassNucleator = configGetDouble("autoloc.minScoreBypassNucleator"); } catch (...) {}
 
 	try { _config.minStaCountIgnorePKP = configGetInt("autoloc.minStaCountIgnorePKP"); } catch (...) {}
 	try { _config.reportAllPhases = configGetBool("autoloc.reportAllPhases"); } catch (...) {}
@@ -229,7 +229,7 @@ bool App::initConfiguration() {
 	try { _amplTypeSNR = configGetString("autoloc.amplTypeSNR"); } catch (...) {}
 	try { _amplTypeAbs = configGetString("autoloc.amplTypeAbs"); } catch (...) {}
 	try { _stationLocationFile = configGetString("autoloc.stationLocations"); } catch (...) {}
-	try { ::Autoloc::Locator::setDefaultProfile(configGetString("autoloc.locator.profile")); } catch (...) {}
+	try { setLocatorProfile(configGetString("autoloc.locator.profile")); } catch (...) {}
 
 	try { _config.playback = configGetBool("autoloc.playback"); } catch ( ... ) {}
 

@@ -19,7 +19,6 @@
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/core/datetime.h>
 #include <seiscomp3/core/strings.h>
-#include <seiscomp3/io/recordstream.h>
 #include <seiscomp3/io/recordstream/arclink.h>
 #include <seiscomp3/io/recordstream/slconnection.h>
 

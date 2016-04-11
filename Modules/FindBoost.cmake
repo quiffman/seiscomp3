@@ -219,10 +219,19 @@ MACRO(BOOST_FIND_LIBRARY name)
     SET(BOOST_LIB_NAMES ${Boost_LIB_PREFIX}boost_${name}-${Boost_LIB_SUFFIX})
   ENDIF(NOT Boost_LIB_SUFFIX)
 
-  # Find the library in the Boost_LIBRARY_DIRS
+  # Find the library in the Boost_LIBRARY_DIRS. We exclude the default path to
+  # support cross compilation
   FIND_LIBRARY(Boost_${name}_LIBRARY 
     NAMES ${BOOST_LIB_NAMES}
-    PATHS ${Boost_LIBRARY_DIRS})
+    PATHS ${Boost_LIBRARY_DIRS} NO_DEFAULT_PATH)
+
+  IF(NOT Boost_${name}_LIBRARY)
+    # Find the library in the Boost_LIBRARY_DIRS
+    FIND_LIBRARY(Boost_${name}_LIBRARY 
+      NAMES ${BOOST_LIB_NAMES}
+      PATHS ${Boost_LIBRARY_DIRS})
+  ENDIF(NOT Boost_${name}_LIBRARY)
+
 
   # For MSVC builds find debug library
   IF(WIN32 AND MSVC AND Boost_${name}_LIBRARY)

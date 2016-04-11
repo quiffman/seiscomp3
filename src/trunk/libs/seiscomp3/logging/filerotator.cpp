@@ -42,7 +42,7 @@ bool FileRotatorOutput::open(const char* filename) {
 #ifndef WIN32
 	struct stat st;
 	if ( stat(filename, &st) == 0 )
-		_lastInterval = st.st_mtim.tv_sec / _timeSpan;
+		_lastInterval = st.st_mtime / _timeSpan;
 
 #endif
 	return true;

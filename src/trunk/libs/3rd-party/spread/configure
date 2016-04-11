@@ -4727,7 +4727,11 @@ fi
 done
 
 
+
 # Check for broken snprintf
+
+if test -z "$host_alias"; then
+
 if test "x$ac_cv_func_snprintf" = "xyes" ; then
 	echo "$as_me:$LINENO: checking whether snprintf correctly terminates long strings" >&5
 echo $ECHO_N "checking whether snprintf correctly terminates long strings... $ECHO_C" >&6
@@ -4781,6 +4785,7 @@ echo "$as_me: WARNING: ****** Your snprintf() function is broken, complain to yo
 
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
 fi
 fi
 

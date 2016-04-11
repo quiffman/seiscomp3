@@ -196,6 +196,9 @@ class Autoloc3 {
 			std::string pickLogFile;
 			int         pickLogDate;
 
+			// locator profile, e.g. "iasp91", "tab" etc.
+			std::string locatorProfile;
+
 			// The station configuration file
 			std::string staConfFile;
 
@@ -219,6 +222,7 @@ class Autoloc3 {
 		void setPickLogFilePrefix(const std::string &);
 		void setPickLogFileName(const std::string &);
 		void setStations(StationDB *);
+		void setLocatorProfile(const std::string &);
 
 		bool init();
 

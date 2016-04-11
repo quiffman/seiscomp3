@@ -11,39 +11,14 @@
  ***************************************************************************/
 
 
-
-#include <time.h> // for clock() (only for debugging)
-
 #include "component.h"
 #include "magtool.h"
 #include "dmutil.h"
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <vector>
-#include <set>
-
-
-using namespace std;
-
-/*
-#include <seiscomp3/core/platform/platform.h>
-#ifdef MACOSX
-    // On OSX HOST_NAME_MAX is not define in sys/params.h. Therefoere we use MAXHOSTNAMELEN
-    // instead on this platform.
-    #include <sys/param.h>
-    #define HOST_NAME_MAX MAXHOSTNAMELEN
-#endif
-*/
-#include <seiscomp3/core/system.h>
-
 #include <seiscomp3/math/mean.h>
 #include <seiscomp3/logging/log.h>
-#include <seiscomp3/communication/connection.h>
 
 #include <seiscomp3/datamodel/databasequery.h>
-#include <seiscomp3/datamodel/databasereader.h>
 #include <seiscomp3/datamodel/notifier.h>
 #include <seiscomp3/datamodel/pick.h>
 #include <seiscomp3/datamodel/arrival.h>
@@ -59,9 +34,18 @@ using namespace std;
 #include <seiscomp3/client/application.h>
 #include <seiscomp3/utils/timer.h>
 
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+#include <set>
+
+
+using namespace std;
 using namespace Seiscomp;
 using namespace Seiscomp::Core;
 using namespace Seiscomp::Processing;
+
 
 namespace Seiscomp {
 
@@ -123,9 +107,9 @@ typedef DataModel::MagnitudePtr NetMagPtr;
 typedef multimap<string, NetMagPtr> NetMagMap;
 
 
-MagTool::MagTool()
-{
-	_ep = new DataModel::EventParameters();
+MagTool::MagTool() {
+	_dbAccesses = 0;
+
 	_summaryMagnitudeEnabled = true;
 	_summaryMagnitudeType = "M";
 	_summaryMagnitudeMinStationCount = 1;
@@ -138,63 +122,53 @@ MagTool::MagTool()
 	_magnitudeCoefficients["Mw(Mwp)"] = SummaryMagnitudeCoefficients(0.4, -1);
 }
 
-MagTool::~MagTool()
-{
+MagTool::~MagTool() {
 }
 
 
-void
-MagTool::setSummaryMagnitudeEnabled(bool e) {
+void MagTool::setSummaryMagnitudeEnabled(bool e) {
 	_summaryMagnitudeEnabled = e;
 }
 
 
-void
-MagTool::setSummaryMagnitudeMinStationCount(int n) {
+void MagTool::setSummaryMagnitudeMinStationCount(int n) {
 	_summaryMagnitudeMinStationCount = n;
 }
 
 
 
-void
-MagTool::setSummaryMagnitudeType(const std::string &type) {
+void MagTool::setSummaryMagnitudeType(const std::string &type) {
 	_summaryMagnitudeType = type;
 }
 
 
-void
-MagTool::setSummaryMagnitudeBlacklist(const std::vector<std::string> &list) {
+void MagTool::setSummaryMagnitudeBlacklist(const std::vector<std::string> &list) {
 	std::copy(list.begin(), list.end(), std::inserter(_summaryMagnitudeBlacklist, _summaryMagnitudeBlacklist.end()));
 }
 
 
-void
-MagTool::setSummaryMagnitudeWhitelist(const std::vector<std::string> &list) {
+void MagTool::setSummaryMagnitudeWhitelist(const std::vector<std::string> &list) {
 	std::copy(list.begin(), list.end(), std::inserter(_summaryMagnitudeWhitelist, _summaryMagnitudeWhitelist.end()));
 }
 
 
-void
-MagTool::setSummaryMagnitudeDefaultCoefficients(const SummaryMagnitudeCoefficients &c) {
+void MagTool::setSummaryMagnitudeDefaultCoefficients(const SummaryMagnitudeCoefficients &c) {
 	if ( c.a ) _defaultCoefficients.a = c.a;
 	if ( c.b ) _defaultCoefficients.b = c.b;
 }
 
 
-void
-MagTool::setSummaryMagnitudeCoefficients(const Coefficients &c) {
+void MagTool::setSummaryMagnitudeCoefficients(const Coefficients &c) {
 	_magnitudeCoefficients = c;
 }
 
 
-void
-MagTool::setAverageMethods(const AverageMethods &m) {
+void MagTool::setAverageMethods(const AverageMethods &m) {
 	_magnitudeAverageMethods = m;
 }
 
 
-bool
-MagTool::init(const MagnitudeTypes &mags, const Core::TimeSpan& expiry) {
+bool MagTool::init(const MagnitudeTypes &mags, const Core::TimeSpan& expiry) {
 	_objectCache.setDatabaseArchive(SCCoreApp->query());
 	_objectCache.setTimeSpan(expiry);
 	_objectCache.setPopCallback(std::bind1st(std::mem_fun(&MagTool::publicObjectRemoved), this));
@@ -292,21 +266,15 @@ MagTool::init(const MagnitudeTypes &mags, const Core::TimeSpan& expiry) {
 }
 
 
-void
-MagTool::done()
-{
+void MagTool::done() {
 	SEISCOMP_INFO("Shutting down MagTool\n - database accesses while runtime: %lu", (unsigned long)_dbAccesses);
 }
 
 
-DataModel::StationMagnitude*
-MagTool::getStationMagnitude(
-	DataModel::Origin *origin,
-	const DataModel::WaveformStreamID &wfid,
-	const string &type,
-	double value,
-	bool update) const
-{
+DataModel::StationMagnitude *MagTool::getStationMagnitude(
+        DataModel::Origin *origin,
+        const DataModel::WaveformStreamID &wfid,
+        const string &type, double value, bool update) const {
 	StaMag *mag = NULL;
 
 	for ( size_t i = 0; i < origin->stationMagnitudeCount(); ++i ) {
@@ -328,7 +296,7 @@ MagTool::getStationMagnitude(
 			mag = StaMag::Create();
 		else {
 			string id = origin->publicID() + "#staMag." + type + "#" +
-						wfid.networkCode() + "." + wfid.stationCode();
+			            wfid.networkCode() + "." + wfid.stationCode();
 
 			mag = StaMag::Create(id);
 		}
@@ -385,12 +353,9 @@ MagTool::getStationMagnitude(
 }
 
 
-DataModel::Magnitude*
-MagTool::getMagnitude(
-	DataModel::Origin* origin,
-	const std::string &type,
-	bool* newInstance) const
-{
+DataModel::Magnitude *MagTool::getMagnitude(DataModel::Origin* origin,
+                                            const std::string &type,
+                                            bool* newInstance) const {
 	DataModel::Magnitude *mag = NULL;
 	for ( size_t i = 0; i < origin->magnitudeCount(); ++i ) {
 		NetMag *nmag = origin->magnitude(i);
@@ -441,13 +406,10 @@ MagTool::getMagnitude(
 }
 
 
-DataModel::Magnitude*
-MagTool::getMagnitude(
-	DataModel::Origin *origin,
-	const string &type,
-	double value,
-	bool* newInstance) const
-{
+DataModel::Magnitude *MagTool::getMagnitude(DataModel::Origin *origin,
+                                            const string &type,
+                                            double value,
+                                            bool* newInstance) const {
 	bool tmpNewInstance;
 	NetMag *mag = getMagnitude(origin, type, &tmpNewInstance);
 	if ( mag ) {
@@ -467,13 +429,10 @@ MagTool::getMagnitude(
 }
 
 
-bool
-MagTool::computeStationMagnitude(
-	const DataModel::Amplitude *ampl,
-	const DataModel::Origin *origin,
-	double distance, double depth,
-	MagnitudeList& mags)
-{
+bool MagTool::computeStationMagnitude(const DataModel::Amplitude *ampl,
+                                      const DataModel::Origin *origin,
+                                      double distance, double depth,
+                                      MagnitudeList& mags) {
 	const string &atype = ampl->type();
 
 	std::pair<ProcessorList::iterator, ProcessorList::iterator> itp =
@@ -554,12 +513,9 @@ MagTool::computeStationMagnitude(
 }
 
 
-bool
-MagTool::computeMagnitude(
-	DataModel::Origin *origin,
-	const std::string &mtype,
-	DataModel::MagnitudePtr netMag)
-{
+bool MagTool::computeMagnitude(DataModel::Origin *origin,
+                               const std::string &mtype,
+                               DataModel::MagnitudePtr netMag) {
 	using namespace DataModel;
 
 	StaMagArray staMags;
@@ -723,9 +679,7 @@ MagTool::computeMagnitude(
 }
 
 
-bool MagTool::computeSummaryMagnitude(
-	DataModel::Origin *origin)
-{
+bool MagTool::computeSummaryMagnitude(DataModel::Origin *origin) {
 	if ( !_summaryMagnitudeEnabled ) return false;
 	if ( _summaryMagnitudeType.empty() ) return false;
 
@@ -803,10 +757,7 @@ bool MagTool::computeSummaryMagnitude(
 }
 
 
-int
-MagTool::retrieveMissingPicksAndArrivalsFromDB(
-	const DataModel::Origin *origin)
-{
+int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *origin) {
 	int count = 0;
 
 	// see if any picks are missing; if so, query DB
@@ -875,18 +826,16 @@ MagTool::retrieveMissingPicksAndArrivalsFromDB(
 
 		DataModel::AmplitudePtr ampl =
 			DataModel::Amplitude::Cast(object);
-		if ( ! ampl)
+		if ( !ampl )
 			continue; // actually a bad error!
 
 		const string &id = ampl->pickID();
-		if (missingPicks.find(id) == missingPicks.end())
+		if ( missingPicks.find(id) == missingPicks.end() )
 			continue;
 
-		SEISCOMP_WARNING("got ampl id=%s from DB",
-				 ampl->publicID().c_str());
+		SEISCOMP_WARNING("got ampl id=%s from DB", ampl->publicID().c_str());
 
-		// XXX avoid recursion!
-		if (!_feed(ampl.get(), false))
+		if ( !_feed(ampl.get(), false) )
 			continue;
 
 		count++;
@@ -899,9 +848,7 @@ MagTool::retrieveMissingPicksAndArrivalsFromDB(
 }
 
 
-MagTool::OriginList *
-MagTool::createBinding(const std::string &pickID)
-{
+MagTool::OriginList *MagTool::createBinding(const std::string &pickID) {
 	std::pair<OriginMap::iterator, bool>
 		itp = _orgs.insert(OriginMap::value_type(pickID, OriginList()));
 
@@ -909,9 +856,7 @@ MagTool::createBinding(const std::string &pickID)
 }
 
 
-void
-MagTool::bind(const std::string &pickID, DataModel::Origin *origin)
-{
+void MagTool::bind(const std::string &pickID, DataModel::Origin *origin) {
 	OriginList *origins = originsForPick(pickID);
 	if ( origins )
 		origins->push_back(origin);
@@ -920,8 +865,7 @@ MagTool::bind(const std::string &pickID, DataModel::Origin *origin)
 }
 
 
-MagTool::OriginList *
-MagTool::originsForPick(const std::string &pickID) {
+MagTool::OriginList *MagTool::originsForPick(const std::string &pickID) {
 	OriginMap::iterator it = _orgs.find(pickID);
 
 	if ( it == _orgs.end() ) return NULL;
@@ -930,16 +874,13 @@ MagTool::originsForPick(const std::string &pickID) {
 }
 
 
-bool
-MagTool::isTypeEnabledForSummaryMagnitude(const std::string &type) const {
+bool MagTool::isTypeEnabledForSummaryMagnitude(const std::string &type) const {
 	return (_summaryMagnitudeWhitelist.empty()?true:_summaryMagnitudeWhitelist.find(type) != _summaryMagnitudeWhitelist.end())
 	    && (_summaryMagnitudeBlacklist.empty()?true:_summaryMagnitudeBlacklist.find(type) == _summaryMagnitudeBlacklist.end());
 }
 
 
-bool
-MagTool::processOrigin(DataModel::Origin* origin)
-{
+bool MagTool::processOrigin(DataModel::Origin* origin) {
 	SEISCOMP_INFO("working on origin %s", origin->publicID().c_str());
 
 	retrieveMissingPicksAndArrivalsFromDB(origin);
@@ -1086,8 +1027,7 @@ MagTool::processOrigin(DataModel::Origin* origin)
 }
 
 
-bool
-MagTool::feed(DataModel::Amplitude* ampl, bool update) {
+bool MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 	if ( SCCoreApp->isAgencyIDBlocked(objectAgencyID(ampl)) )
 		return false;
 
@@ -1131,8 +1071,6 @@ MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 				_objectCache.feed(origin.get());
 				SEISCOMP_INFO("stored historical origin %s in cache, size = %lu",
 				              origin->publicID().c_str(), (unsigned long)_objectCache.size());
-				if ( !origin->parent() )
-					_ep->add(origin.get());
 			}
 
 			origins->push_back(origin);
@@ -1152,28 +1090,6 @@ MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 		return true;
 	}
 
-	/*
-	SEISCOMP_INFO("Updating %d historical origins for amplitude '%s'", updateList.size(), ampl->type().c_str());
-
-	for ( OriginList::iterator it = updateList.begin();
-	      it != updateList.end(); ++it ) {
-
-		Origin* origin = it->first.get();
-
-		// Did we read the origin directly from DB?
-		if ( !it->second ) {
-			bool oldState = DataModel::Notifier::IsEnabled();
-			DataModel::Notifier::Disable();
-			SCCoreApp->query()->load(origin);
-			_objectCache.feed(it->first.get());
-
-			SEISCOMP_INFO("stored historical origin %s in cache, size = %d", it->first->publicID().c_str(), _objectCache.size());
-			if ( !origin->parent() )
-				_ep->add(origin);
-
-			DataModel::Notifier::SetEnabled(oldState);
-		}
-	*/
 	for ( OriginList::iterator it = origins->begin(); it != origins->end(); ++it ) {
 		DataModel::Origin *origin = it->get();
 
@@ -1290,9 +1206,7 @@ MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 }
 
 
-bool
-MagTool::feed(DataModel::Origin *origin)
-{
+bool MagTool::feed(DataModel::Origin *origin) {
 	// This is the entry point for a new or updated Origin.
 	// The Origin may be incomplete and if that is the case, we
 	// must fetch the missing attributes from the DB before any
@@ -1352,9 +1266,7 @@ MagTool::feed(DataModel::Origin *origin)
 }
 
 
-bool
-MagTool::feed(DataModel::Pick *pick)
-{
+bool MagTool::feed(DataModel::Pick *pick) {
 	if ( SCCoreApp->isAgencyIDBlocked(objectAgencyID(pick)) )
 		return false;
 
@@ -1367,107 +1279,25 @@ MagTool::feed(DataModel::Pick *pick)
 
 	SEISCOMP_DEBUG("Inserted pick %s, cache size = %lu", pickID.c_str(), (unsigned long)_objectCache.size());
 
-	//std::cout << "Inserted pick " << pick->publicID() << ", cache size = " << _objectCache.size() << std::endl;
-
-	/*
-	if (pick->status() == DataModel::MANUAL_PICK) {
-
-		SEISCOMP_INFO("MANUAL PICK id=%s", pickID.c_str());
-		SEISCOMP_INFO("MANUAL PICK  s=%s", pick->waveformID().stationCode().c_str());
-		SEISCOMP_INFO("MANUAL PICK  t=%s", pick->time().value().toString("%F %T.%f").c_str());
-
-		// find a corresponding automatic pick
-
-		PickCPtr automaticPick = NULL;
-		TimeSpan dtmax = 10.;
-		for (DataModel::PublicObjectCache::const_iterator
-		     it = _objectCache.begin(); it != _objectCache.end(); ++it) {
-
-			const Pick *ipick = Pick::Cast(*it);
-			if ( !ipick ) continue;
-
-			if (ipick->status() == DataModel::MANUAL_PICK)
-				continue;
-
-			if ( ! equivalent(ipick->waveformID(),
-					   pick->waveformID()))
-				continue;
-
-			const Time &t1 = ipick->time().value();
-			const Time &t2 =  pick->time().value();
-
-			double dt = fabs(t2-t1);
-			if (dt>dtmax)
-				continue;
-
-			automaticPick = ipick;
-			break;
-		}
-		if (automaticPick) {
-			SEISCOMP_INFO("AUTOM. PICK id=%s",
-				automaticPick->publicID().c_str());
-		}
-		else {
-			SEISCOMP_INFO("AUTOM. PICK NOT FOUND");
-			return false;
-		}
-
-		// find amplitudes corresponding to that automatic pick
-
-		// loop over amplitudes
-		pair<StaAmpMap::iterator, StaAmpMap::iterator>
-			itp = _ampl.equal_range(automaticPick->publicID());
-		for (StaAmpMap::iterator
-		     it = itp.first; it != itp.second; ++it) {
-
-			// FIXME better to also test the time window of the
-			// FIXME amplitude to be on the safe side
-			const StaAmp *ampl = ((*it).second).get();
-			const char *amplid  = ampl->publicID().c_str();
-			SEISCOMP_DEBUG("amplitude id='%s'", amplid);
-
-			// copy that amplitude
-			StaAmpPtr ampl_copy = new StaAmp(*ampl);
-			// set pick ID of the copy to that of the manual pick
-			ampl_copy->setPickID(pickID);
-
-			// and finally...
-			_feed(ampl_copy.get());
-
-// TODO make sure that the new pick and its assigned amplitudes take effect
-		}
-	}
-	// else AUTOMATIC_PICK
-	*/
-
 	return true;
 }
 
 
-void
-MagTool::publicObjectRemoved(DataModel::PublicObject* po) {
+void MagTool::publicObjectRemoved(DataModel::PublicObject* po) {
 	bool saveState = DataModel::Notifier::IsEnabled();
 	DataModel::Notifier::Disable();
-
-	po->detach();
 
 	SEISCOMP_DEBUG("Removed object %s from cache", po->publicID().c_str());
 
 	SEISCOMP_DEBUG("AmplCache size before = %lu", (unsigned long)_ampl.size());
-	pair<StaAmpMap::iterator, StaAmpMap::iterator> itap = _ampl.equal_range(po->publicID());
-	if ( itap.first != itap.second ) {
-		for ( StaAmpMap::iterator it = itap.first; it != itap.second; ++it )
-			it->second->detach();
-		_ampl.erase(itap.first, itap.second);
-	}
+	_ampl.erase(po->publicID());
 	SEISCOMP_DEBUG("AmplCache size after = %lu", (unsigned long)_ampl.size());
 
 	// Remove all pick - origin associations when a pick leaves the cache
 	// to avoid incomplete cache
 	SEISCOMP_DEBUG("OriginPickCache size before = %lu", (unsigned long)_orgs.size());
 	OriginMap::iterator it = _orgs.find(po->publicID());
-	if ( it != _orgs.end() )
-		_orgs.erase(it);
+	if ( it != _orgs.end() ) _orgs.erase(it);
 	SEISCOMP_DEBUG("OriginPickCache size after = %lu", (unsigned long)_orgs.size());
 
 	SEISCOMP_DEBUG("BaseObject count = %d", Core::BaseObject::ObjectCount());
@@ -1476,12 +1306,10 @@ MagTool::publicObjectRemoved(DataModel::PublicObject* po) {
 }
 
 
-bool
-MagTool::_feed(DataModel::Amplitude *ampl, bool update)
-{
+bool MagTool::_feed(DataModel::Amplitude *ampl, bool update) {
 	// Feed an amplitude
 	//
-	// [ ] See if this amplitude is an update of an existing one
+	// [*] See if this amplitude is an update of an existing one
 	//     -> possibly requiring an update of the magnitude
 	// [*] Store the amplitude
 	// [ ] See if this amplitude belongs to an origin
@@ -1489,17 +1317,18 @@ MagTool::_feed(DataModel::Amplitude *ampl, bool update)
 
 	if ( pickID.empty() ) return false;
 
+	DataModel::AmplitudePtr cached_ampl = _objectCache.get<DataModel::Amplitude>(ampl->publicID());
+	if ( cached_ampl ) ampl = cached_ampl.get();
+
 	// loop over amplitudes and look if we have that amplitude already
 	// TODO: If we find it, we have to check if the amplitude has been
 	//       updated in the meantime
 	pair<StaAmpMap::iterator, StaAmpMap::iterator>
 		itp = _ampl.equal_range(pickID);
-	for (StaAmpMap::iterator
-	     it = itp.first; it != itp.second; ++it) {
 
+	for ( StaAmpMap::iterator it = itp.first; it != itp.second; ++it ) {
 		const DataModel::Amplitude *existing = ((*it).second).get();
-		if (ampl->publicID() == existing->publicID()) {
-
+		if ( ampl->publicID() == existing->publicID() ) {
 			if ( !update ) {
 				SEISCOMP_WARNING("DUP amplitude '%s' ignored",
 				                 ampl->publicID().c_str());
@@ -1520,12 +1349,6 @@ MagTool::_feed(DataModel::Amplitude *ampl, bool update)
 	return true;
 }
 
-
-int
-MagTool::cleanup(const TimeSpan& expiry)
-{
-	return 0;
-}
 
 }
 }

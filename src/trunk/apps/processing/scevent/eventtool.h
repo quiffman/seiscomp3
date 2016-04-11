@@ -125,6 +125,7 @@ class EventTool : public Application {
 		void removedFromCache(DataModel::PublicObject *);
 
 		void updateEvent(DataModel::Event *ev, bool = true);
+		void updateRegionName(DataModel::Event *ev, DataModel::Origin *org);
 		void cleanUpEventCache();
 
 		bool hasDelayedEvent(const std::string &publicID,

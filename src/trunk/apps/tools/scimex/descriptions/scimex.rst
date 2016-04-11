@@ -1,21 +1,24 @@
-scimex manages the SC3 object exchange between different SeisComP3 systems in
-realtime. scimex may import or export the data to one or several systems. In
+scimex manages the SC3 object exchange between two or more different SeisComP3 systems in
+real time. scimex may import or export the data to one or several systems. In
 contrary to :ref:`scimport` the exchange of the SC3 objects is event based.
+This means no messages will be exchanged until the exporting system has produced
+an event.
 
-By default all objects (picks, amplitudes, origins, arrivals, station magnitudes,
-magnitudes, magnitude references) are transferred to the other system. The user
-can define filters to exclude objects from being transferred. Possible filter
-parameter are location, magnitude, arrival count and agency. scimex supports two
-modi: *import* and *export*. In export mode scimex collects all objects relevant
-for an event (e.g. picks, amplitudes, origins, magnitudes) from scmasters message
-groups at the source and checks if the filter criteria match. Once the criteria
-are fulfilled, the whole package of objects is send to the scmaster IMPORT group
-of the receiving system.
+By default all objects (picks, amplitudes, origins, arrivals, station
+magnitudes, magnitudes, magnitude references) are transferred to the other
+system. The user can define filters at both the sender and the receiver, to
+limit the events for which objects are transferred. Possible filter parameters
+are the event location, magnitude, arrival count and agency. scimex supports
+two modi: *import* and *export*. In export mode scimex collects all objects
+relevant for an event (e.g. picks, amplitudes, origins, magnitudes) from
+scmaster's message groups at the source and checks if the filter criteria
+match. Once the criteria are fulfilled, the whole package of objects is send
+to the scmaster IMPORT group of the receiving system.
 
-At the receiving system an instance of scimex is running in import mode. It
-fetches the whole event information from the IMPORT group, checks the local
+At the receiving SC3 system an instance of scimex runs in import mode. It
+fetches the whole event information from its own IMPORT group, checks the local
 filter criteria of the system and sends the collected objects to the different
-messages groups, e.g. Pick, Amplitude, Magnitude, Location. In export mode
+message groups, e.g. Pick, Amplitude, Magnitude, Location. In export mode
 several recipients can be defined and for each recipient individual filters
 can be set. To run several instances of scimex on one system, aliases have to
 be defined, e.g. for import:
@@ -36,6 +39,9 @@ scimex_export.cfg.
 
 Examples
 ========
+
+For a push-type configuration, in which the exporting server must be able to
+connect to the Spread server on the receiving host. On the receiving host:
 
 scimex_import.cfg
 
@@ -71,6 +77,13 @@ scimex_import.cfg
                                   OriginReference:EVENT,Event:EVENT
 
 
+In this example, Pick and StationAmplitude objects are sent to the
+receiving system's IMPORT group to...
+
+.. note:: [why? to avoid interfering with the receiving system's picking].
+
+On the sending system, only those events with a high enough magnitude
+and enough arrivals, and with the AgencyID "GFZ" are exported:
 scimex_export.cfg
 
 .. code-block:: sh

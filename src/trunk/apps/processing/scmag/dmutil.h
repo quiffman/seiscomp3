@@ -20,9 +20,6 @@
 void countPublicObjectsByType();
 bool dumpOrigin(const Seiscomp::DataModel::Origin *origin);
 
-int cleanupPicksAndAmplitudes(Seiscomp::DataModel::EventParameters *ep, const Seiscomp::Core::TimeSpan &expiry);
-int cleanupOrigins(Seiscomp::DataModel::EventParameters *ep, const Seiscomp::Core::TimeSpan &expiry);
-
 bool equivalent(const Seiscomp::DataModel::WaveformStreamID&, const Seiscomp::DataModel::WaveformStreamID&);
 
 double arrivalWeight(const Seiscomp::DataModel::ArrivalPtr *arr, double defaultWeight=1.);

@@ -243,12 +243,12 @@ std::string ConnectionInfo::info(const NetworkInterface* ni)
 	os << ConnectionInfoTag(PROGRAMNAME_TAG).toString() << "="   << _programName << "&";
 	os << ConnectionInfoTag(PID_TAG).toString() << "="           << _pid << "&";
 
-	double currentCpuUsage = cpuUsage() * 100;
+	int currentCpuUsage = (cpuUsage() * 100);
 	os << ConnectionInfoTag(CPU_USAGE_TAG).toString() << "=" << currentCpuUsage << "&";
 
 	os << ConnectionInfoTag(TOTAL_MEMORY_TAG).toString() << "=" << _totalMemory << "&";
 
-	double currentMemoryUsage = memoryUsage();
+	int currentMemoryUsage = memoryUsage();
 	os << ConnectionInfoTag(CLIENT_MEMORY_USAGE_TAG).toString() << "=" << currentMemoryUsage << "&";
 
 	return os.str();

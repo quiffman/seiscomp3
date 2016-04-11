@@ -61,7 +61,7 @@ struct ResRefFormatter : Formatter {
 			if ( v.compare(0, 4, "smi:") != 0 && v.compare(0, 8, "quakeml:") ) {
 				std::string::iterator it;
 				for ( it = v.begin(); it != v.end(); ++it )
-					if ( *it == ' ' || *it == ':' || *it == '#' ) *it = '_';
+					if ( *it == ' ' || *it == ':' ) *it = '_';
 				v.insert(0, RES_REF_PREFIX);
 			}
 		}
@@ -74,8 +74,11 @@ struct MaxLenFormatter : Formatter {
 	size_t maxLen;
 	MaxLenFormatter(size_t maxLen) : maxLen(maxLen) {}
 	void to(std::string& v) {
-		if ( v.length() > maxLen ) v.resize(maxLen);
-		// TODO: Throw exception if maxLen is exceeded?
+		if ( v.length() > maxLen ) {
+			v.resize(maxLen);
+			SEISCOMP_WARNING("max length constraint exceeded cutting string to "
+			                 "%lu bytes: %s", (ulong) maxLen, v.c_str());
+		}
 	}
 };
 MaxLenFormatter __maxLen8(8);
@@ -85,20 +88,41 @@ MaxLenFormatter __maxLen128(128);
 
 struct EvaluationStatusFormatter : Formatter {
 	void to(std::string& v) {
-		if ( v == "reported" ) v = "final";
-		// TODO: Throw exception if type could not be matched?
+		if ( v == "reported" ) {
+			v = "";
+			SEISCOMP_WARNING("dropping unsupported EvaluationStatus value: "
+			                 "'reported'");
+		}
 	}
 };
 EvaluationStatusFormatter __evaluationStatus;
 
 struct EventTypeFormatter : Formatter {
 	void to(std::string &v) {
-		if ( v == "not locatable" || v == "outside of network interest" ||
-		     v == "duplicate") v = "other";
-		// TODO: Throw exception if type could not be matched?
+		if ( v == EEventTypeNames::name(INDUCED_EARTHQUAKE) )
+			v = "induced or triggered event";
+		else if ( v == EEventTypeNames::name(METEOR_IMPACT) )
+			v = "meteorite";
+		else if ( v == EEventTypeNames::name(NOT_LOCATABLE) ||
+			      v == EEventTypeNames::name(OUTSIDE_OF_NETWORK_INTEREST) ||
+			      v == EEventTypeNames::name(DUPLICATE) ) {
+			SEISCOMP_WARNING("mapping unsupported EventType '%s' to 'other'",
+			                 v.c_str());
+		}
 	}
 };
 static EventTypeFormatter __eventType;
+
+struct OriginUncertaintyDescriptionFormatter : Formatter {
+	void to(std::string &v) {
+		if ( v == "probability density function" ) {
+			v = "";
+			SEISCOMP_WARNING("dropping unsupported OriginUncertaintyDescription"
+			                 " value: 'probability density function'");
+		}
+	}
+};
+static OriginUncertaintyDescriptionFormatter __originUncertaintyDescription;
 
 // Places FocalMechanisms referenced by current Event as direct child nodes of
 // this Event object
@@ -232,8 +256,13 @@ template <typename T>
 struct PublicIDHandler : IO::XML::MemberHandler {
 	std::string value(Core::BaseObject *obj) {
 		T *target = T::Cast(obj);
-		if ( !target ) return "";
-		return RES_REF_PREFIX + target->publicID();
+		std::string v = "";
+		if ( target ) {
+			v = target->publicID();
+			__resRef.to(v);
+		}
+		return v;
+		//return RES_REF_PREFIX + target->publicID();
 	}
 	bool get(Core::BaseObject *object, void *node, IO::XML::NodeHandler *h) { return false; }
 };
@@ -360,7 +389,7 @@ struct WaveformStreamIDHandler : TypedClassHandler<WaveformStreamID> {
 	WaveformStreamIDHandler() {
 		addList("networkCode, stationCode", Mandatory, Attribute);
 		addList("channelCode, locationCode", Optional, Attribute);
-		add("resourceURI", &__resRefMan, Mandatory, CDATA);
+		add("resourceURI", &__resRef);
 	}
 };
 
@@ -380,11 +409,10 @@ struct PickHandler : TypedClassHandler<Pick> {
 
 struct OriginQualityHandler : TypedClassHandler<OriginQuality> {
 	OriginQualityHandler() {
-		addList("associatedPhaseCount, usedPhaseCount, usedStationCount, "
-		        "depthPhaseCount, standardError, azimuthalGap, "
-		        "secondaryAzimuthalGap, maximumDistance, minimumDistance, "
-		        "medianDistance");
-		add("associatedStationCount", "asociatedStationCount"); // TODO: Add to list if typo is corrected
+		addList("associatedPhaseCount, usedPhaseCount, associatedStationCount, "
+		        "usedStationCount, depthPhaseCount, standardError, "
+		        "azimuthalGap, secondaryAzimuthalGap, maximumDistance, "
+		        "minimumDistance, medianDistance");
 		add("groundTruthLevel", &__maxLen32);
 	}
 };
@@ -404,6 +432,12 @@ struct ArrivalHandler : TypedClassHandler<Arrival> {
 	}
 };
 
+struct PhaseHandler : TypedClassHandler<Phase> {
+	PhaseHandler() {
+		add("code", NULL, Mandatory, CDATA);
+	}
+};
+
 struct ConfidenceEllipsoidHandler : TypedClassHandler<ConfidenceEllipsoid> {
 	ConfidenceEllipsoidHandler() {
 		addList("semiMajorAxisLength, semiMinorAxisLength, "
@@ -415,7 +449,8 @@ struct OriginUncertaintyHandler : TypedClassHandler<OriginUncertainty> {
 	OriginUncertaintyHandler() {
 		addList("horizontalUncertainty, minHorizontalUncertainty, "
 		        "maxHorizontalUncertainty, azimuthMaxHorizontalUncertainty, "
-		        "confidenceEllipsoid, preferredDescription");
+		        "confidenceEllipsoid");
+		add("preferredDescription", &__originUncertaintyDescription);
 	}
 };
 
@@ -550,7 +585,7 @@ struct DataUsedHandler : TypedClassHandler<DataUsed> {
 struct MomentTensorHandler : TypedClassHandler<MomentTensor> {
 	MomentTensorHandler() {
 		addPID();
-		// NA: category, inversionType, evaluationMode, evaluationStatus
+		// NA: category, inversionType
 		addList("dataUsed, comment, scalarMoment, tensor, variance, "
 		    "varianceReduction, doubleCouple, clvd, iso, sourceTimeFunction, "
 		    "creationInfo");
@@ -618,11 +653,22 @@ struct EventParametersHandler : TypedClassHandler<EventParameters> {
 	}
 };
 
+struct RTPickReferenceHandler : TypedClassHandler<PickReference> {
+	RTPickReferenceHandler() {
+		add("pickID", &__resRef, Mandatory, CDATA);
+	}
+};
+
+struct RTAmplitudeReferenceHandler : TypedClassHandler<AmplitudeReference> {
+	RTAmplitudeReferenceHandler() {
+		add("amplitudeID", &__resRef, Mandatory, CDATA);
+	}
+};
+
 struct RTReadingHandler : TypedClassHandler<Reading> {
 	RTReadingHandler() {
 		addPID();
-		add("pickReference", &__resRef);
-		add("amplitudeReference", &__resRef);
+		addList("pickReference, amplitudeReference");
 	}
 };
 
@@ -678,7 +724,7 @@ TypeMapCommon::TypeMapCommon() {
 	// EventDescription
 	static EventDescriptionHandler eventDescriptionHandler;
 	registerMapping<EventDescription>("description", "", &eventDescriptionHandler);
-	
+
 	// FocalMechanism
 	static FocalMechanismHandler focalMechanismHandler;
 	static MomentTensorHandler momentTensorHandler;
@@ -722,16 +768,19 @@ TypeMapCommon::TypeMapCommon() {
 	static ConfidenceEllipsoidHandler confidenceEllipsoidHandler;
 	static ArrivalHandler arrivalHandler;
 	static OriginQualityHandler originQualityHandler;
+	static PhaseHandler phaseHandler;
 	registerMapping("origin", "", "Origin", &originHandler);
 	registerMapping<CompositeTime>("compositeTime", "", &compositeTimeHandler);
 	registerMapping<OriginUncertainty>("originUncertainty", "", &originUncertaintyHandler);
 	registerMapping<ConfidenceEllipsoid>("confidenceEllipsoid", "", &confidenceEllipsoidHandler);
 	registerMapping<Arrival>("arrival", "", &arrivalHandler);
 	registerMapping<OriginQuality>("quality", "", &originQualityHandler);
+	registerMapping<Phase>("phase", "", &phaseHandler);
 
 	// Pick
 	static PickHandler pickHandler;
 	registerMapping("pick", "", "Pick", &pickHandler);
+	registerMapping<Phase>("phaseHint", "", &phaseHandler);
 }
 
 TypeMap::TypeMap() : TypeMapCommon() {
@@ -745,9 +794,13 @@ RTTypeMap::RTTypeMap() : TypeMapCommon() {
 	static RTQuakeMLHandler rtQuakeMLHandler;
 	static RTEventHandler rtEventHandler;
 	static RTReadingHandler rtReadingHandler;
+	static RTPickReferenceHandler rtPickReferenceHandler;
+	static RTAmplitudeReferenceHandler rtAmplitudeReferenceHandler;
 	registerMapping<EventParameters>("quakeml", NS_QML_RT, &rtQuakeMLHandler);
 	registerMapping("event", "", "Event", &rtEventHandler);
 	registerMapping("reading", "", "Reading", &rtReadingHandler);
+	registerMapping("pickReference", "", "PickReference", &rtPickReferenceHandler);
+	registerMapping("amplitudeReference", "", "AmplitudeReference", &rtAmplitudeReferenceHandler);
 }
 
 Exporter::Exporter() {
@@ -759,7 +812,7 @@ void Exporter::collectNamespaces(Core::BaseObject *obj) {
 	// Just copy the defined default namespace map to avoid expensive
 	// namespace collections
 	_namespaces = _defaultNsMap;
-	
+
 	if ( EventParameters::Cast(obj) ) {
 		_namespaces[std::string(NS_QML)] = "q";
 	}
@@ -774,7 +827,7 @@ void RTExporter::collectNamespaces(Core::BaseObject *obj) {
 	// Just copy the defined default namespace map to avoid expensive
 	// namespace collections
 	_namespaces = _defaultNsMap;
-	
+
 	if ( EventParameters::Cast(obj) ) {
 		_namespaces[std::string(NS_QML_RT)] = "q";
 	}

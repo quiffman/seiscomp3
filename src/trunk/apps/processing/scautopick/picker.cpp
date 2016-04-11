@@ -201,7 +201,7 @@ bool App::validateParameters() {
 	setMessagingEnabled(!_config.offline);
 	bool disableDB = commandline().hasOption("db-disable") ||
 	                 (_config.offline && !_config.calculateAmplitudes) ||
-	                 !isInventoryDatabaseEnabled();
+	                 (!isInventoryDatabaseEnabled() && !isConfigDatabaseEnabled());
 
 	setDatabaseEnabled(!disableDB, true);
 
@@ -287,6 +287,8 @@ bool App::init() {
 	// Components to acquire
 	bool acquireComps[3];
 	acquireComps[0] = true;
+	acquireComps[1] = false;
+	acquireComps[2] = false;
 
 	if ( !_config.secondaryPickerType.empty() ) {
 		SecondaryPickerPtr proc = SecondaryPickerFactory::Create(_config.secondaryPickerType.c_str());
@@ -545,24 +547,36 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
 			if ( !initComponent(proc,
 			                    Processing::WaveformProcessor::VerticalComponent,
 			                    time, streamID, networkCode, stationCode,
-			                    locationCode, channelCode, metaDataRequired) )
+			                    locationCode, channelCode, metaDataRequired) ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: failed to setup vertical component",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
 				return false;
+			}
 			break;
 
 		case Processing::WaveformProcessor::FirstHorizontal:
 			if ( !initComponent(proc,
 			                    Processing::WaveformProcessor::FirstHorizontalComponent,
 			                    time, streamID, networkCode, stationCode,
-			                    locationCode, channelCode, metaDataRequired) )
+			                    locationCode, channelCode, metaDataRequired) ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: failed to setup first horizontal component",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
 				return false;
+			}
 			break;
 
 		case Processing::WaveformProcessor::SecondHorizontal:
 			if ( !initComponent(proc,
 			                    Processing::WaveformProcessor::SecondHorizontalComponent,
 			                    time, streamID, networkCode, stationCode,
-			                    locationCode, channelCode, metaDataRequired) )
+			                    locationCode, channelCode, metaDataRequired) ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: failed to setup second horizontal component",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
 				return false;
+			}
 			break;
 
 		case Processing::WaveformProcessor::Horizontal:
@@ -615,8 +629,12 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
 			                    locationCode, channelCode1, metaDataRequired) ||
 			     !initComponent(proc, Processing::WaveformProcessor::SecondHorizontalComponent,
 			                    time, streamID2, networkCode, stationCode,
-			                    locationCode, channelCode2, metaDataRequired) )
+			                    locationCode, channelCode2, metaDataRequired) ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: failed to setup horizontal components",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
 				return false;
+			}
 			break;
 		}
 
@@ -685,8 +703,12 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
 			                    locationCode, channelCode1, metaDataRequired) ||
 			     !initComponent(proc, Processing::WaveformProcessor::SecondHorizontalComponent,
 			                    time, streamID2, networkCode, stationCode,
-			                    locationCode, channelCode2, metaDataRequired) )
+			                    locationCode, channelCode2, metaDataRequired) ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: failed to setup components",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
 				return false;
+			}
 			break;
 		}
 
@@ -761,6 +783,8 @@ bool App::initDetector(const string &streamID,
 	                    time, streamID, networkCode, stationCode, locationCode, channelCode, false) )
 		return false;
 
+	SEISCOMP_DEBUG("%s: created detector", streamID.c_str());
+
 	addProcessor(networkCode, stationCode, locationCode, channelCode, detector.get());
 
 	SEISCOMP_DEBUG("Number of processors: %lu", (unsigned long)processorCount());
@@ -794,7 +818,7 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 	if ( wp->status() == Processing::WaveformProcessor::LowSNR )
 		ss << "SNR " << wp->statusValue() << " too low";
 	else if ( wp->status() > Processing::WaveformProcessor::Terminated )
-		ss << "ERROR (" << wp->status() << "," << wp->statusValue() << ")";
+		ss << "ERROR (" << wp->status().toString() << "," << wp->statusValue() << ")";
 	else
 		ss << "OK";
 
@@ -844,6 +868,9 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 	                    onset, rec->streamID(),
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), true) )
 		return;
+
+	SEISCOMP_DEBUG("%s: created secondary picker %s",
+	               rec->streamID().c_str(), _config.secondaryPickerType.c_str());
 
 	switch ( proc->usedComponent() ) {
 		case Processing::WaveformProcessor::Vertical:
@@ -996,6 +1023,9 @@ void App::emitTrigger(const Processing::Detector *pickProc,
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), false) )
 		return;
 
+	SEISCOMP_DEBUG("%s: created picker %s",
+	               rec->streamID().c_str(), _config.pickerType.c_str());
+
 	addProcessor(rec->networkCode(), rec->stationCode(),
 	             rec->locationCode(), rec->channelCode(), proc.get());
 }
@@ -1108,7 +1138,7 @@ void App::emitPPick(const Processing::Picker *proc,
 		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
 	}
 
-	SEISCOMP_DEBUG("Emit P pick %s", pick->publicID().c_str());
+	SEISCOMP_DEBUG("%s: emit P pick %s", res.record->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
 	logObject(_logAmps, now);
 
@@ -1209,7 +1239,7 @@ void App::emitSPick(const Processing::SecondaryPicker *proc,
 		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
 	}
 
-	SEISCOMP_DEBUG("Emit S pick %s", pick->publicID().c_str());
+	SEISCOMP_DEBUG("%s: emit S pick %s", res.record->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
 
 	if ( connection() && !_config.test ) {
@@ -1232,8 +1262,6 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 
 		if ( !_config.sendDetections ) return;
 	}
-
-	SEISCOMP_DEBUG("%s:%s: emit pick", rec->streamID().c_str(), proc->isEnabled()?"enabled":"disabled");
 
 	Core::Time now = Core::Time::GMT();
 	DataModel::PickPtr pick;
@@ -1272,7 +1300,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 		       pick->publicID().c_str());
 	}
 
-	SEISCOMP_DEBUG("Emit trigger %s", pick->publicID().c_str());
+	SEISCOMP_DEBUG("%s: emit detection %s", rec->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
 
 	if ( connection() && !_config.test ) {

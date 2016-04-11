@@ -32,13 +32,25 @@ namespace Seiscomp {
 namespace System {
 
 
+DEFINE_SMARTPOINTER(Module);
+DEFINE_SMARTPOINTER(Parameter);
+
 struct SC_SYSTEM_CORE_API ConfigDelegate : Config::Logger {
+	struct CSConflict {
+		Module         *module;
+		Parameter      *parameter;
+		int             stage;
+		Config::Symbol *symbol;
+	};
+
 	virtual void aboutToRead(const char *filename) {}
 	virtual void finishedReading(const char *filename) {}
 
 	//! Return true to cause the model to re-read the file
 	//! or false to go on.
 	virtual bool handleReadError(const char *filename) { return false; }
+
+	virtual void caseSensitivityConflict(const CSConflict &) {}
 };
 
 
@@ -581,6 +593,7 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		bool readConfig(int updateMaxStage = Environment::CS_LAST,
 		                ConfigDelegate *delegate = NULL);
 		bool writeConfig(int stage = Environment::CS_CONFIG_APP);
+		bool writeConfig(Module *, const std::string &filename, int stage);
 
 
 	// ------------------------------------------------------------------
@@ -626,7 +639,6 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 	// ------------------------------------------------------------------
 	private:
 		Module *create(SchemaDefinitions *schema, SchemaModule *def);
-		bool writeConfig(Module *, const std::string &filename, int stage);
 
 
 	// ------------------------------------------------------------------
@@ -651,6 +663,7 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 class SC_SYSTEM_CORE_API ModelVisitor {
 	protected:
 		ModelVisitor() {}
+		virtual ~ModelVisitor() {}
 
 	protected:
 		virtual bool visit(Module*) = 0;

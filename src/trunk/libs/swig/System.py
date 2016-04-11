@@ -772,6 +772,7 @@ class ConfigDelegate(Config.Logger):
     def aboutToRead(self, *args): return _System.ConfigDelegate_aboutToRead(self, *args)
     def finishedReading(self, *args): return _System.ConfigDelegate_finishedReading(self, *args)
     def handleReadError(self, *args): return _System.ConfigDelegate_handleReadError(self, *args)
+    def caseSensitivityConflict(self, *args): return _System.ConfigDelegate_caseSensitivityConflict(self, *args)
     def __init__(self): 
         this = _System.new_ConfigDelegate()
         try: self.this.append(this)
@@ -1369,8 +1370,6 @@ class ModelVisitor(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, ModelVisitor, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
     __repr__ = _swig_repr
-    __swig_destroy__ = _System.delete_ModelVisitor
-    __del__ = lambda self : None;
 ModelVisitor_swigregister = _System.ModelVisitor_swigregister
 ModelVisitor_swigregister(ModelVisitor)
 

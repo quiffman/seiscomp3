@@ -253,6 +253,8 @@ class SC_SYSTEM_CORE_API BaseObject {
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 inline void intrusive_ptr_add_ref(Seiscomp::Core::BaseObject *p) {
 	p->incrementReferenceCount();
@@ -284,8 +286,6 @@ inline void intrusive_ptr_add_ref(const Seiscomp::Core::BaseObject *p) {
 inline void intrusive_ptr_release(const Seiscomp::Core::BaseObject *p) {
 	p->decrementReferenceCount();
 }
-
-
 
 
 #endif

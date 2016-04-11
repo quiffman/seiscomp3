@@ -25,7 +25,7 @@
 					<description>
 					Max. secondary azimuth gap for an origin to be reported by.
 					Default is 360 degrees, i.e. no restriction based on this parameter.
-				  </description>
+					</description>
 				</parameter>
 				<parameter name="thresholdXXL" type="double" default="10000">
 					<description>
@@ -38,7 +38,7 @@
 					Stations outside the maximum distance range are ignored.
 					</description> 
 				</parameter>
-				<parameter name="maxDistanceXXL" type="double" default="10" unit="deg">
+				<parameter name="maxStationDistanceXXL" type="double" default="10" unit="deg">
 					<description>
 					XXL picks from stations beyond maxDistanceXXL are ignored.
 					</description> 

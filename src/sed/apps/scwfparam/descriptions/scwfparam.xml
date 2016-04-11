@@ -86,6 +86,11 @@
 					a station.
 					</description>
 				</parameter>
+				<parameter name="STALTAmargin" type="double" unit="s" default="5">
+					<description>
+					Specifies the number of seconds around P to be used to check the STA/LTA ratio.
+					</description>
+				</parameter>
 				<parameter name="dampings" type="list:double" unit="%" default="5">
 					<description>
 					Specifies a list of damping values (in percent) for computation of

@@ -18,6 +18,7 @@
 #include <seiscomp3/client/application.h>
 #include <seiscomp3/core/record.h>
 #include <seiscomp3/io/recordstream.h>
+#include <seiscomp3/utils/mutex.h>
 
 
 namespace Seiscomp {
@@ -57,6 +58,10 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		//! The default is true
 		void setAutoAcquisitionStart(bool);
 
+		//! Request locking of record thread and send a sync request to the
+		//! application after the last record has been flushed.
+		void requestSync();
+
 
 	// ----------------------------------------------------------------------
 	//  Protected interface
@@ -94,6 +99,9 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		//! Logs the received records for the last period
 		virtual void handleMonitorLog(const Core::Time &timestamp);
 
+		//! Unlocks record acquisiton.
+		virtual void handleEndSync();
+
 
 	private:
 		bool                _startAcquisition;
@@ -102,6 +110,8 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		boost::thread      *_recordThread;
 		size_t              _receivedRecords;
 		ObjectLog          *_logRecords;
+		bool                _requestSync;
+		Util::mutex         _recordLock;
 };
 
 

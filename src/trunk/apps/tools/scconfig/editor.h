@@ -16,6 +16,7 @@
 
 
 #include <QtGui>
+#include <seiscomp3/system/model.h>
 
 
 class ConfigHighlighter : public QSyntaxHighlighter {
@@ -96,6 +97,24 @@ class ConfigFileWidget : public QWidget {
 		ConfigEditor *_editor;
 		QListWidget  *_errorlist;
 		QSplitter    *_splitter;
+};
+
+
+class ConfigConflictWidget : public QWidget {
+	Q_OBJECT
+
+	public:
+		ConfigConflictWidget(QWidget *parent = NULL);
+
+	public:
+		void setConflicts(const QList<Seiscomp::System::ConfigDelegate::CSConflict> &);
+
+	public slots:
+		void fixConflicts();
+
+	private:
+		QList<Seiscomp::System::ConfigDelegate::CSConflict> _conflicts;
+		QListWidget *_list;
 };
 
 

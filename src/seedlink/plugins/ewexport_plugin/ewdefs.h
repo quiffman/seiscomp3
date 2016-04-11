@@ -10,6 +10,7 @@
 /**** From the earthworm_global.d of an operational system ****/
 
 #define TYPE_HEARTBEAT 3
+#define TYPE_ACK 6
 #define TYPE_TRACEBUF2 19
 #define TYPE_TRACEBUF  20
 
@@ -18,6 +19,7 @@
 /**** From imp_exp_gen.h ****/
 
 #define MAX_ALIVE_STR  256
+#define HEARTSEQ 255
 
 #define STX 2     /* Start Transmission: used to frame beginning of message */
 #define ETX 3     /* End Transmission: used to frame end of message */

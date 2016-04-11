@@ -32,7 +32,7 @@ from seiscomp.db.generic.inventory import Inventory as GInventory
 from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
 from seiscomp3 import Core, Config, Client, DataModel, Logging
 
-VERSION = "0.13a (2012.347)"
+VERSION = "0.14a (2013.016)"
 
 def overlaps(pstart, pend, cstart, cend):
     if pend:
@@ -1479,7 +1479,7 @@ class ArclinkSynchronizer(Client.Application):
         logs.notice("** Re-start ArcLink request handlers")
         
         user = os.getenv("USER")
-        cmdl = "ps -o pid,command -u " + user + " | grep reqhandler.py | grep -v grep"
+        cmdl = "ps -o pid,command -u " + user + " | grep reqhandler | grep -v grep"
         count = 0
         for line in os.popen(cmdl):
             (pid, command) = line.strip().split(" ", 1)

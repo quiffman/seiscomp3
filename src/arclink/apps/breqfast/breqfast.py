@@ -54,7 +54,7 @@ SOCKET_TIMEOUT = 100
 REQUEST_TIMEOUT = 1800
 REQUEST_WAIT = 10
 
-BASEDIR = "/home/sysop/breqfast2"
+BASEDIR = "/home/sysop/breqfast"
 
 BREQ_DIR = BASEDIR+"/breq"
 SPOOL_DIR = BASEDIR+"/spool"
@@ -72,7 +72,7 @@ LABEL = "breq_req"
 FORMAIL_BIN = "/usr/bin/formail"
 SENDMAIL_BIN = "/usr/sbin/sendmail"
 
-VERSION = "0.8 (2012.048)"
+VERSION = "0.9 (2013.028)"
 
 class BreqParser(object):
 	"""
@@ -487,7 +487,7 @@ _nonetext = "None of your requested data have been found in our database. It wil
 ### messages for resulting email ###
 _oktext1 = "Your breq_fast request to the WebDC has been processed.\n\nPlease find the resulting data file in your personal ftp directory:"
 _oktext1a = "Files with suffix .openssl contain restricted data and have been encrypted. Use 'openssl des-cbc -pass pass:<Password> -in <Input> -out <Output> -d' to decrypt. Remember that you should use the correct password based on the datacenter id of the file. The datacenter id is the field just before the '.seed' on the filename."
-_oktext2 = "In case of problems please send a message to geofon_dc@gfz-potsdam.de.\n\nIf you use data from the WebDC for a publication, please acknowledge the GEOFON Program of GFZ Potsdam and send us a preprint."
+_oktext2 = "In case of problems please send a message to geofon_dc@gfz-potsdam.de.\n\nIf you use data from the WebDC for a publication, please acknowledge the GEOFON Program of GFZ Potsdam."
 _noktext = "Your breq_fast request to the WebDC has been processed. We are very sorry, but unfortunately none of the requested data could be supplied."
 _twok = "Time windows found:"
 _twno = "Time windows NOT found:"
@@ -813,7 +813,7 @@ def submit_request(parser, req_name, breq_id):
 						failed_content[STATUS_ERROR] = req.content
 					
 					fd_out.close()
-					break
+					raise
 
 				except (IOError, OSError, DBError, SEEDError, mseed.MSeedError), e:
 					logs.error("error creating SEED Volume: %s" % str(e))
@@ -886,11 +886,15 @@ def submit_request(parser, req_name, breq_id):
 		if (search("size exceeded", str(e))):
 			emailmsg_hint = "(By default, only 1000 streams can be requested at once.)"
 
-		emailmsg_extra = """
+		if (search("size exceeded", str(e)) or search("empty request", str(e))):
+		        emailmsg_extra = """
 Your Arclink request failed with the following message:
 %s
 %s
 We hope that helps.\n\n""" % (str(e), emailmsg_hint)
+
+		else:
+			raise
 
 	### formatting the output ###
 	if len(ok_content) == 0:
@@ -1005,9 +1009,18 @@ def start():
 				emailaddr = parser.tokendict["email"]
 			except KeyError:
 				pass
-			submit_email(emailaddr,"breq_fast request %s_%s checked" % (req_name,breq_id),emailmsg)
-			logs.debug("email submitted with message: %s" % emailmsg)
-			
+
+			errorstate = False
+			if os.path.exists(os.path.join(SPOOL_DIR,"make",basename+"_running")):
+				### email was sent before crash, don't send it again
+				logs.debug("email notification was already sent")
+				os.unlink(os.path.join(SPOOL_DIR,"make",basename+"_running"))
+				errorstate = True
+
+			else:
+				submit_email(emailaddr,"breq_fast request %s_%s checked" % (req_name,breq_id),emailmsg)
+				logs.debug("email submitted with message: %s" % emailmsg)
+
 			### mark the processed file with suffix _done and move it to the check/done-dir in SPOOL_DIR ###
 			shutil.move(fname,os.path.join(SPOOL_DIR,"check","done",basename+"_done"))
 			logs.debug("move file %s to check/done dir" % fname)
@@ -1020,16 +1033,31 @@ def start():
 				fname = "_".join((fname,"running"))
 				logs.debug("rename file in %s" % fname)
 				
-				### submit the request to arclink server ###
-				emailmsg = submit_request(parser,req_name,breq_id)
+				try:
+					### submit the request to arclink server ###
+					emailmsg = submit_request(parser,req_name,breq_id)
 
-				### submit the email containing the processing status of the Breq_fast request
-				submit_email(emailaddr,"breq_fast request %s_%s processed" % (req_name,breq_id),emailmsg)
-				logs.debug("email submitted with message: %s" % emailmsg)
+					### submit the email containing the processing status of the Breq_fast request
+					submit_email(emailaddr,"breq_fast request %s_%s processed" % (req_name,breq_id),emailmsg)
+					logs.debug("email submitted with message: %s" % emailmsg)
+
+				except (ArclinkError, socket.error), e:
+					logs.error("quit processing: " + str(e))
+
+					if not errorstate:
+						#submit_email("admin", "breqfast failure", str(e))
+						pass
+
+					shutil.move(os.path.join(SPOOL_DIR,"check","done",basename+"_done"), os.path.join(SPOOL_DIR,"check",basename))
+					break
+					
+				if errorstate:
+					#submit_email("admin", "breqfast OK", "")
+					pass
+
 				### mark the processed file with suffix _done and move it to the make/done-dir in SPOOL_DIR ###
 				shutil.move(fname,os.path.join(SPOOL_DIR,"make","done",basename+"_done"))
 				logs.debug("move file %s in make/done dir" % fname)
-
 
 logstream = None
 

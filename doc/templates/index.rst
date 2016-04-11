@@ -24,4 +24,5 @@ ${generator.refs.extensions}
    /base/arclink-protocol
    /base/glossary
    /base/contributing-docs
+   /base/coding-conventions
    /base/license

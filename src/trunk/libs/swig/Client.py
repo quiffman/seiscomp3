@@ -425,6 +425,7 @@ class Notification(_object):
     Reconnect = _Client.Notification_Reconnect
     Close = _Client.Notification_Close
     Timeout = _Client.Notification_Timeout
+    Sync = _Client.Notification_Sync
     def __init__(self, *args): 
         """
         __init__(self) -> Notification
@@ -871,6 +872,14 @@ class Application(Core.InterruptibleObject):
         """handleInitializationError(self, Stage stage) -> bool"""
         return _Client.Application_handleInitializationError(self, *args)
 
+    def handleStartSync(self):
+        """handleStartSync(self)"""
+        return _Client.Application_handleStartSync(self)
+
+    def handleEndSync(self):
+        """handleEndSync(self)"""
+        return _Client.Application_handleEndSync(self)
+
     def dispatch(self, *args):
         """dispatch(self, BaseObject arg0) -> bool"""
         return _Client.Application_dispatch(self, *args)
@@ -1073,6 +1082,10 @@ class StreamApplication(Application):
         """setAutoAcquisitionStart(self, bool arg0)"""
         return _Client.StreamApplication_setAutoAcquisitionStart(self, *args)
 
+    def requestSync(self):
+        """requestSync(self)"""
+        return _Client.StreamApplication_requestSync(self)
+
     def init(self):
         """init(self) -> bool"""
         return _Client.StreamApplication_init(self)
@@ -1092,6 +1105,10 @@ class StreamApplication(Application):
     def handleRecord(self, *args):
         """handleRecord(self, Record rec)"""
         return _Client.StreamApplication_handleRecord(self, *args)
+
+    def handleEndSync(self):
+        """handleEndSync(self)"""
+        return _Client.StreamApplication_handleEndSync(self)
 
     def __disown__(self):
         self.this.disown()
@@ -1140,6 +1157,10 @@ class StreamApplication(Application):
     def handleInitializationError(self, *args):
         """handleInitializationError(self, Stage stage) -> bool"""
         return _Client.StreamApplication_handleInitializationError(self, *args)
+
+    def handleStartSync(self):
+        """handleStartSync(self)"""
+        return _Client.StreamApplication_handleStartSync(self)
 
     def dispatchNotification(self, *args):
         """dispatchNotification(self, int type, BaseObject arg0) -> bool"""

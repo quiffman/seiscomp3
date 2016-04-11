@@ -161,6 +161,7 @@ void Autoloc3::Config::dump() const
 	SEISCOMP_INFO("playback                         %s",     playback ? "true":"false");
 	SEISCOMP_INFO("useManualOrigins                 %s",     useManualOrigins ? "true":"false");
 	SEISCOMP_INFO("useImportedOrigins               %s",     useImportedOrigins ? "true":"false");
+	SEISCOMP_INFO("locatorProfile                   %s",     locatorProfile.c_str());
 //	SEISCOMP_INFO("maxRadiusFactor                  %g", 	 maxRadiusFactor);
 }
 

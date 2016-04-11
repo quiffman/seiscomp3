@@ -102,7 +102,7 @@ IMPLEMENT_METAOBJECT(Notifier)
 
 IMPLEMENT_MESSAGE_FOR(Notifier, NotifierMessage, "notifier_message");
 Notifier::Pool Notifier::_notifiers;
-bool Notifier::_lock = true;
+boost::thread_specific_ptr<bool> Notifier::_lock;
 bool Notifier::_checkOnCreate = true;
 
 
@@ -246,7 +246,7 @@ void Notifier::Clear() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Notifier::Disable() {
-	_lock = true;
+	SetEnabled(false);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -255,7 +255,7 @@ void Notifier::Disable() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Notifier::Enable() {
-	_lock = false;
+	SetEnabled(true);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -264,7 +264,11 @@ void Notifier::Enable() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Notifier::SetEnabled(bool e) {
-	_lock = !e;
+	if ( _lock.get() == NULL )
+		// Store a new thread specific pointer value with 'enable'
+		_lock.reset(new bool(!e));
+	else
+		*_lock.get() = !e;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -273,7 +277,13 @@ void Notifier::SetEnabled(bool e) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Notifier::IsEnabled() {
-	return _lock == false;
+	if ( _lock.get() == NULL ) {
+		// Store a new thread specific pointer value with default: true
+		bool *value = new bool(true);
+		_lock.reset(value);
+	}
+
+	return *_lock.get() == false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

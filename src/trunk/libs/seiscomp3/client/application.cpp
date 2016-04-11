@@ -1122,11 +1122,15 @@ bool Application::isStationEnabled(const std::string& networkCode,
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const std::string& Application::messagingHost() const {
 	return _messagingHost;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1790,7 +1794,13 @@ bool Application::sync(const char *syncID) {
 	// Safety first
 	if ( _currentSyncID.empty() ) return false;
 
-	if ( !requestSync(_currentSyncID.c_str()) ) return false;
+	handleStartSync();
+
+	if ( !requestSync(_currentSyncID.c_str()) ) {
+		handleEndSync();
+		SEISCOMP_INFO("End sync");
+		return false;
+	}
 
 	// Start listening to messages if not done yet
 	if ( !_messageThread )
@@ -1803,8 +1813,24 @@ bool Application::sync(const char *syncID) {
 		idle();
 	}
 
+	handleEndSync();
+
 	return true;
 }
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::handleStartSync() {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::handleEndSync() {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -1860,6 +1886,10 @@ bool Application::processEvent() {
 			case Notification::Close:
 				SEISCOMP_INFO("Close event received, returning");
 				return false;
+
+			case Notification::Sync:
+				sync();
+				break;
 
 			default:
 				if ( !dispatchNotification(evt.type, obj.get()) )
@@ -2171,6 +2201,12 @@ bool Application::initConfiguration() {
 		                configGetString("recordstream.source");
 	}
 	catch (...) {}
+
+	try { _inventoryDBFilename = configGetString("database.inventory"); }
+	catch ( ... ) {}
+
+	try { _configDBFilename = configGetString("database.config"); }
+	catch ( ... ) {}
 
 	try { _agencyID = Util::replace(configGetString("agencyID"), AppResolver(_name)); }
 	catch (...) { _agencyID = Util::replace("@user@@@@hostname@", AppResolver(_name)); }

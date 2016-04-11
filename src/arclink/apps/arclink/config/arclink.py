@@ -151,7 +151,10 @@ class InventoryResolver(object):
             for station in stations:
                 try:
                     for location in self._findLocations(station, locationCode, start, end):
-                        currentLocCode = location.code() if locationCode else ""
+                        if locationCode:
+                            currentLocCode = location.code()
+                        else:
+                            currentLocCode = ""
                         try:
                             for stream in self._findStreams(location, streamCode, start, end):
                                 try:
@@ -317,7 +320,10 @@ class RoutingDBUpdater(Client.Application):
                     route_streams = params.get('routes.%s.streams' % r)
                     ## DEFAULT is True
                     route_netonly = params.get('routes.%s.disableStationCode' % r)
-                    route_netonly = False if route_netonly is None or route_netonly == "false" else True
+                    if route_netonly is None or route_netonly == "false":
+                        route_netonly = False
+                    else:
+                        route_netonly = True
 
                     # Arclink
                     route_address = params.get('routes.%s.arclink.address' % r)
@@ -434,7 +440,10 @@ class RoutingDBUpdater(Client.Application):
                 access_netonly = params.get('access.disableStationCode')
                 access_streams = params.get('access.streams')
 
-                access_netonly = False if access_netonly is None or access_netonly == "false" else True
+                if access_netonly is None or access_netonly == "false":
+                    access_netonly = False
+                else:
+                    access_netonly = True
 
                 if not access_users: continue
 

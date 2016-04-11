@@ -68,6 +68,12 @@ bool GridSearch::setGridFile(const std::string &gridfile)
 	return _readGrid(gridfile);
 }
 
+
+void GridSearch::setLocatorProfile(const std::string &profile) {
+	_relocator.setProfile(profile);
+}
+
+
 int GridSearch::cleanup(const Time& minTime)
 {
 	int count = 0;

@@ -50,7 +50,7 @@
 				file number limit. Default is 300 seconds.
 				</description>
 			</parameter>
-			<parameter name="keepalive" type="int">
+			<parameter name="keepalive" type="int" default="0">
 				<description>
 				Interval (in seconds) at which keepalive (heartbeat) packets
 				are sent to the server. Keepalive packets are only sent if

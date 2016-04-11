@@ -663,8 +663,11 @@ def on_alias(args, flags):
     # copy defaults from etc/defaults/mod1.cfg to etc/defaults/mod2.cfg
     default_cfg1 = os.path.join("etc", "defaults", args[1] + ".cfg")
     default_cfg2 = os.path.join("etc", "defaults", args[2] + ".cfg")
-    print "Copy default configuration: %s -> %s" % (default_cfg2, default_cfg1)
-    shutil.copyfile(os.path.join(SEISCOMP_ROOT, default_cfg2), os.path.join(SEISCOMP_ROOT, default_cfg1))
+    if os.path.exists(default_cfg1):
+      print "Copy default configuration: %s -> %s" % (default_cfg2, default_cfg1)
+      shutil.copyfile(os.path.join(SEISCOMP_ROOT, default_cfg2), os.path.join(SEISCOMP_ROOT, default_cfg1))
+    else:
+      print "No default configuration to copy"
 
     # create symlink from bin/mod1 to bin/mod2
     # - first: remove target

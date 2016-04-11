@@ -108,8 +108,9 @@
 
 				<parameter name="maximumTimeSpan" type="int" unit="s" default="60">
 					<description>
-						Allowed origin time difference between an incoming origin compared with
-						preferred origins to get associated.
+					Associates an origin with an existing event  if the origin
+					time differs not more than 60 seconds unless the
+					minimumMatchingArrivals criteria matches.
 					</description>
 				</parameter>
 
@@ -122,8 +123,8 @@
 
 				<parameter name="minMwCount" type="int" default="8">
 					<description>
-						Minimum number of station magnitudes required for Mw(mB) to get
-						valid.
+					Minimum number of station magnitudes required for Mw(mB) to be considered as
+					preferred magnitude.
 					</description>
 				</parameter>
 
@@ -141,7 +142,7 @@
 					</description>
 				</parameter>
 
-				<parameter name="enableFallbackMagnitude" type="boolean">
+				<parameter name="enableFallbackMagnitude" type="boolean" default="false">
 					<description>
 						If true, one magnitude will be preferred even if magnitude criteria are
 						not fullfilled.

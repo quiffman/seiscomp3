@@ -158,13 +158,24 @@ IF(NOT WIN32)
                 PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${SPREAD_LIBRARIES}"
         )
 
-        ADD_CUSTOM_COMMAND(
-                OUTPUT ${SPREAD_LIBRARIES}
-                COMMAND ./configure ARGS --prefix=${SPREAD_BINARY_DIR} --libdir=${SPREAD_LIB_DIR} --sysconfdir=${SPREAD_CONF_DIR}
-                COMMAND ${CMAKE_MAKE_PROGRAM}
-                COMMAND ${CMAKE_MAKE_PROGRAM} ARGS install
-                WORKING_DIRECTORY ${SPREAD_SOURCE_DIR}
-        )
+        IF(CMAKE_HOST_ARCHITECTURE)
+                ADD_CUSTOM_COMMAND(
+                        OUTPUT ${SPREAD_LIBRARIES}
+                        COMMAND ./configure ARGS --prefix=${SPREAD_BINARY_DIR} --libdir=${SPREAD_LIB_DIR} --sysconfdir=${SPREAD_CONF_DIR} --host ${CMAKE_HOST_ARCHITECTURE}
+                        COMMAND ${CMAKE_MAKE_PROGRAM}
+                        COMMAND ${CMAKE_MAKE_PROGRAM} ARGS install
+                        WORKING_DIRECTORY ${SPREAD_SOURCE_DIR}
+                )
+
+        ELSE(CMAKE_HOST_ARCHITECTURE)
+                ADD_CUSTOM_COMMAND(
+                        OUTPUT ${SPREAD_LIBRARIES}
+                        COMMAND ./configure ARGS --prefix=${SPREAD_BINARY_DIR} --libdir=${SPREAD_LIB_DIR} --sysconfdir=${SPREAD_CONF_DIR}
+                        COMMAND ${CMAKE_MAKE_PROGRAM}
+                        COMMAND ${CMAKE_MAKE_PROGRAM} ARGS install
+                        WORKING_DIRECTORY ${SPREAD_SOURCE_DIR}
+                )
+        ENDIF(CMAKE_HOST_ARCHITECTURE)
 ENDIF(NOT WIN32)
 
 INCLUDE_DIRECTORIES(${SPREAD_INCLUDE_DIR})

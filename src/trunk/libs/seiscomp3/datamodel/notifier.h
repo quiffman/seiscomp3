@@ -19,6 +19,7 @@
 #include <seiscomp3/core.h>
 #include <seiscomp3/datamodel/publicobject.h>
 #include <seiscomp3/core/genericmessage.h>
+#include <boost/thread/tss.hpp>
 #include <list>
 
 
@@ -201,8 +202,8 @@ class SC_SYSTEM_CORE_API Notifier : public Seiscomp::Core::BaseObject {
 		Operation _operation;
 		ObjectPtr _object;
 
+		static boost::thread_specific_ptr<bool> _lock;
 		static Pool _notifiers;
-		static bool _lock;
 		static bool _checkOnCreate;
 
 	DECLARE_SC_CLASSFACTORY_FRIEND(Notifier);

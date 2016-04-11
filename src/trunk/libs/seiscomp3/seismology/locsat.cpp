@@ -20,10 +20,14 @@
 #include <seiscomp3/seismology/ttt.h>
 #include <seiscomp3/math/geo.h>
 #include "locsat_internal.h"
+
 #include <stdlib.h>
 #include <math.h>
 #include <list>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
+
 
 // #define LOCSAT_TESTING
 
@@ -124,10 +128,14 @@ DataModel::Origin* LocSAT::fromPicks(PickList& picks){
 		DataModel::Pick* pick = it->first.get();
 		DataModel::SensorLocation* sloc = getSensorLocation(pick);
 
-		if (sloc){
+		if ( sloc ) {
 			std::string stationID = pick->waveformID().networkCode()+"."+
-			                        pick->waveformID().stationCode()+"."+
-			                        pick->waveformID().locationCode();
+			                        pick->waveformID().stationCode();
+
+			if ( !pick->waveformID().locationCode().empty() ) {
+				stationID +=  ".";
+				stationID += pick->waveformID().locationCode();
+			}
 
 			_locateEvent->addSite(stationID.c_str(),
 			                      sloc->latitude(), sloc->longitude(),
@@ -137,9 +145,11 @@ DataModel::Origin* LocSAT::fromPicks(PickList& picks){
 			try { phase = pick->phaseHint().code(); }
 			catch(...) { phase = "P"; }
 
+			double cor = stationCorrection(stationID, pick->waveformID().stationCode(), phase);
 			_locateEvent->addArrival(i++, stationID.c_str(),
 			                         phase.c_str(),
-			                         (double)pick->time().value(), ARRIVAL_TIME_ERROR, 1);
+			                         (double)pick->time().value()-cor,
+			                         ARRIVAL_TIME_ERROR, 1);
 
 			// Set backazimuth
 			try {
@@ -377,6 +387,31 @@ static bool travelTimeP(double lat, double lon, double depth, double delta, doub
 }
 
 
+double LocSAT::stationCorrection(const std::string &staid,
+                                 const std::string &stacode,
+                                 const std::string &phase) const {
+	StationCorrectionMap::const_iterator it = _stationCorrection.find(staid);
+	if ( it != _stationCorrection.end() ) {
+		PhaseCorrectionMap::const_iterator pit = it->second.find(phase);
+		if ( pit != it->second.end() ) {
+			SEISCOMP_DEBUG("LOCSAT: stacorr(%s,%s) = %f", staid.c_str(), phase.c_str(), pit->second);
+			return pit->second;
+		}
+	}
+
+	it = _stationCorrection.find(stacode);
+	if ( it != _stationCorrection.end() ) {
+		PhaseCorrectionMap::const_iterator pit = it->second.find(phase);
+		if ( pit != it->second.end() ) {
+			SEISCOMP_DEBUG("LOCSAT: stacorr(%s,%s) = %f", stacode.c_str(), phase.c_str(), pit->second);
+			return pit->second;
+		}
+	}
+
+	return 0.0;
+}
+
+
 bool LocSAT::loadArrivals(const DataModel::Origin* origin, double timeError) {
 
 	if ( ! origin)
@@ -447,8 +482,12 @@ bool LocSAT::loadArrivals(const DataModel::Origin* origin, double timeError) {
 		*/
 
 		std::string stationID = pick->waveformID().networkCode()+"."+
-				                pick->waveformID().stationCode()+"."+
-				                pick->waveformID().locationCode();
+		                        pick->waveformID().stationCode();
+
+		if ( !pick->waveformID().locationCode().empty() ) {
+			stationID +=  ".";
+			stationID += pick->waveformID().locationCode();
+		}
 
 #ifdef LOCSAT_TESTING
 		SEISCOMP_DEBUG(" [%s] set phase to %s", stationID.c_str(), phaseCode.c_str());
@@ -457,9 +496,12 @@ bool LocSAT::loadArrivals(const DataModel::Origin* origin, double timeError) {
 		_locateEvent->addSite(stationID.c_str(),
 		                      sloc->latitude(), sloc->longitude(), sloc->elevation());
 
+		double cor = stationCorrection(stationID, pick->waveformID().stationCode(), phaseCode);
+
 		_locateEvent->addArrival(i, stationID.c_str(),
 		                         phaseCode.c_str(),
-		                         (double)pick->time().value(), timeError, defining);
+		                         (double)pick->time().value()-cor,
+		                         timeError, defining);
 
 		// Set backazimuth
 		try {
@@ -677,8 +719,58 @@ LocatorInterface::IDList LocSAT::profiles() const {
 
 void LocSAT::setProfile(const std::string &prefix) {
 	if ( prefix.empty() ) return;
+
+	_stationCorrection.clear();
 	_tablePrefix = prefix;
 	strcpy(_locator_params->prefix, (Environment::Instance()->shareDir() + "/locsat/tables/" + _tablePrefix).c_str());
+
+	std::ifstream ifs;
+	ifs.open((Environment::Instance()->shareDir() + "/locsat/tables/" + _tablePrefix + ".stacor").c_str());
+	if ( !ifs.is_open() )
+		SEISCOMP_DEBUG("LOCSAT: no station corrections used for profile %s", _tablePrefix.c_str());
+	else {
+		std::string line;
+		int lc = 1;
+		int cnt = 0;
+		for ( ; std::getline(ifs, line); ++lc ) {
+			Core::trim(line);
+			if ( line.empty() ) continue;
+			if ( line[0] == '#' ) continue;
+
+			std::vector<std::string> toks;
+
+			Core::split(toks, line.c_str(), " \t");
+
+			if ( toks.size() != 5 ) {
+				SEISCOMP_WARNING("LOCSAT: invalid station correction in line %d: expected 5 columns", lc);
+				continue;
+			}
+
+			if ( toks[0] != "LOCDELAY" ) {
+				SEISCOMP_WARNING("LOCSAT: invalid station correction in line %d: expected LOCDELAY", lc);
+				continue;
+			}
+
+			int num_phases;
+			double correction;
+
+			if ( !Core::fromString(num_phases, toks[3]) ) {
+				SEISCOMP_WARNING("LOCSAT: invalid station correction in line %d: 4th column is not an integer", lc);
+				continue;
+			}
+
+			if ( !Core::fromString(correction, toks[4]) ) {
+				SEISCOMP_WARNING("LOCSAT: invalid station correction in line %d: 5th column is not a double", lc);
+				continue;
+			}
+
+			_stationCorrection[toks[1]][toks[2]] = correction;
+			++cnt;
+		}
+
+		SEISCOMP_DEBUG("LOCSAT: loaded %d station corrections from %d configuration lines",
+		               cnt, lc);
+	}
 }
 
 

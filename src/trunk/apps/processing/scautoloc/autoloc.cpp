@@ -2784,6 +2784,13 @@ void Autoloc3::setStations(StationDB *stations)
 }
 
 
+void Autoloc3::setLocatorProfile(const std::string &profile) {
+	_config.locatorProfile = profile;
+	_nucleator.setLocatorProfile(profile);
+	_relocator.setProfile(profile);
+}
+
+
 void Autoloc3::setGridFile(const string &gridfile)
 {
 	_nucleator.setGridFile(gridfile);

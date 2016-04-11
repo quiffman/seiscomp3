@@ -16,11 +16,6 @@
 #define __SEISCOMP3_SEISMOLOGY_LOCSAT_H__
 
 
-#include <iostream>
-#include <string>
-#include <stdio.h>
-#include <vector>
-
 #include <seiscomp3/core/exceptions.h>
 #include <seiscomp3/datamodel/origin.h>
 #include <seiscomp3/datamodel/arrival.h>
@@ -28,6 +23,13 @@
 #include <seiscomp3/datamodel/station.h>
 #include <seiscomp3/seismology/locatorinterface.h>
 #include <seiscomp3/core.h>
+
+
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <vector>
+#include <map>
 
 
 #define ARRIVAL_TIME_ERROR 1.0
@@ -133,10 +135,17 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		DataModel::Origin* fromPicks(PickList& pickList);
 		DataModel::Origin* loc2Origin(Internal::Loc* loc);
 
+		double stationCorrection(const std::string &staid, const std::string &stacode,
+		                         const std::string &phase) const;
+
 	
 	private:
+		typedef std::map<std::string, double> PhaseCorrectionMap;
+		typedef std::map<std::string, PhaseCorrectionMap> StationCorrectionMap;
+
 		static std::string   _defaultTablePrefix;
 
+		StationCorrectionMap _stationCorrection;
 		std::string          _newOriginID;
 		std::string          _tablePrefix;
 		Internal::LocSAT*    _locateEvent;
