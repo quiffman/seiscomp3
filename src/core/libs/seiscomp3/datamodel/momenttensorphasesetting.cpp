@@ -140,6 +140,38 @@ MomentTensorPhaseSetting::~MomentTensorPhaseSetting() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorPhaseSetting::operator==(const MomentTensorPhaseSetting& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _lowerPeriod != rhs._lowerPeriod ) return false;
+	if ( _upperPeriod != rhs._upperPeriod ) return false;
+	if ( _minimumSNR != rhs._minimumSNR ) return false;
+	if ( _maximumTimeShift != rhs._maximumTimeShift ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorPhaseSetting::operator!=(const MomentTensorPhaseSetting& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorPhaseSetting::equal(const MomentTensorPhaseSetting& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void MomentTensorPhaseSetting::setCode(const std::string& code) {
 	_index.code = code;
 }

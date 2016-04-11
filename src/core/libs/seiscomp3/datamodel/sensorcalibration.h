@@ -93,6 +93,13 @@ class SC_CORE_DATAMODEL_API SensorCalibration : public Object {
 	public:
 		//! Copies the metadata of other to this
 		SensorCalibration& operator=(const SensorCalibration& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const SensorCalibration& other) const;
+		bool operator!=(const SensorCalibration& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const SensorCalibration& other) const;
 
 
 	// ------------------------------------------------------------------

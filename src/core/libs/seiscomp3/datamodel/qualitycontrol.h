@@ -64,6 +64,13 @@ class SC_CORE_DATAMODEL_API QualityControl : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		QualityControl& operator=(const QualityControl& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const QualityControl& other) const;
+		bool operator!=(const QualityControl& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const QualityControl& other) const;
 
 	
 	// ------------------------------------------------------------------

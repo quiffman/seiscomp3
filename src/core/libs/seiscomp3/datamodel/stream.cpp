@@ -132,6 +132,54 @@ Stream::~Stream() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Stream::operator==(const Stream& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _end != rhs._end ) return false;
+	if ( _datalogger != rhs._datalogger ) return false;
+	if ( _dataloggerSerialNumber != rhs._dataloggerSerialNumber ) return false;
+	if ( _dataloggerChannel != rhs._dataloggerChannel ) return false;
+	if ( _sensor != rhs._sensor ) return false;
+	if ( _sensorSerialNumber != rhs._sensorSerialNumber ) return false;
+	if ( _sensorChannel != rhs._sensorChannel ) return false;
+	if ( _clockSerialNumber != rhs._clockSerialNumber ) return false;
+	if ( _sampleRateNumerator != rhs._sampleRateNumerator ) return false;
+	if ( _sampleRateDenominator != rhs._sampleRateDenominator ) return false;
+	if ( _depth != rhs._depth ) return false;
+	if ( _azimuth != rhs._azimuth ) return false;
+	if ( _dip != rhs._dip ) return false;
+	if ( _gain != rhs._gain ) return false;
+	if ( _gainFrequency != rhs._gainFrequency ) return false;
+	if ( _gainUnit != rhs._gainUnit ) return false;
+	if ( _format != rhs._format ) return false;
+	if ( _flags != rhs._flags ) return false;
+	if ( _restricted != rhs._restricted ) return false;
+	if ( _shared != rhs._shared ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Stream::operator!=(const Stream& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Stream::equal(const Stream& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Stream::setCode(const std::string& code) {
 	_index.code = code;
 }

@@ -95,6 +95,13 @@ class SC_CORE_DATAMODEL_API WaveformQuality : public Object {
 	public:
 		//! Copies the metadata of other to this
 		WaveformQuality& operator=(const WaveformQuality& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const WaveformQuality& other) const;
+		bool operator!=(const WaveformQuality& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const WaveformQuality& other) const;
 
 
 	// ------------------------------------------------------------------

@@ -423,7 +423,7 @@ bool Autoloc3::feed(Origin *origin)
 	// At this point, any origin that was not imported is expected to be manual.
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// If the origin come without arrivals, we cannot use it for anything
+	// If the origin comes without arrivals, we cannot use it for anything
 	if ( origin->arrivals.size() == 0 ) {
 		SEISCOMP_WARNING("Ignoring manual origin without arrivals");
 		return false;
@@ -458,10 +458,16 @@ bool Autoloc3::feed(Origin *origin)
 			bool have=false;
 			for(unsigned int k=0; k<arrivals.size(); k++) {
 				Arrival _arr = arrivals[k];
-				if (_arr.pick->station() != arr.pick->station() || _arr.phase != arr.phase)
-					continue;
-				have = true;
-				break;
+
+				if (_arr.pick == arr.pick) {
+					have = true;
+					break;
+				}
+
+				if (_arr.pick->station() == arr.pick->station() && _arr.phase == arr.phase) {
+					have = true;
+					break;
+				}
 			}
 			if (have) continue; // skip this arrival
 
@@ -477,6 +483,7 @@ bool Autoloc3::feed(Origin *origin)
 		if (origin->depthType == Origin::DepthManuallyFixed) {
 			_relocator.useFixedDepth(fixed);
 		}
+
 		OriginPtr relo = _relocator.relocate(found);
 		if (relo) {
 			found->updateFrom(relo.get());
@@ -499,7 +506,12 @@ bool Autoloc3::feed(Origin *origin)
 
 double Autoloc3::_score(const Origin *origin) const
 {
-	return originScore(origin);
+	// compute the score of the origin as if there were no other origins
+	double score = originScore(origin);
+
+	// see how many of the picks may be secondary phases of a previous origin
+	// TODO
+	return score;
 }
 
 
@@ -2219,7 +2231,7 @@ bool Autoloc3::_enhanceScore(Origin *origin, int maxloops)
 
 	// try to enhance score by excluding outliers
 //	while (origin->definingPhaseCount() >= _config.minPhaseCount) {
-	for (int loop=0;loop<0; loop++) {
+	for (int loop=0; loop<0; loop++) {
 
 		if (maxloops > 0 && ++loops > maxloops)
 			break;
@@ -2328,19 +2340,21 @@ void Autoloc3::_rename_P_PKP(Origin *origin)
 }
 
 
-
 double Autoloc3::_testFake(Origin *origin) const
 {
 	// Perform a series of tests to figure out of this origin is possibly
 	// a fake origin resulting from wrong phase identification. It
 	// measures how many of the picks may be misassociated.
 
+//	TODO: DISABLE THE FOLLOWING FOR NON-TELESEISMIC NETWORKS
+
 	if ( origin->imported )
 		return 0.;
 
-	if ( origin->score > 80 )
+	if ( origin->score > 80 ) {
 		// can safely skip this test
 		return 0.;
+	}
 
 	double maxProbability = 0;
 	int arrivalCount = origin->arrivals.size();
@@ -2363,8 +2377,9 @@ double Autoloc3::_testFake(Origin *origin) const
 		// enough secondary phases is small anyway.
 		// XXX XXX XXX
 		// This is risky, because a new origin naturally has few picks initially
-		if (otherOrigin->definingPhaseCount() < 2*origin->definingPhaseCount())
+		if (otherOrigin->definingPhaseCount() < 2*origin->definingPhaseCount()) {
 			continue;
+		}
 
 		// now, for our origin, count the possible conincidences with
 		// later phases of the other origin
@@ -2387,20 +2402,21 @@ double Autoloc3::_testFake(Origin *origin) const
 //				}
 			}
 
+
 			// now test for various phases
 			const Station *sta = arr.pick->station();
 			double delta, az, baz, depth=otherOrigin->dep;
 			delazi(otherOrigin, sta, delta, az, baz);
 			Seiscomp::TravelTimeTable ttt;
-			Seiscomp::TravelTimeList *ttlist = ttt.compute(origin->lat, origin->lon, origin->dep, sta->lat, sta->lon, 0);
+			Seiscomp::TravelTimeList *ttlist = ttt.compute(otherOrigin->lat, otherOrigin->lon, otherOrigin->dep, sta->lat, sta->lon, 0);
 			if (delta > 30) {
 				const Seiscomp::TravelTime *tt = getPhase(ttlist, "PP");
-				if ((tt != NULL) && ! arr.pick->xxl && arr.score < 1) {
+				if (tt != NULL && ! arr.pick->xxl && arr.score < 1) {
 					double dt = arr.pick->time - (otherOrigin->time + tt->time);
 					if (dt > -20 && dt < 30) {
 						if (fabs(dt) < fabs(arr.residual))
 							arr.excluded = Arrival::DeterioratesSolution;
-						SEISCOMP_DEBUG("_testFake: %-6s PP dt=%.1f", sta->code.c_str(), dt);
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu PP   dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
 						count ++;
 						delete ttlist;
 						continue;
@@ -2410,12 +2426,42 @@ double Autoloc3::_testFake(Origin *origin) const
 
 			if (delta > 100) {
 				const Seiscomp::TravelTime *tt = getPhase(ttlist, "PKP");
-				if ((tt != NULL) && ! arr.pick->xxl) {
+				if (tt != NULL && ! arr.pick->xxl) {
 					double dt = arr.pick->time - (otherOrigin->time + tt->time);
-					if (dt > -20 && dt < 30) {
+					if (dt > -20 && dt < 50) { // a bit more generous for PKP
 						if (fabs(dt) < fabs(arr.residual))
 							arr.excluded = Arrival::DeterioratesSolution;
-						SEISCOMP_DEBUG("_testFake: %-6s PKP dt=%.1f", sta->code.c_str(), dt);
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu PKP  dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
+						count ++;
+						delete ttlist;
+						continue;
+					}
+				}
+			}
+
+			if (delta > 120 && delta < 142) {
+				const Seiscomp::TravelTime *tt = getPhase(ttlist, "SKP");
+				if (tt != NULL && ! arr.pick->xxl) {
+					double dt = arr.pick->time - (otherOrigin->time + tt->time);
+					if (dt > -20 && dt < 50) { // a bit more generous for SKP
+						if (fabs(dt) < fabs(arr.residual))
+							arr.excluded = Arrival::DeterioratesSolution;
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu SKP  dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
+						count ++;
+						delete ttlist;
+						continue;
+					}
+				}
+			}
+
+			if (delta > 100 && delta < 130) { // preliminary! TODO: need to check amplitudes
+				const Seiscomp::TravelTime *tt = getPhase(ttlist, "PKKP");
+				if (tt != NULL && ! arr.pick->xxl) {
+					double dt = arr.pick->time - (otherOrigin->time + tt->time);
+					if (dt > -20 && dt < 50) { // a bit more generous for PKKP
+						if (fabs(dt) < fabs(arr.residual))
+							arr.excluded = Arrival::DeterioratesSolution;
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu PKKP dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
 						count ++;
 						delete ttlist;
 						continue;
@@ -2430,7 +2476,7 @@ double Autoloc3::_testFake(Origin *origin) const
 					if (dt > -20 && dt < 30) {
 						if (fabs(dt) < fabs(arr.residual))
 							arr.excluded = Arrival::DeterioratesSolution;
-						SEISCOMP_DEBUG("_testFake: %-6s pP dt=%.1f", sta->code.c_str(), dt);
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu pP   dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
 						count ++;
 						delete ttlist;
 						continue;
@@ -2443,7 +2489,7 @@ double Autoloc3::_testFake(Origin *origin) const
 					if (dt > -20 && dt < 30) {
 						if (fabs(dt) < fabs(arr.residual))
 							arr.excluded = Arrival::DeterioratesSolution;
-						SEISCOMP_DEBUG("_testFake: %-6s sP dt=%.1f", sta->code.c_str(), dt);
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu sP   dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
 						count ++;
 						delete ttlist;
 						continue;
@@ -2451,14 +2497,14 @@ double Autoloc3::_testFake(Origin *origin) const
 				}
 			}
 
-			if (delta < 90) {
-				const Seiscomp::TravelTime *tt = getPhase(ttlist, "S");
-				if ((tt != NULL) && ! arr.pick->xxl && arr.score < 1) {
+			if (delta < 110) {
+				const Seiscomp::TravelTime *tt = getPhase(ttlist, "S"); // includes SKS!
+				if (tt != NULL && ! arr.pick->xxl && arr.score < 1) {
 					double dt = arr.pick->time - (otherOrigin->time + tt->time);
 					if (dt > -20 && dt < 30) {
 						if (fabs(dt) < fabs(arr.residual))
 							arr.excluded = Arrival::DeterioratesSolution;
-						SEISCOMP_DEBUG("_testFake: %-6s S dt=%.1f", sta->code.c_str(), dt);
+						SEISCOMP_DEBUG("_testFake: %-6s %5lu %5lu S    dt=%.1f", sta->code.c_str(),origin->id, otherOrigin->id, dt);
 						count ++;
 						delete ttlist;
 						continue;
@@ -2466,8 +2512,6 @@ double Autoloc3::_testFake(Origin *origin) const
 				}
 			}
 
-			// TODO: sP(gbn) pP
-			//
 			// TODO: We might actually be able to skip the phase test here
 			// if we can more generously associate phases to the "good" origin
 			// (loose association). In that case we only need to test if
@@ -2635,55 +2679,6 @@ bool Autoloc3::_trimResiduals(Origin *origin)
 		SEISCOMP_DEBUG_S(" TRM " + printOneliner(relo.get()) + " exc " + arr.pick->id);
 		count ++;
 	}
-
-/*
-	bool new_hack=true;
-	if (new_hack && origin->definingPhaseCount() > 30) {
-		OriginPtr copy = new Origin(*origin);
-		int arrivalCount = copy->arrivals.size();
-
-			SEISCOMP_INFO("NEW_HACK 0");
-			SEISCOMP_INFO_S(printDetailed(copy.get()));
-
-		for (int i=0; i<arrivalCount; i++) {
-
-			Arrival &arr = copy->arrivals[i];
-			if (arr.excluded)
-				continue;
-			if (arr.residual < 0)
-				continue;
-
-			arr.excluded = Arrival::LargeResidual;
-		}
-
-		OriginPtr relo = _relocator.relocate(copy.get());
-		if (relo) {
-			copy->updateFrom(relo.get());
-			SEISCOMP_INFO("NEW_HACK A");
-			SEISCOMP_INFO_S(printDetailed(copy.get()));
-		}
-
-		while(true) {
-
-		double rms = copy->rms();
-		if (rms<0.7*_config.goodRMS) rms = 0.7*_config.goodRMS;
-		for (int i=0; i<arrivalCount; i++) {
-			Arrival &arr = copy->arrivals[i];
-			if (arr.excluded != Arrival::LargeResidual)
-				continue;
-			if (fabs(arr.residual) < 2*rms)
-				arr.excluded = Arrival::NotExcluded;
-		}
-		relo = _relocator.relocate(copy.get());
-		if (relo) {
-			origin->updateFrom(relo.get());
-			SEISCOMP_INFO("NEW_HACK B");
-			SEISCOMP_INFO_S(printDetailed(origin));
-		}
-
-		}
-	}
-*/
 
 	// try to get some large-residual picks back into the solution
 	while (true) {

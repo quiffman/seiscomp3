@@ -57,8 +57,13 @@ class SC_CORE_DATAMODEL_API OriginQuality : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		OriginQuality& operator=(const OriginQuality& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const OriginQuality& other) const;
 		bool operator!=(const OriginQuality& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const OriginQuality& other) const;
 
 
 	// ------------------------------------------------------------------

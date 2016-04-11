@@ -154,6 +154,51 @@ MomentTensor* MomentTensor::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensor::operator==(const MomentTensor& rhs) const {
+	if ( _derivedOriginID != rhs._derivedOriginID ) return false;
+	if ( _momentMagnitudeID != rhs._momentMagnitudeID ) return false;
+	if ( _scalarMoment != rhs._scalarMoment ) return false;
+	if ( _tensor != rhs._tensor ) return false;
+	if ( _variance != rhs._variance ) return false;
+	if ( _varianceReduction != rhs._varianceReduction ) return false;
+	if ( _doubleCouple != rhs._doubleCouple ) return false;
+	if ( _clvd != rhs._clvd ) return false;
+	if ( _iso != rhs._iso ) return false;
+	if ( _greensFunctionID != rhs._greensFunctionID ) return false;
+	if ( _filterID != rhs._filterID ) return false;
+	if ( _sourceTimeFunction != rhs._sourceTimeFunction ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _method != rhs._method ) return false;
+	if ( _status != rhs._status ) return false;
+	if ( _cmtName != rhs._cmtName ) return false;
+	if ( _cmtVersion != rhs._cmtVersion ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensor::operator!=(const MomentTensor& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensor::equal(const MomentTensor& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void MomentTensor::setDerivedOriginID(const std::string& derivedOriginID) {
 	_derivedOriginID = derivedOriginID;
 }

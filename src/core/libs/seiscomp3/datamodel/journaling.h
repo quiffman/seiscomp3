@@ -59,6 +59,13 @@ class SC_CORE_DATAMODEL_API Journaling : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Journaling& operator=(const Journaling& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Journaling& other) const;
+		bool operator!=(const Journaling& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Journaling& other) const;
 
 	
 	// ------------------------------------------------------------------

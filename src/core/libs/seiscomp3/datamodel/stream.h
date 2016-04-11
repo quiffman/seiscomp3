@@ -90,6 +90,13 @@ class SC_CORE_DATAMODEL_API Stream : public Object {
 	public:
 		//! Copies the metadata of other to this
 		Stream& operator=(const Stream& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Stream& other) const;
+		bool operator!=(const Stream& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Stream& other) const;
 
 
 	// ------------------------------------------------------------------

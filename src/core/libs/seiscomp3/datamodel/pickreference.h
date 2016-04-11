@@ -90,6 +90,13 @@ class SC_CORE_DATAMODEL_API PickReference : public Object {
 	public:
 		//! Copies the metadata of other to this
 		PickReference& operator=(const PickReference& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const PickReference& other) const;
+		bool operator!=(const PickReference& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const PickReference& other) const;
 
 
 	// ------------------------------------------------------------------

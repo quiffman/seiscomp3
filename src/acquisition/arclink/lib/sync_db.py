@@ -222,15 +222,17 @@ class ArclinkSynchronizer(Client.Application):
                     self.send(group, msg)
                     msg.clear()
                     mcount = 0
+                    self.sync("sync-db")
                 it.next()
         except:
             pass
 
         finally:
-            if msg:
+            if msg.size():
                 logs.debug("sending message (%5.1f %%)" % 100.0)
                 self.send(group, msg)
                 msg.clear()
+                self.sync("sync-db")
 
     def request_netlist(self):
         req_args = {"compression": "bzip2" }

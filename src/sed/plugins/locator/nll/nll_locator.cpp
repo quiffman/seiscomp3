@@ -265,6 +265,19 @@ void replaceWeight(vector<string> &observations, const std::string staCode,
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+double normalizeAz(double az) {
+	if ( az < 0 )
+		az += 360.0;
+	else if ( az >= 360.0 )
+		az -= 360.0;
+	return az;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 } // private namespace
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -301,6 +314,9 @@ NLLocator::NLLocator() {
 	_enableSEDParameters = false;
 	_enableNLLOutput = true;
 	_enableNLLSaveInput = true;
+
+	_SEDdiffMaxLikeExpectTag = "SED.diffMaxLikeExpect";
+	_SEDqualityTag = "SED.quality";
 
 	// Set allowed parameters to unset
 	for ( IDList::iterator it = _allowedParameters.begin();
@@ -488,6 +504,20 @@ bool NLLocator::init(const Config &config) {
 	}
 	catch ( ... ) {
 		_enableSEDParameters = false;
+	}
+
+	try {
+		_SEDqualityTag = config.getString("NonLinLoc.commentSEDQuality");
+	}
+	catch ( ... ) {
+		_SEDqualityTag = "SED.quality";
+	}
+
+	try {
+		_SEDdiffMaxLikeExpectTag = config.getString("NonLinLoc.commentSEDDiffMaxLikeExpect");
+	}
+	catch ( ... ) {
+		_SEDdiffMaxLikeExpectTag = "SED.diffMaxLikeExpect";
 	}
 
 	updateProfile("");
@@ -1248,7 +1278,7 @@ bool NLLocator::NLL2SC3(Origin *origin, string &locComment, const void *vnode,
 			arr->setTakeOffAngle(parr->ray_dip);
 		arr->setWeight(parr->weight);
 		arr->setDistance(Math::Geo::km2deg(parr->dist));
-		arr->setAzimuth(rect2latlonAngle(0,parr->azim));
+		arr->setAzimuth(normalizeAz(rect2latlonAngle(0,parr->azim)));
 		arr->setTimeCorrection(parr->delay);
 
 		origin->add(arr.get());
@@ -1276,7 +1306,7 @@ bool NLLocator::NLL2SC3(Origin *origin, string &locComment, const void *vnode,
 		arr->setPhase(Phase(pick->phaseHint()));
 		arr->setWeight(0.0);
 		arr->setDistance(dist);
-		arr->setAzimuth(az);
+		arr->setAzimuth(normalizeAz(az));
 
 		origin->add(arr.get());
 	}
@@ -1351,12 +1381,12 @@ bool NLLocator::NLL2SC3(Origin *origin, string &locComment, const void *vnode,
 
 	if ( phypo->qualitySED != '\0' ) {
 		CommentPtr comment = new Comment;
-		comment->setId("SED.quality");
+		comment->setId(_SEDqualityTag);
 		comment->setText(string(1, phypo->qualitySED));
 		origin->add(comment.get());
 
 		comment = new Comment;
-		comment->setId("SED.diffMaxLikeExpect");
+		comment->setId(_SEDdiffMaxLikeExpectTag);
 		comment->setText(toString(phypo->diffMaxLikeExpect));
 		origin->add(comment.get());
 	}

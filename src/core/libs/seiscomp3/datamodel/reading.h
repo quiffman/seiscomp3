@@ -83,6 +83,13 @@ class SC_CORE_DATAMODEL_API Reading : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Reading& operator=(const Reading& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Reading& other) const;
+		bool operator!=(const Reading& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Reading& other) const;
 
 	
 	// ------------------------------------------------------------------

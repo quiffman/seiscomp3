@@ -14,6 +14,8 @@
 #ifndef __SEISCOMP_CONFIG_H__
 #define __SEISCOMP_CONFIG_H__
 
+#include <seiscomp3/config/exceptions.h>
+#include <seiscomp3/config/symboltable.h>
 
 #include <iostream>
 #include <fstream>
@@ -22,8 +24,6 @@
 #include <sstream>
 #include <map>
 
-#include <seiscomp3/config/exceptions.h>
-#include <seiscomp3/config/symboltable.h>
 
 namespace Seiscomp {
 
@@ -105,6 +105,16 @@ class SC_CORE_CONFIG_API Config {
 
 		bool setBool(const std::string& name, bool value);
 
+		/** Gets a path from the configuration file
+		 * @param name name of the element
+		 * @return string
+		 */
+		std::string getPath(const std::string& name) const throw(ConfigException);
+		std::string getPath(const std::string& name, bool* error) const;
+		bool getPath(std::string&, const std::string& name) const;
+
+		bool setPath(const std::string& name, const std::string& value);
+
 		/** Gets a string from the configuration file
 		 * @param name name of the element
 		 * @return string
@@ -140,6 +150,12 @@ class SC_CORE_CONFIG_API Config {
 		std::vector<bool> getBools(const std::string& name, bool* error) const;
 
 		bool setBools(const std::string& name, const std::vector<bool>& values);
+
+		std::vector<std::string> getPaths(const std::string& name) const
+		throw(ConfigException);
+		std::vector<std::string> getPaths(const std::string& name, bool* error) const;
+
+		bool setPaths(const std::string& name, const std::vector<std::string>& values);
 
 		std::vector<std::string> getStrings(const std::string& name) const
 		throw(ConfigException);

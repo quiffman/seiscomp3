@@ -571,6 +571,7 @@ class StationWrapper(object):
         self.obj.setLatitude(float(kf.latitude))
         self.obj.setLongitude(float(kf.longitude))
         self.obj.setElevation(float(kf.elevation))
+        self.obj.setType(kf.type)
         self.obj.setRestricted(restricted)
         self.obj.setShared(True)
         self.obj.setArchive(DCID)
@@ -998,7 +999,7 @@ class Key2DB(Client.Application):
             except:
                 pass
         finally:
-            if msg:
+            if msg.size():
                 logs.debug("sending message (%5.1f %%)" % 100.0)
                 self.send(group, msg)
                 msg.clear()
@@ -1071,7 +1072,10 @@ class Key2DB(Client.Application):
 
             for p in glob.glob(seiscompRoot + "/pkg/*"):
                 logs.debug("processing " + p)
-                pkgName = p.split("/")[-1].split("_", 1)[1]
+                try:
+                    pkgName = p.split("/")[-1].split("_", 1)[1]
+                except IndexError, e:
+                    continue
 
                 try:
                     kf = Keyfile(seiscompRoot + "/%s/key/global" % (pkgName,))
@@ -1156,23 +1160,45 @@ class Key2DB(Client.Application):
                         logs.error(str(e))
                         continue
 
+                    existingStations.add((netCode, staCode))
+
+                    profiles = parsePkgstr(kf.packages)
+                    for pkgName in configdb.getModuleList():
+                        try:
+                            pro = profiles[pkgName]
+                            if pro:
+                                parsetName = "%s/Profile/%s" % (pkgName, pro)
+                            else:
+                                parsetName = "%s/Station/%s/%s" % (pkgName, netCode, staCode)
+
+                            if parsetName in existingParsets:
+                                configdb.updateStation(pkgName, netCode, staCode, parsetName)
+                            else:
+                                logs.warning("parameter set %s does not exist" % (parsetName,))
+                                configdb.removeStation(pkgName, netCode, staCode)
+
+                        except KeyError:
+                            configdb.removeStation(pkgName, netCode, staCode)
+
+                    self.send_notifiers("CONFIG")
+
                     if netCode not in existingNetworks:
                         logs.warning("network %s does not exist, ignoring station %s" % (netCode, staCode))
                         continue
                     
-                    if not kf.latitude:
+                    if not hasattr(kf, "latitude") or not kf.latitude:
                         logs.warning("missing latitude for %s %s" % (netCode, staCode))
                         continue
 
-                    if not kf.longitude:
+                    if not hasattr(kf, "longitude") or not kf.longitude:
                         logs.warning("missing longitude for %s %s" % (netCode, staCode))
                         continue
 
-                    if not kf.elevation:
+                    if not hasattr(kf, "elevation") or not kf.elevation:
                         logs.warning("missing elevation for %s %s" % (netCode, staCode))
                         continue
 
-                    if not kf.depth1:
+                    if not hasattr(kf, "depth1") or not kf.depth1:
                         logs.warning("missing depth of primary sensor for %s %s" % (netCode, staCode))
                         continue
 
@@ -1191,35 +1217,16 @@ class Key2DB(Client.Application):
                     if not hasattr(kf, "unit1") or not kf.unit1:
                         #logs.warning("missing unit of primary sensor for %s %s, using M/S" % (netCode, staCode))
                         kf.unit1 = "M/S"
-                    
+
                     if not hasattr(kf, "unit2"):
                         #logs.warning("missing unit of secondary sensor for %s %s, using M/S**2" % (netCode, staCode))
                         kf.unit2 = "M/S**2"
-                    
-                    existingStations.add((netCode, staCode))
 
-                    profiles = parsePkgstr(kf.packages)
-                    for pkgName in configdb.getModuleList():
-                        try:
-                            pro = profiles[pkgName]
-                            if pro:
-                                parsetName = "%s/Profile/%s" % (pkgName, pro)
-                            else:
-                                parsetName = "%s/Station/%s/%s" % (pkgName, netCode, staCode)
-                                
-                            if parsetName in existingParsets:
-                                configdb.updateStation(pkgName, netCode, staCode, parsetName)
-                            else:
-                                logs.warning("parameter set %s does not exist" % (parsetName,))
-                                configdb.removeStation(pkgName, netCode, staCode)
-                                
-                        except KeyError:
-                            configdb.removeStation(pkgName, netCode, staCode)
-                            
-                    self.send_notifiers("CONFIG")
-            
+                    if not hasattr(kf, "type"):
+                        kf.type = ""
+
                     restricted = False
-                    
+
                     try:
                         pro = profiles['arclink']
 

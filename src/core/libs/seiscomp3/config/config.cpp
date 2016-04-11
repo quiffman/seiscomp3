@@ -14,16 +14,15 @@
 
 #include "config.h"
 
+#include <seiscomp3/core/strings.h>
+#include <seiscomp3/logging/log.h>
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
 #include <cstring>
 #include <climits>
 #include <cstdlib>
-
-#include <seiscomp3/logging/log.h>
-#include <seiscomp3/core/strings.h>
-
 
 
 #if WIN32
@@ -39,6 +38,12 @@ char *realpath(const char *relPath, char *absPath) {
 
 
 #include <seiscomp3/config/environment.h>
+
+namespace {
+
+typedef std::vector<std::string> StringList;
+
+}
 
 namespace Seiscomp {
 
@@ -263,7 +268,7 @@ bool Config::readConfig(const std::string& file, int stage, bool raw) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Config::readInternalConfig(const std::string& file,
-		                        SymbolTable* symbolTable, int stage, bool raw) {
+                                SymbolTable* symbolTable, int stage, bool raw) {
 	if ( _symbolTable ) {
 		_symbolTable->decrementObjectCount();
 		if ( _symbolTable->objectCount() <= 0 ) {
@@ -448,13 +453,13 @@ bool Config::handleEntry(const std::string& entry, const std::string& comment) {
 	//SEISCOMP_DEBUG("Parsing entry");
 	if ( tokens.size() < 2 ) {
 		SEISCOMP_ERROR("[%s:%d] Config entry malformed: To few parameter for %s",
-				_fileName.c_str(), _line, entry.c_str());
+		               _fileName.c_str(), _line, entry.c_str());
 		return false;
 	}
 
 	if ( tokens[0][0] == '$' ) {
 		SEISCOMP_ERROR("[%s:%d] Cannot assign to rvalue: %s",
-					    _fileName.c_str(), _line, tokens[0].c_str());
+		               _fileName.c_str(), _line, tokens[0].c_str());
 		return false;
 	}
 
@@ -463,7 +468,7 @@ bool Config::handleEntry(const std::string& entry, const std::string& comment) {
 	if ( tokens[0] == "include" ) {
 		if ( tokens.size() > 2 ) {
 			SEISCOMP_ERROR("[%s:%d] Operator %s has to many operands -> %s file",
-					_fileName.c_str(), _line, tokens[0].c_str(), tokens[0].c_str());
+			               _fileName.c_str(), _line, tokens[0].c_str(), tokens[0].c_str());
 			return false;
 		}
 		if ( !parseRValue(tokens[1], parsedValues) )
@@ -685,7 +690,7 @@ std::vector<std::string> Config::tokenize(const std::string& entry)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Config::parseRValue(const std::string& entry,
-		                 std::vector<std::string>& parsedValues) {
+                         std::vector<std::string>& parsedValues) {
 	bool openCurlyBrace = false;
 	bool stringMode     = false;
 	std::string parsedEntry;
@@ -930,13 +935,56 @@ bool Config::getBool(bool& value, const std::string& name) const
 
 
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+std::string Config::getPath(const std::string& name) const
+throw(ConfigException) {
+	bool error = false;
+	std::string value = get<std::string>(name, &error);
+	if ( error == true ) throw ConfigOptionNotFoundException(name);
+
+	return Environment::Instance()->absolutePath(value);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+std::string Config::getPath(const std::string& name, bool* error) const {
+	*error = false;
+
+	std::string value = get<std::string>(name, error);
+	if ( *error == true ) return "";
+
+	return Environment::Instance()->absolutePath(value);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Config::getPath(std::string& value, const std::string& name) const {
+	if ( !get<std::string>(value, name) ) {
+		value == "";
+		return false;
+	}
+
+	value = Environment::Instance()->absolutePath(value);
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 std::string Config::getString(const std::string& name) const
 throw(ConfigException)
 {
 	return get<std::string>(name);
 }
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
@@ -1038,6 +1086,39 @@ std::vector<bool> Config::getBools(const std::string& name, bool* error) const
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+std::vector<std::string> Config::getPaths(const std::string& name) const
+throw(ConfigException)
+{
+	StringList values = getVec<std::string>(name);
+	for ( StringList::iterator it = values.begin();
+		  it != values.end(); ++it ) {
+		*it =  Environment::Instance()->absolutePath(*it);
+	}
+	return values;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+std::vector<std::string> Config::getPaths(const std::string& name, bool* error) const
+{
+	*error = false;
+	StringList values = getVec<std::string>(name, error);
+	if ( *error ) return values;
+
+	for ( StringList::iterator it = values.begin();
+		  it != values.end(); ++it ) {
+		*it =  Environment::Instance()->absolutePath(*it);
+	}
+
+	return values;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 std::vector<std::string> Config::getStrings(const std::string& name) const
 throw(ConfigException)
 {
@@ -1089,6 +1170,16 @@ bool Config::setBool(const std::string& name, bool value)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Config::setPath(const std::string& name, const std::string& value)
+{
+	return set<std::string>(name, value);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Config::setString(const std::string& name, const std::string& value)
 {
 	return set<std::string>(name, value);
@@ -1122,6 +1213,16 @@ bool Config::setDoubles(const std::string& name, const std::vector<double>& valu
 bool Config::setBools(const std::string& name, const std::vector<bool>& values)
 {
 	return set<bool>(name, values);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Config::setPaths(const std::string& name, const std::vector<std::string>& values)
+{
+	return set<std::string>(name, values);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

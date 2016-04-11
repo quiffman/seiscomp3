@@ -41,7 +41,7 @@ Inventory* Inventory::Instance() {
 }
 
 
-void Inventory::load(const char *filename) throw(Core::GeneralException) {
+void Inventory::load(const char *filename) throw(std::exception) {
 	IO::XMLArchive ar;
 
 	if ( !ar.open(filename) )

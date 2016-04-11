@@ -91,6 +91,15 @@ bool ArclinkRequestSummary::operator!=(const ArclinkRequestSummary& rhs) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequestSummary::equal(const ArclinkRequestSummary& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ArclinkRequestSummary::setOkLineCount(int okLineCount) {
 	_okLineCount = okLineCount;
 }

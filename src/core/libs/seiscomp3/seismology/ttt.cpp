@@ -24,7 +24,7 @@ extern "C" {
 
 # include "f2c.h"
 void distaz2_(double *lat1, double *lon1, double *lat2, double *lon2, double *delta, double *azi1, double *azi2);
-int elpcor_(char *phid, real *del, real *z__, real *azi, real *ecolat, real *ecorr, int phid_len);
+int elpcor_(const char *phid, real *del, real *z__, real *azi, real *ecolat, real *ecorr, int phid_len);
 
 }
 
@@ -158,6 +158,20 @@ const TravelTime *getPhase(const TravelTimeList *list, const std::string &phase)
 				if ( (*it).phase == "PKPab" ) break;
 				if ( (*it).phase == "PKPbc" ) break;
 				if ( (*it).phase == "PKPdf" ) break;
+			}
+		}
+		else if ( phase == "PKKP" ) {
+			if ( list->delta > 100 && list->delta < 130 ) {
+				if ( (*it).phase == "PKKPab" ) break;
+				if ( (*it).phase == "PKKPbc" ) break;
+				if ( (*it).phase == "PKKPdf" ) break;
+			}
+		}
+		else if ( phase == "SKP" ) {
+			if ( list->delta > 115 && list->delta < 145 ) {
+				if ( (*it).phase == "SKPab" ) break;
+				if ( (*it).phase == "SKPbc" ) break;
+				if ( (*it).phase == "SKPdf" ) break;
 			}
 		}
 		else if ( phase == "PP" ) {

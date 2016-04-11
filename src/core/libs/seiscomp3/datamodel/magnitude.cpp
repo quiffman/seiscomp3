@@ -131,6 +131,41 @@ Magnitude* Magnitude::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Magnitude::operator==(const Magnitude& rhs) const {
+	if ( _magnitude != rhs._magnitude ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _originID != rhs._originID ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _stationCount != rhs._stationCount ) return false;
+	if ( _azimuthalGap != rhs._azimuthalGap ) return false;
+	if ( _evaluationStatus != rhs._evaluationStatus ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Magnitude::operator!=(const Magnitude& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Magnitude::equal(const Magnitude& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Magnitude::setMagnitude(const RealQuantity& magnitude) {
 	_magnitude = magnitude;
 }

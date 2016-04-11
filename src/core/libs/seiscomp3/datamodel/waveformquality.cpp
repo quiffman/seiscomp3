@@ -130,6 +130,41 @@ WaveformQuality::~WaveformQuality() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool WaveformQuality::operator==(const WaveformQuality& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _creatorID != rhs._creatorID ) return false;
+	if ( _created != rhs._created ) return false;
+	if ( _end != rhs._end ) return false;
+	if ( _value != rhs._value ) return false;
+	if ( _lowerUncertainty != rhs._lowerUncertainty ) return false;
+	if ( _upperUncertainty != rhs._upperUncertainty ) return false;
+	if ( _windowLength != rhs._windowLength ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool WaveformQuality::operator!=(const WaveformQuality& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool WaveformQuality::equal(const WaveformQuality& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WaveformQuality::setWaveformID(const WaveformStreamID& waveformID) {
 	_index.waveformID = waveformID;
 }

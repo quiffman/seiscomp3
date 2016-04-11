@@ -90,6 +90,13 @@ class SC_CORE_DATAMODEL_API RouteArclink : public Object {
 	public:
 		//! Copies the metadata of other to this
 		RouteArclink& operator=(const RouteArclink& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const RouteArclink& other) const;
+		bool operator!=(const RouteArclink& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const RouteArclink& other) const;
 
 
 	// ------------------------------------------------------------------

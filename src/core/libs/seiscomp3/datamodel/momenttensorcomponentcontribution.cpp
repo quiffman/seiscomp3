@@ -155,6 +155,40 @@ MomentTensorComponentContribution::~MomentTensorComponentContribution() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorComponentContribution::operator==(const MomentTensorComponentContribution& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _active != rhs._active ) return false;
+	if ( _weight != rhs._weight ) return false;
+	if ( _timeShift != rhs._timeShift ) return false;
+	if ( _dataTimeWindow != rhs._dataTimeWindow ) return false;
+	if ( _misfit != rhs._misfit ) return false;
+	if ( _snr != rhs._snr ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorComponentContribution::operator!=(const MomentTensorComponentContribution& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool MomentTensorComponentContribution::equal(const MomentTensorComponentContribution& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void MomentTensorComponentContribution::setPhaseCode(const std::string& phaseCode) {
 	_index.phaseCode = phaseCode;
 }

@@ -1073,14 +1073,6 @@ class StreamApplication(Application):
         """dispatch(self, BaseObject obj) -> bool"""
         return _Client.StreamApplication_dispatch(self, *args)
 
-    def acquisitionFinished(self):
-        """acquisitionFinished(self)"""
-        return _Client.StreamApplication_acquisitionFinished(self)
-
-    def storeRecord(self, *args):
-        """storeRecord(self, Record rec) -> bool"""
-        return _Client.StreamApplication_storeRecord(self, *args)
-
     def handleRecord(self, *args):
         """handleRecord(self, Record rec)"""
         return _Client.StreamApplication_handleRecord(self, *args)

@@ -90,6 +90,13 @@ class SC_CORE_DATAMODEL_API OriginReference : public Object {
 	public:
 		//! Copies the metadata of other to this
 		OriginReference& operator=(const OriginReference& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const OriginReference& other) const;
+		bool operator!=(const OriginReference& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const OriginReference& other) const;
 
 
 	// ------------------------------------------------------------------

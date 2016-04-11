@@ -144,6 +144,40 @@ AuxSource::~AuxSource() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool AuxSource::operator==(const AuxSource& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _description != rhs._description ) return false;
+	if ( _unit != rhs._unit ) return false;
+	if ( _conversion != rhs._conversion ) return false;
+	if ( _sampleRateNumerator != rhs._sampleRateNumerator ) return false;
+	if ( _sampleRateDenominator != rhs._sampleRateDenominator ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool AuxSource::operator!=(const AuxSource& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool AuxSource::equal(const AuxSource& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void AuxSource::setName(const std::string& name) {
 	_index.name = name;
 }

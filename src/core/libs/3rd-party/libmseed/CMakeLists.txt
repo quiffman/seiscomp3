@@ -17,9 +17,12 @@ ADD_LIBRARY(mseed ${TYPE}
 	traceutils.c
 	unpack.c
 	unpackdata.c
+	selection.c
+	tracelist.c
+	parseutils.c
 )
 
-SET_TARGET_PROPERTIES(mseed PROPERTIES VERSION 2.1.4)
+SET_TARGET_PROPERTIES(mseed PROPERTIES VERSION 2.6.2)
 
 IF(NOT WIN32)
 	INSTALL(TARGETS mseed

@@ -115,6 +115,13 @@ class SC_CORE_DATAMODEL_API Station : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Station& operator=(const Station& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Station& other) const;
+		bool operator!=(const Station& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Station& other) const;
 
 
 	// ------------------------------------------------------------------

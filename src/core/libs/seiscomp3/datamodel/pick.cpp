@@ -134,6 +134,46 @@ Pick* Pick::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Pick::operator==(const Pick& rhs) const {
+	if ( _time != rhs._time ) return false;
+	if ( _waveformID != rhs._waveformID ) return false;
+	if ( _filterID != rhs._filterID ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _horizontalSlowness != rhs._horizontalSlowness ) return false;
+	if ( _backazimuth != rhs._backazimuth ) return false;
+	if ( _slownessMethodID != rhs._slownessMethodID ) return false;
+	if ( _onset != rhs._onset ) return false;
+	if ( _phaseHint != rhs._phaseHint ) return false;
+	if ( _polarity != rhs._polarity ) return false;
+	if ( _evaluationMode != rhs._evaluationMode ) return false;
+	if ( _evaluationStatus != rhs._evaluationStatus ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Pick::operator!=(const Pick& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Pick::equal(const Pick& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Pick::setTime(const TimeQuantity& time) {
 	_time = time;
 }

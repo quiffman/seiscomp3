@@ -120,6 +120,40 @@ StationMagnitude* StationMagnitude::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool StationMagnitude::operator==(const StationMagnitude& rhs) const {
+	if ( _originID != rhs._originID ) return false;
+	if ( _magnitude != rhs._magnitude ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _amplitudeID != rhs._amplitudeID ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _waveformID != rhs._waveformID ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool StationMagnitude::operator!=(const StationMagnitude& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool StationMagnitude::equal(const StationMagnitude& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void StationMagnitude::setOriginID(const std::string& originID) {
 	_originID = originID;
 }

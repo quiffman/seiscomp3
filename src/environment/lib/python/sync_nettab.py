@@ -21,6 +21,7 @@ import decimal
 import fnmatch
 from decimal import Decimal
 from seiscomp import logs
+from seiscomp.fseed import *
 from seiscomp.db.generic.routing import Routing as GRouting
 from seiscomp.db.generic.inventory import Inventory as GInventory
 from seiscomp.nettab import Nettab, Instruments, NettabError, _EPOCH_DATE
@@ -89,6 +90,7 @@ class SyncNettab(Client.Application):
         self.tab_files = None
         self.output_inventory = None
         self.output_routing = None
+        self.output_dataless = None
         self.cleanup_routing = 0
 
         self.setLoggingToStdErr(True)
@@ -121,6 +123,7 @@ class SyncNettab(Client.Application):
         self.commandline().addStringOption("ArcLink", "station-attr", "path to station_attr.csv")
         self.commandline().addStringOption("ArcLink", "output-inventory", "output to file instead of database")
         self.commandline().addStringOption("ArcLink", "output-routing", "output to file instead of database")
+        self.commandline().addStringOption("ArcLink", "output-dataless", "output dataless to file")
         self.commandline().addIntOption("ArcLink", "cleanup-routing", "cleanup routing database", self.cleanup_routing)
 
     def validateParameters(self):
@@ -170,6 +173,9 @@ class SyncNettab(Client.Application):
             
             if self.commandline().hasOption("output-routing"):
                 self.output_routing = self.commandline().optionString("output-routing")
+            
+            if self.commandline().hasOption("output-dataless"):
+                self.output_dataless = self.commandline().optionString("output-dataless")
             
             if self.commandline().hasOption("cleanup-routing"):
                 self.cleanup_routing = self.commandline().optionInt("cleanup-routing")
@@ -255,15 +261,17 @@ class SyncNettab(Client.Application):
                     self.send(group, msg)
                     msg.clear()
                     mcount = 0
+                    self.sync("sync-nettab")
                 it.next()
         except:
             pass
 
         finally:
-            if msg:
+            if msg.size():
                 logs.debug("sending message (%5.1f %%)" % 100.0)
                 self.send(group, msg)
                 msg.clear()
+                self.sync("sync-nettab")
 
     def __load_file(self, func, file):
         if file:
@@ -307,11 +315,34 @@ class SyncNettab(Client.Application):
                     nettab.update_access(rtn)
                     rtn.save_xml(self.output_routing, use_access = True)
 
+                if self.output_dataless:
+                    logs.info("writing dataless to " + self.output_dataless)
+                    inv = SC3Inventory(DataModel.Inventory())
+                    nettab.update_inventory(instdb, inv)
+                    vol = SEEDVolume(inv, "WebDC", "SeisComP SEED Volume", resp_dict=False)
+                    vol_end = datetime.datetime.utcnow()
+
+                    for net in sum([i.values() for i in inv.network.itervalues()], []):
+                        for sta in sum([i.values() for i in net.station.itervalues()], []):
+                            for loc in sum([i.values() for i in sta.sensorLocation.itervalues()], []):
+                                  for strm in sum([i.values() for i in loc.stream.itervalues()], []):
+                                       try:
+                                           vol.add_chan(net.code, sta.code, loc.code, strm.code, strm.start, vol_end)
+
+                                       except SEEDError, e:
+                                           print "Error (%s,%s,%s,%s):" % (net.code, sta.code, loc.code, strm.code), str(e)
+                    
+                    try:
+                        vol.output(self.output_dataless)
+
+                    except SEEDError, e:
+                        print "Error:", str(e)
+
             except (IOError, NettabError), e:
                 logs.error("fatal error: " + str(e))
                 return False
 
-            if self.output_inventory or self.output_routing:
+            if self.output_inventory or self.output_routing or self.output_dataless:
                 return True
             
             logs.info("loading database")

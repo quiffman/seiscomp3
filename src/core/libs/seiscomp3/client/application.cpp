@@ -1528,7 +1528,7 @@ bool Application::init() {
 			SEISCOMP_INFO("Loading complete inventory");
 			showMessage("Loading inventory");
 			try { Inventory::Instance()->load(_inventoryDBFilename.c_str()); }
-			catch ( Core::GeneralException &e ) {
+			catch ( std::exception &e ) {
 				SEISCOMP_ERROR("%s", e.what());
 				return false;
 			}

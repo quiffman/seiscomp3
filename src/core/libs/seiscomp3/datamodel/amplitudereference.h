@@ -90,6 +90,13 @@ class SC_CORE_DATAMODEL_API AmplitudeReference : public Object {
 	public:
 		//! Copies the metadata of other to this
 		AmplitudeReference& operator=(const AmplitudeReference& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const AmplitudeReference& other) const;
+		bool operator!=(const AmplitudeReference& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const AmplitudeReference& other) const;
 
 
 	// ------------------------------------------------------------------

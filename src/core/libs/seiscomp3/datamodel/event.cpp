@@ -140,6 +140,39 @@ Event* Event::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Event::operator==(const Event& rhs) const {
+	if ( _preferredOriginID != rhs._preferredOriginID ) return false;
+	if ( _preferredMagnitudeID != rhs._preferredMagnitudeID ) return false;
+	if ( _preferredFocalMechanismID != rhs._preferredFocalMechanismID ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _typeCertainty != rhs._typeCertainty ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Event::operator!=(const Event& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Event::equal(const Event& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Event::setPreferredOriginID(const std::string& preferredOriginID) {
 	_preferredOriginID = preferredOriginID;
 }

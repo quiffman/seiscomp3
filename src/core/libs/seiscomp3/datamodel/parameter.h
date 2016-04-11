@@ -82,6 +82,13 @@ class SC_CORE_DATAMODEL_API Parameter : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Parameter& operator=(const Parameter& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Parameter& other) const;
+		bool operator!=(const Parameter& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Parameter& other) const;
 
 
 	// ------------------------------------------------------------------

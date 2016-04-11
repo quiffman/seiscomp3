@@ -103,6 +103,15 @@ bool ConfidenceEllipsoid::operator!=(const ConfidenceEllipsoid& rhs) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ConfidenceEllipsoid::equal(const ConfidenceEllipsoid& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ConfidenceEllipsoid::setSemiMajorAxisLength(double semiMajorAxisLength) {
 	_semiMajorAxisLength = semiMajorAxisLength;
 }

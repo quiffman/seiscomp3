@@ -286,6 +286,7 @@ class Bulletin(object):
         for i in xrange(nmag):
             mag = org.stationMagnitude(i)
             typ = mag.type()
+            if typ not in netmag: continue
             if typ not in mags:
                 mags[typ] = []
 

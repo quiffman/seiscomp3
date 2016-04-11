@@ -97,18 +97,31 @@ class EventTool : public Application {
 		//! Chooses the preferred focal mechanism an event
 		void choosePreferred(EventInformation *info, DataModel::FocalMechanism *fm);
 
+		//! Select the preferred origin again among all associated origins
+		void updatePreferredOrigin(EventInformation *info);
+		void updatePreferredFocalMechanism(EventInformation *info);
+
+		//! Merges two events. Returns false if nothing has been done due to
+		//! errors. The source event
+		bool mergeEvents(EventInformation *target, EventInformation *source);
+
 		bool checkRegionFilter(const Config::RegionFilters &f, const DataModel::Origin *origin);
 
 		//! Returns the preferred magnitude for an origin
 		DataModel::Magnitude *preferredMagnitude(DataModel::Origin *origin);
 
+		DataModel::Event *getEventForOrigin(const std::string &originID);
+		DataModel::Event *getEventForFocalMechanism(const std::string &fmID);
+
 		void cacheEvent(EventInformationPtr info);
 		EventInformationPtr cachedEvent(const std::string &eventID) const;
+		bool removeCachedEvent(const std::string &eventID);
 		bool isEventCached(const std::string &eventID) const;
 
 		void removedFromCache(DataModel::PublicObject *);
 
 		void updateEvent(DataModel::Event *ev, bool = true);
+		void cleanUpEventCache();
 
 
 	private:

@@ -603,7 +603,7 @@ bool diff(Object* o1, Object* o2, std::vector<NotifierPtr>& diffList) {
 
 	// Find a common node
 	Object* fO1 = find(o1, o2);
-	Object* fO2 = !fO1 ? find(o2, o1) : NULL; 
+	Object* fO2 = !fO1 ? find(o2, o1) : NULL;
 	
 	// No common node, bye
 	if ( !fO1 && !fO2 ) return false;

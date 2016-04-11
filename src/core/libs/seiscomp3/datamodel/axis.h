@@ -57,8 +57,13 @@ class SC_CORE_DATAMODEL_API Axis : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		Axis& operator=(const Axis& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const Axis& other) const;
 		bool operator!=(const Axis& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Axis& other) const;
 
 
 	// ------------------------------------------------------------------

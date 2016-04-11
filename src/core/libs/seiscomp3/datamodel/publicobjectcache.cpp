@@ -29,7 +29,7 @@ namespace DataModel {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-PublicObjectCache::const_iterator::const_iterator() {}
+PublicObjectCache::const_iterator::const_iterator() : _item(NULL) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -37,7 +37,15 @@ PublicObjectCache::const_iterator::const_iterator() {}
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator::const_iterator(const const_iterator &it)
- : Cache::const_iterator(it) {}
+ : _item(it._item) {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+PublicObjectCache::const_iterator::const_iterator(CacheItem *item)
+ : _item(item) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -45,7 +53,7 @@ PublicObjectCache::const_iterator::const_iterator(const const_iterator &it)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObject* PublicObjectCache::const_iterator::operator*() {
-	return _it->second.get();
+	return _item->object.get();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -54,7 +62,7 @@ PublicObject* PublicObjectCache::const_iterator::operator*() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 time_t PublicObjectCache::const_iterator::timeStamp() const {
-	return _it->first;
+	return _item->timestamp;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -64,7 +72,7 @@ time_t PublicObjectCache::const_iterator::timeStamp() const {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool
 PublicObjectCache::const_iterator::operator==(const const_iterator &it) {
-	return _it == it._it;
+	return _item == it._item;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -74,7 +82,7 @@ PublicObjectCache::const_iterator::operator==(const const_iterator &it) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool
 PublicObjectCache::const_iterator::operator!=(const const_iterator &it) {
-	return _it != it._it;
+	return _item != it._item;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -84,7 +92,7 @@ PublicObjectCache::const_iterator::operator!=(const const_iterator &it) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator&
 PublicObjectCache::const_iterator::operator=(const const_iterator &it) {
-	_it = it._it;
+	_item = it._item;
 	return *this;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -95,7 +103,7 @@ PublicObjectCache::const_iterator::operator=(const const_iterator &it) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator&
 PublicObjectCache::const_iterator::operator++() {
-	++_it;
+	_item = _item->next;
 	return *this;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -106,7 +114,7 @@ PublicObjectCache::const_iterator::operator++() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator
 PublicObjectCache::const_iterator::operator++(int) {
-	return const_iterator(_it++);
+	return const_iterator(_item->next);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -114,15 +122,8 @@ PublicObjectCache::const_iterator::operator++(int) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-PublicObjectCache::const_iterator::const_iterator(const Cache::const_iterator& it)
- : _it(it) {}
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-PublicObjectCache::PublicObjectCache() : _archive(NULL) {}
+PublicObjectCache::PublicObjectCache() : _archive(NULL), _size(0),
+    _front(NULL), _back(NULL) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -130,7 +131,20 @@ PublicObjectCache::PublicObjectCache() : _archive(NULL) {}
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::PublicObjectCache(DatabaseArchive* ar)
- : _archive(ar) {}
+ : _archive(ar), _size(0), _front(NULL), _back(NULL) {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+PublicObjectCache::~PublicObjectCache() {
+	while ( _front ) {
+		CacheItem *item = _front;
+		_front = _front->next;
+		delete item;
+	}
+}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -186,13 +200,46 @@ void PublicObjectCache::removePopCallback() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool PublicObjectCache::remove(PublicObject *po) {
+	CacheLookup::iterator it = _lookup.find(po->publicID());
+	if ( it == _lookup.end() ) return false;
+
+	CacheItem *item = it->second;
+
+	// Remove object from lookup table
+	_lookup.erase(it);
+
+	if ( item ) {
+		// Remove item
+		if ( item->prev )
+			item->prev->next = item->next;
+		else
+			_front = item->next;
+
+		if ( item->next )
+			item->next->prev = item->prev;
+		else
+			_back = item->prev;
+
+		delete item;
+		--_size;
+	}
+
+	if ( _popCallback ) _popCallback(po);
+
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObject* PublicObjectCache::find(const Seiscomp::Core::RTTI& classType,
                                       const std::string& publicID) {
-	PublicObject* po = PublicObject::Find(publicID);
-	if ( po != NULL )
-		return po;
-
-	po = _archive?_archive->getObject(classType, publicID):NULL;
+	PublicObject *po = PublicObject::Find(publicID);
+	if ( po == NULL )
+		po = _archive?_archive->getObject(classType, publicID):NULL;
 
 	if ( po ) feed(po);
 
@@ -208,7 +255,7 @@ Core::TimeWindow PublicObjectCache::timeWindow() const {
 	Core::TimeWindow tw;
 
 	if ( !empty() )
-		tw.set(Core::Time(_cache.front().first), Core::Time(_cache.back().first));
+		tw.set(Core::Time(_front->timestamp), Core::Time(_back->timestamp));
 
 	return tw;
 }
@@ -219,10 +266,7 @@ Core::TimeWindow PublicObjectCache::timeWindow() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Core::Time PublicObjectCache::oldest() const {
-	if ( !_cache.empty() )
-		return Core::Time(_cache.front().first);
-
-	return Core::Time();
+	return _front?Core::Time(_front->timestamp):Core::Time();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -231,18 +275,49 @@ Core::Time PublicObjectCache::oldest() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void PublicObjectCache::push(PublicObject* obj) {
-	if ( !_cache.empty() && _cache.back().second == obj ) {
-		// Refresh the push time
-		_cache.back().first = Core::Time::LocalTime().seconds();
-		return;
+	std::pair<CacheLookup::iterator, bool>
+		itp = _lookup.insert(CacheLookup::value_type(obj->publicID(), NULL));
+
+	CacheItem *item;
+
+	// Exists already
+	if ( !itp.second ) {
+		item = itp.first->second;
+
+		// Release item
+		if ( item->prev != NULL )
+			item->prev->next = item->next;
+		else
+			_front = item->next;
+
+		if ( item->next != NULL )
+			item->next->prev = item->prev;
+		else
+			_back = item->prev;
+	}
+	else {
+		item = new CacheItem;
+		item->lookup = itp.first;
+		itp.first->second = item;
+		++_size;
 	}
 
-	std::pair<CacheReferences::iterator, bool>
-		itp = _refs.insert(CacheReferences::value_type(obj->publicID(), 1));
-	// An object with this publicID does already exist => increase ref count
-	if ( !itp.second )
-		++itp.first->second;
-	_cache.push_back(CacheEntry(Core::Time::LocalTime().seconds(), obj));
+	// Update object pointer
+	item->object = obj;
+
+	// Update current timestamp
+	item->timestamp = Core::Time::LocalTime().seconds();
+
+	// Append item
+	item->prev = _back;
+	item->next = NULL;
+
+	// Update links
+	if ( item->prev )
+		item->prev->next = item;
+	else
+		_front = item;
+	_back = item;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -251,17 +326,26 @@ void PublicObjectCache::push(PublicObject* obj) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void PublicObjectCache::pop() {
-	CacheReferences::iterator it = _refs.find(_cache.front().second->publicID());
-	assert(it != _refs.end());
+	if ( !_front ) return;
+	if ( _popCallback ) _popCallback(_front->object.get());
 
-	if ( it->second == 1 ) {
-		_refs.erase(it);
-		if ( _popCallback ) _popCallback(_cache.front().second.get());
-	}
+	CacheItem *item = _front;
+
+	// Remove item
+	if ( item->prev )
+		item->prev->next = item->next;
 	else
-		--it->second;
+		_front = item->next;
 
-	_cache.pop_front();
+	if ( item->next )
+		item->next->prev = item->prev;
+	else
+		_back = item->prev;
+
+	_lookup.erase(item->lookup);
+
+	delete item;
+	--_size;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -270,7 +354,7 @@ void PublicObjectCache::pop() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator PublicObjectCache::begin() const {
-	return const_iterator(_cache.begin());
+	return const_iterator(_front);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -279,7 +363,7 @@ PublicObjectCache::const_iterator PublicObjectCache::begin() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObjectCache::const_iterator PublicObjectCache::end() const {
-	return const_iterator(_cache.end());
+	return const_iterator(NULL);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

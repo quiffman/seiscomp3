@@ -28,6 +28,8 @@
 #include <seiscomp3/datamodel/focalmechanism.h>
 #include <seiscomp3/datamodel/momenttensor.h>
 
+#include <set>
+
 
 using namespace std;
 using namespace Seiscomp;
@@ -55,6 +57,7 @@ class EventDump : public Seiscomp::Client::Application {
 			commandline().addGroup("Dump");
 			commandline().addOption("Dump", "listen", "listen to the message server for incoming events");
 			commandline().addOption("Dump", "inventory,I", "export the inventory");
+			commandline().addOption("Dump", "stations", "if inventory is exported filter the stations to export where each item is in format net[.{sta|*}]", &_stationIDs);
 			commandline().addOption("Dump", "config,C", "export the config");
 			commandline().addOption("Dump", "origin,O", "origin id", &_originID, false);
 			commandline().addOption("Dump", "event,E", "event id", &_eventID, false);
@@ -91,11 +94,177 @@ class EventDump : public Seiscomp::Client::Application {
 			}
 
 			if ( commandline().hasOption("inventory") ) {
+				typedef string NetworkID;
+				typedef pair<NetworkID,string> StationID;
+				set<NetworkID> networkFilter;
+				set<StationID> stationFilter;
+				set<string> usedSensors, usedDataloggers, usedDevices, usedResponses;
+				vector<string> stationIDs;
+
 				InventoryPtr inv = query()->loadInventory();
 				if ( !inv ) {
 					SEISCOMP_ERROR("Inventory has not been found");
 					return false;
 				}
+
+				if ( !_stationIDs.empty() ) {
+					Core::split(stationIDs, _stationIDs.c_str(), ",");
+
+					for ( size_t i = 0; i < stationIDs.size(); ++i ) {
+						size_t pos = stationIDs[i].find('.');
+
+						if ( pos == string::npos ) {
+							stationFilter.insert(StationID(stationIDs[i], "*"));
+							networkFilter.insert(stationIDs[i]);
+						}
+						else {
+							stationFilter.insert(
+								StationID(
+									stationIDs[i].substr(0,pos),
+									stationIDs[i].substr(pos+1)
+								)
+							);
+							networkFilter.insert(stationIDs[i].substr(0,pos));
+						}
+					}
+
+					// Remove unwanted networks
+					for ( size_t n = 0; n < inv->networkCount(); ) {
+						Network *net = inv->network(n);
+						if ( networkFilter.find(net->code()) == networkFilter.end() ) {
+							inv->removeNetwork(n);
+							continue;
+						}
+
+						++n;
+
+						// No stations should be removed
+						if ( stationFilter.find(StationID(net->code(), "*")) != stationFilter.end() )
+							continue;
+
+						// Remove unwanted stations
+						for ( size_t s = 0; s < net->stationCount(); ) {
+							Station *sta = net->station(s);
+
+							// Should this station be filtered
+							if ( stationFilter.find(StationID(net->code(), sta->code())) == stationFilter.end() ) {
+								net->removeStation(s);
+								continue;
+							}
+
+							++s;
+						}
+					}
+
+					// Collect used sensors and dataloggers
+					for ( size_t n = 0; n < inv->networkCount(); ++n ) {
+						Network *net = inv->network(n);
+
+						for ( size_t s = 0; s < net->stationCount(); ++s ) {
+							Station *sta = net->station(s);
+
+							// Collect all used sensors and dataloggers
+							for ( size_t l = 0; l < sta->sensorLocationCount(); ++l ) {
+								SensorLocation *loc = sta->sensorLocation(l);
+								for ( size_t c = 0; c < loc->streamCount(); ++c ) {
+									Stream *cha = loc->stream(c);
+									usedSensors.insert(cha->sensor());
+									usedDataloggers.insert(cha->datalogger());
+								}
+
+								for ( size_t a = 0; a < loc->auxStreamCount(); ++a ) {
+									AuxStream *aux = loc->auxStream(a);
+									usedDevices.insert(aux->device());
+								}
+							}
+						}
+					}
+
+					// Removed unused dataloggers
+					for ( size_t i = 0; i < inv->dataloggerCount(); ) {
+						Datalogger *dl = inv->datalogger(i);
+						if ( usedDataloggers.find(dl->publicID()) == usedDataloggers.end() ) {
+							inv->removeDatalogger(i);
+							continue;
+						}
+
+						++i;
+
+						for ( size_t j = 0; j < dl->decimationCount(); ++j ) {
+							Decimation *deci = dl->decimation(j);
+							try {
+								const string &c = deci->analogueFilterChain().content();
+								if ( !c.empty() ) {
+									vector<string> ids;
+									Core::fromString(ids, c);
+									usedResponses.insert(ids.begin(), ids.end());
+								}
+							}
+							catch ( ... ) {}
+
+							try {
+								const string &c = deci->digitalFilterChain().content();
+								if ( !c.empty() ) {
+									vector<string> ids;
+									Core::fromString(ids, c);
+									usedResponses.insert(ids.begin(), ids.end());
+								}
+							}
+							catch ( ... ) {}
+						}
+					}
+
+					for ( size_t i = 0; i < inv->sensorCount(); ) {
+						Sensor *sensor = inv->sensor(i);
+						if ( usedSensors.find(sensor->publicID()) == usedSensors.end() ) {
+							inv->removeSensor(i);
+							continue;
+						}
+
+						++i;
+
+						usedResponses.insert(sensor->response());
+					}
+
+					for ( size_t i = 0; i < inv->auxDeviceCount(); ) {
+						AuxDevice *device = inv->auxDevice(i);
+						if ( usedDevices.find(device->publicID()) == usedDevices.end() ) {
+							inv->removeAuxDevice(i);
+							continue;
+						}
+
+						++i;
+					}
+
+					// Go through all available responses and remove unused ones
+					for ( size_t i = 0; i < inv->responseFIRCount(); ) {
+						ResponseFIR *resp = inv->responseFIR(i);
+						// Response not used -> remove it
+						if ( usedResponses.find(resp->publicID()) == usedResponses.end() )
+							inv->removeResponseFIR(i);
+						else
+							++i;
+					}
+
+					for ( size_t i = 0; i < inv->responsePAZCount(); ) {
+						ResponsePAZ *resp = inv->responsePAZ(i);
+						// Response not used -> remove it
+						if ( usedResponses.find(resp->publicID()) == usedResponses.end() )
+							inv->removeResponsePAZ(i);
+						else
+							++i;
+					}
+
+					for ( size_t i = 0; i < inv->responsePolynomialCount(); ) {
+						ResponsePolynomial *resp = inv->responsePolynomial(i);
+						// Response not used -> remove it
+						if ( usedResponses.find(resp->publicID()) == usedResponses.end() )
+							inv->removeResponsePolynomial(i);
+						else
+							++i;
+					}
+				}
+
 
 				XMLArchive ar;
 				std::stringbuf buf;
@@ -103,27 +272,27 @@ class EventDump : public Seiscomp::Client::Application {
 					SEISCOMP_ERROR("Could not created output file '%s'", _outputFile.c_str());
 					return false;
 				}
-	
+
 				ar.setFormattedOutput(commandline().hasOption("formatted"));
-	
+
 				ar << inv;
 				ar.close();
 	
 				std::string content = buf.str();
 	
-				if ( !_outputFile.empty() ) {
+				if ( !_outputFile.empty() && _outputFile != "-" ) {
 					ofstream file(_outputFile.c_str(), ios::out | ios::trunc);
-	
+
 					if ( !file.is_open() ) {
 						SEISCOMP_ERROR("Could not create file: %s", _outputFile.c_str());
 						return false;
 					}
-	
+
 					if ( commandline().hasOption("prepend-datasize") )
 						file << content.size() << endl << content;
 					else
 						file << content;
-	
+
 					file.close();
 				}
 				else {
@@ -148,27 +317,27 @@ class EventDump : public Seiscomp::Client::Application {
 					SEISCOMP_ERROR("Could not created output file '%s'", _outputFile.c_str());
 					return false;
 				}
-	
+
 				ar.setFormattedOutput(commandline().hasOption("formatted"));
-	
+
 				ar << cfg;
 				ar.close();
-	
+
 				std::string content = buf.str();
-	
-				if ( !_outputFile.empty() ) {
+
+				if ( !_outputFile.empty() && _outputFile != "-" ) {
 					ofstream file(_outputFile.c_str(), ios::out | ios::trunc);
-	
+
 					if ( !file.is_open() ) {
 						SEISCOMP_ERROR("Could not create file: %s", _outputFile.c_str());
 						return false;
 					}
-	
+
 					if ( commandline().hasOption("prepend-datasize") )
 						file << content.size() << endl << content;
 					else
 						file << content;
-	
+
 					file.close();
 				}
 				else {
@@ -205,7 +374,7 @@ class EventDump : public Seiscomp::Client::Application {
 			if ( commandline().hasOption("listen") )
 				return Application::run();
 
-    		return true;
+			return true;
 		}
 
 
@@ -301,7 +470,7 @@ class EventDump : public Seiscomp::Client::Application {
 
 			std::string content = buf.str();
 
-			if ( !_outputFile.empty() ) {
+			if ( !_outputFile.empty() && _outputFile != "-" ) {
 				ofstream file(_outputFile.c_str(), ios::out | ios::trunc);
 
 				if ( !file.is_open() ) {
@@ -475,7 +644,7 @@ class EventDump : public Seiscomp::Client::Application {
 
 			std::string content = buf.str();
 
-			if ( !_outputFile.empty() ) {
+			if ( !_outputFile.empty() && _outputFile != "-" ) {
 				ofstream file(_outputFile.c_str(), ios::out | ios::trunc);
 
 				if ( !file.is_open() ) {
@@ -503,9 +672,10 @@ class EventDump : public Seiscomp::Client::Application {
 
 
 	private:
-		std::string _outputFile;
-		std::string _originID;
-		std::string _eventID;
+		string _outputFile;
+		string _originID;
+		string _eventID;
+		string _stationIDs;
 };
 
 

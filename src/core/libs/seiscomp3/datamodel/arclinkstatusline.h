@@ -91,6 +91,13 @@ class SC_CORE_DATAMODEL_API ArclinkStatusLine : public Object {
 	public:
 		//! Copies the metadata of other to this
 		ArclinkStatusLine& operator=(const ArclinkStatusLine& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const ArclinkStatusLine& other) const;
+		bool operator!=(const ArclinkStatusLine& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const ArclinkStatusLine& other) const;
 
 
 	// ------------------------------------------------------------------

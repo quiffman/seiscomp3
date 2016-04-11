@@ -57,8 +57,13 @@ class SC_CORE_DATAMODEL_API NodalPlane : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		NodalPlane& operator=(const NodalPlane& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const NodalPlane& other) const;
 		bool operator!=(const NodalPlane& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const NodalPlane& other) const;
 
 
 	// ------------------------------------------------------------------

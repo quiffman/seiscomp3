@@ -485,7 +485,7 @@ MagTool::computeStationMagnitude(
 				DataModel::Setup* setup = station->setup(k);
 				if ( !setup->enabled() )
 					continue;
-	
+
 				DataModel::ParameterSet* ps = NULL;
 				try {
 					ps = DataModel::ParameterSet::Find(setup->parameterSetID());

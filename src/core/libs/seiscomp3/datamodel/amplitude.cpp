@@ -131,6 +131,46 @@ Amplitude* Amplitude::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Amplitude::operator==(const Amplitude& rhs) const {
+	if ( _type != rhs._type ) return false;
+	if ( _amplitude != rhs._amplitude ) return false;
+	if ( _timeWindow != rhs._timeWindow ) return false;
+	if ( _period != rhs._period ) return false;
+	if ( _snr != rhs._snr ) return false;
+	if ( _pickID != rhs._pickID ) return false;
+	if ( _waveformID != rhs._waveformID ) return false;
+	if ( _filterID != rhs._filterID ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _scalingTime != rhs._scalingTime ) return false;
+	if ( _magnitudeHint != rhs._magnitudeHint ) return false;
+	if ( _evaluationMode != rhs._evaluationMode ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Amplitude::operator!=(const Amplitude& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Amplitude::equal(const Amplitude& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Amplitude::setType(const std::string& type) {
 	_type = type;
 }

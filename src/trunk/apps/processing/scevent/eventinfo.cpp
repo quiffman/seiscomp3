@@ -27,7 +27,21 @@ using namespace Seiscomp::Client;
 
 
 EventInformation::EventInformation(Cache *c, Config *cfg_)
-: cache(c), cfg(cfg_), created(false) {
+: cache(c), cfg(cfg_), created(false), aboutToBeRemoved(false), dirtyPickSet(false) {
+}
+
+
+EventInformation::EventInformation(Cache *c, Config *cfg_,
+                                   DatabaseQuery *q, const string &eventID)
+: cache(c), cfg(cfg_), aboutToBeRemoved(false), dirtyPickSet(false) {
+	load(q, eventID);
+}
+
+
+EventInformation::EventInformation(Cache *c, Config *cfg_,
+                                   DatabaseQuery *q, EventPtr &event)
+: cache(c), cfg(cfg_), aboutToBeRemoved(false), dirtyPickSet(false) {
+	load(q, event);
 }
 
 
@@ -39,61 +53,25 @@ EventInformation::~EventInformation() {
 }
 
 
-EventInformation::EventInformation(Cache *c, Config *cfg_,
-                                   DatabaseQuery *q, const string &eventID)
-: cache(c), cfg(cfg_) {
-	load(q, eventID);
-}
-
-
-EventInformation::EventInformation(Cache *c, Config *cfg_,
-                                   DatabaseQuery *q, EventPtr &event)
-: cache(c), cfg(cfg_) {
-	load(q, event);
-}
-
-
 void EventInformation::load(DatabaseQuery *q, const string &eventID) {
-	EventPtr e = Event::Find(eventID);
-	if ( !e ) {
-		PublicObjectPtr po = q?q->getObject(Event::TypeInfo(), eventID):NULL;
-		e = Event::Cast(po);
-	}
-
+	EventPtr e = cache->get<Event>(eventID);
 	load(q, e);
 }
 
 
 void EventInformation::load(DatabaseQuery *q, EventPtr &e) {
-	pickIDs.clear();
-	picks.clear();
-
 	event = e;
 	if ( !event )
 		return;
 
-	if ( q ) {
-		DatabaseIterator it = q?q->getEventPicksByWeight(event->publicID(), 0.0):DatabaseIterator();
-		for ( ; it.valid(); ++it ) {
-			PickPtr p = Pick::Cast(it.get());
-			if ( !p ) continue;
-			pickIDs.insert(p->publicID());
-			if ( cfg->maxMatchingPicksTimeDiff >= 0 )
-				insertPick(p.get());
-		}
-	}
+	dirtyPickSet = true;
 
 	preferredOrigin = NULL;
 	preferredMagnitude = NULL;
 	preferredFocalMechanism = NULL;
 
-	if ( !event->preferredOriginID().empty() ) {
-		preferredOrigin = Origin::Find(event->preferredOriginID());
-		if ( !preferredOrigin ) {
-			PublicObjectPtr po = q?q->getObject(Origin::TypeInfo(), event->preferredOriginID()):NULL;
-			preferredOrigin = Origin::Cast(po);
-		}
-	}
+	if ( !event->preferredOriginID().empty() )
+		preferredOrigin = cache->get<Origin>(event->preferredOriginID());
 
 	if ( preferredOrigin ) {
 		if ( !preferredOrigin->arrivalCount() && q )
@@ -104,21 +82,11 @@ void EventInformation::load(DatabaseQuery *q, EventPtr &e) {
 	}
 
 
-	if ( !event->preferredMagnitudeID().empty() ) {
-		preferredMagnitude = Magnitude::Find(event->preferredMagnitudeID());
-		if ( !preferredMagnitude ) {
-			PublicObjectPtr po = q?q->getObject(Magnitude::TypeInfo(), event->preferredMagnitudeID()):NULL;
-			preferredMagnitude = Magnitude::Cast(po);
-		}
-	}
+	if ( !event->preferredMagnitudeID().empty() )
+		preferredMagnitude = cache->get<Magnitude>(event->preferredMagnitudeID());
 
-	if ( !event->preferredFocalMechanismID().empty() ) {
-		preferredFocalMechanism = FocalMechanism::Find(event->preferredFocalMechanismID());
-		if ( !preferredFocalMechanism ) {
-			PublicObjectPtr po = q?q->getObject(FocalMechanism::TypeInfo(), event->preferredFocalMechanismID()):NULL;
-			preferredFocalMechanism = FocalMechanism::Cast(po);
-		}
-	}
+	if ( !event->preferredFocalMechanismID().empty() )
+		preferredFocalMechanism = cache->get<FocalMechanism>(event->preferredFocalMechanismID());
 
 	if ( preferredFocalMechanism ) {
 		if ( !preferredFocalMechanism->momentTensorCount() && q )
@@ -140,15 +108,38 @@ void EventInformation::load(DatabaseQuery *q, EventPtr &e) {
 
 void EventInformation::loadAssocations(DataModel::DatabaseQuery *q) {
 	if ( !q || !event ) return;
-
 	q->load(event.get());
-	//q->loadOriginReferences(event.get());
-	//q->loadFocalMechanismReferences(event.get());
-	//q->loadEventDescriptions(event.get());
 }
 
 
-size_t EventInformation::matchingPicks(DataModel::Origin *o) const {
+size_t EventInformation::matchingPicks(DataModel::DatabaseQuery *q,
+                                       DataModel::Origin *o) {
+	if ( dirtyPickSet ) {
+		pickIDs.clear();
+		picks.clear();
+
+		if ( !event ) return 0;
+
+		for ( size_t i = 0; i < event->originReferenceCount(); ++i  ) {
+			OriginPtr org = cache->get<Origin>(event->originReference(i)->originID());
+			if ( !org ) continue;
+			if ( q && org->arrivalCount() == 0 ) q->loadArrivals(org.get());
+			for ( size_t j = 0; j < org->arrivalCount(); ++j ) {
+				try { if ( org->arrival(j)->weight() <= 0.0 ) continue; }
+				catch ( ... ) {}
+
+				pickIDs.insert(org->arrival(j)->pickID());
+				if ( cfg->maxMatchingPicksTimeDiff >= 0 ) {
+					PickPtr p = cache->get<Pick>(org->arrival(j)->pickID());
+					if ( p )
+						insertPick(p.get());
+				}
+			}
+		}
+
+		dirtyPickSet = false;
+	}
+
 	typedef pair<PickAssociation::const_iterator, PickAssociation::const_iterator> PickRange;
 	size_t matches = 0;
 
@@ -162,7 +153,6 @@ size_t EventInformation::matchingPicks(DataModel::Origin *o) const {
 		}
 	}
 	else {
-		// TODO: Implement time based check
 		for ( size_t i = 0; i < o->arrivalCount(); ++i ) {
 			if ( !o->arrival(i) ) continue;
 			if ( Private::arrivalWeight(o->arrival(i)) == 0 ) continue;

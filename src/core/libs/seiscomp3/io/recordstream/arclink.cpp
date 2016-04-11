@@ -271,7 +271,7 @@ std::istream& ArclinkConnection::stream() {
 	try {
 		// HACK to retrieve the record length
 		string data = _sock.read(RECSIZE);
-		int reclen = ms_find_reclen(data.c_str(), RECSIZE, NULL);
+		int reclen = ms_detect(data.c_str(), RECSIZE);
 		if (reclen > RECSIZE)
 			_stream.str(data + _sock.read(reclen - RECSIZE));
 		else {

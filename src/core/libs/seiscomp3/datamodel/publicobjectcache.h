@@ -35,9 +35,18 @@ struct SC_CORE_DATAMODEL_API CachePopCallback {
 
 class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 	private:
-		typedef std::pair<time_t, PublicObjectPtr> CacheEntry;
-		typedef std::list<CacheEntry> Cache;
-		typedef std::map<std::string, size_t> CacheReferences;
+		struct CacheItem;
+
+		typedef std::map<std::string, CacheItem*> CacheLookup;
+
+		// Simple double linked list
+		struct CacheItem {
+			PublicObjectPtr       object;
+			time_t                timestamp;
+			CacheItem            *prev;
+			CacheItem            *next;
+			CacheLookup::iterator lookup;
+		};
 
 
 	public:
@@ -46,7 +55,7 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 
 
 	public:
-		class const_iterator : private Cache::const_iterator {
+		class const_iterator {
 			// ------------------------------------------------------------------
 			//  Xstruction
 			// ------------------------------------------------------------------
@@ -63,9 +72,9 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 			public:
 				PublicObject* operator*();
 
-				const_iterator& operator=(const const_iterator &it);
-				const_iterator& operator++();
-				const_iterator operator++(int);
+				const_iterator &operator=(const const_iterator &it);
+				const_iterator &operator++();
+				const_iterator  operator++(int);
 
 				bool operator==(const const_iterator &it);
 				bool operator!=(const const_iterator &it);
@@ -82,9 +91,9 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 			//  Implementation
 			// ------------------------------------------------------------------
 			private:
-				const_iterator(const Cache::const_iterator&);
+				const_iterator(CacheItem *);
 
-				Cache::const_iterator _it;
+				CacheItem *_item;
 
 			friend class PublicObjectCache;
 		};
@@ -93,6 +102,7 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 	public:
 		PublicObjectCache();
 		PublicObjectCache(DatabaseArchive* ar);
+		~PublicObjectCache();
 
 	public:
 		void setDatabaseArchive(DatabaseArchive*);
@@ -105,9 +115,17 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 		/**
 		 * Insert a new object into the cache.
 		 * @param po The PublicObject pointer to insert
-		 * @return True or false
+		 * @return True or False
 		 */
 		virtual bool feed(PublicObject* po) = 0;
+
+		/**
+		 * Removes an object from the cache. This function
+		 * can be quite time consuming since its a linear search.
+		 * @param po The PublicObject pointer to be removed
+		 * @return True or False
+		 */
+		bool remove(PublicObject *po);
 
 
 		/**
@@ -134,10 +152,10 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 		Core::Time oldest() const;
 
 		//! Returns whether the cache is empty or not
-		bool empty() const { return _cache.empty(); }
+		bool empty() const { return _front == NULL; }
 
 		//! Returns the number of cached elements
-		size_t size() const { return _cache.size(); }
+		size_t size() const { return _size; }
 
 		const_iterator begin() const;
 		const_iterator end() const;
@@ -150,14 +168,13 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 
 	private:
 		DatabaseArchivePtr _archive;
-		Cache _cache;
-		CacheReferences _refs;
+		size_t             _size;
+		CacheItem         *_front;
+		CacheItem         *_back;
+		CacheLookup        _lookup;
 
-		PushCallback _pushCallback;
-		PopCallback _popCallback;
-
-
-	friend class PublicObjectCache::const_iterator;
+		PushCallback       _pushCallback;
+		PopCallback        _popCallback;
 };
 
 

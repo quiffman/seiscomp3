@@ -162,6 +162,44 @@ ResponsePAZ* ResponsePAZ::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePAZ::operator==(const ResponsePAZ& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _gain != rhs._gain ) return false;
+	if ( _gainFrequency != rhs._gainFrequency ) return false;
+	if ( _normalizationFactor != rhs._normalizationFactor ) return false;
+	if ( _normalizationFrequency != rhs._normalizationFrequency ) return false;
+	if ( _numberOfZeros != rhs._numberOfZeros ) return false;
+	if ( _numberOfPoles != rhs._numberOfPoles ) return false;
+	if ( _zeros != rhs._zeros ) return false;
+	if ( _poles != rhs._poles ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePAZ::operator!=(const ResponsePAZ& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePAZ::equal(const ResponsePAZ& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ResponsePAZ::setName(const std::string& name) {
 	_index.name = name;
 }

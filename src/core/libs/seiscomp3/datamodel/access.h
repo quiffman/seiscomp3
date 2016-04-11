@@ -98,6 +98,13 @@ class SC_CORE_DATAMODEL_API Access : public Object {
 	public:
 		//! Copies the metadata of other to this
 		Access& operator=(const Access& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Access& other) const;
+		bool operator!=(const Access& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Access& other) const;
 
 
 	// ------------------------------------------------------------------

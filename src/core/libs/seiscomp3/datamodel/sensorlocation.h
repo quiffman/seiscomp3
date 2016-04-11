@@ -116,6 +116,13 @@ class SC_CORE_DATAMODEL_API SensorLocation : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		SensorLocation& operator=(const SensorLocation& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const SensorLocation& other) const;
+		bool operator!=(const SensorLocation& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const SensorLocation& other) const;
 
 
 	// ------------------------------------------------------------------

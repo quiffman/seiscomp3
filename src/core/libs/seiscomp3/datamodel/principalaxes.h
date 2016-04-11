@@ -57,8 +57,13 @@ class SC_CORE_DATAMODEL_API PrincipalAxes : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		PrincipalAxes& operator=(const PrincipalAxes& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const PrincipalAxes& other) const;
 		bool operator!=(const PrincipalAxes& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const PrincipalAxes& other) const;
 
 
 	// ------------------------------------------------------------------

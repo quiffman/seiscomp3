@@ -160,6 +160,42 @@ ResponseFIR* ResponseFIR::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponseFIR::operator==(const ResponseFIR& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _gain != rhs._gain ) return false;
+	if ( _decimationFactor != rhs._decimationFactor ) return false;
+	if ( _delay != rhs._delay ) return false;
+	if ( _correction != rhs._correction ) return false;
+	if ( _numberOfCoefficients != rhs._numberOfCoefficients ) return false;
+	if ( _symmetry != rhs._symmetry ) return false;
+	if ( _coefficients != rhs._coefficients ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponseFIR::operator!=(const ResponseFIR& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponseFIR::equal(const ResponseFIR& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ResponseFIR::setName(const std::string& name) {
 	_index.name = name;
 }

@@ -102,6 +102,15 @@ bool OriginUncertainty::operator!=(const OriginUncertainty& rhs) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool OriginUncertainty::equal(const OriginUncertainty& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void OriginUncertainty::setHorizontalUncertainty(const OPT(double)& horizontalUncertainty) {
 	_horizontalUncertainty = horizontalUncertainty;
 }

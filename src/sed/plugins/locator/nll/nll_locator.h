@@ -115,6 +115,8 @@ class NLLocator : public Seiscomp::Seismology::LocatorInterface {
 		std::string   _outputPath;
 		std::string   _controlFilePath;
 		std::string   _lastWarning;
+		std::string   _SEDqualityTag;
+		std::string   _SEDdiffMaxLikeExpectTag;
 		TextLines     _controlFile;
 		IDList        _profileNames;
 

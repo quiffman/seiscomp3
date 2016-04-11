@@ -47,7 +47,7 @@ class SC_CORE_CLIENT_API Inventory {
 	public:
 		static Inventory* Instance();
 
-		void load(const char *filename) throw(Core::GeneralException);
+		void load(const char *filename) throw(std::exception);
 		void load(DataModel::DatabaseReader*);
 		void setInventory(DataModel::Inventory*);
 

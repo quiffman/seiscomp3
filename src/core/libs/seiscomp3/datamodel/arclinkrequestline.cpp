@@ -122,6 +122,39 @@ ArclinkRequestLine::~ArclinkRequestLine() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequestLine::operator==(const ArclinkRequestLine& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _restricted != rhs._restricted ) return false;
+	if ( _shared != rhs._shared ) return false;
+	if ( _netClass != rhs._netClass ) return false;
+	if ( _constraints != rhs._constraints ) return false;
+	if ( _status != rhs._status ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequestLine::operator!=(const ArclinkRequestLine& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequestLine::equal(const ArclinkRequestLine& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ArclinkRequestLine::setStart(Seiscomp::Core::Time start) {
 	_index.start = start;
 }

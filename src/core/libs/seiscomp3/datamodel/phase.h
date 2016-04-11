@@ -63,8 +63,13 @@ class SC_CORE_DATAMODEL_API Phase : public Core::BaseObject {
 
 		//! Copies the metadata of other to this
 		Phase& operator=(const Phase& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const Phase& other) const;
 		bool operator!=(const Phase& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Phase& other) const;
 
 
 	// ------------------------------------------------------------------

@@ -344,20 +344,29 @@ istream& SLConnection::stream() {
 	
 			_slrecord += _sock.read(HEADSIZE+RECSIZE-strlen(ERRTOKEN));
 			char * data = const_cast<char *>(_slrecord.c_str());
+			if ( !MS_ISVALIDHEADER(data+HEADSIZE) ) {
+				SEISCOMP_WARNING("Invalid MSEED record received (MS_ISVALIDHEADER failed)");
+				continue;
+			}
+
 			MSRecord *prec = NULL;
 	
 			if (msr_unpack(data+HEADSIZE,RECSIZE,&prec,0,0) == MS_NOERROR) {
 				int samprate_fact = prec->fsdh->samprate_fact;
 				int numsamples = prec->fsdh->numsamples;
+
 				updateStreams(_streams,prec);
 				msr_free(&prec);
+
 				/* Test for a so-called end-of-detection-record */
 				if (!(samprate_fact == 0 && numsamples == 0)) {
+					_stream.clear();
 					_stream.rdbuf()->pubsetbuf(data+HEADSIZE,RECSIZE);
 					break;
 				}
-			} else
-				SEISCOMP_WARNING("Could not parse the incoming MiniSEED record. Ignore it."); 
+			}
+			else
+				SEISCOMP_WARNING("Could not parse the incoming MiniSEED record. Ignore it.");
 
 		} catch (SocketException &ex) {
 			if (_sock.tryReconnect()) {

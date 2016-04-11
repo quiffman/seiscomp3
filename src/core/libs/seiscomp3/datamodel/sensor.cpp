@@ -167,6 +167,43 @@ Sensor* Sensor::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Sensor::operator==(const Sensor& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _description != rhs._description ) return false;
+	if ( _model != rhs._model ) return false;
+	if ( _manufacturer != rhs._manufacturer ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _unit != rhs._unit ) return false;
+	if ( _lowFrequency != rhs._lowFrequency ) return false;
+	if ( _highFrequency != rhs._highFrequency ) return false;
+	if ( _response != rhs._response ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Sensor::operator!=(const Sensor& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Sensor::equal(const Sensor& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Sensor::setName(const std::string& name) {
 	_index.name = name;
 }

@@ -364,10 +364,12 @@ void MSeedRecord::read(std::istream &is) throw(Core::StreamException) {
 	is.read(header,LEN);
 	while (is.good()) {
 		if (MS_ISVALIDHEADER(header)) {
-			reclen = ms_find_reclen(header,LEN,NULL);
+			reclen = ms_detect(header,LEN);
 			break;
-		} else  /* ignore nondata records and scan to the next valid header */
+		}
+		else  /* ignore nondata records and scan to the next valid header */ {
 			is.read(header,LEN);
+		}
 	}
 
 	if (reclen <= 0 && is.good()) {  /* scan to the next header to retrieve the record length */
@@ -379,7 +381,8 @@ void MSeedRecord::read(std::istream &is) throw(Core::StreamException) {
 				is.seekg(-(reclen+LEN),std::ios::cur);
 				is.read(header,LEN);
 				break;
-			} else
+			}
+			else
 				is.read(header,LEN);
 		}
 	}
@@ -391,13 +394,14 @@ void MSeedRecord::read(std::istream &is) throw(Core::StreamException) {
 		is.seekg(-reclen,std::ios::cur);
 		is.read(header,LEN);
 		myeof = true;
-	} else {
+	}
+	else {
 		if (is.bad())
 			throw Core::StreamException("Fatal error occured during reading from stream.");
 	}
 
-	if (reclen >= LEN) {
-		if (MS_ISVALIDHEADER(header) && reclen <= (1 << 20)) {
+	if ( reclen >= LEN ) {
+		if ( MS_ISVALIDHEADER(header) && reclen <= (1 << 20) ) {
 			std::vector<char> rawrec(reclen);
 			memmove(&rawrec[0],header,LEN);
 			is.read(&rawrec[LEN],reclen-LEN);
@@ -407,22 +411,24 @@ void MSeedRecord::read(std::istream &is) throw(Core::StreamException) {
 					msr_free(&prec);
 					if ( _fsamp <= 0 )
 						throw LibmseedException("Unpacking of Mini SEED record failed.");
-				} else {
-					throw LibmseedException("Unpacking of Mini SEED record failed.");
 				}
-			} else if (is.bad() || !is.eof()) {
-				throw Core::StreamException("Fatal error occured during reading from stream.");
+				else
+					throw LibmseedException("Unpacking of Mini SEED record failed.");
 			}
-		} else {
+			else if (is.bad() || !is.eof())
+				throw Core::StreamException("Fatal error occured during reading from stream.");
+		}
+		else {
 			if (!myeof)
 				return read(is);
 			else
-				throw Core::EndOfStreamException();			
+				throw Core::EndOfStreamException();
 		}
-	} else {
-		if (!myeof)
+	}
+	else {
+		if ( !myeof )
 			throw LibmseedException("Retrieving the record length failed.");
-		else 
+		else
 			throw Core::EndOfStreamException();
 	}
 }
@@ -531,12 +537,13 @@ void MSeedRecord::write(std::ostream& out) throw(Core::StreamException) {
 
 	/* Pack the record(s) */
 	CharArray packed;
-	int psamples;
+	int64_t psamples;
 	int precords = msr_pack(pmsr, &_Record_Handler, &packed, &psamples, 1, 0);
 	pmsr->datasamples = 0;
 	msr_free(&pmsr);
 
 	out.write(packed.typedData(), packed.size());
-	SEISCOMP_DEBUG("Packed %d samples into %d records",psamples,precords);
+	SEISCOMP_DEBUG("Packed %ld samples into %d records",
+	               (long int)psamples,precords);
 }
 

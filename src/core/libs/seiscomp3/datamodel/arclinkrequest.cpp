@@ -182,6 +182,43 @@ ArclinkRequest* ArclinkRequest::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequest::operator==(const ArclinkRequest& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _userIP != rhs._userIP ) return false;
+	if ( _clientID != rhs._clientID ) return false;
+	if ( _clientIP != rhs._clientIP ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _status != rhs._status ) return false;
+	if ( _message != rhs._message ) return false;
+	if ( _label != rhs._label ) return false;
+	if ( _header != rhs._header ) return false;
+	if ( _summary != rhs._summary ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequest::operator!=(const ArclinkRequest& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ArclinkRequest::equal(const ArclinkRequest& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ArclinkRequest::setRequestID(const std::string& requestID) {
 	_index.requestID = requestID;
 }

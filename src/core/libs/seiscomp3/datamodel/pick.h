@@ -88,6 +88,13 @@ class SC_CORE_DATAMODEL_API Pick : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Pick& operator=(const Pick& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Pick& other) const;
+		bool operator!=(const Pick& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Pick& other) const;
 
 
 	// ------------------------------------------------------------------

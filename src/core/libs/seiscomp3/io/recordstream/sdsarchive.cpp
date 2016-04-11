@@ -163,64 +163,70 @@ void SDSArchive::setFilenames() {
 }
 
 bool SDSArchive::setStart(const string &fname) {
-    MSRecord *prec = NULL;
-    MSFileParam *pfp = NULL;
-    double samprate = 0.0;
-    Time recstime, recetime;
-    Time stime = (_curidx->startTime() == Time())?_stime:_curidx->startTime();
-    int retcode;
-    long int offset = 0;
-    long int size = _recstream->stream().rdbuf()->in_avail();
-    bool result = true;
+	MSRecord *prec = NULL;
+	MSFileParam *pfp = NULL;
+	double samprate = 0.0;
+	Time recstime, recetime;
+	Time stime = (_curidx->startTime() == Time())?_stime:_curidx->startTime();
+	off_t fpos;
+	int retcode;
+	long int offset = 0;
+	long int size = _recstream->stream().rdbuf()->in_avail();
+	bool result = true;
 
 #define SDSARCHIVE_BINSEARCH
 #ifdef SDSARCHIVE_BINSEARCH
-    //! binary search 
-    retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0);
-    if (retcode == MS_NOERROR) {
-        recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
-        long start = 0;
-        long half = 0;
-        long end = 0;
-        int reclen = prec->reclen;
+	//! binary search
+	retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0);
+	if (retcode == MS_NOERROR) {
+		recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
+		long start = 0;
+		long half = 0;
+		long end = 0;
+		int reclen = prec->reclen;
 
-        if (recstime < stime)
-            end = (long)(size/reclen);
-        
-        while ((end - start) > 1) {
-            half = start + (end - start)/2;
-            lmp_fseeko(pfp->fp, half*reclen, 0);
-            if ((retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0)) == MS_NOERROR) {
-                samprate = prec->samprate;
-                recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
-                if (samprate > 0.) 
-                    recetime = recstime + TimeSpan((double)(prec->samplecnt / samprate));
-                else {
-                    SEISCOMP_WARNING("sdsarchive: [%s@%ld] Wrong sampling frequency %.2f!", fname.c_str(), half*reclen, samprate);
-                   recetime = recstime + TimeSpan(1, 0);
-                   result = false;
-                } 
-            }
-            else {
-                SEISCOMP_WARNING("sdsarchive: [%s@%ld] Couldn't read mseed header!", fname.c_str(), half*reclen);
-                break;
-            }
-            if (stime > recetime) {
-                start = half;
-                if ((end - start) == 1)
-                    ++half;
-            } else if (stime < recstime)
-                end = half;
-            else if (recstime <= stime && stime <= recetime) {
-                if (stime == recetime)
-                    ++half;
-                break;
-            }            
-        }
-        if ((half == 1) && (stime < recstime))
-            half = 0;
-        offset = half*reclen;
-    }
+		if ( recstime < stime )
+			end = (long)(size/reclen);
+
+		while ( (end - start) > 1 ) {
+			half = start + (end - start)/2;
+			fpos = -half*reclen;
+			//lmp_fseeko(pfp->fp, half*reclen, 0);
+			if ( (retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,&fpos,NULL,1,0,0)) == MS_NOERROR ) {
+				samprate = prec->samprate;
+				recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
+				if ( samprate > 0. )
+					recetime = recstime + TimeSpan((double)(prec->samplecnt / samprate));
+				else {
+					SEISCOMP_WARNING("sdsarchive: [%s@%ld] Wrong sampling frequency %.2f!", fname.c_str(), half*reclen, samprate);
+				   recetime = recstime + TimeSpan(1, 0);
+				   result = false;
+				}
+			}
+			else {
+				SEISCOMP_WARNING("sdsarchive: [%s@%ld] Couldn't read mseed header!", fname.c_str(), half*reclen);
+				break;
+			}
+
+			SEISCOMP_DEBUG("rec etime: %s", recetime.iso().c_str());
+			if ( stime > recetime ) {
+				start = half;
+				if ((end - start) == 1)
+					++half;
+			}
+			else if ( stime < recstime )
+				end = half;
+			else if ( recstime <= stime && stime <= recetime ) {
+				if (stime == recetime)
+					++half;
+				break;
+			}
+		}
+
+		if ( (half == 1) && (stime < recstime) )
+			half = 0;
+		offset = half*reclen;
+	}
 #else
     while((retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0)) == MS_NOERROR) {
         samprate = prec->samprate;
@@ -243,17 +249,17 @@ bool SDSArchive::setStart(const string &fname) {
         }
     }
 #endif
-    if (retcode != MS_ENDOFFILE && retcode != MS_NOERROR) {
-	SEISCOMP_ERROR("sdsarchive: Error reading input file %s: %s", fname.c_str(),ms_errorstr(retcode));
-	result = false;
-    }
+	if (retcode != MS_ENDOFFILE && retcode != MS_NOERROR) {
+		SEISCOMP_ERROR("sdsarchive: Error reading input file %s: %s", fname.c_str(),ms_errorstr(retcode));
+		result = false;
+	}
 
-    /* Cleanup memory and close file */
-    ms_readmsr_r(&pfp,&prec,NULL,-1,NULL,NULL,0,0,0);
+	/* Cleanup memory and close file */
+	ms_readmsr_r(&pfp,&prec,NULL,-1,NULL,NULL,0,0,0);
 
-    _recstream->stream().seekg(offset,ios::beg);
-    if (offset == size)
-	_recstream->stream().clear(ios::eofbit);
+	_recstream->stream().seekg(offset,ios::beg);
+	if ( offset == size )
+		_recstream->stream().clear(ios::eofbit);
 
     return result;
 }
@@ -291,14 +297,15 @@ bool SDSArchive::isEnd() {
 }
 
 istream& SDSArchive::stream() throw(ArchiveException) {  
-	if (_recstream) {
+	if ( _recstream ) {
 		/* eof check: try to read from stream */
 		istream &tmpstream = _recstream->stream();
 		tmpstream.peek();
 		/* go on at the file's stream */
 		if (tmpstream.good() && !isEnd())
 			return tmpstream;
-	} else
+	}
+	else
 		_curiter = _streams.begin();
 
 	bool first = false;
@@ -325,20 +332,24 @@ istream& SDSArchive::stream() throw(ArchiveException) {
 				SEISCOMP_ERROR("Could not create file stream");
 				throw ArchiveException("Could not create file stream");
 			}
-			while (!_fnames.empty()) {
+
+			while ( !_fnames.empty() ) {
 				string fname = _fnames.front();
 				_fnames.pop();
-				if (!_recstream->setSource(fname.c_str())) {
+				if ( !_recstream->setSource(fname.c_str()) ) {
 					SEISCOMP_DEBUG("file %s not found",fname.c_str());
 					_recstream->stream().clear();
-				} else {
-					if (first) {
-					if (!setStart(fname))
-						SEISCOMP_WARNING("Error reading file %s; start of time window maybe incorrect",fname.c_str());
+				}
+				else {
+					if ( first ) {
+						if ( !setStart(fname) )
+							SEISCOMP_WARNING("Error reading file %s; start of time window maybe incorrect",fname.c_str());
 					}
-					if (!isEnd() && !_recstream->stream().eof())
+
+					if ( !isEnd() && !_recstream->stream().eof() )
 						return _recstream->stream();
 				}
+
 				first = false;
 			}
 		}

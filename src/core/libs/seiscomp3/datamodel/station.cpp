@@ -177,6 +177,48 @@ Station* Station::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Station::operator==(const Station& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _end != rhs._end ) return false;
+	if ( _description != rhs._description ) return false;
+	if ( _latitude != rhs._latitude ) return false;
+	if ( _longitude != rhs._longitude ) return false;
+	if ( _elevation != rhs._elevation ) return false;
+	if ( _place != rhs._place ) return false;
+	if ( _country != rhs._country ) return false;
+	if ( _affiliation != rhs._affiliation ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _archive != rhs._archive ) return false;
+	if ( _archiveNetworkCode != rhs._archiveNetworkCode ) return false;
+	if ( _restricted != rhs._restricted ) return false;
+	if ( _shared != rhs._shared ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Station::operator!=(const Station& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Station::equal(const Station& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Station::setCode(const std::string& code) {
 	_index.code = code;
 }

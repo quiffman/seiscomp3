@@ -213,7 +213,7 @@ class MySQLCleaner(seiscomp3.Client.Application):
               Origin.%s < '%s'\
       " % (self.cnvCol("publicID"), self.cnvCol("preferredOriginID"), self.cnvCol("publicID"), self.cnvCol("time_value"), timestamp.toString("%Y-%m-%d %H:%M:%S"))
 
-      self._steps = 31
+      self._steps = 32
 
       self.beginMessage("Find old events")
       if self.runCommand(old_events) == False: return False

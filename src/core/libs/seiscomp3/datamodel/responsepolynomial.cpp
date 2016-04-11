@@ -162,6 +162,44 @@ ResponsePolynomial* ResponsePolynomial::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePolynomial::operator==(const ResponsePolynomial& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _gain != rhs._gain ) return false;
+	if ( _gainFrequency != rhs._gainFrequency ) return false;
+	if ( _frequencyUnit != rhs._frequencyUnit ) return false;
+	if ( _approximationType != rhs._approximationType ) return false;
+	if ( _approximationLowerBound != rhs._approximationLowerBound ) return false;
+	if ( _approximationUpperBound != rhs._approximationUpperBound ) return false;
+	if ( _approximationError != rhs._approximationError ) return false;
+	if ( _numberOfCoefficients != rhs._numberOfCoefficients ) return false;
+	if ( _coefficients != rhs._coefficients ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePolynomial::operator!=(const ResponsePolynomial& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ResponsePolynomial::equal(const ResponsePolynomial& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ResponsePolynomial::setName(const std::string& name) {
 	_index.name = name;
 }

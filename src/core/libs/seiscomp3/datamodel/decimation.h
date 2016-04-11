@@ -89,6 +89,13 @@ class SC_CORE_DATAMODEL_API Decimation : public Object {
 	public:
 		//! Copies the metadata of other to this
 		Decimation& operator=(const Decimation& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Decimation& other) const;
+		bool operator!=(const Decimation& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Decimation& other) const;
 
 
 	// ------------------------------------------------------------------

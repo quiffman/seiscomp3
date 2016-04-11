@@ -174,6 +174,45 @@ Datalogger* Datalogger::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Datalogger::operator==(const Datalogger& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _description != rhs._description ) return false;
+	if ( _digitizerModel != rhs._digitizerModel ) return false;
+	if ( _digitizerManufacturer != rhs._digitizerManufacturer ) return false;
+	if ( _recorderModel != rhs._recorderModel ) return false;
+	if ( _recorderManufacturer != rhs._recorderManufacturer ) return false;
+	if ( _clockModel != rhs._clockModel ) return false;
+	if ( _clockManufacturer != rhs._clockManufacturer ) return false;
+	if ( _clockType != rhs._clockType ) return false;
+	if ( _gain != rhs._gain ) return false;
+	if ( _maxClockDrift != rhs._maxClockDrift ) return false;
+	if ( _remark != rhs._remark ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Datalogger::operator!=(const Datalogger& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Datalogger::equal(const Datalogger& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Datalogger::setName(const std::string& name) {
 	_index.name = name;
 }

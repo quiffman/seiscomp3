@@ -160,6 +160,49 @@ Origin* Origin::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Origin::operator==(const Origin& rhs) const {
+	if ( _time != rhs._time ) return false;
+	if ( _latitude != rhs._latitude ) return false;
+	if ( _longitude != rhs._longitude ) return false;
+	if ( _depth != rhs._depth ) return false;
+	if ( _depthType != rhs._depthType ) return false;
+	if ( _timeFixed != rhs._timeFixed ) return false;
+	if ( _epicenterFixed != rhs._epicenterFixed ) return false;
+	if ( _referenceSystemID != rhs._referenceSystemID ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _earthModelID != rhs._earthModelID ) return false;
+	if ( _quality != rhs._quality ) return false;
+	if ( _uncertainty != rhs._uncertainty ) return false;
+	if ( _type != rhs._type ) return false;
+	if ( _evaluationMode != rhs._evaluationMode ) return false;
+	if ( _evaluationStatus != rhs._evaluationStatus ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Origin::operator!=(const Origin& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Origin::equal(const Origin& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Origin::setTime(const TimeQuantity& time) {
 	_time = time;
 }

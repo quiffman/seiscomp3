@@ -136,6 +136,44 @@ FocalMechanism* FocalMechanism::Find(const std::string& publicID) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool FocalMechanism::operator==(const FocalMechanism& rhs) const {
+	if ( _triggeringOriginID != rhs._triggeringOriginID ) return false;
+	if ( _nodalPlanes != rhs._nodalPlanes ) return false;
+	if ( _principalAxes != rhs._principalAxes ) return false;
+	if ( _azimuthalGap != rhs._azimuthalGap ) return false;
+	if ( _stationPolarityCount != rhs._stationPolarityCount ) return false;
+	if ( _misfit != rhs._misfit ) return false;
+	if ( _stationDistributionRatio != rhs._stationDistributionRatio ) return false;
+	if ( _methodID != rhs._methodID ) return false;
+	if ( _evaluationMode != rhs._evaluationMode ) return false;
+	if ( _evaluationStatus != rhs._evaluationStatus ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool FocalMechanism::operator!=(const FocalMechanism& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool FocalMechanism::equal(const FocalMechanism& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void FocalMechanism::setTriggeringOriginID(const std::string& triggeringOriginID) {
 	_triggeringOriginID = triggeringOriginID;
 }

@@ -87,6 +87,13 @@ class SC_CORE_DATAMODEL_API RouteSeedlink : public Object {
 	public:
 		//! Copies the metadata of other to this
 		RouteSeedlink& operator=(const RouteSeedlink& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const RouteSeedlink& other) const;
+		bool operator!=(const RouteSeedlink& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const RouteSeedlink& other) const;
 
 
 	// ------------------------------------------------------------------

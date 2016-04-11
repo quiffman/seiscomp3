@@ -115,6 +115,13 @@ class SC_CORE_DATAMODEL_API Network : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Network& operator=(const Network& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Network& other) const;
+		bool operator!=(const Network& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Network& other) const;
 
 
 	// ------------------------------------------------------------------

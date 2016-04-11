@@ -122,6 +122,49 @@ Arrival::~Arrival() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Arrival::operator==(const Arrival& rhs) const {
+	if ( _index != rhs._index ) return false;
+	if ( _phase != rhs._phase ) return false;
+	if ( _timeCorrection != rhs._timeCorrection ) return false;
+	if ( _azimuth != rhs._azimuth ) return false;
+	if ( _distance != rhs._distance ) return false;
+	if ( _takeOffAngle != rhs._takeOffAngle ) return false;
+	if ( _timeResidual != rhs._timeResidual ) return false;
+	if ( _horizontalSlownessResidual != rhs._horizontalSlownessResidual ) return false;
+	if ( _backazimuthResidual != rhs._backazimuthResidual ) return false;
+	if ( _timeUsed != rhs._timeUsed ) return false;
+	if ( _horizontalSlownessUsed != rhs._horizontalSlownessUsed ) return false;
+	if ( _backazimuthUsed != rhs._backazimuthUsed ) return false;
+	if ( _weight != rhs._weight ) return false;
+	if ( _earthModelID != rhs._earthModelID ) return false;
+	if ( _preliminary != rhs._preliminary ) return false;
+	if ( _creationInfo != rhs._creationInfo ) return false;
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Arrival::operator!=(const Arrival& rhs) const {
+	return !operator==(rhs);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Arrival::equal(const Arrival& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Arrival::setPickID(const std::string& pickID) {
 	_index.pickID = pickID;
 }

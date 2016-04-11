@@ -58,8 +58,13 @@ class SC_CORE_DATAMODEL_API OriginUncertainty : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		OriginUncertainty& operator=(const OriginUncertainty& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const OriginUncertainty& other) const;
 		bool operator!=(const OriginUncertainty& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const OriginUncertainty& other) const;
 
 
 	// ------------------------------------------------------------------

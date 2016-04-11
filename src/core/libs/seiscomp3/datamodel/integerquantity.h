@@ -67,8 +67,13 @@ class SC_CORE_DATAMODEL_API IntegerQuantity : public Core::BaseObject {
 
 		//! Copies the metadata of other to this
 		IntegerQuantity& operator=(const IntegerQuantity& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const IntegerQuantity& other) const;
 		bool operator!=(const IntegerQuantity& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const IntegerQuantity& other) const;
 
 
 	// ------------------------------------------------------------------

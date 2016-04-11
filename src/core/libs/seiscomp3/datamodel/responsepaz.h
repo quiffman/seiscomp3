@@ -109,6 +109,13 @@ class SC_CORE_DATAMODEL_API ResponsePAZ : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		ResponsePAZ& operator=(const ResponsePAZ& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const ResponsePAZ& other) const;
+		bool operator!=(const ResponsePAZ& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const ResponsePAZ& other) const;
 
 
 	// ------------------------------------------------------------------

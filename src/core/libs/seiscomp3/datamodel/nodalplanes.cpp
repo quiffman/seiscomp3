@@ -88,6 +88,15 @@ bool NodalPlanes::operator!=(const NodalPlanes& rhs) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool NodalPlanes::equal(const NodalPlanes& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void NodalPlanes::setNodalPlane1(const OPT(NodalPlane)& nodalPlane1) {
 	_nodalPlane1 = nodalPlane1;
 }

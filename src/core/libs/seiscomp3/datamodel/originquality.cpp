@@ -115,6 +115,15 @@ bool OriginQuality::operator!=(const OriginQuality& rhs) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool OriginQuality::equal(const OriginQuality& other) const {
+	return *this == other;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void OriginQuality::setAssociatedPhaseCount(const OPT(int)& associatedPhaseCount) {
 	_associatedPhaseCount = associatedPhaseCount;
 }

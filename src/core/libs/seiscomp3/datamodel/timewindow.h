@@ -66,8 +66,13 @@ class SC_CORE_DATAMODEL_API TimeWindow : public Core::BaseObject {
 
 		//! Copies the metadata of other to this
 		TimeWindow& operator=(const TimeWindow& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const TimeWindow& other) const;
 		bool operator!=(const TimeWindow& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const TimeWindow& other) const;
 
 
 	// ------------------------------------------------------------------

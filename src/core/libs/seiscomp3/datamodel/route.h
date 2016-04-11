@@ -119,6 +119,13 @@ class SC_CORE_DATAMODEL_API Route : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Route& operator=(const Route& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Route& other) const;
+		bool operator!=(const Route& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Route& other) const;
 
 
 	// ------------------------------------------------------------------

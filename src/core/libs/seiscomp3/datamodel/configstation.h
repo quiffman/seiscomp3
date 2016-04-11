@@ -113,6 +113,13 @@ class SC_CORE_DATAMODEL_API ConfigStation : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		ConfigStation& operator=(const ConfigStation& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const ConfigStation& other) const;
+		bool operator!=(const ConfigStation& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const ConfigStation& other) const;
 
 
 	// ------------------------------------------------------------------

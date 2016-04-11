@@ -91,6 +91,13 @@ class SC_CORE_DATAMODEL_API Outage : public Object {
 	public:
 		//! Copies the metadata of other to this
 		Outage& operator=(const Outage& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Outage& other) const;
+		bool operator!=(const Outage& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Outage& other) const;
 
 
 	// ------------------------------------------------------------------

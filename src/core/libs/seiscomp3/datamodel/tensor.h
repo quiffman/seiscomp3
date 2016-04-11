@@ -57,8 +57,13 @@ class SC_CORE_DATAMODEL_API Tensor : public Core::BaseObject {
 	public:
 		//! Copies the metadata of other to this
 		Tensor& operator=(const Tensor& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
 		bool operator==(const Tensor& other) const;
 		bool operator!=(const Tensor& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Tensor& other) const;
 
 
 	// ------------------------------------------------------------------

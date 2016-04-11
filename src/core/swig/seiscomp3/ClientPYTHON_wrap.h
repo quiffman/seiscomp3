@@ -355,7 +355,7 @@ private:
       return method;
     }
 private:
-    mutable swig::SwigVar_PyObject vtable[37];
+    mutable swig::SwigVar_PyObject vtable[35];
 #endif
 
 };

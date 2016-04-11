@@ -43,13 +43,14 @@ struct EventInformation : public Seiscomp::Core::BaseObject {
 	typedef DataModel::PublicObjectCache Cache;
 
 	EventInformation(Cache *cache, Config *cfg);
-	~EventInformation();
 
 	EventInformation(Cache *cache, Config *cfg,
 	                 DataModel::DatabaseQuery *q, const std::string &eventID);
 
 	EventInformation(Cache *cache, Config *cfg,
 	                 DataModel::DatabaseQuery *q, DataModel::EventPtr &event);
+
+	~EventInformation();
 
 	//! Loads an event from the database
 	void load(DataModel::DatabaseQuery *q,
@@ -61,7 +62,7 @@ struct EventInformation : public Seiscomp::Core::BaseObject {
 	void loadAssocations(DataModel::DatabaseQuery *q);
 
 	//! Returns the number of matching picks
-	size_t matchingPicks(DataModel::Origin *o) const;
+	size_t matchingPicks(DataModel::DatabaseQuery *q, DataModel::Origin *o);
 
 	bool valid() const;
 
@@ -89,6 +90,9 @@ struct EventInformation : public Seiscomp::Core::BaseObject {
 	std::list<DataModel::JournalEntryPtr>  journal;
 
 	Constraints                            constraints;
+
+	bool                                   aboutToBeRemoved;
+	bool                                   dirtyPickSet;
 };
 
 

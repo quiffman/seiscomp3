@@ -492,10 +492,13 @@ class PublicObjectCache(Core.BaseObject):
     __getattr__ = lambda self, name: _swig_getattr(self, PublicObjectCache, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
     __repr__ = _swig_repr
+    __swig_destroy__ = _DataModel.delete_PublicObjectCache
+    __del__ = lambda self : None;
     def setDatabaseArchive(self, *args): return _DataModel.PublicObjectCache_setDatabaseArchive(self, *args)
     def setPopCallback(self, *args): return _DataModel.PublicObjectCache_setPopCallback(self, *args)
     def removePopCallback(self): return _DataModel.PublicObjectCache_removePopCallback(self)
     def feed(self, *args): return _DataModel.PublicObjectCache_feed(self, *args)
+    def remove(self, *args): return _DataModel.PublicObjectCache_remove(self, *args)
     def find(self, *args): return _DataModel.PublicObjectCache_find(self, *args)
     def timeWindow(self): return _DataModel.PublicObjectCache_timeWindow(self)
     def oldest(self): return _DataModel.PublicObjectCache_oldest(self)
@@ -505,8 +508,6 @@ class PublicObjectCache(Core.BaseObject):
         o = self.find(klass.TypeInfo(), publicID)
         return klass.Cast(o)
 
-    __swig_destroy__ = _DataModel.delete_PublicObjectCache
-    __del__ = lambda self : None;
 PublicObjectCache_swigregister = _DataModel.PublicObjectCache_swigregister
 PublicObjectCache_swigregister(PublicObjectCache)
 
@@ -1274,6 +1275,7 @@ class TimeQuantity(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.TimeQuantity___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.TimeQuantity___ne__(self, *args)
+    def equal(self, *args): return _DataModel.TimeQuantity_equal(self, *args)
     def setValue(self, *args): return _DataModel.TimeQuantity_setValue(self, *args)
     def value(self): return _DataModel.TimeQuantity_value(self)
     def setUncertainty(self, *args): return _DataModel.TimeQuantity_setUncertainty(self, *args)
@@ -1330,6 +1332,7 @@ class CreationInfo(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.CreationInfo___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.CreationInfo___ne__(self, *args)
+    def equal(self, *args): return _DataModel.CreationInfo_equal(self, *args)
     def setAgencyID(self, *args): return _DataModel.CreationInfo_setAgencyID(self, *args)
     def agencyID(self): return _DataModel.CreationInfo_agencyID(self)
     def setAgencyURI(self, *args): return _DataModel.CreationInfo_setAgencyURI(self, *args)
@@ -1390,6 +1393,7 @@ class Phase(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.Phase___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.Phase___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Phase_equal(self, *args)
     def setCode(self, *args): return _DataModel.Phase_setCode(self, *args)
     def code(self): return _DataModel.Phase_code(self)
 Phase_swigregister = _DataModel.Phase_swigregister
@@ -1456,6 +1460,9 @@ class Comment(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Comment
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Comment___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Comment___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Comment_equal(self, *args)
     def setText(self, *args): return _DataModel.Comment_setText(self, *args)
     def text(self): return _DataModel.Comment_text(self)
     def setId(self, *args): return _DataModel.Comment_setId(self, *args)
@@ -1526,6 +1533,7 @@ class RealQuantity(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.RealQuantity___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.RealQuantity___ne__(self, *args)
+    def equal(self, *args): return _DataModel.RealQuantity_equal(self, *args)
     def setValue(self, *args): return _DataModel.RealQuantity_setValue(self, *args)
     def value(self): return _DataModel.RealQuantity_value(self)
     def setUncertainty(self, *args): return _DataModel.RealQuantity_setUncertainty(self, *args)
@@ -1582,6 +1590,7 @@ class IntegerQuantity(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.IntegerQuantity___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.IntegerQuantity___ne__(self, *args)
+    def equal(self, *args): return _DataModel.IntegerQuantity_equal(self, *args)
     def setValue(self, *args): return _DataModel.IntegerQuantity_setValue(self, *args)
     def value(self): return _DataModel.IntegerQuantity_value(self)
     def setUncertainty(self, *args): return _DataModel.IntegerQuantity_setUncertainty(self, *args)
@@ -1638,6 +1647,7 @@ class Axis(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.Axis___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.Axis___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Axis_equal(self, *args)
     def setAzimuth(self, *args): return _DataModel.Axis_setAzimuth(self, *args)
     def azimuth(self, *args): return _DataModel.Axis_azimuth(self, *args)
     def setPlunge(self, *args): return _DataModel.Axis_setPlunge(self, *args)
@@ -1690,6 +1700,7 @@ class PrincipalAxes(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.PrincipalAxes___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.PrincipalAxes___ne__(self, *args)
+    def equal(self, *args): return _DataModel.PrincipalAxes_equal(self, *args)
     def setTAxis(self, *args): return _DataModel.PrincipalAxes_setTAxis(self, *args)
     def tAxis(self, *args): return _DataModel.PrincipalAxes_tAxis(self, *args)
     def setPAxis(self, *args): return _DataModel.PrincipalAxes_setPAxis(self, *args)
@@ -1742,6 +1753,7 @@ class Tensor(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.Tensor___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.Tensor___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Tensor_equal(self, *args)
     def setMrr(self, *args): return _DataModel.Tensor_setMrr(self, *args)
     def Mrr(self, *args): return _DataModel.Tensor_Mrr(self, *args)
     def setMtt(self, *args): return _DataModel.Tensor_setMtt(self, *args)
@@ -1800,6 +1812,7 @@ class OriginQuality(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.OriginQuality___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.OriginQuality___ne__(self, *args)
+    def equal(self, *args): return _DataModel.OriginQuality_equal(self, *args)
     def setAssociatedPhaseCount(self, *args): return _DataModel.OriginQuality_setAssociatedPhaseCount(self, *args)
     def associatedPhaseCount(self): return _DataModel.OriginQuality_associatedPhaseCount(self)
     def setUsedPhaseCount(self, *args): return _DataModel.OriginQuality_setUsedPhaseCount(self, *args)
@@ -1870,6 +1883,7 @@ class NodalPlane(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.NodalPlane___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.NodalPlane___ne__(self, *args)
+    def equal(self, *args): return _DataModel.NodalPlane_equal(self, *args)
     def setStrike(self, *args): return _DataModel.NodalPlane_setStrike(self, *args)
     def strike(self, *args): return _DataModel.NodalPlane_strike(self, *args)
     def setDip(self, *args): return _DataModel.NodalPlane_setDip(self, *args)
@@ -1922,6 +1936,7 @@ class TimeWindow(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.TimeWindow___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.TimeWindow___ne__(self, *args)
+    def equal(self, *args): return _DataModel.TimeWindow_equal(self, *args)
     def setReference(self, *args): return _DataModel.TimeWindow_setReference(self, *args)
     def reference(self): return _DataModel.TimeWindow_reference(self)
     def setBegin(self, *args): return _DataModel.TimeWindow_setBegin(self, *args)
@@ -1974,6 +1989,7 @@ class WaveformStreamID(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.WaveformStreamID___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.WaveformStreamID___ne__(self, *args)
+    def equal(self, *args): return _DataModel.WaveformStreamID_equal(self, *args)
     def setNetworkCode(self, *args): return _DataModel.WaveformStreamID_setNetworkCode(self, *args)
     def networkCode(self): return _DataModel.WaveformStreamID_networkCode(self)
     def setStationCode(self, *args): return _DataModel.WaveformStreamID_setStationCode(self, *args)
@@ -2030,6 +2046,7 @@ class SourceTimeFunction(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.SourceTimeFunction___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.SourceTimeFunction___ne__(self, *args)
+    def equal(self, *args): return _DataModel.SourceTimeFunction_equal(self, *args)
     def setType(self, *args): return _DataModel.SourceTimeFunction_setType(self, *args)
     def type(self): return _DataModel.SourceTimeFunction_type(self)
     def setDuration(self, *args): return _DataModel.SourceTimeFunction_setDuration(self, *args)
@@ -2084,6 +2101,7 @@ class NodalPlanes(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.NodalPlanes___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.NodalPlanes___ne__(self, *args)
+    def equal(self, *args): return _DataModel.NodalPlanes_equal(self, *args)
     def setNodalPlane1(self, *args): return _DataModel.NodalPlanes_setNodalPlane1(self, *args)
     def nodalPlane1(self, *args): return _DataModel.NodalPlanes_nodalPlane1(self, *args)
     def setNodalPlane2(self, *args): return _DataModel.NodalPlanes_setNodalPlane2(self, *args)
@@ -2136,6 +2154,7 @@ class ConfidenceEllipsoid(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.ConfidenceEllipsoid___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.ConfidenceEllipsoid___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ConfidenceEllipsoid_equal(self, *args)
     def setSemiMajorAxisLength(self, *args): return _DataModel.ConfidenceEllipsoid_setSemiMajorAxisLength(self, *args)
     def semiMajorAxisLength(self): return _DataModel.ConfidenceEllipsoid_semiMajorAxisLength(self)
     def setSemiMinorAxisLength(self, *args): return _DataModel.ConfidenceEllipsoid_setSemiMinorAxisLength(self, *args)
@@ -2194,6 +2213,7 @@ class OriginUncertainty(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.OriginUncertainty___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.OriginUncertainty___ne__(self, *args)
+    def equal(self, *args): return _DataModel.OriginUncertainty_equal(self, *args)
     def setHorizontalUncertainty(self, *args): return _DataModel.OriginUncertainty_setHorizontalUncertainty(self, *args)
     def horizontalUncertainty(self): return _DataModel.OriginUncertainty_horizontalUncertainty(self)
     def setMinHorizontalUncertainty(self, *args): return _DataModel.OriginUncertainty_setMinHorizontalUncertainty(self, *args)
@@ -2252,6 +2272,7 @@ class Blob(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.Blob___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.Blob___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Blob_equal(self, *args)
     def setContent(self, *args): return _DataModel.Blob_setContent(self, *args)
     def content(self): return _DataModel.Blob_content(self)
 Blob_swigregister = _DataModel.Blob_swigregister
@@ -2300,6 +2321,7 @@ class RealArray(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.RealArray___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.RealArray___ne__(self, *args)
+    def equal(self, *args): return _DataModel.RealArray_equal(self, *args)
     def setContent(self, *args): return _DataModel.RealArray_setContent(self, *args)
     def content(self, *args): return _DataModel.RealArray_content(self, *args)
 RealArray_swigregister = _DataModel.RealArray_swigregister
@@ -2348,6 +2370,7 @@ class ComplexArray(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.ComplexArray___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.ComplexArray___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ComplexArray_equal(self, *args)
     def setContent(self, *args): return _DataModel.ComplexArray_setContent(self, *args)
     def content(self, *args): return _DataModel.ComplexArray_content(self, *args)
 ComplexArray_swigregister = _DataModel.ComplexArray_swigregister
@@ -2396,6 +2419,7 @@ class ArclinkRequestSummary(Core.BaseObject):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.ArclinkRequestSummary___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.ArclinkRequestSummary___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkRequestSummary_equal(self, *args)
     def setOkLineCount(self, *args): return _DataModel.ArclinkRequestSummary_setOkLineCount(self, *args)
     def okLineCount(self): return _DataModel.ArclinkRequestSummary_okLineCount(self)
     def setTotalLineCount(self, *args): return _DataModel.ArclinkRequestSummary_setTotalLineCount(self, *args)
@@ -2448,6 +2472,7 @@ class JournalEntry(Object):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.JournalEntry___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.JournalEntry___ne__(self, *args)
+    def equal(self, *args): return _DataModel.JournalEntry_equal(self, *args)
     def setCreated(self, *args): return _DataModel.JournalEntry_setCreated(self, *args)
     def created(self): return _DataModel.JournalEntry_created(self)
     def setObjectID(self, *args): return _DataModel.JournalEntry_setObjectID(self, *args)
@@ -2509,6 +2534,9 @@ class Journaling(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Journaling
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Journaling___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Journaling___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Journaling_equal(self, *args)
     def add(self, *args): return _DataModel.Journaling_add(self, *args)
     def remove(self, *args): return _DataModel.Journaling_remove(self, *args)
     def removeJournalEntry(self, *args): return _DataModel.Journaling_removeJournalEntry(self, *args)
@@ -2593,6 +2621,9 @@ class ArclinkUser(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ArclinkUser_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ArclinkUser_Find
     if _newclass:Find = staticmethod(_DataModel.ArclinkUser_Find)
+    def __eq__(self, *args): return _DataModel.ArclinkUser___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ArclinkUser___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkUser_equal(self, *args)
     def setName(self, *args): return _DataModel.ArclinkUser_setName(self, *args)
     def name(self): return _DataModel.ArclinkUser_name(self)
     def setEmail(self, *args): return _DataModel.ArclinkUser_setEmail(self, *args)
@@ -2687,6 +2718,9 @@ class ArclinkStatusLine(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_ArclinkStatusLine
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.ArclinkStatusLine___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ArclinkStatusLine___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkStatusLine_equal(self, *args)
     def setType(self, *args): return _DataModel.ArclinkStatusLine_setType(self, *args)
     def type(self): return _DataModel.ArclinkStatusLine_type(self)
     def setStatus(self, *args): return _DataModel.ArclinkStatusLine_setStatus(self, *args)
@@ -2776,6 +2810,9 @@ class ArclinkRequestLine(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_ArclinkRequestLine
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.ArclinkRequestLine___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ArclinkRequestLine___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkRequestLine_equal(self, *args)
     def setStart(self, *args): return _DataModel.ArclinkRequestLine_setStart(self, *args)
     def start(self): return _DataModel.ArclinkRequestLine_start(self)
     def setEnd(self, *args): return _DataModel.ArclinkRequestLine_setEnd(self, *args)
@@ -2875,6 +2912,9 @@ class ArclinkRequest(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ArclinkRequest_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ArclinkRequest_Find
     if _newclass:Find = staticmethod(_DataModel.ArclinkRequest_Find)
+    def __eq__(self, *args): return _DataModel.ArclinkRequest___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ArclinkRequest___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkRequest_equal(self, *args)
     def setRequestID(self, *args): return _DataModel.ArclinkRequest_setRequestID(self, *args)
     def requestID(self): return _DataModel.ArclinkRequest_requestID(self)
     def setUserID(self, *args): return _DataModel.ArclinkRequest_setUserID(self, *args)
@@ -2969,6 +3009,9 @@ class ArclinkLog(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_ArclinkLog
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.ArclinkLog___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ArclinkLog___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ArclinkLog_equal(self, *args)
     def add(self, *args): return _DataModel.ArclinkLog_add(self, *args)
     def remove(self, *args): return _DataModel.ArclinkLog_remove(self, *args)
     def removeArclinkRequest(self, *args): return _DataModel.ArclinkLog_removeArclinkRequest(self, *args)
@@ -3057,6 +3100,9 @@ class QCLog(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.QCLog_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.QCLog_Find
     if _newclass:Find = staticmethod(_DataModel.QCLog_Find)
+    def __eq__(self, *args): return _DataModel.QCLog___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.QCLog___ne__(self, *args)
+    def equal(self, *args): return _DataModel.QCLog_equal(self, *args)
     def setWaveformID(self, *args): return _DataModel.QCLog_setWaveformID(self, *args)
     def waveformID(self, *args): return _DataModel.QCLog_waveformID(self, *args)
     def setCreatorID(self, *args): return _DataModel.QCLog_setCreatorID(self, *args)
@@ -3160,6 +3206,9 @@ class WaveformQuality(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_WaveformQuality
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.WaveformQuality___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.WaveformQuality___ne__(self, *args)
+    def equal(self, *args): return _DataModel.WaveformQuality_equal(self, *args)
     def setWaveformID(self, *args): return _DataModel.WaveformQuality_setWaveformID(self, *args)
     def waveformID(self, *args): return _DataModel.WaveformQuality_waveformID(self, *args)
     def setCreatorID(self, *args): return _DataModel.WaveformQuality_setCreatorID(self, *args)
@@ -3258,6 +3307,9 @@ class Outage(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Outage
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Outage___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Outage___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Outage_equal(self, *args)
     def setWaveformID(self, *args): return _DataModel.Outage_setWaveformID(self, *args)
     def waveformID(self, *args): return _DataModel.Outage_waveformID(self, *args)
     def setCreatorID(self, *args): return _DataModel.Outage_setCreatorID(self, *args)
@@ -3321,6 +3373,9 @@ class QualityControl(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_QualityControl
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.QualityControl___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.QualityControl___ne__(self, *args)
+    def equal(self, *args): return _DataModel.QualityControl_equal(self, *args)
     def add(self, *args): return _DataModel.QualityControl_add(self, *args)
     def remove(self, *args): return _DataModel.QualityControl_remove(self, *args)
     def removeQCLog(self, *args): return _DataModel.QualityControl_removeQCLog(self, *args)
@@ -3404,6 +3459,9 @@ class StationReference(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_StationReference
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.StationReference___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.StationReference___ne__(self, *args)
+    def equal(self, *args): return _DataModel.StationReference_equal(self, *args)
     def setStationID(self, *args): return _DataModel.StationReference_setStationID(self, *args)
     def stationID(self): return _DataModel.StationReference_stationID(self)
     def index(self): return _DataModel.StationReference_index(self)
@@ -3483,6 +3541,9 @@ class StationGroup(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.StationGroup_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.StationGroup_Find
     if _newclass:Find = staticmethod(_DataModel.StationGroup_Find)
+    def __eq__(self, *args): return _DataModel.StationGroup___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.StationGroup___ne__(self, *args)
+    def equal(self, *args): return _DataModel.StationGroup_equal(self, *args)
     def setType(self, *args): return _DataModel.StationGroup_setType(self, *args)
     def type(self): return _DataModel.StationGroup_type(self)
     def setCode(self, *args): return _DataModel.StationGroup_setCode(self, *args)
@@ -3586,6 +3647,9 @@ class AuxSource(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_AuxSource
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.AuxSource___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.AuxSource___ne__(self, *args)
+    def equal(self, *args): return _DataModel.AuxSource_equal(self, *args)
     def setName(self, *args): return _DataModel.AuxSource_setName(self, *args)
     def name(self): return _DataModel.AuxSource_name(self)
     def setDescription(self, *args): return _DataModel.AuxSource_setDescription(self, *args)
@@ -3677,6 +3741,9 @@ class AuxDevice(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.AuxDevice_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.AuxDevice_Find
     if _newclass:Find = staticmethod(_DataModel.AuxDevice_Find)
+    def __eq__(self, *args): return _DataModel.AuxDevice___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.AuxDevice___ne__(self, *args)
+    def equal(self, *args): return _DataModel.AuxDevice_equal(self, *args)
     def setName(self, *args): return _DataModel.AuxDevice_setName(self, *args)
     def name(self): return _DataModel.AuxDevice_name(self)
     def setDescription(self, *args): return _DataModel.AuxDevice_setDescription(self, *args)
@@ -3780,6 +3847,9 @@ class SensorCalibration(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_SensorCalibration
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.SensorCalibration___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.SensorCalibration___ne__(self, *args)
+    def equal(self, *args): return _DataModel.SensorCalibration_equal(self, *args)
     def setSerialNumber(self, *args): return _DataModel.SensorCalibration_setSerialNumber(self, *args)
     def serialNumber(self): return _DataModel.SensorCalibration_serialNumber(self)
     def setChannel(self, *args): return _DataModel.SensorCalibration_setChannel(self, *args)
@@ -3871,6 +3941,9 @@ class Sensor(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Sensor_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Sensor_Find
     if _newclass:Find = staticmethod(_DataModel.Sensor_Find)
+    def __eq__(self, *args): return _DataModel.Sensor___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Sensor___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Sensor_equal(self, *args)
     def setName(self, *args): return _DataModel.Sensor_setName(self, *args)
     def name(self): return _DataModel.Sensor_name(self)
     def setDescription(self, *args): return _DataModel.Sensor_setDescription(self, *args)
@@ -3982,6 +4055,9 @@ class ResponsePAZ(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ResponsePAZ_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ResponsePAZ_Find
     if _newclass:Find = staticmethod(_DataModel.ResponsePAZ_Find)
+    def __eq__(self, *args): return _DataModel.ResponsePAZ___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ResponsePAZ___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ResponsePAZ_equal(self, *args)
     def setName(self, *args): return _DataModel.ResponsePAZ_setName(self, *args)
     def name(self): return _DataModel.ResponsePAZ_name(self)
     def setType(self, *args): return _DataModel.ResponsePAZ_setType(self, *args)
@@ -4090,6 +4166,9 @@ class ResponsePolynomial(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ResponsePolynomial_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ResponsePolynomial_Find
     if _newclass:Find = staticmethod(_DataModel.ResponsePolynomial_Find)
+    def __eq__(self, *args): return _DataModel.ResponsePolynomial___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ResponsePolynomial___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ResponsePolynomial_equal(self, *args)
     def setName(self, *args): return _DataModel.ResponsePolynomial_setName(self, *args)
     def name(self): return _DataModel.ResponsePolynomial_name(self)
     def setGain(self, *args): return _DataModel.ResponsePolynomial_setGain(self, *args)
@@ -4200,6 +4279,9 @@ class DataloggerCalibration(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_DataloggerCalibration
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.DataloggerCalibration___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.DataloggerCalibration___ne__(self, *args)
+    def equal(self, *args): return _DataModel.DataloggerCalibration_equal(self, *args)
     def setSerialNumber(self, *args): return _DataModel.DataloggerCalibration_setSerialNumber(self, *args)
     def serialNumber(self): return _DataModel.DataloggerCalibration_serialNumber(self)
     def setChannel(self, *args): return _DataModel.DataloggerCalibration_setChannel(self, *args)
@@ -4290,6 +4372,9 @@ class Decimation(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Decimation
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Decimation___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Decimation___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Decimation_equal(self, *args)
     def setSampleRateNumerator(self, *args): return _DataModel.Decimation_setSampleRateNumerator(self, *args)
     def sampleRateNumerator(self): return _DataModel.Decimation_sampleRateNumerator(self)
     def setSampleRateDenominator(self, *args): return _DataModel.Decimation_setSampleRateDenominator(self, *args)
@@ -4375,6 +4460,9 @@ class Datalogger(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Datalogger_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Datalogger_Find
     if _newclass:Find = staticmethod(_DataModel.Datalogger_Find)
+    def __eq__(self, *args): return _DataModel.Datalogger___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Datalogger___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Datalogger_equal(self, *args)
     def setName(self, *args): return _DataModel.Datalogger_setName(self, *args)
     def name(self): return _DataModel.Datalogger_name(self)
     def setDescription(self, *args): return _DataModel.Datalogger_setDescription(self, *args)
@@ -4493,6 +4581,9 @@ class ResponseFIR(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ResponseFIR_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ResponseFIR_Find
     if _newclass:Find = staticmethod(_DataModel.ResponseFIR_Find)
+    def __eq__(self, *args): return _DataModel.ResponseFIR___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ResponseFIR___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ResponseFIR_equal(self, *args)
     def setName(self, *args): return _DataModel.ResponseFIR_setName(self, *args)
     def name(self): return _DataModel.ResponseFIR_name(self)
     def setGain(self, *args): return _DataModel.ResponseFIR_setGain(self, *args)
@@ -4596,6 +4687,9 @@ class AuxStream(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_AuxStream
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.AuxStream___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.AuxStream___ne__(self, *args)
+    def equal(self, *args): return _DataModel.AuxStream_equal(self, *args)
     def setCode(self, *args): return _DataModel.AuxStream_setCode(self, *args)
     def code(self): return _DataModel.AuxStream_code(self)
     def setStart(self, *args): return _DataModel.AuxStream_setStart(self, *args)
@@ -4692,6 +4786,9 @@ class Stream(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Stream
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Stream___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Stream___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Stream_equal(self, *args)
     def setCode(self, *args): return _DataModel.Stream_setCode(self, *args)
     def code(self): return _DataModel.Stream_code(self)
     def setStart(self, *args): return _DataModel.Stream_setStart(self, *args)
@@ -4816,6 +4913,9 @@ class SensorLocation(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.SensorLocation_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.SensorLocation_Find
     if _newclass:Find = staticmethod(_DataModel.SensorLocation_Find)
+    def __eq__(self, *args): return _DataModel.SensorLocation___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.SensorLocation___ne__(self, *args)
+    def equal(self, *args): return _DataModel.SensorLocation_equal(self, *args)
     def setCode(self, *args): return _DataModel.SensorLocation_setCode(self, *args)
     def code(self): return _DataModel.SensorLocation_code(self)
     def setStart(self, *args): return _DataModel.SensorLocation_setStart(self, *args)
@@ -4925,6 +5025,9 @@ class Station(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Station_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Station_Find
     if _newclass:Find = staticmethod(_DataModel.Station_Find)
+    def __eq__(self, *args): return _DataModel.Station___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Station___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Station_equal(self, *args)
     def setCode(self, *args): return _DataModel.Station_setCode(self, *args)
     def code(self): return _DataModel.Station_code(self)
     def setStart(self, *args): return _DataModel.Station_setStart(self, *args)
@@ -5052,6 +5155,9 @@ class Network(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Network_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Network_Find
     if _newclass:Find = staticmethod(_DataModel.Network_Find)
+    def __eq__(self, *args): return _DataModel.Network___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Network___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Network_equal(self, *args)
     def setCode(self, *args): return _DataModel.Network_setCode(self, *args)
     def code(self): return _DataModel.Network_code(self)
     def setStart(self, *args): return _DataModel.Network_setStart(self, *args)
@@ -5144,6 +5250,9 @@ class Inventory(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Inventory
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Inventory___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Inventory___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Inventory_equal(self, *args)
     def add(self, *args): return _DataModel.Inventory_add(self, *args)
     def remove(self, *args): return _DataModel.Inventory_remove(self, *args)
     def removeStationGroup(self, *args): return _DataModel.Inventory_removeStationGroup(self, *args)
@@ -5249,6 +5358,9 @@ class EventDescription(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_EventDescription
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.EventDescription___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.EventDescription___ne__(self, *args)
+    def equal(self, *args): return _DataModel.EventDescription_equal(self, *args)
     def setText(self, *args): return _DataModel.EventDescription_setText(self, *args)
     def text(self): return _DataModel.EventDescription_text(self)
     def setType(self, *args): return _DataModel.EventDescription_setType(self, *args)
@@ -5308,6 +5420,7 @@ class DataUsed(Object):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.DataUsed___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.DataUsed___ne__(self, *args)
+    def equal(self, *args): return _DataModel.DataUsed_equal(self, *args)
     def setWaveType(self, *args): return _DataModel.DataUsed_setWaveType(self, *args)
     def waveType(self): return _DataModel.DataUsed_waveType(self)
     def setStationCount(self, *args): return _DataModel.DataUsed_setStationCount(self, *args)
@@ -5369,6 +5482,7 @@ class CompositeTime(Object):
     __del__ = lambda self : None;
     def __eq__(self, *args): return _DataModel.CompositeTime___eq__(self, *args)
     def __ne__(self, *args): return _DataModel.CompositeTime___ne__(self, *args)
+    def equal(self, *args): return _DataModel.CompositeTime_equal(self, *args)
     def setYear(self, *args): return _DataModel.CompositeTime_setYear(self, *args)
     def year(self, *args): return _DataModel.CompositeTime_year(self, *args)
     def setMonth(self, *args): return _DataModel.CompositeTime_setMonth(self, *args)
@@ -5452,6 +5566,9 @@ class PickReference(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_PickReference
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.PickReference___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.PickReference___ne__(self, *args)
+    def equal(self, *args): return _DataModel.PickReference_equal(self, *args)
     def setPickID(self, *args): return _DataModel.PickReference_setPickID(self, *args)
     def pickID(self): return _DataModel.PickReference_pickID(self)
     def index(self): return _DataModel.PickReference_index(self)
@@ -5527,6 +5644,9 @@ class AmplitudeReference(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_AmplitudeReference
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.AmplitudeReference___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.AmplitudeReference___ne__(self, *args)
+    def equal(self, *args): return _DataModel.AmplitudeReference_equal(self, *args)
     def setAmplitudeID(self, *args): return _DataModel.AmplitudeReference_setAmplitudeID(self, *args)
     def amplitudeID(self): return _DataModel.AmplitudeReference_amplitudeID(self)
     def index(self): return _DataModel.AmplitudeReference_index(self)
@@ -5586,6 +5706,9 @@ class Reading(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Reading_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Reading_Find
     if _newclass:Find = staticmethod(_DataModel.Reading_Find)
+    def __eq__(self, *args): return _DataModel.Reading___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Reading___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Reading_equal(self, *args)
     def add(self, *args): return _DataModel.Reading_add(self, *args)
     def remove(self, *args): return _DataModel.Reading_remove(self, *args)
     def removePickReference(self, *args): return _DataModel.Reading_removePickReference(self, *args)
@@ -5677,6 +5800,9 @@ class MomentTensorComponentContribution(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_MomentTensorComponentContribution
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.MomentTensorComponentContribution___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.MomentTensorComponentContribution___ne__(self, *args)
+    def equal(self, *args): return _DataModel.MomentTensorComponentContribution_equal(self, *args)
     def setPhaseCode(self, *args): return _DataModel.MomentTensorComponentContribution_setPhaseCode(self, *args)
     def phaseCode(self): return _DataModel.MomentTensorComponentContribution_phaseCode(self)
     def setComponent(self, *args): return _DataModel.MomentTensorComponentContribution_setComponent(self, *args)
@@ -5750,6 +5876,9 @@ class MomentTensorStationContribution(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.MomentTensorStationContribution_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.MomentTensorStationContribution_Find
     if _newclass:Find = staticmethod(_DataModel.MomentTensorStationContribution_Find)
+    def __eq__(self, *args): return _DataModel.MomentTensorStationContribution___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.MomentTensorStationContribution___ne__(self, *args)
+    def equal(self, *args): return _DataModel.MomentTensorStationContribution_equal(self, *args)
     def setActive(self, *args): return _DataModel.MomentTensorStationContribution_setActive(self, *args)
     def active(self): return _DataModel.MomentTensorStationContribution_active(self)
     def setWaveformID(self, *args): return _DataModel.MomentTensorStationContribution_setWaveformID(self, *args)
@@ -5843,6 +5972,9 @@ class MomentTensorPhaseSetting(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_MomentTensorPhaseSetting
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.MomentTensorPhaseSetting___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.MomentTensorPhaseSetting___ne__(self, *args)
+    def equal(self, *args): return _DataModel.MomentTensorPhaseSetting_equal(self, *args)
     def setCode(self, *args): return _DataModel.MomentTensorPhaseSetting_setCode(self, *args)
     def code(self): return _DataModel.MomentTensorPhaseSetting_code(self)
     def setLowerPeriod(self, *args): return _DataModel.MomentTensorPhaseSetting_setLowerPeriod(self, *args)
@@ -5910,6 +6042,9 @@ class MomentTensor(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.MomentTensor_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.MomentTensor_Find
     if _newclass:Find = staticmethod(_DataModel.MomentTensor_Find)
+    def __eq__(self, *args): return _DataModel.MomentTensor___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.MomentTensor___ne__(self, *args)
+    def equal(self, *args): return _DataModel.MomentTensor_equal(self, *args)
     def setDerivedOriginID(self, *args): return _DataModel.MomentTensor_setDerivedOriginID(self, *args)
     def derivedOriginID(self): return _DataModel.MomentTensor_derivedOriginID(self)
     def setMomentMagnitudeID(self, *args): return _DataModel.MomentTensor_setMomentMagnitudeID(self, *args)
@@ -6026,6 +6161,9 @@ class FocalMechanism(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.FocalMechanism_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.FocalMechanism_Find
     if _newclass:Find = staticmethod(_DataModel.FocalMechanism_Find)
+    def __eq__(self, *args): return _DataModel.FocalMechanism___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.FocalMechanism___ne__(self, *args)
+    def equal(self, *args): return _DataModel.FocalMechanism_equal(self, *args)
     def setTriggeringOriginID(self, *args): return _DataModel.FocalMechanism_setTriggeringOriginID(self, *args)
     def triggeringOriginID(self): return _DataModel.FocalMechanism_triggeringOriginID(self)
     def setNodalPlanes(self, *args): return _DataModel.FocalMechanism_setNodalPlanes(self, *args)
@@ -6121,6 +6259,9 @@ class Amplitude(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Amplitude_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Amplitude_Find
     if _newclass:Find = staticmethod(_DataModel.Amplitude_Find)
+    def __eq__(self, *args): return _DataModel.Amplitude___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Amplitude___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Amplitude_equal(self, *args)
     def setType(self, *args): return _DataModel.Amplitude_setType(self, *args)
     def type(self): return _DataModel.Amplitude_type(self)
     def setAmplitude(self, *args): return _DataModel.Amplitude_setAmplitude(self, *args)
@@ -6232,6 +6373,9 @@ class StationMagnitudeContribution(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_StationMagnitudeContribution
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.StationMagnitudeContribution___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.StationMagnitudeContribution___ne__(self, *args)
+    def equal(self, *args): return _DataModel.StationMagnitudeContribution_equal(self, *args)
     def setStationMagnitudeID(self, *args): return _DataModel.StationMagnitudeContribution_setStationMagnitudeID(self, *args)
     def stationMagnitudeID(self): return _DataModel.StationMagnitudeContribution_stationMagnitudeID(self)
     def setResidual(self, *args): return _DataModel.StationMagnitudeContribution_setResidual(self, *args)
@@ -6295,6 +6439,9 @@ class Magnitude(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Magnitude_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Magnitude_Find
     if _newclass:Find = staticmethod(_DataModel.Magnitude_Find)
+    def __eq__(self, *args): return _DataModel.Magnitude___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Magnitude___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Magnitude_equal(self, *args)
     def setMagnitude(self, *args): return _DataModel.Magnitude_setMagnitude(self, *args)
     def magnitude(self, *args): return _DataModel.Magnitude_magnitude(self, *args)
     def setType(self, *args): return _DataModel.Magnitude_setType(self, *args)
@@ -6383,6 +6530,9 @@ class StationMagnitude(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.StationMagnitude_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.StationMagnitude_Find
     if _newclass:Find = staticmethod(_DataModel.StationMagnitude_Find)
+    def __eq__(self, *args): return _DataModel.StationMagnitude___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.StationMagnitude___ne__(self, *args)
+    def equal(self, *args): return _DataModel.StationMagnitude_equal(self, *args)
     def setOriginID(self, *args): return _DataModel.StationMagnitude_setOriginID(self, *args)
     def originID(self): return _DataModel.StationMagnitude_originID(self)
     def setMagnitude(self, *args): return _DataModel.StationMagnitude_setMagnitude(self, *args)
@@ -6466,6 +6616,9 @@ class Pick(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Pick_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Pick_Find
     if _newclass:Find = staticmethod(_DataModel.Pick_Find)
+    def __eq__(self, *args): return _DataModel.Pick___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Pick___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Pick_equal(self, *args)
     def setTime(self, *args): return _DataModel.Pick_setTime(self, *args)
     def time(self, *args): return _DataModel.Pick_time(self, *args)
     def setWaveformID(self, *args): return _DataModel.Pick_setWaveformID(self, *args)
@@ -6577,6 +6730,9 @@ class OriginReference(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_OriginReference
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.OriginReference___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.OriginReference___ne__(self, *args)
+    def equal(self, *args): return _DataModel.OriginReference_equal(self, *args)
     def setOriginID(self, *args): return _DataModel.OriginReference_setOriginID(self, *args)
     def originID(self): return _DataModel.OriginReference_originID(self)
     def index(self): return _DataModel.OriginReference_index(self)
@@ -6652,6 +6808,9 @@ class FocalMechanismReference(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_FocalMechanismReference
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.FocalMechanismReference___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.FocalMechanismReference___ne__(self, *args)
+    def equal(self, *args): return _DataModel.FocalMechanismReference_equal(self, *args)
     def setFocalMechanismID(self, *args): return _DataModel.FocalMechanismReference_setFocalMechanismID(self, *args)
     def focalMechanismID(self): return _DataModel.FocalMechanismReference_focalMechanismID(self)
     def index(self): return _DataModel.FocalMechanismReference_index(self)
@@ -6711,6 +6870,9 @@ class Event(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Event_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Event_Find
     if _newclass:Find = staticmethod(_DataModel.Event_Find)
+    def __eq__(self, *args): return _DataModel.Event___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Event___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Event_equal(self, *args)
     def setPreferredOriginID(self, *args): return _DataModel.Event_setPreferredOriginID(self, *args)
     def preferredOriginID(self): return _DataModel.Event_preferredOriginID(self)
     def setPreferredMagnitudeID(self, *args): return _DataModel.Event_setPreferredMagnitudeID(self, *args)
@@ -6817,6 +6979,9 @@ class Arrival(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Arrival
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Arrival___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Arrival___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Arrival_equal(self, *args)
     def setPickID(self, *args): return _DataModel.Arrival_setPickID(self, *args)
     def pickID(self): return _DataModel.Arrival_pickID(self)
     def setPhase(self, *args): return _DataModel.Arrival_setPhase(self, *args)
@@ -6906,6 +7071,9 @@ class Origin(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Origin_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Origin_Find
     if _newclass:Find = staticmethod(_DataModel.Origin_Find)
+    def __eq__(self, *args): return _DataModel.Origin___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Origin___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Origin_equal(self, *args)
     def setTime(self, *args): return _DataModel.Origin_setTime(self, *args)
     def time(self, *args): return _DataModel.Origin_time(self, *args)
     def setLatitude(self, *args): return _DataModel.Origin_setLatitude(self, *args)
@@ -7018,6 +7186,9 @@ class EventParameters(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_EventParameters
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.EventParameters___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.EventParameters___ne__(self, *args)
+    def equal(self, *args): return _DataModel.EventParameters_equal(self, *args)
     def add(self, *args): return _DataModel.EventParameters_add(self, *args)
     def remove(self, *args): return _DataModel.EventParameters_remove(self, *args)
     def removePick(self, *args): return _DataModel.EventParameters_removePick(self, *args)
@@ -7099,6 +7270,9 @@ class Parameter(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Parameter_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Parameter_Find
     if _newclass:Find = staticmethod(_DataModel.Parameter_Find)
+    def __eq__(self, *args): return _DataModel.Parameter___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Parameter___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Parameter_equal(self, *args)
     def setName(self, *args): return _DataModel.Parameter_setName(self, *args)
     def name(self): return _DataModel.Parameter_name(self)
     def setValue(self, *args): return _DataModel.Parameter_setValue(self, *args)
@@ -7172,6 +7346,9 @@ class ParameterSet(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ParameterSet_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ParameterSet_Find
     if _newclass:Find = staticmethod(_DataModel.ParameterSet_Find)
+    def __eq__(self, *args): return _DataModel.ParameterSet___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ParameterSet___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ParameterSet_equal(self, *args)
     def setBaseID(self, *args): return _DataModel.ParameterSet_setBaseID(self, *args)
     def baseID(self): return _DataModel.ParameterSet_baseID(self)
     def setModuleID(self, *args): return _DataModel.ParameterSet_setModuleID(self, *args)
@@ -7267,6 +7444,9 @@ class Setup(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Setup
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Setup___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Setup___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Setup_equal(self, *args)
     def setName(self, *args): return _DataModel.Setup_setName(self, *args)
     def name(self): return _DataModel.Setup_name(self)
     def setParameterSetID(self, *args): return _DataModel.Setup_setParameterSetID(self, *args)
@@ -7353,6 +7533,9 @@ class ConfigStation(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ConfigStation_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ConfigStation_Find
     if _newclass:Find = staticmethod(_DataModel.ConfigStation_Find)
+    def __eq__(self, *args): return _DataModel.ConfigStation___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ConfigStation___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ConfigStation_equal(self, *args)
     def setNetworkCode(self, *args): return _DataModel.ConfigStation_setNetworkCode(self, *args)
     def networkCode(self): return _DataModel.ConfigStation_networkCode(self)
     def setStationCode(self, *args): return _DataModel.ConfigStation_setStationCode(self, *args)
@@ -7430,6 +7613,9 @@ class ConfigModule(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.ConfigModule_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.ConfigModule_Find
     if _newclass:Find = staticmethod(_DataModel.ConfigModule_Find)
+    def __eq__(self, *args): return _DataModel.ConfigModule___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.ConfigModule___ne__(self, *args)
+    def equal(self, *args): return _DataModel.ConfigModule_equal(self, *args)
     def setName(self, *args): return _DataModel.ConfigModule_setName(self, *args)
     def name(self): return _DataModel.ConfigModule_name(self)
     def setParameterSetID(self, *args): return _DataModel.ConfigModule_setParameterSetID(self, *args)
@@ -7502,6 +7688,9 @@ class Config(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Config
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Config___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Config___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Config_equal(self, *args)
     def add(self, *args): return _DataModel.Config_add(self, *args)
     def remove(self, *args): return _DataModel.Config_remove(self, *args)
     def removeParameterSet(self, *args): return _DataModel.Config_removeParameterSet(self, *args)
@@ -7586,6 +7775,9 @@ class RouteArclink(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_RouteArclink
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.RouteArclink___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.RouteArclink___ne__(self, *args)
+    def equal(self, *args): return _DataModel.RouteArclink_equal(self, *args)
     def setAddress(self, *args): return _DataModel.RouteArclink_setAddress(self, *args)
     def address(self): return _DataModel.RouteArclink_address(self)
     def setStart(self, *args): return _DataModel.RouteArclink_setStart(self, *args)
@@ -7667,6 +7859,9 @@ class RouteSeedlink(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_RouteSeedlink
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.RouteSeedlink___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.RouteSeedlink___ne__(self, *args)
+    def equal(self, *args): return _DataModel.RouteSeedlink_equal(self, *args)
     def setAddress(self, *args): return _DataModel.RouteSeedlink_setAddress(self, *args)
     def address(self): return _DataModel.RouteSeedlink_address(self)
     def setPriority(self, *args): return _DataModel.RouteSeedlink_setPriority(self, *args)
@@ -7757,6 +7952,9 @@ class Route(PublicObject):
     if _newclass:Create = staticmethod(_DataModel.Route_Create)
     __swig_getmethods__["Find"] = lambda x: _DataModel.Route_Find
     if _newclass:Find = staticmethod(_DataModel.Route_Find)
+    def __eq__(self, *args): return _DataModel.Route___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Route___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Route_equal(self, *args)
     def setNetworkCode(self, *args): return _DataModel.Route_setNetworkCode(self, *args)
     def networkCode(self): return _DataModel.Route_networkCode(self)
     def setStationCode(self, *args): return _DataModel.Route_setStationCode(self, *args)
@@ -7870,6 +8068,9 @@ class Access(Object):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Access
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Access___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Access___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Access_equal(self, *args)
     def setNetworkCode(self, *args): return _DataModel.Access_setNetworkCode(self, *args)
     def networkCode(self): return _DataModel.Access_networkCode(self)
     def setStationCode(self, *args): return _DataModel.Access_setStationCode(self, *args)
@@ -7937,6 +8138,9 @@ class Routing(PublicObject):
         except: self.this = this
     __swig_destroy__ = _DataModel.delete_Routing
     __del__ = lambda self : None;
+    def __eq__(self, *args): return _DataModel.Routing___eq__(self, *args)
+    def __ne__(self, *args): return _DataModel.Routing___ne__(self, *args)
+    def equal(self, *args): return _DataModel.Routing_equal(self, *args)
     def add(self, *args): return _DataModel.Routing_add(self, *args)
     def remove(self, *args): return _DataModel.Routing_remove(self, *args)
     def removeRoute(self, *args): return _DataModel.Routing_removeRoute(self, *args)

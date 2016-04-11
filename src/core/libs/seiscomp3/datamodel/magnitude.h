@@ -87,6 +87,13 @@ class SC_CORE_DATAMODEL_API Magnitude : public PublicObject {
 		//! Copies the metadata of other to this
 		//! No changes regarding child objects are made
 		Magnitude& operator=(const Magnitude& other);
+		//! Checks for equality of two objects. Childs objects
+		//! are not part of the check.
+		bool operator==(const Magnitude& other) const;
+		bool operator!=(const Magnitude& other) const;
+
+		//! Wrapper that calls operator==
+		bool equal(const Magnitude& other) const;
 
 
 	// ------------------------------------------------------------------
