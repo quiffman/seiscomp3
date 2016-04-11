@@ -4,6 +4,23 @@
 		<description>Locates seismic events.</description>
 		<configuration>
 			<group name="autoloc">
+				<group name="locator">
+					<parameter name="profile" type="string" default="iasp91">
+						<description>
+						The locator profile to use.
+						</description>
+					</parameter>
+				</group>
+				<parameter name="maxRMS" type="double" default="3.5" unit="sec">
+					<description>
+					Max. permissible RMS for a location to be reported.
+					</description>
+				</parameter>
+				<parameter name="maxResidual" type="double" default="7.0" unit="sec">
+					<description>
+					Max. individual residual (unweighted) for a pick to be used in locationMax. permissible RMS for a location to be reported.
+					</description>
+				</parameter>
 				<parameter name="maxSGAP" type="double" default="360" unit="deg">
 					<description>
 					Max. secondary azimuth gap for an origin to be reported by.

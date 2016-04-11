@@ -387,7 +387,8 @@ class SC_SYSTEM_CORE_API SchemaDefinitions : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
-		bool createAlias(const char *existingModule, const char *newModule);
+		SchemaModule *createAlias(const char *existingModule, const char *newModule);
+		bool removeAlias(const char *existingModule);
 
 		size_t moduleCount() const;
 		SchemaModule *module(size_t i);

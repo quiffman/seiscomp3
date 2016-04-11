@@ -1,7 +1,3 @@
-Funded by `SED/ETH Zurich <http://www.seismo.ethz.ch/>`_, developed by
-`gempa GmbH <http://www.gempa.de>`_. This plugin is available from SeisComP3
-version Release Potsdam 2010 and later.
-
 screloc is an automatic relocator that receives origins from realtime
 locators such as scautoloc and relocates them with a configurable locator.
 To run screloc along with all processing modules add it to the list of

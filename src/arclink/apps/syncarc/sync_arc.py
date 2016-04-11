@@ -32,7 +32,7 @@ from seiscomp.db.generic.inventory import Inventory as GInventory
 from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
 from seiscomp3 import Core, Config, Client, DataModel, Logging
 
-VERSION = "0.12a (2012.327)"
+VERSION = "0.13a (2012.347)"
 
 def overlaps(pstart, pend, cstart, cend):
     if pend:
@@ -510,7 +510,7 @@ class SyncNode(Node):
                 inv.remove_network(network.code, network.start)
                 continue
             
-            if network.archive != self.dcid.upper():
+            if network.archive != self.dcid:
                 logs.warning("Cleaning network %s,%d has invalid archive == %s" % (network.code, network.start.year, network.archive))
                 inv.remove_network(network.code, network.start)
                 continue
@@ -528,7 +528,7 @@ class SyncNode(Node):
             for(scode, ss, station) in unWrapNSLC(network.station):
                 bad = False
                 # Archive flag
-                if station.archive != self.dcid.upper():
+                if station.archive != self.dcid:
                     logs.warning("Cleaning station %s,%d on %s,%d has invalid archive == %s" % (station.code, station.start.year, network.code, network.start.year, station.archive))
                     bad = True
 
@@ -871,7 +871,7 @@ class ArclinkSynchronizer(Client.Application):
                 continue
             if self.nodeExclude and id.upper() in self.nodeExclude:
                 continue
-            if str(id.upper()) in table:
+            if str(id) in table:
                 raise Exception("Invalid XML, node is duplicated")
 
             ad = str(node.getAttribute("address"))
@@ -902,7 +902,7 @@ class ArclinkSynchronizer(Client.Application):
                     end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
                 n.addStationGroup(code, start, end)
 
-            table[id.upper()] = n
+            table[id] = n
         return table
 
     def _routingClean(self, node, referenceRoute):
@@ -953,7 +953,7 @@ class ArclinkSynchronizer(Client.Application):
         if node is None or not isinstance(node, SyncNode):
             raise Exception("Invalid node object")
         
-        if node.dcid.upper() == self.dcid:
+        if node.dcid == self.dcid:
             if self.force:
                 logs.warning("Performing a routing merge against myself")
             else:
@@ -1069,7 +1069,7 @@ class ArclinkSynchronizer(Client.Application):
         if node is None or not isinstance(node, SyncNode):
             raise Exception("Invalid node object")
         
-        if node.dcid.upper() == self.dcid:
+        if node.dcid == self.dcid:
             if self.force:
                 logs.warning("Performing an inventory merge against myself")
             else:
@@ -1150,7 +1150,7 @@ class ArclinkSynchronizer(Client.Application):
         inv = self.inv
         rtn = self.rtn
 
-        if node.dcid.upper() == self.dcid:
+        if node.dcid == self.dcid:
             if self.force:
                 logs.warning("Cleaning my own inventory/routing")
             else:
@@ -1365,17 +1365,18 @@ class ArclinkSynchronizer(Client.Application):
             logs.notice("** Checking Virtual network for dcid = %s" % node.dcid)
             logs.notice("   [-] is missing on local inventory")
             logs.notice("   [=] is defined on master table and local inventory")
-            for (sg,s,e) in node.stationGroupList():
+            for (sgroup, s, e) in node.stationGroupList():
                 found = False
                 for (sgcode, sg) in inv.stationGroup.items():
                     ##
                     ## Missing check of dates
                     ##
-                    if sgcode == sg:
-                        found= True
+                    if sgcode == sgroup:
+                        logs.notice("[=] [StationGroup] %s,%s" % (sgroup, s))
+                        found=True
                         break
-                if not found: 
-                    logs.warning("[-] [StationGroup] %s,%s" % (sg, s))
+                if not found:
+                    logs.warning("[-] [StationGroup] %s,%s" % (sgroup, s))
                     ok = False
 
         if ok:
@@ -1503,7 +1504,7 @@ class ArclinkSynchronizer(Client.Application):
         if node is None or not isinstance(node, SyncNode):
             raise Exception("Invalid node object")
         
-        if node.dcid.upper() == self.dcid:
+        if node.dcid == self.dcid:
             if self.force:
                 logs.warning("Performing a station group rebuild against myself")
             else:
@@ -1593,7 +1594,7 @@ class ArclinkSynchronizer(Client.Application):
         table = None
 
         try:
-            self.dcid = self.configGetString("datacenterID").upper()
+            self.dcid = self.configGetString("datacenterID")
         except Config.Exception:
             logs.error("Cannot find local datacenter ID (dcid)")
             return False

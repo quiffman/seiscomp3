@@ -153,7 +153,7 @@
 				</description>
 			</parameter>
 
-			<parameter name="password_file" type="dir" default="@ROOTDIR@/var/lib/arclink/config/password.txt">
+			<parameter name="password_file" type="dir" default="@ROOTDIR@/var/lib/arclink/password.txt">
 				<description>
 					File containing a list of users (e-mail addresses) and passwords separated
 					by &quot;:&quot;. Each password in this file is encrypted using the *admin_password*

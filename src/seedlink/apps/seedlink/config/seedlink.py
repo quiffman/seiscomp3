@@ -1,7 +1,11 @@
 import os, string, time, re, glob, shutil, sys, imp, resource
 import seiscomp3.Kernel, seiscomp3.Config, seiscomp3.System
-import seiscomp3.DataModel
-import seiscomp3.IO
+try:
+    import seiscomp3.DataModel
+    import seiscomp3.IO
+    dbAvailable = True
+except:
+    dbAvailable = False
 
 
 '''
@@ -23,27 +27,27 @@ def _loadDatabase(dbUrl):
     """
     m = re.match("(?P<dbDriverName>^.*):\/\/(?P<dbAddress>.+?:.+?@.+?\/.+$)", dbUrl)
     if not m:
-    	raise Exception("error in parsing SC3 DB URL")
+        raise Exception("error in parsing SC3 DB URL")
     db = m.groupdict()
     try:
-    	registry = seiscomp3.Client.PluginRegistry.Instance()
-    	registry.addPluginName("dbmysql")
-    	registry.loadPlugins()
+        registry = seiscomp3.Client.PluginRegistry.Instance()
+        registry.addPluginName("db" + db["dbDriverName"])
+        registry.loadPlugins()
     except Exception, e:
-    	raise(e) ### "Cannot load database driver: %s" % e)
+        raise(e) ### "Cannot load database driver: %s" % e)
     dbDriver = seiscomp3.IO.DatabaseInterface.Create(db["dbDriverName"])
     if dbDriver is None:
-    	raise Exception("Cannot find database driver " + db["dbDriverName"])
+        raise Exception("Cannot find database driver " + db["dbDriverName"])
     if not dbDriver.connect(db["dbAddress"]):
-    	raise Exception("Cannot connect to database at " + db["dbAddress"])
+        raise Exception("Cannot connect to database at " + db["dbAddress"])
     dbQuery = seiscomp3.DataModel.DatabaseQuery(dbDriver)
     if dbQuery is None:
-    	raise Exception("Cannot get DB query object")
+        raise Exception("Cannot get DB query object")
     print >> sys.stderr, " Loading inventory from database ... ",
     inventory = seiscomp3.DataModel.Inventory()
     dbQuery.loadNetworks(inventory)
     for ni in xrange(inventory.networkCount()):
-    	dbQuery.loadStations(inventory.network(ni))
+        dbQuery.loadStations(inventory.network(ni))
     print >> sys.stderr, "Done."
     return inventory
 
@@ -439,12 +443,12 @@ class Module(TemplateModule):
         if len(station_sproc) > 1:
             data = '  <proc name="%s">\n' % (",".join(station_sproc),)
             for name in station_sproc:
-                data += '    <using proc="%s">\n' % (name,)
-            
+                data += '    <using proc="%s"/>\n' % (name,)
+
             data += '  </proc>\n'
 
             self._set('seedlink.station.sproc', ",".join(station_sproc))
-            self.sproc[",".join(station_sproc)] = data
+            self.combined_sproc[",".join(station_sproc)] = data
 
         elif station_sproc:
             self._set('seedlink.station.sproc', list(station_sproc)[0])
@@ -457,6 +461,7 @@ class Module(TemplateModule):
         self.seedlink_station = {}
         self.plugins_ini = {}
         self.sproc = {}
+        self.combined_sproc = {}
         self.plugins = {}
         self.sproc_used = False
         self.station_count = 0
@@ -570,10 +575,14 @@ class Module(TemplateModule):
 
         # Load descriptions from inventory:
         if self.database_str:
-            print >>sys.stderr, " Loading station descriptions from %s" % self.database_str
-            inv = _loadDatabase(self.database_str)
-            self.seedlink_station_descr = _loadStationDescriptions(inv)
-        
+            if dbAvailable == True:
+                print >>sys.stderr, " Loading station descriptions from %s" % self.database_str
+                inv = _loadDatabase(self.database_str)
+                self.seedlink_station_descr = _loadStationDescriptions(inv)
+            else:
+                print >>sys.stderr, " Database configured but trunk is not installed"
+                self.seedlink_station_descr = dict()
+
         self.__load_stations()
 
         if self.msrtsimul:
@@ -644,6 +653,9 @@ class Module(TemplateModule):
             fd.write('<streams>\n')
 
             for i in self.sproc.itervalues():
+                fd.write(i)
+
+            for i in self.combined_sproc.itervalues():
                 fd.write(i)
 
             fd.write('</streams>\n')

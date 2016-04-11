@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import time
 import socket
@@ -17,7 +18,7 @@ from seiscomp import sds
 from seiscomp.arclink.manager import *
 from seiscomp3 import Logging
 
-VERSION = "1.1 (2012.318)"
+VERSION = "1.1 (2013.008)"
 
 class InvalidCommandError(Exception):
     pass
@@ -112,7 +113,11 @@ class RequestProxy(object):
 
                     # XXX check this
                     if self.__purged:
-                        req.purge()
+                        try:
+                            req.purge()
+
+                        except ArclinkError, e:
+                            logs.error(str(e))
     
     def access(self, user):
         return user == self.__user
@@ -130,7 +135,7 @@ class RequestProxy(object):
         tw_tuple = (network, station, stream, loc_id, begin, end,
             constraints, set())
 
-        if g_options.local or self.__sds.exists(begin, end, network, station, stream, _checkdot(loc_id)):
+        if self.__rtype == "WAVEFORM" and (g_options.local or self.__sds.exists(begin, end, network, station, stream, _checkdot(loc_id))):
             self.__tw_local.append(tw_tuple)
 
         else:
@@ -169,12 +174,16 @@ class RequestProxy(object):
             self.__vol_map = {}
 
             for req in self.__req_sent:
-                rs = req.status()
-                for vs in rs.volume:
-                    vol_id = vs.id + "-" + rs.id
-                    self.__vol_map[vol_id] = (req, vs.id, vs.size)
-                    self.__size += int(vs.size)
-                    self.__encrypted |= vs.encrypted
+	    	try:
+                    rs = req.status()
+                    for vs in rs.volume:
+                        vol_id = vs.id + "-" + rs.id
+                        self.__vol_map[vol_id] = (req, vs.id, vs.size)
+                        self.__size += int(vs.size)
+                        self.__encrypted |= vs.encrypted
+ 
+                except ArclinkError, e:
+                    logs.error(str(e))
 
             with self.__cond:
                 self.__ready = True
@@ -286,7 +295,11 @@ class RequestProxy(object):
 
                     # XXX check this
                     if self.__purged:
-                        req.purge()
+                        try:
+                            req.purge()
+
+                        except ArclinkError, e:
+                            logs.error(str(e))
 
     def status_xml(self, et):
         ready = self.__ready
@@ -948,7 +961,7 @@ def process_options():
         parser.error("incorrect number of arguments")
 
     if g_options.nrtdir is None:
-        g_options.nrtdir = os.getenv("SEISCOMP3_ROOT", "") + "/var/lib/archive"
+        g_options.nrtdir = os.getenv("SEISCOMP_ROOT", "") + "/var/lib/archive"
 
     if g_options.arcdir is None:
         g_options.arcdir = "/dummy"

@@ -84,10 +84,9 @@ is especially important when you are downloading data from two different
 networks that were archived with different block sizes and would like to
 receive a uniform (in terms of block size) MiniSeed file.
 
-Some programs, like `pql <http://www.passcal.nmt.edu/content/pql-ii-program-viewing-data>`_,
-have problems to proper display miniseed packages with different block sizes
-on the same file. This issue can be avoided by instead of requesting MiniSeed
-data directly (-k mseed), just request re-blocked MiniSeed (-k mseed4k).
+Some programs have problems to proper display miniseed packages with different
+block sizes on the same file. This issue can be avoided by instead of requesting
+MiniSeed data directly (-k mseed), just request re-blocked MiniSeed (-k mseed4k).
 
 Rebuilding SEED volume
 ======================

@@ -61,8 +61,11 @@ class SC_SYSTEM_CORE_API Container : public Core::BaseObject {
 	//  X'truction
 	// ------------------------------------------------------------------
 	protected:
-		Container(const Container *super_ = NULL)
-		: super(super_), parent(NULL) {}
+		Container(const char *path_, const Container *super_ = NULL)
+		: super(super_), parent(NULL), path(path_) {}
+
+		Container(const std::string &path_, const Container *super_ = NULL)
+		: super(super_), parent(NULL), path(path_) {}
 
 
 	// ------------------------------------------------------------------
@@ -84,6 +87,7 @@ class SC_SYSTEM_CORE_API Container : public Core::BaseObject {
 		void addType(Structure *);
 
 		bool hasStructure(const char *name) const;
+		bool hasStructure(const std::string &name) const;
 
 		//! Creates a new structure with name of a certain type wich must
 		//! exist. If a valid pointer is returned the structure has been
@@ -93,9 +97,14 @@ class SC_SYSTEM_CORE_API Container : public Core::BaseObject {
 		//! Removes an existing structure
 		bool remove(Structure *s);
 
+		Structure *findStructureType(const std::string &type) const;
+
 		//! Returns a parameters in the tree where the fully expanded name
-		//! matches fullName.
+		//! matches @fullName@.
 		Parameter *findParameter(const std::string &fullName) const;
+
+		//! Returns a container at path @path@.
+		Container *findContainer(const std::string &path) const;
 
 		//! Accepts a model visitor and starts to traversing its nodes
 		void accept(ModelVisitor *) const;
@@ -107,6 +116,7 @@ class SC_SYSTEM_CORE_API Container : public Core::BaseObject {
 	public:
 		const Container           *super;
 		Core::BaseObject          *parent;
+		std::string                path;
 		std::vector<GroupPtr>      groups;
 		std::vector<ParameterPtr>  parameters;
 		std::vector<StructurePtr>  structures;
@@ -160,9 +170,9 @@ class SC_SYSTEM_CORE_API Structure : public Container {
 	// ------------------------------------------------------------------
 	public:
 		Structure(SchemaStructure *def, const char *xpth, const char *n)
-		: definition(def), xpath(xpth), name(n) {}
+		: Container(xpth), definition(def), name(n) {}
 		Structure(SchemaStructure *def, const std::string &xpth, const std::string &n)
-		: definition(def), xpath(xpth), name(n) {}
+		: Container(xpth), definition(def), name(n) {}
 
 
 	// ------------------------------------------------------------------
@@ -181,7 +191,6 @@ class SC_SYSTEM_CORE_API Structure : public Container {
 	// ------------------------------------------------------------------
 	public:
 		SchemaStructure  *definition;
-		std::string       xpath;
 		std::string       name;
 };
 
@@ -193,10 +202,10 @@ class SC_SYSTEM_CORE_API Group : public Container {
 	//  X'truction
 	// ------------------------------------------------------------------
 	public:
-		Group(SchemaGroup *def, const char *n)
-		: definition(def), groupName(n) {}
-		Group(SchemaGroup *def, const std::string &n)
-		: definition(def), groupName(n) {}
+		Group(SchemaGroup *def, const char *path_)
+		: Container(path_), definition(def) {}
+		Group(SchemaGroup *def, const std::string &path_)
+		: Container(path_), definition(def) {}
 
 
 	// ------------------------------------------------------------------
@@ -215,7 +224,6 @@ class SC_SYSTEM_CORE_API Group : public Container {
 	public:
 		Core::BaseObject  *parent;
 		SchemaGroup       *definition;
-		std::string        groupName;
 };
 
 
@@ -227,8 +235,8 @@ class SC_SYSTEM_CORE_API Section : public Container {
 	//  X'truction
 	// ------------------------------------------------------------------
 	public:
-		Section(const char *n) : parent(NULL), name(n) {}
-		Section(const std::string &n) : parent(NULL), name(n) {}
+		Section(const char *n) : Container(""), parent(NULL), name(n) {}
+		Section(const std::string &n) : Container(""), parent(NULL), name(n) {}
 
 
 	// ------------------------------------------------------------------
@@ -271,6 +279,9 @@ class SC_SYSTEM_CORE_API Binding : public Core::BaseObject {
 
 		Section *section(size_t i) const { return sections[i].get(); }
 		size_t sectionCount() const { return sections.size(); }
+
+		//! Returns a container at path @path@.
+		Container *findContainer(const std::string &path) const;
 
 
 	// ------------------------------------------------------------------
@@ -320,6 +331,9 @@ class SC_SYSTEM_CORE_API BindingCategory : public Core::BaseObject {
 		bool removeInstance(const Binding *b);
 		bool removeInstance(const char *alias);
 
+		//! Returns a container at path @path@.
+		Container *findContainer(const std::string &path) const;
+
 
 	// ------------------------------------------------------------------
 	//  Attributes
@@ -364,6 +378,9 @@ class SC_SYSTEM_CORE_API ModuleBinding : public Binding {
 
 		bool writeConfig(const std::string &filename) const;
 		void dump(std::ostream &os) const;
+
+		//! Returns a container at path @path@.
+		Container *findContainer(const std::string &path) const;
 
 
 	// ------------------------------------------------------------------
@@ -422,6 +439,9 @@ class SC_SYSTEM_CORE_API Module : public Core::BaseObject {
 		//! Returns a parameters in the tree where the fully expanded name
 		//! matches fullName.
 		Parameter *findParameter(const std::string &fullName) const;
+
+		//! Returns a container at path @path@.
+		Container *findContainer(const std::string &path) const;
 
 		bool supportsBindings() const { return bindingTemplate; }
 
@@ -578,10 +598,10 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		virtual std::string stationConfigDir(bool read, const std::string &name = "") const;
 
 		//! Updates parameter values of a container
-		void update(const Module *mod, Container *container);
+		void update(const Module *mod, Container *container) const;
 
 		//! Updates parameter values of a binding
-		void updateBinding(const ModuleBinding *mod, Binding *binding);
+		void updateBinding(const ModuleBinding *mod, Binding *binding) const;
 
 		//! Adds a global empty station configuration.
 		bool addStation(const StationID &);
@@ -589,6 +609,10 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		//! Removes a global station configuration. The station is also
 		//! removed from all available modules.
 		bool removeStation(const StationID &);
+
+		//! Removes all global station configurations that are part of
+		//! the given network.
+		bool removeNetwork(const std::string &);
 
 		//! Removes a station binding from a module.
 		bool removeStationModule(const StationID &, Module *);
@@ -618,7 +642,7 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		std::vector<ModulePtr> modules;
 		Categories categories;
 		Stations stations;
-		SymbolMap symbols;
+		mutable SymbolMap symbols;
 		ModMap modMap;
 };
 

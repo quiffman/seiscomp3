@@ -68,6 +68,7 @@ struct Config {
 	size_t          minMwCount;
 
 	bool            enableFallbackPreferredMagnitude;
+	bool            updatePreferredSolutionAfterMerge;
 
 	std::string     eventIDPrefix;
 	std::string     eventIDPattern;

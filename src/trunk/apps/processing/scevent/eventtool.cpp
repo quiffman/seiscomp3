@@ -223,6 +223,7 @@ bool EventTool::initConfiguration() {
 	try { _config.eventIDPrefix = configGetString("eventIDPrefix"); } catch (...) {}
 	try { _config.eventIDPattern = configGetString("eventIDPattern"); } catch (...) {}
 
+	try { _config.updatePreferredSolutionAfterMerge = configGetBool("eventAssociation.updatePreferredAfterMerge"); } catch (...) {}
 	try { _config.enableFallbackPreferredMagnitude = configGetBool("eventAssociation.enableFallbackMagnitude"); } catch (...) {}
 	try { _config.magTypes = configGetStrings("eventAssociation.magTypes"); } catch (...) {}
 	try { _config.agencies = configGetStrings("eventAssociation.agencies"); } catch (...) {}
@@ -298,6 +299,7 @@ bool EventTool::init() {
 	_config.magTypes.push_back("MLv");
 	_config.magTypes.push_back("mb");
 
+	_config.updatePreferredSolutionAfterMerge = false;
 	_config.delayTimeSpan = 0;
 	_config.delayPrefFocMech = 0;
 
@@ -803,7 +805,7 @@ void EventTool::updateObject(const std::string &parentID, Object* object) {
 	MagnitudePtr mag = Magnitude::Cast(object);
 	if ( mag ) {
 		logObject(_inputMagnitude, Core::Time::GMT());
-		SEISCOMP_LOG(_infoChannel, "Received new magnitude %s (%s %.2f)",
+		SEISCOMP_LOG(_infoChannel, "Received updated magnitude %s (%s %.2f)",
 		             mag->publicID().c_str(), mag->type().c_str(), mag->magnitude().value());
 		org = _cache.get<Origin>(parentID);
 		if ( org )
@@ -3348,8 +3350,9 @@ bool EventTool::mergeEvents(EventInformation *target, EventInformation *source) 
 			query()->loadMagnitudes(org.get());
 		}
 
-		// Update the preferred origin
-		choosePreferred(target, org.get(), NULL);
+		// Update the preferred origin if configured to do so
+		if ( _config.updatePreferredSolutionAfterMerge )
+			choosePreferred(target, org.get(), NULL);
 	}
 
 	while ( sourceEvent->focalMechanismReferenceCount() > 0 ) {
@@ -3397,8 +3400,9 @@ bool EventTool::mergeEvents(EventInformation *target, EventInformation *source) 
 			query()->loadMomentTensors(fm.get());
 		}
 
-		// Update the preferred origin
-		choosePreferred(target, fm.get());
+		// Update the preferred focalfechanism
+		if ( _config.updatePreferredSolutionAfterMerge )
+			choosePreferred(target, fm.get());
 	}
 
 	// Remove source event

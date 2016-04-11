@@ -1184,7 +1184,7 @@ void BindingsPanel::folderViewContextMenu(const QPoint &p) {
 			QItemSelectionModel *sel = _stationsFolderView->selectionModel();
 			QMenu menu;
 			QMenu *menuProfile = NULL;
-			Module *mod;
+			Module *mod = NULL;
 
 			if ( sel->isSelected(hoveredIdx) &&
 			     sel->selectedIndexes().count() == 1 ) {

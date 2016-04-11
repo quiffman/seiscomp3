@@ -159,6 +159,10 @@ struct ThreeComponents {
 		SecondHorizontal = 2   /* usually E */
 	};
 
+	Stream *vertical() const { return comps[Vertical]; }
+	Stream *firstHorizontal() const { return comps[FirstHorizontal]; }
+	Stream *secondHorizontal() const { return comps[SecondHorizontal]; }
+
 	ThreeComponents();
 
 	Stream  *comps[3];

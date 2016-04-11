@@ -32,7 +32,8 @@ bool Dataless::SynchronizeDataless(Seiscomp::DataModel::Inventory *inv,
 {
 	SEISCOMP_INFO("START PROCESSING DATALESS");
 
-	invent = new Inventory(init_values, inv);
+	invent = new Inventory(_dcid, _net_description, _net_type, _net_start, _net_end,
+		_temporary, _restricted, _shared, inv);
 	invent->vic = new VolumeIndexControl();
 	invent->adc = new AbbreviationDictionaryControl();
 	invent->sc = new StationControl();

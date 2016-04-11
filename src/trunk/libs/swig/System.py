@@ -744,6 +744,7 @@ class SchemaDefinitions(Core.BaseObject):
         try: self.this.append(this)
         except: self.this = this
     def createAlias(self, *args): return _System.SchemaDefinitions_createAlias(self, *args)
+    def removeAlias(self, *args): return _System.SchemaDefinitions_removeAlias(self, *args)
     def moduleCount(self): return _System.SchemaDefinitions_moduleCount(self)
     def module(self, *args): return _System.SchemaDefinitions_module(self, *args)
     def pluginCount(self): return _System.SchemaDefinitions_pluginCount(self)
@@ -823,7 +824,9 @@ class Container(Core.BaseObject):
     def hasStructure(self, *args): return _System.Container_hasStructure(self, *args)
     def instantiate(self, *args): return _System.Container_instantiate(self, *args)
     def remove(self, *args): return _System.Container_remove(self, *args)
+    def findStructureType(self, *args): return _System.Container_findStructureType(self, *args)
     def findParameter(self, *args): return _System.Container_findParameter(self, *args)
+    def findContainer(self, *args): return _System.Container_findContainer(self, *args)
     def accept(self, *args): return _System.Container_accept(self, *args)
     __swig_setmethods__["super"] = _System.Container_super_set
     __swig_getmethods__["super"] = _System.Container_super_get
@@ -831,6 +834,9 @@ class Container(Core.BaseObject):
     __swig_setmethods__["parent"] = _System.Container_parent_set
     __swig_getmethods__["parent"] = _System.Container_parent_get
     if _newclass:parent = _swig_property(_System.Container_parent_get, _System.Container_parent_set)
+    __swig_setmethods__["path"] = _System.Container_path_set
+    __swig_getmethods__["path"] = _System.Container_path_get
+    if _newclass:path = _swig_property(_System.Container_path_get, _System.Container_path_set)
     __swig_setmethods__["groups"] = _System.Container_groups_set
     __swig_getmethods__["groups"] = _System.Container_groups_get
     if _newclass:groups = _swig_property(_System.Container_groups_get, _System.Container_groups_set)
@@ -927,9 +933,6 @@ class Structure(Container):
     __swig_setmethods__["definition"] = _System.Structure_definition_set
     __swig_getmethods__["definition"] = _System.Structure_definition_get
     if _newclass:definition = _swig_property(_System.Structure_definition_get, _System.Structure_definition_set)
-    __swig_setmethods__["xpath"] = _System.Structure_xpath_set
-    __swig_getmethods__["xpath"] = _System.Structure_xpath_get
-    if _newclass:xpath = _swig_property(_System.Structure_xpath_get, _System.Structure_xpath_set)
     __swig_setmethods__["name"] = _System.Structure_name_set
     __swig_getmethods__["name"] = _System.Structure_name_get
     if _newclass:name = _swig_property(_System.Structure_name_get, _System.Structure_name_set)
@@ -973,9 +976,6 @@ class Group(Container):
     __swig_setmethods__["definition"] = _System.Group_definition_set
     __swig_getmethods__["definition"] = _System.Group_definition_get
     if _newclass:definition = _swig_property(_System.Group_definition_get, _System.Group_definition_set)
-    __swig_setmethods__["groupName"] = _System.Group_groupName_set
-    __swig_getmethods__["groupName"] = _System.Group_groupName_get
-    if _newclass:groupName = _swig_property(_System.Group_groupName_get, _System.Group_groupName_set)
     __swig_destroy__ = _System.delete_Group
     __del__ = lambda self : None;
 Group_swigregister = _System.Group_swigregister
@@ -1054,6 +1054,7 @@ class Binding(Core.BaseObject):
     def dump(self, *args): return _System.Binding_dump(self, *args)
     def section(self, *args): return _System.Binding_section(self, *args)
     def sectionCount(self): return _System.Binding_sectionCount(self)
+    def findContainer(self, *args): return _System.Binding_findContainer(self, *args)
     __swig_setmethods__["parent"] = _System.Binding_parent_set
     __swig_getmethods__["parent"] = _System.Binding_parent_get
     if _newclass:parent = _swig_property(_System.Binding_parent_get, _System.Binding_parent_set)
@@ -1101,6 +1102,7 @@ class BindingCategory(Core.BaseObject):
     def instantiate(self, *args): return _System.BindingCategory_instantiate(self, *args)
     def alias(self, *args): return _System.BindingCategory_alias(self, *args)
     def removeInstance(self, *args): return _System.BindingCategory_removeInstance(self, *args)
+    def findContainer(self, *args): return _System.BindingCategory_findContainer(self, *args)
     __swig_setmethods__["parent"] = _System.BindingCategory_parent_set
     __swig_getmethods__["parent"] = _System.BindingCategory_parent_get
     if _newclass:parent = _swig_property(_System.BindingCategory_parent_get, _System.BindingCategory_parent_set)
@@ -1141,6 +1143,7 @@ class ModuleBinding(Binding):
     def category(self, *args): return _System.ModuleBinding_category(self, *args)
     def writeConfig(self, *args): return _System.ModuleBinding_writeConfig(self, *args)
     def dump(self, *args): return _System.ModuleBinding_dump(self, *args)
+    def findContainer(self, *args): return _System.ModuleBinding_findContainer(self, *args)
     __swig_setmethods__["configFile"] = _System.ModuleBinding_configFile_set
     __swig_getmethods__["configFile"] = _System.ModuleBinding_configFile_get
     if _newclass:configFile = _swig_property(_System.ModuleBinding_configFile_get, _System.ModuleBinding_configFile_set)
@@ -1206,6 +1209,7 @@ class Module(Core.BaseObject):
     def section(self, *args): return _System.Module_section(self, *args)
     def sectionCount(self): return _System.Module_sectionCount(self)
     def findParameter(self, *args): return _System.Module_findParameter(self, *args)
+    def findContainer(self, *args): return _System.Module_findContainer(self, *args)
     def supportsBindings(self): return _System.Module_supportsBindings(self)
     def loadProfiles(self, *args): return _System.Module_loadProfiles(self, *args)
     def addProfile(self, *args): return _System.Module_addProfile(self, *args)
@@ -1324,6 +1328,7 @@ class Model(Core.BaseObject):
     def updateBinding(self, *args): return _System.Model_updateBinding(self, *args)
     def addStation(self, *args): return _System.Model_addStation(self, *args)
     def removeStation(self, *args): return _System.Model_removeStation(self, *args)
+    def removeNetwork(self, *args): return _System.Model_removeNetwork(self, *args)
     def removeStationModule(self, *args): return _System.Model_removeStationModule(self, *args)
     def accept(self, *args): return _System.Model_accept(self, *args)
     __swig_setmethods__["schema"] = _System.Model_schema_set

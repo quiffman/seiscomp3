@@ -42,9 +42,9 @@ where
 .. code-block:: sh
 
    $p = configured messaging port
-   $fb = $SEISCOMP3_ROOT/etc/inventory
-   $rc = $SEISCOMP3_ROOT/var/lib/rc
-   $kd = $SEISCOMP3_ROOT/etc/key
+   $fb = $SEISCOMP_ROOT/etc/inventory
+   $rc = $SEISCOMP_ROOT/var/lib/rc
+   $kd = $SEISCOMP_ROOT/etc/key
 
 
 merge

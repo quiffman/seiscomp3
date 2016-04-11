@@ -15,3 +15,10 @@ the records by end time:
 
    scevtstreams -E gfz2012abcd -d mysql://sysop:sysop@localhost/seiscomp3 -L 0 -m 300 |
    scart -dsvE --list - ~/seiscomp3/acquisition/archive > gfz2012abcd-sorted.mseed
+
+Download waveforms from Arclink and import into local archive:
+
+.. code-block:: sh
+
+   scevtstreams -E gfz2012abcd -d mysql://sysop:sysop@localhost/seiscomp3 -L 0 -m 300 -R |
+   scart --list - ./my-archive

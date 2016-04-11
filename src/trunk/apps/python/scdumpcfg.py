@@ -112,10 +112,14 @@ class DumpCfg(seiscomp3.Client.Application):
         cfg_sta = cfg.configStation(i)
         tmp[(cfg_sta.networkCode(), cfg_sta.stationCode())] = cfg_sta
 
+      name = self.name()
+      # For backward compatibility rename global to default
+      if name == "global": name = "default"
+
       for item in sorted(tmp.keys()):
         cfg_sta = tmp[item]
         sta_enabled = cfg_sta.enabled()
-        cfg_setup = seiscomp3.DataModel.findSetup(cfg_sta, self.name(), self.allowGlobal)
+        cfg_setup = seiscomp3.DataModel.findSetup(cfg_sta, name, self.allowGlobal)
         if not cfg_setup is None:
           suffix = ""
           if sta_enabled and cfg_setup.enabled():

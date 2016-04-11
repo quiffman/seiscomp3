@@ -110,6 +110,7 @@ void FS_Input_DDB::read_files(const string &path, const string &file_pattern,
 
     dirent *de;
     DIR *dir = opendir(path.c_str());
+    if (dir == NULL) return;
     while((de = readdir(dir)) != NULL)
       {
         if(!strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") ||

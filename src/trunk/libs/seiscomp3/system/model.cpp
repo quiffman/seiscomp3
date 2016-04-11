@@ -113,37 +113,37 @@ string blockComment(const string &input, size_t lineWidth) {
 	size_t to = s + lineWidth;
 
 	while ( to < txt.length() ) {
-			// find linebreaks and comment each new line
-			size_t p = txt.find_first_of('\n', s);
-			if ( p != string::npos && (p - s) < lineWidth) {
-					s = p + 1;
-					txt.insert(p+1, "# ");
-					s = p + 3;
+		// find linebreaks and comment each new line
+		size_t p = txt.find_first_of('\n', s);
+		if ( p != string::npos && (p - s) < lineWidth) {
+			s = p + 1;
+			txt.insert(p+1, "# ");
+			s = p + 3;
+		}
+		else {
+			// insert line break if possible at last space else inside word
+			// without hyphenation
+			p = txt.find_last_of(' ', to-1);
+			if ( p == string::npos || p < s || (p -s) > lineWidth) {
+				txt.insert(to, "\n# ");
+				s = to + 3;
 			}
 			else {
-					// insert line break if possible at last space else inside word
-					// without hyphenation
-					p = txt.find_last_of(' ', to-1);
-					if ( p == string::npos || p < s || (p -s) > lineWidth) {
-							txt.insert(to, "\n# ");
-							s = to + 3;
-					}
-					else {
-							txt[p] = '\n';
-							txt.insert(p+1, "# ");
-							s = p+3;
-					}
+				txt[p] = '\n';
+				txt.insert(p+1, "# ");
+				s = p+3;
 			}
+		}
 
-			to = s + lineWidth;
+		to = s + lineWidth;
 	}
 
 	// comment line breaks in last line
 	while ( s < txt.length() ) {
-			size_t p = txt.find_first_of('\n', s);
-			if ( p == string::npos ) break;
-			txt.insert(p+1, "# ");
-			s = p + 3;
+		size_t p = txt.find_first_of('\n', s);
+		if ( p == string::npos ) break;
+		txt.insert(p+1, "# ");
+		s = p + 3;
 	}
 
 	return txt;
@@ -184,7 +184,7 @@ Structure *loadStructure(SchemaStructure *struc, const std::string &prefix,
 
 
 Binding *loadCategoryBinding(SchemaBinding *def, const std::string &prefix,
-                         const std::string &name) {
+                             const std::string &name) {
 	std::string namePrefix = prefix + name;
 
 	Binding *binding = new Binding(def->name);
@@ -278,7 +278,7 @@ void updateContainer(Container *c, Model::SymbolFileMap &symbols, int stage) {
 		updateContainer(c->groups[i].get(), symbols, stage);
 
 	for ( size_t i = 0; i < c->structureTypes.size(); ++i ) {
-		const string &xpath = c->structureTypes[i]->xpath;
+		const string &xpath = c->structureTypes[i]->path;
 		set<string> structs;
 		Model::SymbolFileMap::iterator it;
 		for ( it = symbols.begin(); it != symbols.end(); ++it ) {
@@ -420,6 +420,12 @@ bool write(const Container *cont, const Section *sec, int stage,
 	return true;
 }
 
+
+bool compareName(const BindingPtr &v1, const BindingPtr &v2) {
+	return v1->name < v2->name;
+}
+
+
 }
 
 
@@ -526,7 +532,22 @@ void Container::addType(Structure *struc) {
 }
 
 
+Structure *Container::findStructureType(const std::string &type) const {
+	for ( size_t i = 0; i < structureTypes.size(); ++i )
+		if ( structureTypes[i]->definition->type == type )
+			return structureTypes[i].get();
+	return NULL;
+}
+
+
 bool Container::hasStructure(const char *name) const {
+	for ( size_t i = 0; i < structures.size(); ++i )
+		if ( structures[i]->name == name ) return true;
+	return false;
+}
+
+
+bool Container::hasStructure(const string &name) const {
 	for ( size_t i = 0; i < structures.size(); ++i )
 		if ( structures[i]->name == name ) return true;
 	return false;
@@ -537,7 +558,7 @@ Structure *Container::instantiate(const Structure *s, const char *name) {
 	if ( hasStructure(name) ) return NULL;
 
 	Structure *ns = s->instantiate(name);
-	structures.push_back(ns);
+	if ( ns != NULL ) structures.push_back(ns);
 	return ns;
 }
 
@@ -571,6 +592,23 @@ Parameter *Container::findParameter(const std::string &fullName) const {
 }
 
 
+Container *Container::findContainer(const std::string &path) const {
+	for ( size_t i = 0; i < groups.size(); ++i ) {
+		if ( groups[i]->path == path ) return groups[i].get();
+		Container *c = groups[i]->findContainer(path);
+		if ( c != NULL ) return c;
+	}
+
+	for ( size_t i = 0; i < structures.size(); ++i ) {
+		if ( structures[i]->path == path ) return structures[i].get();
+		Container *c = structures[i]->findContainer(path);
+		if ( c != NULL ) return c;
+	}
+
+	return NULL;
+}
+
+
 void Container::accept(ModelVisitor *visitor) const {
 	for ( size_t i = 0; i < parameters.size(); ++i )
 		visitor->visit(parameters[i].get(), false);
@@ -588,7 +626,7 @@ void Container::accept(ModelVisitor *visitor) const {
 
 
 Structure *Structure::copy(bool backImport) {
-	Structure *struc = new Structure(definition, xpath, name);
+	Structure *struc = new Structure(definition, path, name);
 	if ( backImport ) {
 		struc->super = NULL;
 		super = struc;
@@ -610,7 +648,7 @@ Structure *Structure::copy(bool backImport) {
 
 
 Structure *Structure::clone() const {
-	Structure *struc = new Structure(definition, xpath, name);
+	Structure *struc = new Structure(definition, path, name);
 	for ( size_t i = 0; i < parameters.size(); ++i )
 		struc->add(parameters[i]->clone());
 
@@ -629,7 +667,7 @@ Structure *Structure::clone() const {
 
 Structure *Structure::instantiate(const char *n) const {
 	if ( !name.empty() ) return NULL;
-	Structure *struc = loadStructure(definition, xpath, n);
+	Structure *struc = loadStructure(definition, path, n);
 	updateContainer(struc, Environment::CS_QUANTITY);
 
 	Model::SymbolFileMap symbols;
@@ -645,7 +683,7 @@ void Structure::dump(std::ostream &os) const {
 
 
 Group *Group::copy(bool backImport) {
-	Group *group = new Group(definition, groupName);
+	Group *group = new Group(definition, path);
 	if ( backImport ) {
 		group->super = NULL;
 		super = group;
@@ -667,7 +705,7 @@ Group *Group::copy(bool backImport) {
 
 
 Group *Group::clone() const {
-	Group *group = new Group(definition, groupName);
+	Group *group = new Group(definition, path);
 	for ( size_t i = 0; i < parameters.size(); ++i )
 		group->add(parameters[i]->clone());
 
@@ -748,6 +786,16 @@ void Binding::dump(std::ostream &os) const {
 }
 
 
+Container *Binding::findContainer(const std::string &path) const {
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		Container *c = sections[i]->findContainer(path);
+		if ( c != NULL ) return c;
+	}
+
+	return NULL;
+}
+
+
 Binding *BindingCategory::binding(const std::string &name) const {
 	for ( size_t i = 0; i < bindingTypes.size(); ++i )
 		if ( bindingTypes[i]->name == name )
@@ -778,6 +826,16 @@ BindingCategory *BindingCategory::clone() const {
 void BindingCategory::dump(std::ostream &os) const {
 	for ( size_t i = 0; i < bindings.size(); ++i )
 		bindings[i].binding->dump(os);
+}
+
+
+Container *BindingCategory::findContainer(const std::string &path) const {
+	BindingInstances::const_iterator it;
+	for ( it = bindings.begin(); it != bindings.end(); ++it ) {
+		Container *c = it->binding->findContainer(path);
+		if ( c != NULL ) return c;
+	}
+	return NULL;
 }
 
 
@@ -884,6 +942,21 @@ void ModuleBinding::dump(std::ostream &os) const {
 }
 
 
+//! Returns a container at path @path@.
+Container *ModuleBinding::findContainer(const std::string &path) const {
+	Container *c = Binding::findContainer(path);
+	if ( c != NULL ) return c;
+
+	Categories::const_iterator it;
+	for ( it = categories.begin(); it != categories.end(); ++it ) {
+		c = (*it)->findContainer(path);
+		if ( c != NULL ) return c;
+	}
+
+	return NULL;
+}
+
+
 bool ModuleBinding::writeConfig(const string &filename) const {
 	ofstream ofs(filename.c_str());
 	if ( !ofs.is_open() ) return false;
@@ -949,6 +1022,16 @@ Parameter *Module::findParameter(const std::string &fullName) const {
 	for ( size_t i = 0; i < sections.size(); ++i ) {
 		Parameter *param = sections[i]->findParameter(fullName);
 		if ( param != NULL ) return param;
+	}
+
+	return NULL;
+}
+
+
+Container *Module::findContainer(const std::string &path) const {
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		Container *c = sections[i]->findContainer(path);
+		if ( c != NULL ) return c;
 	}
 
 	return NULL;
@@ -1651,6 +1734,13 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 			sec->addType(loadStructure(sb->parameters.structure(j), prefix, ""));
 	}
 
+	if ( mod->bindingTemplate ) {
+		for ( size_t i = 0; i < mod->bindingTemplate->categories.size(); ++i ) {
+			BindingCategory *cat = mod->bindingTemplate->categories[i].get();
+			sort(cat->bindingTypes.begin(), cat->bindingTypes.end(), compareName);
+		}
+	}
+
 	mod->model = this;
 	modules.push_back(mod);
 	modMap[def->name] = mod.get();
@@ -2044,7 +2134,7 @@ bool Model::writeConfig(Module *mod, const std::string &filename, int stage) {
 }
 
 
-void Model::update(const Module *mod, Container *container) {
+void Model::update(const Module *mod, Container *container) const {
 	bool isGlobal = mod->definition->name == "global";
 
 	for ( int stage = Environment::CS_FIRST; stage <= Environment::CS_LAST; ++stage ) {
@@ -2068,7 +2158,7 @@ void Model::update(const Module *mod, Container *container) {
 }
 
 
-void Model::updateBinding(const ModuleBinding *mod, Binding *binding) {
+void Model::updateBinding(const ModuleBinding *mod, Binding *binding) const {
 	SymbolFileMap *fileMap = &symbols[mod->configFile];
 	for ( size_t s = 0; s < binding->sections.size(); ++s ) {
 		updateContainer(binding->sections[s].get(), *fileMap, Environment::CS_CONFIG_APP);
@@ -2094,6 +2184,24 @@ bool Model::removeStation(const StationID &id) {
 		modules[i]->removeStation(id);
 
 	return true;
+}
+
+
+bool Model::removeNetwork(const std::string &net) {
+	bool found = false;
+	Stations::iterator it = stations.begin();
+	for ( ; it != stations.end(); ) {
+		if ( it->first.networkCode != net )
+			++it;
+		else {
+			for ( size_t i = 0; i < modules.size(); ++i )
+				modules[i]->removeStation(it->first);
+			stations.erase(it++);
+			found = true;
+		}
+	}
+
+	return found;
 }
 
 

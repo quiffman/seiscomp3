@@ -329,7 +329,7 @@ void getThreeComponents(ThreeComponents &res, const SensorLocation *loc, const c
 	float maxCorr1 = 100;
 	float maxCorr2 = 100;
 
-	float dirz[3], dir1[3], dir2[3];
+	float dirz[3] = {0,0,0}, dir1[3] = {0,0,0}, dir2[3] = {0,0,0};
 
 	for ( size_t i = 0; i < loc->streamCount(); ++i ) {
 		Stream *stream = loc->stream(i);

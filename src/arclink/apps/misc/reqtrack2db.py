@@ -18,10 +18,9 @@ import re, os, sys
 from datetime import datetime, timedelta, date
 from seiscomp3 import DataModel, Core, IO, Client
 
-#SEISCOMP3_ROOT = os.getenv("SEISCOMP3_ROOT")+"/.."
-SEISCOMP3_ROOT = "/home/mathias/seiscomp3"
-REQTRACK_DIR = SEISCOMP3_ROOT + "/arclink/reqtrack"
-ARC_DIR =  SEISCOMP3_ROOT + "/arclink/reqtrackArchive"
+SEISCOMP_ROOT = os.getenv("SEISCOMP_ROOT")
+REQTRACK_DIR = os.path.join(SEISCOMP_ROOT, "var", "lib", "arclink", "reqtrack"
+ARC_DIR =  os.path.join(SEISCOMP_ROOT, "var", "lib", "arclink", "reqtrackArchive"
 #USERS_IGNORE = ["arclink_probe@gfz-potsdam.de", "andres@gfz-potsdam.de"]
 #LABEL_IGNORE = ["breq_req"]
 USERS_IGNORE = []

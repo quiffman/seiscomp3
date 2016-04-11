@@ -99,6 +99,7 @@ void FS_Input_EDR::collect_files2(const string &path, const string &dirname,
 
     dirent *de;
     DIR *dir = opendir((path + "/" + dirname).c_str());
+    if (dir == NULL) return;
     while((de = readdir(dir)) != NULL)
       {
         if(de->d_name[0] == '.' && 

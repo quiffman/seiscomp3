@@ -12,7 +12,7 @@
 #    SeisComP Public License for more details.                             #
 ############################################################################
 
-import sys
+import sys, traceback
 import seiscomp3.Client
 
 class EventStreams(seiscomp3.Client.Application):
@@ -39,8 +39,13 @@ class EventStreams(seiscomp3.Client.Application):
     self.commandline().addStringOption("Dump", "streams,S", "comma separated list of streams per station to add, e.g. BH,SH,HH")
     self.commandline().addIntOption("Dump", "all-components,C", "all components or just the picked one, default is True")
     self.commandline().addIntOption("Dump", "all-locations,L", "all components or just the picked one, default is True")
+    self.commandline().addOption("Dump", "resolve-wildcards,R", "if all components are used, use inventory to resolve stream components instead of using '?' (important when Arclink should be used)")
     return True
 
+  def validateParameters(self):
+    if self.commandline().hasOption("resolve-wildcards"):
+      self.setLoadStationsEnabled(True)
+    return True
 
   def init(self):
     try:
@@ -82,6 +87,8 @@ class EventStreams(seiscomp3.Client.Application):
       minTime = None
       maxTime = None
 
+      resolveWildcards = self.commandline().hasOption("resolve-wildcards")
+
       for obj in self.query().getEventPicks(self.eventID):
         pick = seiscomp3.DataModel.Pick.Cast(obj)
         if pick is None: continue
@@ -96,25 +103,38 @@ class EventStreams(seiscomp3.Client.Application):
       if minTime: minTime = minTime - seiscomp3.Core.TimeSpan(self.margin)
       if maxTime: maxTime = maxTime + seiscomp3.Core.TimeSpan(self.margin)
 
+      inv = seiscomp3.Client.Inventory.Instance().inventory()
+
       for pick in picks:
-        sys.stdout.write(minTime.toString("%F %T") + ";")
-        sys.stdout.write(maxTime.toString("%F %T") + ";")
-        sys.stdout.write(pick.waveformID().networkCode() + ".")
-        sys.stdout.write(pick.waveformID().stationCode() + ".")
         loc = pick.waveformID().locationCode()
-        stream = pick.waveformID().channelCode()
-        rawStream = stream[:2]
+        streams = [pick.waveformID().channelCode()]
+        rawStream = streams[0][:2]
 
         if self.allComponents == True:
-          stream = rawStream + "?"
+          if resolveWildcards:
+            iloc = seiscomp3.DataModel.getSensorLocation(inv, pick)
+            if iloc:
+              tc = seiscomp3.DataModel.ThreeComponents()
+              seiscomp3.DataModel.getThreeComponents(tc, iloc, rawStream, pick.time().value());
+              streams = []
+              if tc.vertical(): streams.append(tc.vertical().code())
+              if tc.firstHorizontal(): streams.append(tc.firstHorizontal().code())
+              if tc.secondHorizontal(): streams.append(tc.secondHorizontal().code())
+          else:
+            streams = [rawStream + "?"]
 
         if self.allLocations == True:
           loc = ""
 
-        sys.stdout.write(loc + ".")
-        sys.stdout.write(stream)
+        for s in streams:
+          sys.stdout.write(minTime.toString("%F %T") + ";")
+          sys.stdout.write(maxTime.toString("%F %T") + ";")
+          sys.stdout.write(pick.waveformID().networkCode() + ".")
+          sys.stdout.write(pick.waveformID().stationCode() + ".")
+          sys.stdout.write(loc + ".")
+          sys.stdout.write(s)
 
-        sys.stdout.write("\n")
+          sys.stdout.write("\n")
 
         for s in self.streams:
           if s != rawStream:
@@ -129,10 +149,8 @@ class EventStreams(seiscomp3.Client.Application):
 
       return True
     except:
-      cla, exc, trbk = sys.exc_info()
-      print cla.__name__
-      print exc.__dict__["args"]
-      print traceback.format_tb(trbk, 5)
+      info = traceback.format_exception(*sys.exc_info())
+      for i in info: sys.stderr.write(i)
 
 
 app = EventStreams(len(sys.argv), sys.argv)

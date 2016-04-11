@@ -1256,7 +1256,7 @@ void WFParam::process(Origin *origin) {
 		_report << "   + magnitude = " << *_currentProcess->lastMagnitude << endl;
 	else
 		_report << "   + magnitude is none" << endl;
-	_report << "   + saturation threshold = " << _config.saturationThreshold << " counts" << endl;
+	_report << "   + saturation threshold = " << _config.saturationThreshold << "% of 2**23" << endl;
 	_report << "   + maximum epicentral distance = " << _maximumEpicentralDistance << "km" << endl;
 	_report << "   + pre event window length = " << _config.preEventWindowLength << "s" << endl;
 	_report << "   + total time window length = " << _totalTimeWindowLength << "s" << endl;
@@ -1456,7 +1456,7 @@ void WFParam::process(Origin *origin) {
 						_report << "     - vel " << tmp.locationCode()
 						        << "." << tmp.channelCode() << " [processed already]" << endl;
 					}
-					else {
+					else if ( _streamFirewall.isAllowed(toStreamID(tmp)) ) {
 						_report << "     + vel " << tmp.networkCode() << "."
 						        << tmp.stationCode() << "." << tmp.locationCode() << "."
 						        << tmp.channelCode() << endl;

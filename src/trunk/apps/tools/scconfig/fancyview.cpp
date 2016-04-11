@@ -115,6 +115,45 @@ string maxSize(const string &text, size_t maxWidth) {
 }
 
 
+string string2Block(const string &input, size_t lineWidth) {
+	string txt = input;
+	size_t s = 0;
+	size_t to = s + lineWidth;
+
+	while ( to < txt.length() ) {
+		// find linebreaks and comment each new line
+		size_t p = txt.find_first_of('\n', s);
+		if ( p != string::npos && (p - s) < lineWidth) {
+			s = p + 1;
+		}
+		else {
+			// insert line break if possible at last space else inside word
+			// without hyphenation
+			p = txt.find_last_of(' ', to-1);
+			if ( p == string::npos || p < s || (p -s) > lineWidth) {
+				txt.insert(to, "\n");
+				s = to + 1;
+			}
+			else {
+				txt[p] = '\n';
+				s = p+1;
+			}
+		}
+
+		to = s + lineWidth;
+	}
+
+	// comment line breaks in last line
+	while ( s < txt.length() ) {
+		size_t p = txt.find_first_of('\n', s);
+		if ( p == string::npos ) break;
+		s = p+1;
+	}
+
+	return txt;
+}
+
+
 
 class NewStructDialog : public QDialog {
 	public:
@@ -749,7 +788,18 @@ QWidget *FancyView::createWidgetFromIndex(const QModelIndex &idx,
 
 				for ( size_t i = 0; i < catBindingCount; ++i ) {
 					Binding *b = cat->bindingTypes[i].get();
-					comboBox->addItem(b->definition->name.c_str(), item.index.child(i,0).data());
+					if ( b->definition->description.empty() )
+						comboBox->addItem(b->definition->name.c_str(), item.index.child(i,0).data());
+					else {
+						comboBox->addItem(
+							QString("%1 - %2")
+							.arg(b->definition->name.c_str())
+							.arg(maxSize(b->definition->description, 40).c_str()),
+							item.index.child(i,0).data()
+						);
+						comboBox->setItemData(comboBox->count()-1, string2Block(b->definition->description, 100).c_str(), Qt::ToolTipRole);
+					}
+					comboBox->setItemData(comboBox->count()-1, b->definition->name.c_str());
 				}
 
 				comboBox->model()->sort(0);
@@ -1799,7 +1849,7 @@ void FancyView::addCategoryBinding() {
 	QWidget *w = (QWidget*)sender();
 	FancyViewItem item = w->property("viewItem").value<FancyViewItem>();
 	QComboBox *cb = (QComboBox*)w->property("comboBox").value<void*>();
-	QString type = cb->currentText();
+	QString type = cb->itemData(cb->currentIndex()).toString();
 	if ( type.isEmpty() ) {
 		QMessageBox::critical(NULL, "Internal error",
 		                      "The type must not be empty.");

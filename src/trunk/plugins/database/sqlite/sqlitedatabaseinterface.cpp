@@ -15,6 +15,7 @@
 #include "sqlitedatabaseinterface.h"
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/core/plugin.h>
+#include <seiscomp3/system/environment.h>
 
 #include <cstdio>
 #include <cstring>
@@ -48,13 +49,7 @@ SQLiteDatabase::~SQLiteDatabase() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool SQLiteDatabase::open() {
-	std::string filename;
-	filename = _host;
-
-	if ( !_database.empty() ) {
-		filename += "/";
-		filename += _database;
-	}
+	std::string filename = Environment::Instance()->absolutePath(_host);
 
 	FILE *fp = fopen(filename.c_str(), "rb");
 	if ( fp == NULL ) {
@@ -64,7 +59,9 @@ bool SQLiteDatabase::open() {
 
 	fclose(fp);
 
-	if ( sqlite3_open(_database.c_str(), &_handle) != SQLITE_OK ) {
+	int res = sqlite3_open(filename.c_str(), &_handle);
+	if ( res != SQLITE_OK ) {
+		SEISCOMP_ERROR("sqlite3 open error: %d", res);
 		sqlite3_close(_handle);
 		return false;
 	}
@@ -78,13 +75,9 @@ bool SQLiteDatabase::open() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool SQLiteDatabase::connect(const char *con) {
-	_host = "";
-	_user = "";
-	_password = "";
-	_database = "";
-	_port = 0;
+	_host = con;
 	_columnPrefix = "";
-	return DatabaseInterface::connect(con);
+	return open();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

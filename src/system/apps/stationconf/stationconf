@@ -1,30 +1,30 @@
 #!/bin/bash
 
-if [ -z "$SEISCOMP3_ROOT" ]; then
-    echo "SEISCOMP3_ROOT not set"
+if [ -z "$SEISCOMP_ROOT" ]; then
+    echo "SEISCOMP_ROOT not set"
     exit 1
 fi
 
 if [ "$SEISCOMP_LOCK" != true ]; then
-    mkdir -p "$SEISCOMP3_ROOT/var/run"
+    mkdir -p "$SEISCOMP_ROOT/var/run"
     while :; do
-        SEISCOMP_LOCK=true $SEISCOMP3_ROOT/bin/run_with_lock \
-            $SEISCOMP3_ROOT/var/run/scconfigkeys.pid bash -c "$0 $*"
+        SEISCOMP_LOCK=true $SEISCOMP_ROOT/bin/run_with_lock \
+            $SEISCOMP_ROOT/var/run/scconfigkeys.pid bash -c "$0 $*"
         if [ $? -ne 255 ]; then exit $?; fi
         echo "...locked...trying again..."
         sleep 1
     done
 fi
 
-export PATH="$SEISCOMP3_ROOT/bin:$PATH"
+export PATH="$SEISCOMP_ROOT/bin:$PATH"
 
-if ! cd "$SEISCOMP3_ROOT"; then
-    echo "Cannot change directory to $SEISCOMP3_ROOT"
+if ! cd "$SEISCOMP_ROOT"; then
+    echo "Cannot change directory to $SEISCOMP_ROOT"
     exit 1
 fi
 
 if [ ! -r "share/keys/keyutils.sh" ]; then
-    echo "Cannot read $SEISCOMP3_ROOT/shares/keys/keyutils.sh"
+    echo "Cannot read $SEISCOMP_ROOT/shares/keys/keyutils.sh"
     exit 1
 fi
 
@@ -34,13 +34,13 @@ template_dir="share/keys/templates"
 
 network_cfg="$template_dir/network.cfg"
 if [ ! -r "$network_cfg" ]; then
-    echo "Cannot read $SEISCOMP3_ROOT/$network_cfg!"
+    echo "Cannot read $SEISCOMP_ROOT/$network_cfg!"
     exit 1
 fi
 
 station_cfg="$template_dir/station.cfg"
 if [ ! -r "$station_cfg" ]; then
-    echo "Cannot read $SEISCOMP3_ROOT/$station_cfg!"
+    echo "Cannot read $SEISCOMP_ROOT/$station_cfg!"
     exit 1
 fi
 
@@ -227,8 +227,8 @@ _remove_network() {
 } 
 
 _write_conf() {
-    echo "Generating $SEISCOMP3_ROOT/etc/inventory/stations-key.xml"
-    key2inv $config_dir $SEISCOMP3_ROOT/etc/inventory/stations-key.xml
+    echo "Generating $SEISCOMP_ROOT/etc/inventory/stations-key.xml"
+    key2inv $config_dir $SEISCOMP_ROOT/etc/inventory/stations-key.xml
     echo "Make sure to run 'seiscomp update-config [inventory]' afterwards"
 }
 

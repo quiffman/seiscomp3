@@ -108,7 +108,23 @@ void Application::registerProcessor(const std::string& networkCode,
                                     const std::string& channelCode,
                                     WaveformProcessor *wp) {
 	_processors.insert(ProcessorMap::value_type(networkCode + "." + stationCode + "." + locationCode + "." + channelCode, wp));
-	_stationProcessors.insert(StationProcessors::value_type(networkCode + "." + stationCode, wp));
+
+	// Because we are dealing with a multimap we need to check if the pointer
+	// is already registered for this station. Otherwise the remove method will
+	// keep the additional instance because it stops after the first hit.
+	std::string staID = networkCode + "." + stationCode;
+	std::pair<StationProcessors::iterator, StationProcessors::iterator> itq =
+		_stationProcessors.equal_range(staID);
+	bool foundWP = false;
+	for ( StationProcessors::iterator it = itq.first; it != itq.second; ++it ) {
+		if ( it->second == wp ) {
+			foundWP = true;
+			break;
+		}
+	}
+
+	if ( !foundWP )
+		_stationProcessors.insert(StationProcessors::value_type(staID, wp));
 
 	wp->setEnabled(isStationEnabled(networkCode, stationCode));
 
@@ -197,11 +213,11 @@ void Application::removeProcessors(const std::string& networkCode,
 	// Remove stations - processor association
 	for ( ProcessorMap::iterator it = itq.first; it != itq.second; ++it ) {
 		for ( StationProcessors::iterator its = _stationProcessors.begin();
-		      its != _stationProcessors.end(); ++its )
+		      its != _stationProcessors.end(); )
 		{
 			if ( its->second == it->second ) {
-				SEISCOMP_DEBUG("Removed processor from stream %s", its->first.c_str());
-				_stationProcessors.erase(its);
+				SEISCOMP_DEBUG("Removed processor from station %s", its->first.c_str());
+				_stationProcessors.erase(its++);
 				break;
 			}
 		}
@@ -252,7 +268,7 @@ void Application::removeProcessor(Processing::WaveformProcessor *wp) {
 	      it != _stationProcessors.end(); ++it )
 	{
 		if ( it->second.get() == wp ) {
-			SEISCOMP_DEBUG("Removed processor from stream %s", it->first.c_str());
+			SEISCOMP_DEBUG("Removed processor from station %s", it->first.c_str());
 			_stationProcessors.erase(it);
 			break;
 		}

@@ -62,7 +62,7 @@ class Module(seiscomp3.Kernel.Module):
     try: params += ' -a %s' % cfg.getString('arclinkAddress')
     except: pass
     try: params += ' -p' * cfg.getBool('disableRouting')
-    except: params += ' -p'
+    except: pass
     try: params += ' -l' * cfg.getBool('localOnly')
     except: params += ' -l'
     return self.env.start(self.name, prog, params, True)

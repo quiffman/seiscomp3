@@ -236,7 +236,7 @@ void ArclinkConnection::handshake() {
 		r = _sock.readline();
 	}
 
-	if ( r == "ERROR" ) {
+	if ( r == "ERROR" || r == "END" ) {
 		_remainingBytes = 0;
 	}
 	else if ( r.compare(0, 6, "CHUNK ") == 0 ) {

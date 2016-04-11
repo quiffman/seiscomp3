@@ -246,6 +246,14 @@ def on_enable(args, flags):
   return 0
 
 
+def on_enable_help(args):
+  print "Enables all given modules to be started when 'seiscomp start' is invoked"
+  print "without a module list."
+  print
+  print "Examples:"
+  print "seiscomp enable seedlink slarchive"
+
+
 def on_disable(args, flags):
   if len(args) == 0:
     error("module name required")
@@ -260,6 +268,14 @@ def on_disable(args, flags):
     else:
       env.disableModule(name)
   return 0
+
+
+def on_disable_help(args):
+  print "Disables all given modules. See 'enable'."
+  print
+  print "Examples:"
+  print "seiscomp disable seedlink slarchive"
+
 
 
 def on_start(args, flags):
@@ -281,6 +297,7 @@ def on_start(args, flags):
 
 def on_start_help(args):
   print "Starts all enabled modules or a list of modules given."
+  print
   print "Examples:"
   print "seiscomp start"
   print "seiscomp start seedlink slarchive"
@@ -305,6 +322,7 @@ def on_stop(args, flags):
 
 def on_stop_help(args):
   print "Stops all enabled modules or a list of modules given."
+  print
   print "Examples:"
   print "seiscomp stop"
   print "seiscomp stop seedlink slarchive"
@@ -321,6 +339,7 @@ def on_restart_help(args):
   print "This command is equal to:"
   print "seiscomp stop {args}"
   print "seiscomp start {args}"
+  print
   print "Examples:"
   print "seiscomp restart"
   print "seiscomp restart seedlink slarchive"
@@ -332,6 +351,15 @@ def on_check(args, flags):
       if shouldModuleRun(mod.name):
         mod.check()
   return 0
+
+
+def on_check_help(args):
+  print "Checks if a started module is still running. If not it is started again."
+  print "If no modules are given, all started modules are checked."
+  print
+  print "Examples:"
+  print "$ seiscomp check seedlink"
+  print "seedlink is already running"
 
 
 def on_exec(args, flags):
@@ -366,8 +394,19 @@ def on_list(args, flags):
       print "%s is %s" % (mod.name, state)
     return 0
   elif args[0] == "aliases":
-    error("Sorry, not yet implemented")
-    return 1
+    f = open(ALIAS_FILE, 'r')
+    lines = [line.rstrip() for line in f.readlines()]
+    for line in lines:
+      if line.lstrip().startswith('#') or not line.strip(): continue
+      toks = [t.strip() for t in line.split('=')]
+      # Remove invalid lines
+      if len(toks) != 2: continue
+      if useCSV:
+        print "%s;%s" % (toks[0], toks[1])
+      else:
+        print "%s -> %s" % (toks[0], toks[1])
+    f.close()
+    return 0
   elif args[0] == "enabled":
     for mod in mods:
       if env.isModuleEnabled(mod.name) or isinstance(mod, seiscomp3.Kernel.CoreModule):
@@ -383,11 +422,42 @@ def on_list(args, flags):
   return 1
 
 
+def on_list_help(args):
+  print "Prints the result of a query. 4 queries are currently supported:"
+  print " modules: lists all existing modules"
+  print " aliases: lists all existing aliases"
+  print " enabled: lists all enabled modules"
+  print " disabled: lists all disabled modules"
+  print
+  print "Examples:"
+  print "$ seiscomp list aliases"
+  print "scautopick2 -> scautopick"
+
+
 def on_status(args, flags):
   for mod in mods:
     if mod.name in args or len(args) == 0:
       mod.status(shouldModuleRun(mod.name))
   return 0
+
+
+def on_status_help(args):
+  print "Prints the status of all or a list of modules and gives a warning if a module"
+  print "should run but doesn't."
+  print "This command supports csv formatted output via '--csv' switch."
+  print
+  print "Examples:"
+  print "$ seiscomp status scautopick"
+  print "scautopick           is not running"
+  print "$ seiscomp --csv status scautopick"
+  print "scautopick;0;0;0"
+  print
+  print "CSV format:"
+  print " column 1: module name"
+  print " column 2: running flag"
+  print " column 3: should run flag"
+  print " column 4: enabled flag"
+
 
 def on_print(args, flags):
   if len(args) < 1:
@@ -408,6 +478,16 @@ def on_print(args, flags):
     return 1
 
   return 0
+
+
+def on_print_help(args):
+  print "seiscomp print {crontab|env}"
+  print " crontab: prints crontab entries of all registered or given modules."
+  print " env: prints environment variables necessary to run SeisComP3 modules."
+  print
+  print "Examples:"
+  print "Source SC3 environment into current bash session"
+  print "$ eval $(seiscomp3/bin/seiscomp print env)"
 
 
 def on_install_deps_linux(args, flags):
@@ -501,12 +581,12 @@ def on_update_config_help(args):
 
 def on_alias(args, flags):
   if len(args) < 2:
-    error("expected arguments: {create|remove} new-name [mod-name]")
+    error("expected arguments: {create|remove} ALIAS_NAME APP_NAME")
     return 1
 
   if args[0] == "create":
     if len(args) != 3:
-      error("expected two arguments for create: new-name mod-name")
+      error("expected two arguments for create: ALIAS_NAME APP_NAME")
       return 1
 
     mod = None
@@ -527,6 +607,9 @@ def on_alias(args, flags):
     if not supportsAliases:
       error("module '%s' does not support aliases" % args[2])
       return 1
+
+    mod1 = os.path.join("bin", args[1])
+    mod2 = args[2]
 
     # create alias line in etc/descriptions/aliases
     if not os.path.exists(DESC_PATH):
@@ -558,7 +641,12 @@ def on_alias(args, flags):
 
     if has_alias:
       error("%s is already an alias for %s" % (args[1], toks[1]))
-      if len(lines) == len(new_lines): return 1
+      return 1
+
+    # Check if target exists already
+    if os.path.exists(os.path.join(SEISCOMP_ROOT, mod1)):
+      error("module '%s' exists already" % args[1])
+      return 1
 
     try: f = open(ALIAS_FILE, 'w')
     except:
@@ -579,8 +667,6 @@ def on_alias(args, flags):
     shutil.copyfile(os.path.join(SEISCOMP_ROOT, default_cfg2), os.path.join(SEISCOMP_ROOT, default_cfg1))
 
     # create symlink from bin/mod1 to bin/mod2
-    mod1 = os.path.join("bin", args[1])
-    mod2 = args[2]
     # - first: remove target
     try: os.remove(os.path.join(SEISCOMP_ROOT, mod1))
     except: pass
@@ -663,6 +749,22 @@ def on_alias(args, flags):
     return 1
 
   return 0
+
+
+def on_alias_help(args):
+  print "seiscomp alias {create|remove} ALIAS_NAME APP_NAME"
+  print "Creates/removes symlinks to applications. Symlinks to symlinks are not allowed."
+  print
+  print "Examples:"
+  print "$ seiscomp alias create scautopick2 scautopick"
+  print "Copy default configuration: etc/defaults/scautopick.cfg -> etc/defaults/scautopick2.cfg"
+  print "Create app symlink: scautopick -> bin/scautopick2"
+  print "Copy init script: etc/init/scautopick.py -> etc/init/scautopick2.py"
+  print
+  print "$ seiscomp alias remove scautopick2"
+  print "Remove default configuration: etc/defaults/scautopick2.cfg"
+  print "Remove app symlink: bin/scautopick2"
+  print "Remove init script: etc/init/scautopick2.py"
 
 
 allowed_actions = [

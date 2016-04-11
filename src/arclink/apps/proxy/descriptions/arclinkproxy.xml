@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <seiscomp>
-	<module name="slarchive" category="Acquisition" standalone="true">
+	<module name="arclinkproxy" category="Acquisition" standalone="true">
 		<description>SeedLink client for data stream archiving</description>
 		<configuration>
 			<parameter name="arclinkAddress" type="string" default="webdc.eu:18001">
@@ -13,7 +13,7 @@
 				TCP port that the proxy is running on.
 				</description>
 			</parameter>
-			<parameter name="archive" type="string" default="var/lib/archive">
+			<parameter name="archive" type="string" default="@ROOTDIR@/var/lib/archive">
 				<description>
 				Path to waveform archive where all data is stored. Relative paths
 				(as the default) are treated relative to the installation
@@ -60,7 +60,7 @@
 				Number of download retries.
 				</description>
 			</parameter>
-			<parameter name="disableRouting" type="boolean" default="true">
+			<parameter name="disableRouting" type="boolean" default="false">
 				<description>
 				Disable routing.
 				</description>

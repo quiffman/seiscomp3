@@ -43,9 +43,9 @@ class Importer(seiscomp3.Client.Application):
             return False
 
         format = self._args[0]
-        try: prog = os.path.join(os.environ['SEISCOMP3_ROOT'], "bin", "%s2inv" % format)
+        try: prog = os.path.join(os.environ['SEISCOMP_ROOT'], "bin", "%s2inv" % format)
         except:
-            print >> sys.stderr, "Could not get SeisComP3 root path, SEISCOMP3_ROOT not set?"
+            print >> sys.stderr, "Could not get SeisComP3 root path, SEISCOMP_ROOT not set?"
             return False
 
         if not os.path.exists(prog):
@@ -65,7 +65,7 @@ class Importer(seiscomp3.Client.Application):
 
             # Append .xml if the ending is not already .xml
             if filename[-4:] != ".xml": filename = filename + ".xml"
-            storage_dir = os.path.join(os.environ['SEISCOMP3_ROOT'], "etc", "inventory")
+            storage_dir = os.path.join(os.environ['SEISCOMP_ROOT'], "etc", "inventory")
             output = os.path.join(storage_dir, filename)
             try: os.makedirs(storage_dir)
             except: pass
@@ -83,9 +83,9 @@ class Importer(seiscomp3.Client.Application):
 
 
     def printFormats(self):
-        try: path = os.path.join(os.environ['SEISCOMP3_ROOT'], "bin", "*2inv")
+        try: path = os.path.join(os.environ['SEISCOMP_ROOT'], "bin", "*2inv")
         except:
-            print >> sys.stderr, "Could not get SeisComP3 root path, SEISCOMP3_ROOT not set?"
+            print >> sys.stderr, "Could not get SeisComP3 root path, SEISCOMP_ROOT not set?"
             return False
 
         files = glob.glob(path)

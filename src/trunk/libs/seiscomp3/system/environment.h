@@ -102,10 +102,10 @@ public:
 
 	/** Confenience method to fill the symboltable.
 	 * Following files will be read:
-	 * SEISCOMP3_ROOT/etc/global.cfg
-	 * SEISCOMP3_ROOT/etc/<programname>.cfg
-	 * SEISCOMP3_ROOT/config/global.cfg
-	 * SEISCOMP3_ROOT/config/<programname>.cfg
+	 * SEISCOMP_ROOT/etc/global.cfg
+	 * SEISCOMP_ROOT/etc/<programname>.cfg
+	 * SEISCOMP_ROOT/config/global.cfg
+	 * SEISCOMP_ROOT/config/<programname>.cfg
 	 * ~/.seiscomp3/global.cfg
 	 * ~/.seiscomp3/<programname>.cfg
 	 */

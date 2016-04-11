@@ -17,7 +17,6 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
-#include <seiscomp3/communication/connection.h>
 #include "inventory.h"
 #include "define.h"
 #include "tmanip.h"
@@ -27,12 +26,25 @@
 class Dataless
 {
 	public:
-		Dataless(INIT_MAP &init) : init_values(init) {};
+		Dataless(const std::string &dcid, const std::string &net_description, const std::string &net_type,
+			const Seiscomp::Core::Time &net_start, const Seiscomp::Core::Time &net_end,
+			bool temporary, bool restricted, bool shared):
+			_dcid(dcid), _net_description(net_description), _net_type(net_type),
+			_net_start(net_start), _net_end(net_end), _temporary(temporary),
+			_restricted(restricted), _shared(shared) {};
 		bool SynchronizeDataless(Seiscomp::DataModel::Inventory *inv,
 		                         const std::string &dataless);
 
 	private:
-		INIT_MAP init_values;
+		std::string _dcid;
+		std::string _net_description;
+		std::string _net_type;
+		Seiscomp::Core::Time _net_start;
+		Seiscomp::Core::Time _net_end;
+		bool _temporary;
+		bool _restricted;
+		bool _shared;
+		bool _dump;
 		Inventory *invent;
 		bool ParseDataless(const std::string &file);
 };

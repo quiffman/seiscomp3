@@ -64,10 +64,6 @@
 #include <sys/stat.h>
 #endif
 
-#if defined(__GNUC__) && !defined(sun) && !defined(MACOSX)
-	#define HAS_BACKTRACE
-	#include <execinfo.h>
-#endif
 #include <boost/bind.hpp>
 
 #ifdef WIN32
@@ -1176,11 +1172,10 @@ std::string Application::argumentStr(const std::string& query) const {
 	for ( size_t i = 1; i < _arguments.size(); ++i ) {
 		if ( !_arguments[i].compare(0, param.size(), param) ) {
 			std::string value = _arguments[i].substr(param.size());
-			if ( !value.empty() )
-				if ( value[0] == '=' )
-					value.erase(0, 1);
-
-			return value;
+			if ( !value.empty() && value[0] == '=' ) {
+				value.erase(0, 1);
+				return value;
+			}
 		}
 	}
 
@@ -2387,7 +2382,7 @@ bool Application::initMessaging() {
 	Communication::ConnectionInfo::Instance()->
 		registerInfoCallback(boost::bind(&Application::monitorLog, this, _1, _2, _3));
 
-	SEISCOMP_NOTICE("Connection to %s established", _messagingHost.c_str());
+	if ( !_logToStdout ) SEISCOMP_NOTICE("Connection to %s established", _messagingHost.c_str());
 
 	Version localSchemaVersion = Version(DataModel::Version::Major, DataModel::Version::Minor);
 	if ( _connection->schemaVersion() > localSchemaVersion ) {

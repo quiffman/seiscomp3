@@ -207,6 +207,8 @@ void VolumeIndexControl::ParseVolumeRecord(string record)
 			blockette = FromString<int>(record.substr(0,3).c_str());
 			size = FromString<int>(record.substr(3, 4).c_str());
 
+			if ( blockette == 0 ) break;
+
 			// check if the complete blockette is within the current record
 			if(SetBytesLeft(size, record))
 			{
@@ -253,18 +255,16 @@ void VolumeIndexControl::ParseVolumeRecord(string record)
 				proceed = false;
 			}
 		}
-		catch(BadConversion &o)
-                {
-                        log->write(o.what());
+		catch(BadConversion &o) {
+			log->write(o.what());
 			proceed = false;
-                }
-		catch(std::out_of_range &o)
-                {
-                        log->write(string(o.what()) + " 1");
+		}
+		catch ( std::out_of_range &o ) {
+			log->write(string("VolumeIndexControl blockette: ") + o.what());
 			SetBytes(0);
 			SetRemains("");
 			proceed = false;
-                }
+		}
 
 	}while(proceed);
 }
@@ -370,6 +370,7 @@ VolumeStationHeaderIndex::VolumeStationHeaderIndex(string record)
 VolumeTimeSpanIndex::VolumeTimeSpanIndex(string record)
 {
 	number_of_spans = FromString<int>(record.substr(0, 4));
+	if ( number_of_spans == 0 ) return;
 	int pos1=4, pos2;
 	TimeSpan ts;
  	ts.beginning_of_span = SplitString(record, SEED_SEPARATOR, pos1, pos2);
@@ -475,7 +476,7 @@ void AbbreviationDictionaryControl::ParseVolumeRecord(string record)
 			proceed = false;
 		}
 		catch ( std::out_of_range &o ) {
-			log->write(string(o.what()) + " 2");
+			log->write(string("AbbreviationDictionaryControl blockette: ") + o.what());
 			SetBytes(0);
 			SetRemains("");
 			proceed = false;
@@ -921,11 +922,13 @@ void StationControl::ParseVolumeRecord(string record)
 			if ( !si.empty() ) {
 				if(blockette < 52)
 					eos = (int)si.size()-1;
-				if(eos < (int)si.size() && !si[eos].ci.empty())
+				if(eos < (int)si.size() && !si[eos].ci.empty()) {
 					eoc = si[eos].ci.size()-1;
+				}
 			}
 
 			size = FromString<int>(record.substr(begin, 4).c_str());
+
 			if ( SetBytesLeft(size, record) ) {
 				begin += 4;
 
@@ -933,6 +936,8 @@ void StationControl::ParseVolumeRecord(string record)
 					log->write("received blockette " + ToString(blockette) + ", but no station info available");
 				else if ( blockette > 52 && eoc == -1 )
 					log->write("received blockette " + ToString(blockette) + ", but no channel info available");
+				else if ( blockette > 52 && si[eos].ci.empty() )
+					log->write("ignoring channel blockette " + ToString(blockette) + ", station has no channels");
 				else {
 					switch ( blockette ) {
 						case(50):
@@ -964,7 +969,7 @@ void StationControl::ParseVolumeRecord(string record)
 							si[eos].ci[eoc].csg.push_back(ChannelSensitivityGain(record.substr(begin, size)));
 							break;
 						case(59):
-	//						si[eos].ci[eoc].cc.push_back(Comment(record.substr(begin, size)));
+							si[eos].ci[eoc].cc.push_back(Comment(record.substr(begin, size)));
 							break;
 						case(60):
 							si[eos].ci[eoc].rr.push_back(ResponseReference(record.substr(begin, size)));
@@ -1012,9 +1017,8 @@ void StationControl::ParseVolumeRecord(string record)
 			log->write(o.what());
 			proceed = false;
 		}
-		catch(std::out_of_range &o)
-		{
-			log->write(string(o.what()) + " 3");
+		catch ( std::out_of_range &o ) {
+			log->write(string("StationControl blockette: ") + o.what());
 			SetBytes(0);
 			SetRemains("");
 			proceed = false;
@@ -1519,6 +1523,17 @@ FIRResponse::FIRResponse(string record)
 	pos1 += 3;
 	number_of_coefficients = FromString<int>(record.substr(pos1, 4));
 	pos1 += 4;
+
+	/*
+	int nc = (record.size()-pos1) / 14;
+	if ( number_of_coefficients > nc ) {
+		cerr << "Invalid number coefficents (" << number_of_coefficients
+		     << ") with respect to blockette size in FIR Response, clip to "
+		     << nc << endl;
+		number_of_coefficients = nc;
+	}
+	*/
+
 	for(int i=0; i < number_of_coefficients; i++)
 	{
 		coefficients.push_back(FromString<double>(record.substr(pos1, 14)));

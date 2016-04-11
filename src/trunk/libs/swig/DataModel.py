@@ -899,6 +899,9 @@ class ThreeComponents(_object):
     Vertical = _DataModel.ThreeComponents_Vertical
     FirstHorizontal = _DataModel.ThreeComponents_FirstHorizontal
     SecondHorizontal = _DataModel.ThreeComponents_SecondHorizontal
+    def vertical(self): return _DataModel.ThreeComponents_vertical(self)
+    def firstHorizontal(self): return _DataModel.ThreeComponents_firstHorizontal(self)
+    def secondHorizontal(self): return _DataModel.ThreeComponents_secondHorizontal(self)
     def __init__(self): 
         this = _DataModel.new_ThreeComponents()
         try: self.this.append(this)

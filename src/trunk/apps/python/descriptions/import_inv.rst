@@ -29,13 +29,13 @@ Converter interface
 
 To make a new converter make with import_inv it must implement an interface
 on shell level. Furthermore the converter program must be named :file:`{format}2inv`
-and must live in :file:`SEISCOMP3_ROOT/bin`.
+and must live in :file:`SEISCOMP_ROOT/bin`.
 
 The converter program must take the input location (file, directory, URL, ...)
 as first parameter and the output file (SeisComP3 XML) as second parameter. The
 output file must be optional and default to stdout.
 
 To add a new converter for a new format, e.g. Excel, place the new converter
-program at :file:`$SEISCOMP3_ROOT/bin/excel2inv`. When
+program at :file:`$SEISCOMP_ROOT/bin/excel2inv`. When
 :program:`import_inv help formats` is called it globs for
-:file:`$SEISCOMP3_ROOT/bin/*2inv` and prints all available formats.
+:file:`$SEISCOMP_ROOT/bin/*2inv` and prints all available formats.

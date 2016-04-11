@@ -311,7 +311,7 @@ Profiles
 ^^^^^^^^
 
 To assign a binding profile to a station, a network or a set of stations/networks,
-drag a network from the right part (blue or magenta) to the left part (red or
+drag a profile from the right part (blue or magenta) to the left part (red or
 orange). It is also possible to drag and drop multiple profiles with one action.
 
 

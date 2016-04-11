@@ -718,7 +718,7 @@ class StationControl : public Control
 	public:
 		void ParseVolumeRecord(std::string);
 		void EmptyVectors();
-		std::vector<StationIdentifier>	si;
+		std::vector<StationIdentifier> si;
  	protected:
 	private:
 		Logging *log;

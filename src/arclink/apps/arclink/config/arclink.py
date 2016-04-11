@@ -760,7 +760,7 @@ class Module(TemplateModule):
         self._set_default("swapout_time", 600)
         self._set_default("purge_time", 864000)
         self._set_default("encryption", "false")
-        self._set_default("password_file", "@ROOTDIR@/var/lib/arclink/config/password.txt")
+        self._set_default("password_file", "@ROOTDIR@/var/lib/arclink/password.txt")
 
 
         ## Expand the @Variables@

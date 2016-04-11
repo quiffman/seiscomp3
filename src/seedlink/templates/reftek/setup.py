@@ -21,6 +21,10 @@ class SeedlinkPluginHandler:
     try: unit = seedlink.param('sources.reftek.unit')
     except: seedlink.setParam('sources.reftek.unit', unit)
 
+    proc = "reftek"
+    try: port = int(seedlink.param('sources.reftek.proc'))
+    except: seedlink.setParam('sources.reftek.proc', proc)
+
     # Key is address (one instance per address)
     return address + ":" + str(port)
 

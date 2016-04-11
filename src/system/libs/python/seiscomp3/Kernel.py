@@ -53,7 +53,6 @@ class Environment(seiscomp3.Config.Config):
       PYTHONPATH = os.environ["PYTHONPATH"] + ":" + PYTHONPATH
     except: pass
     os.environ["PYTHONPATH"] = PYTHONPATH
-    os.environ["SEISCOMP3_ROOT"] = self.SEISCOMP_ROOT
 
     # Create required directories
     try: os.makedirs(os.path.join(self.root, "var", "log"))
@@ -148,7 +147,7 @@ class Environment(seiscomp3.Config.Config):
     return module
 
   def start(self, module, binary, params, nohup=False):
-    cmd = binary + " " + params + " >>" + self.logFile(module) + " 2>&1"
+    cmd = binary + " " + params + " >" + self.logFile(module) + " 2>&1"
     if nohup:
       cmd = "nohup " + cmd + " &"
     return os.system(cmd)

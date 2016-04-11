@@ -248,7 +248,7 @@ class InventoryManager : public Client::Application,
 				if ( !files.empty() ) files.erase(files.begin());
 
 				// No files passed and filebase not given? Try to access
-				// SEISCOMP3_ROOT/etc/inventory
+				// SEISCOMP_ROOT/etc/inventory
 				if ( files.empty() )
 					_filebase = Environment::Instance()->appConfigDir() + "/inventory";
 				else

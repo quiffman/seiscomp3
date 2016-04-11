@@ -43,7 +43,7 @@
 #include "fs_plugin.h"
 #include "diag.h"
 
-#define MYVERSION "1.0 (2010.256)"
+#define MYVERSION "1.0 (2012.341)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/plugins.ini"
@@ -340,7 +340,7 @@ rc_ptr<CfgAttributeMap> SectionDef::start_attributes(ostream &cfglog,
     atts->add_item(StringAttribute("pattern", file_pattern));
     atts->add_item(StringAttribute("timestamp_file", timestamp_file));
     atts->add_item(IntAttribute("default_timing_quality",
-      default_timing_quality, 0, 100));
+      default_timing_quality, -1, 100));
     atts->add_item(IntAttribute("zero_sample_limit", zero_sample_limit, -1, 5,
       IntAttribute::lower_bound));
     atts->add_item(IntAttribute("delay", file_read_delay, 0, 1000));

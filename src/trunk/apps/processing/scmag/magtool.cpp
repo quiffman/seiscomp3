@@ -427,8 +427,15 @@ MagTool::getMagnitude(
 		if ( newInstance )
 			*newInstance = true;
 	}
-	else if ( newInstance )
+	else if ( newInstance ) {
 		*newInstance = false;
+		try {
+			// Check if evaluation status is set
+			mag->evaluationStatus();
+			return NULL;
+		}
+		catch ( ... ) {}
+	}
 
 	return mag;
 }

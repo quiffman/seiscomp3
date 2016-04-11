@@ -170,7 +170,7 @@ Decimation
 This RecordStream decimates (resamples) a proxy stream, e.g. :ref:`rs-slink`.
 The syntax for the source is similar to an URL:
 
-``dec://proxy-stream?parameters``
+``dec://proxy-stream?parameters/address``
 
 Optional parameters are:
 
@@ -182,7 +182,7 @@ Optional parameters are:
 Examples
 ^^^^^^^^
 
-- ``dec://slink/localhost``
-- ``dec://file/-?rate=2``
+- ``dec://slink/localhost:18000``
+- ``dec://file?rate=2/-``
 - ``dec://combined/;``
 

@@ -13661,7 +13661,7 @@ SWIGINTERN PyObject *_wrap_SchemaDefinitions_createAlias(PyObject *SWIGUNUSEDPAR
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  bool result;
+  Seiscomp::System::SchemaModule *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:SchemaDefinitions_createAlias",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__SchemaDefinitions, 0 |  0 );
@@ -13679,14 +13679,48 @@ SWIGINTERN PyObject *_wrap_SchemaDefinitions_createAlias(PyObject *SWIGUNUSEDPAR
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SchemaDefinitions_createAlias" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  result = (bool)(arg1)->createAlias((char const *)arg2,(char const *)arg3);
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  result = (Seiscomp::System::SchemaModule *)(arg1)->createAlias((char const *)arg2,(char const *)arg3);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__SchemaModule, 0 |  0 );
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SchemaDefinitions_removeAlias(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::SchemaDefinitions *arg1 = (Seiscomp::System::SchemaDefinitions *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SchemaDefinitions_removeAlias",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__SchemaDefinitions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SchemaDefinitions_removeAlias" "', argument " "1"" of type '" "Seiscomp::System::SchemaDefinitions *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::SchemaDefinitions * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SchemaDefinitions_removeAlias" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (bool)(arg1)->removeAlias((char const *)arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
 }
 
@@ -15425,7 +15459,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Container_hasStructure(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Container_hasStructure__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -15456,6 +15490,90 @@ SWIGINTERN PyObject *_wrap_Container_hasStructure(PyObject *SWIGUNUSEDPARM(self)
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Container_hasStructure__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Container_hasStructure",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Container_hasStructure" "', argument " "1"" of type '" "Seiscomp::System::Container const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Container_hasStructure" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Container_hasStructure" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)((Seiscomp::System::Container const *)arg1)->hasStructure((std::string const &)*arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Container_hasStructure(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__System__Container, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_AsPtr_std_string(argv[1], (std::string**)(0));
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_Container_hasStructure__SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__System__Container, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_Container_hasStructure__SWIG_0(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Container_hasStructure'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::System::Container::hasStructure(char const *) const\n"
+    "    Seiscomp::System::Container::hasStructure(std::string const &) const\n");
+  return 0;
 }
 
 
@@ -15533,6 +15651,44 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Container_findStructureType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Structure *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Container_findStructureType",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Container_findStructureType" "', argument " "1"" of type '" "Seiscomp::System::Container const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Container_findStructureType" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Container_findStructureType" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Structure *)((Seiscomp::System::Container const *)arg1)->findStructureType((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Structure, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Container_findParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
@@ -15563,6 +15719,44 @@ SWIGINTERN PyObject *_wrap_Container_findParameter(PyObject *SWIGUNUSEDPARM(self
   }
   result = (Seiscomp::System::Parameter *)((Seiscomp::System::Container const *)arg1)->findParameter((std::string const &)*arg2);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Parameter, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Container_findContainer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Container *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Container_findContainer",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Container_findContainer" "', argument " "1"" of type '" "Seiscomp::System::Container const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Container_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Container_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Container *)((Seiscomp::System::Container const *)arg1)->findContainer((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
   if (SWIG_IsNewObj(res2)) delete arg2;
   return resultobj;
 fail:
@@ -15699,6 +15893,65 @@ SWIGINTERN PyObject *_wrap_Container_parent_get(PyObject *SWIGUNUSEDPARM(self), 
   arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
   result = (Seiscomp::Core::BaseObject *) ((arg1)->parent);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Core__BaseObject, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Container_path_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Container_path_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Container_path_set" "', argument " "1"" of type '" "Seiscomp::System::Container *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Container_path_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Container_path_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->path = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Container_path_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Container *arg1 = (Seiscomp::System::Container *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Container_path_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Container_path_get" "', argument " "1"" of type '" "Seiscomp::System::Container *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Container * >(argp1);
+  result = (std::string *) & ((arg1)->path);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
   return NULL;
@@ -17233,65 +17486,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Structure_xpath_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::System::Structure *arg1 = (Seiscomp::System::Structure *) 0 ;
-  std::string *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 = SWIG_OLDOBJ ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Structure_xpath_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Structure, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Structure_xpath_set" "', argument " "1"" of type '" "Seiscomp::System::Structure *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::System::Structure * >(argp1);
-  {
-    std::string *ptr = (std::string *)0;
-    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Structure_xpath_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Structure_xpath_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    arg2 = ptr;
-  }
-  if (arg1) (arg1)->xpath = *arg2;
-  resultobj = SWIG_Py_Void();
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return resultobj;
-fail:
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Structure_xpath_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::System::Structure *arg1 = (Seiscomp::System::Structure *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  std::string *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Structure_xpath_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Structure, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Structure_xpath_get" "', argument " "1"" of type '" "Seiscomp::System::Structure *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::System::Structure * >(argp1);
-  result = (std::string *) & ((arg1)->xpath);
-  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Structure_name_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::Structure *arg1 = (Seiscomp::System::Structure *) 0 ;
@@ -17822,65 +18016,6 @@ SWIGINTERN PyObject *_wrap_Group_definition_get(PyObject *SWIGUNUSEDPARM(self), 
   arg1 = reinterpret_cast< Seiscomp::System::Group * >(argp1);
   result = (Seiscomp::System::SchemaGroup *) ((arg1)->definition);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__SchemaGroup, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Group_groupName_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::System::Group *arg1 = (Seiscomp::System::Group *) 0 ;
-  std::string *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 = SWIG_OLDOBJ ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Group_groupName_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Group, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Group_groupName_set" "', argument " "1"" of type '" "Seiscomp::System::Group *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::System::Group * >(argp1);
-  {
-    std::string *ptr = (std::string *)0;
-    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Group_groupName_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Group_groupName_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    arg2 = ptr;
-  }
-  if (arg1) (arg1)->groupName = *arg2;
-  resultobj = SWIG_Py_Void();
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return resultobj;
-fail:
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Group_groupName_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::System::Group *arg1 = (Seiscomp::System::Group *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  std::string *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Group_groupName_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Group, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Group_groupName_get" "', argument " "1"" of type '" "Seiscomp::System::Group *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::System::Group * >(argp1);
-  result = (std::string *) & ((arg1)->groupName);
-  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
   return NULL;
@@ -18639,6 +18774,44 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Binding_findContainer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Binding *arg1 = (Seiscomp::System::Binding *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Container *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Binding_findContainer",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Binding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Binding_findContainer" "', argument " "1"" of type '" "Seiscomp::System::Binding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Binding * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Binding_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Binding_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Container *)((Seiscomp::System::Binding const *)arg1)->findContainer((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Binding_parent_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::Binding *arg1 = (Seiscomp::System::Binding *) 0 ;
@@ -19281,6 +19454,44 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BindingCategory_findContainer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::BindingCategory *arg1 = (Seiscomp::System::BindingCategory *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Container *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BindingCategory_findContainer",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__BindingCategory, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BindingCategory_findContainer" "', argument " "1"" of type '" "Seiscomp::System::BindingCategory const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::BindingCategory * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BindingCategory_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BindingCategory_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Container *)((Seiscomp::System::BindingCategory const *)arg1)->findContainer((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_BindingCategory_parent_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::BindingCategory *arg1 = (Seiscomp::System::BindingCategory *) 0 ;
@@ -19782,6 +19993,44 @@ SWIGINTERN PyObject *_wrap_ModuleBinding_dump(PyObject *SWIGUNUSEDPARM(self), Py
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ModuleBinding_findContainer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::ModuleBinding *arg1 = (Seiscomp::System::ModuleBinding *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Container *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:ModuleBinding_findContainer",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__ModuleBinding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ModuleBinding_findContainer" "', argument " "1"" of type '" "Seiscomp::System::ModuleBinding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::ModuleBinding * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "ModuleBinding_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "ModuleBinding_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Container *)((Seiscomp::System::ModuleBinding const *)arg1)->findContainer((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -20460,6 +20709,44 @@ SWIGINTERN PyObject *_wrap_Module_findParameter(PyObject *SWIGUNUSEDPARM(self), 
   }
   result = (Seiscomp::System::Parameter *)((Seiscomp::System::Module const *)arg1)->findParameter((std::string const &)*arg2);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Parameter, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Module_findContainer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Module *arg1 = (Seiscomp::System::Module *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Container *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Module_findContainer",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Module, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Module_findContainer" "', argument " "1"" of type '" "Seiscomp::System::Module const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Module * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Module_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Module_findContainer" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Container *)((Seiscomp::System::Module const *)arg1)->findContainer((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Container, 0 |  0 );
   if (SWIG_IsNewObj(res2)) delete arg2;
   return resultobj;
 fail:
@@ -22887,7 +23174,7 @@ SWIGINTERN PyObject *_wrap_Model_update(PyObject *SWIGUNUSEDPARM(self), PyObject
   if (!PyArg_ParseTuple(args,(char *)"OOO:Model_update",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Model, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Model_update" "', argument " "1"" of type '" "Seiscomp::System::Model *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Model_update" "', argument " "1"" of type '" "Seiscomp::System::Model const *""'"); 
   }
   arg1 = reinterpret_cast< Seiscomp::System::Model * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__System__Module, 0 |  0 );
@@ -22900,7 +23187,7 @@ SWIGINTERN PyObject *_wrap_Model_update(PyObject *SWIGUNUSEDPARM(self), PyObject
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Model_update" "', argument " "3"" of type '" "Seiscomp::System::Container *""'"); 
   }
   arg3 = reinterpret_cast< Seiscomp::System::Container * >(argp3);
-  (arg1)->update((Seiscomp::System::Module const *)arg2,arg3);
+  ((Seiscomp::System::Model const *)arg1)->update((Seiscomp::System::Module const *)arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -22926,7 +23213,7 @@ SWIGINTERN PyObject *_wrap_Model_updateBinding(PyObject *SWIGUNUSEDPARM(self), P
   if (!PyArg_ParseTuple(args,(char *)"OOO:Model_updateBinding",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Model, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Model_updateBinding" "', argument " "1"" of type '" "Seiscomp::System::Model *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Model_updateBinding" "', argument " "1"" of type '" "Seiscomp::System::Model const *""'"); 
   }
   arg1 = reinterpret_cast< Seiscomp::System::Model * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__System__ModuleBinding, 0 |  0 );
@@ -22939,7 +23226,7 @@ SWIGINTERN PyObject *_wrap_Model_updateBinding(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Model_updateBinding" "', argument " "3"" of type '" "Seiscomp::System::Binding *""'"); 
   }
   arg3 = reinterpret_cast< Seiscomp::System::Binding * >(argp3);
-  (arg1)->updateBinding((Seiscomp::System::ModuleBinding const *)arg2,arg3);
+  ((Seiscomp::System::Model const *)arg1)->updateBinding((Seiscomp::System::ModuleBinding const *)arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -23011,6 +23298,44 @@ SWIGINTERN PyObject *_wrap_Model_removeStation(PyObject *SWIGUNUSEDPARM(self), P
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Model_removeNetwork(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Model *arg1 = (Seiscomp::System::Model *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Model_removeNetwork",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Model, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Model_removeNetwork" "', argument " "1"" of type '" "Seiscomp::System::Model *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Model * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Model_removeNetwork" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Model_removeNetwork" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)(arg1)->removeNetwork((std::string const &)*arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -30508,6 +30833,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SchemaBinding_swigregister", SchemaBinding_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_SchemaDefinitions", _wrap_new_SchemaDefinitions, METH_VARARGS, NULL},
 	 { (char *)"SchemaDefinitions_createAlias", _wrap_SchemaDefinitions_createAlias, METH_VARARGS, NULL},
+	 { (char *)"SchemaDefinitions_removeAlias", _wrap_SchemaDefinitions_removeAlias, METH_VARARGS, NULL},
 	 { (char *)"SchemaDefinitions_moduleCount", _wrap_SchemaDefinitions_moduleCount, METH_VARARGS, NULL},
 	 { (char *)"SchemaDefinitions_module", _wrap_SchemaDefinitions_module, METH_VARARGS, NULL},
 	 { (char *)"SchemaDefinitions_pluginCount", _wrap_SchemaDefinitions_pluginCount, METH_VARARGS, NULL},
@@ -30545,12 +30871,16 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Container_hasStructure", _wrap_Container_hasStructure, METH_VARARGS, NULL},
 	 { (char *)"Container_instantiate", _wrap_Container_instantiate, METH_VARARGS, NULL},
 	 { (char *)"Container_remove", _wrap_Container_remove, METH_VARARGS, NULL},
+	 { (char *)"Container_findStructureType", _wrap_Container_findStructureType, METH_VARARGS, NULL},
 	 { (char *)"Container_findParameter", _wrap_Container_findParameter, METH_VARARGS, NULL},
+	 { (char *)"Container_findContainer", _wrap_Container_findContainer, METH_VARARGS, NULL},
 	 { (char *)"Container_accept", _wrap_Container_accept, METH_VARARGS, NULL},
 	 { (char *)"Container_super_set", _wrap_Container_super_set, METH_VARARGS, NULL},
 	 { (char *)"Container_super_get", _wrap_Container_super_get, METH_VARARGS, NULL},
 	 { (char *)"Container_parent_set", _wrap_Container_parent_set, METH_VARARGS, NULL},
 	 { (char *)"Container_parent_get", _wrap_Container_parent_get, METH_VARARGS, NULL},
+	 { (char *)"Container_path_set", _wrap_Container_path_set, METH_VARARGS, NULL},
+	 { (char *)"Container_path_get", _wrap_Container_path_get, METH_VARARGS, NULL},
 	 { (char *)"Container_groups_set", _wrap_Container_groups_set, METH_VARARGS, NULL},
 	 { (char *)"Container_groups_get", _wrap_Container_groups_get, METH_VARARGS, NULL},
 	 { (char *)"Container_parameters_set", _wrap_Container_parameters_set, METH_VARARGS, NULL},
@@ -30596,8 +30926,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Structure_dump", _wrap_Structure_dump, METH_VARARGS, NULL},
 	 { (char *)"Structure_definition_set", _wrap_Structure_definition_set, METH_VARARGS, NULL},
 	 { (char *)"Structure_definition_get", _wrap_Structure_definition_get, METH_VARARGS, NULL},
-	 { (char *)"Structure_xpath_set", _wrap_Structure_xpath_set, METH_VARARGS, NULL},
-	 { (char *)"Structure_xpath_get", _wrap_Structure_xpath_get, METH_VARARGS, NULL},
 	 { (char *)"Structure_name_set", _wrap_Structure_name_set, METH_VARARGS, NULL},
 	 { (char *)"Structure_name_get", _wrap_Structure_name_get, METH_VARARGS, NULL},
 	 { (char *)"delete_Structure", _wrap_delete_Structure, METH_VARARGS, NULL},
@@ -30614,8 +30942,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Group_parent_get", _wrap_Group_parent_get, METH_VARARGS, NULL},
 	 { (char *)"Group_definition_set", _wrap_Group_definition_set, METH_VARARGS, NULL},
 	 { (char *)"Group_definition_get", _wrap_Group_definition_get, METH_VARARGS, NULL},
-	 { (char *)"Group_groupName_set", _wrap_Group_groupName_set, METH_VARARGS, NULL},
-	 { (char *)"Group_groupName_get", _wrap_Group_groupName_get, METH_VARARGS, NULL},
 	 { (char *)"delete_Group", _wrap_delete_Group, METH_VARARGS, NULL},
 	 { (char *)"Group_swigregister", Group_swigregister, METH_VARARGS, NULL},
 	 { (char *)"Section_ClassName", _wrap_Section_ClassName, METH_VARARGS, NULL},
@@ -30643,6 +30969,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Binding_dump", _wrap_Binding_dump, METH_VARARGS, NULL},
 	 { (char *)"Binding_section", _wrap_Binding_section, METH_VARARGS, NULL},
 	 { (char *)"Binding_sectionCount", _wrap_Binding_sectionCount, METH_VARARGS, NULL},
+	 { (char *)"Binding_findContainer", _wrap_Binding_findContainer, METH_VARARGS, NULL},
 	 { (char *)"Binding_parent_set", _wrap_Binding_parent_set, METH_VARARGS, NULL},
 	 { (char *)"Binding_parent_get", _wrap_Binding_parent_get, METH_VARARGS, NULL},
 	 { (char *)"Binding_definition_set", _wrap_Binding_definition_set, METH_VARARGS, NULL},
@@ -30663,6 +30990,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BindingCategory_instantiate", _wrap_BindingCategory_instantiate, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_alias", _wrap_BindingCategory_alias, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_removeInstance", _wrap_BindingCategory_removeInstance, METH_VARARGS, NULL},
+	 { (char *)"BindingCategory_findContainer", _wrap_BindingCategory_findContainer, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_parent_set", _wrap_BindingCategory_parent_set, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_parent_get", _wrap_BindingCategory_parent_get, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_name_set", _wrap_BindingCategory_name_set, METH_VARARGS, NULL},
@@ -30683,6 +31011,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ModuleBinding_category", _wrap_ModuleBinding_category, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_writeConfig", _wrap_ModuleBinding_writeConfig, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_dump", _wrap_ModuleBinding_dump, METH_VARARGS, NULL},
+	 { (char *)"ModuleBinding_findContainer", _wrap_ModuleBinding_findContainer, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_configFile_set", _wrap_ModuleBinding_configFile_set, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_configFile_get", _wrap_ModuleBinding_configFile_get, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_categories_set", _wrap_ModuleBinding_categories_set, METH_VARARGS, NULL},
@@ -30708,6 +31037,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Module_section", _wrap_Module_section, METH_VARARGS, NULL},
 	 { (char *)"Module_sectionCount", _wrap_Module_sectionCount, METH_VARARGS, NULL},
 	 { (char *)"Module_findParameter", _wrap_Module_findParameter, METH_VARARGS, NULL},
+	 { (char *)"Module_findContainer", _wrap_Module_findContainer, METH_VARARGS, NULL},
 	 { (char *)"Module_supportsBindings", _wrap_Module_supportsBindings, METH_VARARGS, NULL},
 	 { (char *)"Module_loadProfiles", _wrap_Module_loadProfiles, METH_VARARGS, NULL},
 	 { (char *)"Module_addProfile", _wrap_Module_addProfile, METH_VARARGS, NULL},
@@ -30768,6 +31098,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Model_updateBinding", _wrap_Model_updateBinding, METH_VARARGS, NULL},
 	 { (char *)"Model_addStation", _wrap_Model_addStation, METH_VARARGS, NULL},
 	 { (char *)"Model_removeStation", _wrap_Model_removeStation, METH_VARARGS, NULL},
+	 { (char *)"Model_removeNetwork", _wrap_Model_removeNetwork, METH_VARARGS, NULL},
 	 { (char *)"Model_removeStationModule", _wrap_Model_removeStationModule, METH_VARARGS, NULL},
 	 { (char *)"Model_accept", _wrap_Model_accept, METH_VARARGS, NULL},
 	 { (char *)"Model_schema_set", _wrap_Model_schema_set, METH_VARARGS, NULL},

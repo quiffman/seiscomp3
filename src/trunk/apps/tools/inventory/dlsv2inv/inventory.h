@@ -26,6 +26,10 @@ class Inventory
 {
 	public:
 		Inventory(INIT_MAP& init, Seiscomp::DataModel::Inventory *inv);
+		Inventory(const std::string &dcid, const std::string &net_description,
+		const std::string &net_type, const Seiscomp::Core::Time &net_start,
+		const Seiscomp::Core::Time &net_end, bool temporary, bool restricted, bool shared,
+		Seiscomp::DataModel::Inventory *inv);
 		VolumeIndexControl *vic;
 		AbbreviationDictionaryControl *adc;
 		StationControl *sc;
@@ -35,15 +39,21 @@ class Inventory
 		//std::stringstream command, output;
 		std::string station_name;
 		std::string channel_name;
-		std::map<std::string, Seiscomp::DataModel::NetworkPtr> networks;
+		std::map<std::pair<std::string, int>, Seiscomp::DataModel::NetworkPtr> networks;
 		std::map<std::pair<std::pair<std::string, std::string>, Seiscomp::Core::Time>, Seiscomp::DataModel::StationPtr> stations;
 		std::set<std::pair<std::pair<std::pair<std::pair<std::string, std::string>, std::string>, Seiscomp::Core::Time>, Seiscomp::Core::Time > > sensor_locations;
 		std::set<std::pair<std::pair<std::pair<std::pair<std::pair<std::pair<std::string, std::string>, std::string>, std::string>, Seiscomp::Core::Time>, Seiscomp::Core::Time>, Seiscomp::Core::Time> > seis_streams;
 		std::set<std::pair<std::pair<std::pair<std::pair<std::pair<std::pair<std::string, std::string>, std::string>, std::string>, Seiscomp::Core::Time>, Seiscomp::Core::Time>, Seiscomp::Core::Time> > aux_streams;
-		INIT_MAP init_values;
+		std::string _dcid;
+		std::string _net_description;
+		std::string _net_type;
+		Seiscomp::Core::Time _net_start;
+		Seiscomp::Core::Time _net_end;
+		bool _temporary;
+		bool _restricted;
+		bool _shared;
 		Seiscomp::DataModel::Inventory *inventory;
 		std::map<std::vector<std::string>, std::string> encoding;
-		Seiscomp::DataModel::QualityControlPtr _qc;
 		//STATION_INFO info;
 		//Logging *log;
 		int sequence_number;
@@ -67,8 +77,8 @@ class Inventory
 		void ProcessSensorPolynomial(ChannelIdentifier& ci, Seiscomp::DataModel::SensorPtr sm);
 		Seiscomp::DataModel::StationPtr InsertStation(StationIdentifier&, Seiscomp::DataModel::NetworkPtr);
 		Seiscomp::DataModel::SensorLocationPtr InsertSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::StationPtr station, const Seiscomp::Core::Time& loc_start, const Seiscomp::Core::Time& loc_end);
-		Seiscomp::DataModel::StreamPtr InsertStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted);
-		Seiscomp::DataModel::AuxStreamPtr InsertAuxStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted);
+		Seiscomp::DataModel::StreamPtr InsertStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted, bool shared);
+		Seiscomp::DataModel::AuxStreamPtr InsertAuxStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted, bool shared);
 		Seiscomp::DataModel::DataloggerPtr InsertDatalogger(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr, const std::string& name);
 		void InsertDecimation(ChannelIdentifier&, Seiscomp::DataModel::DataloggerPtr, Seiscomp::DataModel::StreamPtr);
 		void InsertDataloggerCalibration(ChannelIdentifier&, Seiscomp::DataModel::DataloggerPtr, Seiscomp::DataModel::StreamPtr);
@@ -80,8 +90,8 @@ class Inventory
 		Seiscomp::DataModel::ResponsePolynomialPtr InsertResponsePolynomial(ChannelIdentifier&, std::string);
 		void UpdateStation(StationIdentifier&, Seiscomp::DataModel::StationPtr);
 		void UpdateSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::SensorLocationPtr loc, const Seiscomp::Core::Time& loc_start, const Seiscomp::Core::Time& loc_end);
-		void UpdateStream(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr, bool restricted);
-		void UpdateAuxStream(ChannelIdentifier&, Seiscomp::DataModel::AuxStreamPtr, bool restricted);
+		void UpdateStream(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr, bool restricted, bool shared);
+		void UpdateAuxStream(ChannelIdentifier&, Seiscomp::DataModel::AuxStreamPtr, bool restricted, bool shared);
 		void UpdateDatalogger(ChannelIdentifier&, Seiscomp::DataModel::DataloggerPtr, Seiscomp::DataModel::StreamPtr);
 		void UpdateDecimation(ChannelIdentifier&, Seiscomp::DataModel::DecimationPtr, Seiscomp::DataModel::StreamPtr);
 		void UpdateDataloggerCalibration(ChannelIdentifier&, Seiscomp::DataModel::DataloggerCalibrationPtr, Seiscomp::DataModel::StreamPtr);

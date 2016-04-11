@@ -648,10 +648,9 @@ class ArclinkManager(object):
             
             req.download_xml(inv, True)
 
-            if use_routing:
-                self.__expand_request(request, inv)
-                if len(request.content) == 0:
-                    raise ArclinkError, "empty request after wildcard expansion"
+            self.__expand_request(request, inv)
+            if len(request.content) == 0:
+                raise ArclinkError, "empty request after wildcard expansion"
 
         if use_routing:
             logs.debug("requesting routing from %s" % (self.__myaddr))
