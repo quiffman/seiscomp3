@@ -769,8 +769,11 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		std::set<std::string> _procWhiteList;
 		std::set<std::string> _procBlackList;
 
-		Inventory::TypeWhiteList _inventoryTypeWhiteList;
-		Inventory::TypeBlackList _inventoryTypeBlackList;
+		Inventory::TypeWhiteList _networkTypeWhiteList;
+		Inventory::TypeBlackList _networkTypeBlackList;
+
+		Inventory::TypeWhiteList _stationTypeWhiteList;
+		Inventory::TypeBlackList _stationTypeBlackList;
 
 		Logging::Output* _logger;
 		DataModel::DatabaseQueryPtr _query;

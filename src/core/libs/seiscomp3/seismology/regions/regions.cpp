@@ -46,6 +46,9 @@ const Geo::PolyRegions &Regions::polyRegions() {
 
 
 std::string Regions::getRegionName(double lat, double lon) {
+	while ( lon < -180 ) lon += 360;
+	while ( lon > 180 ) lon -= 360;
+
 	std::string name = getRegionalName(lat, lon);
 	return name.empty()?getFeGeoRegionName(lat, lon):name;
 }

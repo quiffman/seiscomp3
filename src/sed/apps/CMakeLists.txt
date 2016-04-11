@@ -1,1 +1,1 @@
-SUBDIRS(screloc scorg2nll)
+SUBDIRS(screloc scorg2nll scwfparam)

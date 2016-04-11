@@ -138,7 +138,8 @@ class SC_CORE_DATAMODEL_API DatabaseObjectWriter : protected Visitor {
 	//  Xstruction
 	// ----------------------------------------------------------------------
 	public:
-		DatabaseObjectWriter(DatabaseArchive& archive, int batchSize = 1);
+		DatabaseObjectWriter(DatabaseArchive& archive,
+		                     bool addToDatabase = true, int batchSize = 1);
 
 
 	// ----------------------------------------------------------------------
@@ -171,10 +172,11 @@ class SC_CORE_DATAMODEL_API DatabaseObjectWriter : protected Visitor {
 
 	private:
 		DatabaseArchive& _archive;
-		std::string _parentID;
-		int _errors;
-		int _count;
-		int _batchSize;
+		std::string      _parentID;
+		bool             _addObjects;
+		int              _errors;
+		int              _count;
+		int              _batchSize;
 };
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -290,7 +292,7 @@ class SC_CORE_DATAMODEL_API DatabaseArchive : protected Seiscomp::Core::Archive,
 		 * @return The object count
 		 */
 		size_t getObjectCount(const PublicObject* parent,
-		                      const Seiscomp::Core::RTTI& classType);
+		                      const Seiscomp::Core::RTTI &classType);
 
 		/**
 		 * Writes an object into the database.
@@ -298,7 +300,7 @@ class SC_CORE_DATAMODEL_API DatabaseArchive : protected Seiscomp::Core::Archive,
 		 * @param parentId The publicID of the parent object used
 		 *                 when no parent pointer is set.
 		 */
-		bool write(Object* object, const std::string& parentID = "");
+		bool write(Object* object, const std::string &parentID = "");
 
 		/**
 		 * Updates an object in the database. While serializing the
@@ -310,7 +312,7 @@ class SC_CORE_DATAMODEL_API DatabaseArchive : protected Seiscomp::Core::Archive,
 		 * @param parentId The publicID of the parent object used
 		 *                 when no parent pointer is set.
 		 */
-		bool update(Object* object, const std::string& parentID = "");
+		bool update(Object* object, const std::string &parentID = "");
 
 		/**
 		 * Removes an object in the database. If the object is not a
@@ -319,15 +321,36 @@ class SC_CORE_DATAMODEL_API DatabaseArchive : protected Seiscomp::Core::Archive,
 		 * @param object The object to be removed
 		 * @param parentID The parentID of the parent objects used
 		 *                 when no parent pointer is set.
-		 * @return 
 		 */
-		bool remove(Object* object, const std::string& parentID = "");
+		bool remove(Object* object, const std::string &parentID = "");
+
+		/**
+		 * Adds a complete tree to the database.
+		 * @param object The tree root to be written
+		 * @param parentId The publicID of the parent object used
+		 *                 when no parent pointer is set.
+		 * @param objectsHandled Return count of number of objects
+		 *                       written
+		 */
+		bool addTree(Object *object, const std::string &parentID = "",
+		             int *objectsHandled = NULL);
+
+		/**
+		 * Removes an object tree from the database.
+		 * @param object The object to be removed
+		 * @param parentID The parentID of the parent objects used
+		 *                 when no parent pointer is set.
+		 * @param objectsHandled Return count of number of objects
+		 *                       written
+		 */
+		bool removeTree(Object *object, const std::string &parentID = "",
+		                int *objectsHandled = NULL);
 
 		//! Returns an iterator for objects of a given type.
-		DatabaseIterator getObjectIterator(const std::string& query,
+		DatabaseIterator getObjectIterator(const std::string &query,
 		                                   const Seiscomp::Core::RTTI &classType);
 
-		DatabaseIterator getObjectIterator(const std::string& query,
+		DatabaseIterator getObjectIterator(const std::string &query,
 		                                   const Seiscomp::Core::RTTI *classType);
 
 

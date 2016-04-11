@@ -115,8 +115,10 @@ Buffer *MSEEDFormat::get_buffer(const INT_TIME &it, int usec_correction,
 void MSEEDFormat::queue_buffer(Buffer *buf, int samples, int frames)
   {
     sl_fsdh_s* fsdh = (sl_fsdh_s *)buf->data();
+    char temp[7];
 
-    sprintf(fsdh->sequence_number, "%06d", sequence);
+    sprintf(temp, "%06d", sequence);
+    memcpy(fsdh->sequence_number,temp,6);
     sequence = (sequence + 1) % 1000000;
     fsdh->dhq_indicator = 'D';
     fsdh->num_samples = htons(samples);

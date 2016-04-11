@@ -58,8 +58,10 @@ class SC_CORE_CLIENT_API Inventory {
 		void load(DataModel::DatabaseReader*);
 		void setInventory(DataModel::Inventory*);
 
-		int filter(const TypeWhiteList &typeWhitelist,
-		           const TypeWhiteList &typeBlacklist);
+		int filter(const TypeWhiteList &networkTypeWhitelist,
+		           const TypeWhiteList &networkTypeBlacklist,
+		           const TypeWhiteList &stationTypeWhitelist,
+		           const TypeWhiteList &stationTypeBlacklist);
 
 		void loadStations(DataModel::DatabaseReader*);
 

@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <list>
-#include <algorithm> 
+#include <algorithm>
 
 // #define LOCSAT_TESTING
 
@@ -111,10 +111,10 @@ DataModel::Origin* LocSAT::locate(PickList& picks) throw(Core::GeneralException)
 DataModel::Origin* LocSAT::fromPicks(PickList& picks){
 	if ( _fixDepth ) {
 		_locator_params->fixing_depth = _fixedDepth;
-		strcpy(&_locator_params->fix_depth, "y");
+		_locator_params->fix_depth = 'y';
 	}
 	else
-		strcpy(&_locator_params->fix_depth, "n");
+		_locator_params->fix_depth = 'n';
 
 	_locateEvent->setLocatorParams(_locator_params);
 
@@ -174,7 +174,7 @@ DataModel::Origin* LocSAT::fromPicks(PickList& picks){
 		}
 		else
 			throw StationNotFoundException("station '" + pick->waveformID().networkCode() +
-			                               "." + pick->waveformID().stationCode() + 
+			                               "." + pick->waveformID().stationCode() +
 			                               "." + pick->waveformID().locationCode() + "' not found");
 	}
 
@@ -265,10 +265,10 @@ DataModel::Origin* LocSAT::relocate(const DataModel::Origin* origin, double time
 
 	if ( _fixDepth ) {
 		_locator_params->fixing_depth = _fixedDepth;
-		strcpy(&_locator_params->fix_depth, "y");
+		_locator_params->fix_depth = 'y';
 	}
 	else
-		strcpy(&_locator_params->fix_depth, "n");
+		_locator_params->fix_depth = 'n';
 
 	_locateEvent->setLocatorParams(_locator_params);
 	Internal::Loc* newLoc = _locateEvent->doLocation();
@@ -441,7 +441,7 @@ bool LocSAT::loadArrivals(const DataModel::Origin* origin, double timeError) {
 		// P and PKP are currently deemed acceptable automatic phases.
 		// Others may be associated but cannot be used because of
 		// this:
-		if (pick->evaluationMode() == DataModel::AUTOMATIC && 
+		if (pick->evaluationMode() == DataModel::AUTOMATIC &&
 		    ! ( phaseCode == "P" || phaseCode == "PKP") ) // TODO make this configurable
 			defining=0;
 		*/
@@ -647,7 +647,7 @@ void LocSAT::setDefaultLocatorParams(){
 	_locator_params->verbose	= 'n';
 	_locator_params->lat_init 	= 999.9;
 	_locator_params->lon_init 	= 999.9;
-	_locator_params->depth_init 	= 20.0;	
+	_locator_params->depth_init 	= 20.0;
 	_locator_params->conf_level 	= 0.90;
 	_locator_params->damp		= -1.00;
 	_locator_params->est_std_error 	= 1.00;
@@ -687,100 +687,101 @@ const char* LocSAT::getLocatorParams(int param){
 	char* value = new char[1024];
 
 	switch(param){
-	
+
 	case LP_USE_LOCATION:
 		if (_locator_params->use_location == TRUE)
 			strcpy(value, "TRUE");
 		else
 			strcpy(value, "FALSE");
-	break;
+		break;
 
 	case LP_FIX_DEPTH:
-		strcpy(value, &_locator_params->fix_depth);
-	break;
-	
+		value[0] = _locator_params->fix_depth;
+		value[1] = '\0';
+		break;
+
 	case LP_FIXING_DEPTH:
 		sprintf(value, "%7.2f", _locator_params->fixing_depth);
-	break;
-	
+		break;
+
 	case LP_VERBOSE:
 		strcpy(value, &_locator_params->verbose);
-	break;
+		break;
 
 	case LP_PREFIX:
 		strcpy(value, _locator_params->prefix);
-	break;
-	
+		break;
+
 	case LP_MAX_ITERATIONS:
 		sprintf(value, "%d", _locator_params->max_iterations);
-	break;
+		break;
 
 	case LP_EST_STD_ERROR:
 		sprintf(value, "%7.2f", _locator_params->est_std_error);
-	break;
+		break;
 
 	case LP_NUM_DEG_FREEDOM:
 		sprintf(value, "%d", _locator_params->num_dof);
-	break;
+		break;
 
 	case LP_MIN_ARRIVAL_WEIGHT:
 		sprintf(value, "%7.2f", _minArrivalWeight);
-	break;
+		break;
 
 	default:
 		SEISCOMP_ERROR("getLocatorParam: wrong Parameter: %d", param);
 		return "error";
 	}
-return value;
+	return value;
 }
 
 
 void LocSAT::setLocatorParams(int param, const char* value){
 
 	switch(param){
-	
+
 	case LP_USE_LOCATION:
 		if (!strcmp(value, "TRUE"))
 			_locator_params->use_location = TRUE;
 		else
 			_locator_params->use_location = FALSE;
-	break;
+		break;
 
 	case LP_FIX_DEPTH:
-		strcpy(&_locator_params->fix_depth, value);
-	break;
-	
+		_locator_params->fix_depth = value[0];
+		break;
+
 	case LP_FIXING_DEPTH:
 		_locator_params->fixing_depth = atof(value);
-	break;
-	
+		break;
+
 	case LP_VERBOSE:
 		strcpy(&_locator_params->verbose, value);
-	break;
-	
+		break;
+
 	case LP_PREFIX:
 		strcpy(_locator_params->prefix, value);
-	break;
-	
+		break;
+
 	case LP_MAX_ITERATIONS:
 		_locator_params->max_iterations = atoi(value);
-	break;
+		break;
 
 	case LP_EST_STD_ERROR:
 		_locator_params->est_std_error = atof(value);
-	break;
+		break;
 
 	case LP_NUM_DEG_FREEDOM:
 		_locator_params->num_dof = atoi(value);
-	break;
+		break;
 
 	case LP_MIN_ARRIVAL_WEIGHT:
 		_minArrivalWeight = atof(value);
-	break;
+		break;
 
 	case LP_RMS_AS_TIME_ERROR:
 		_useArrivalRMSAsTimeError = !strcmp(value, "TRUE");
-	break;
+		break;
 
 	default:
 		SEISCOMP_ERROR("setLocatorParam: wrong Parameter: %d", param);

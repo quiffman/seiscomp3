@@ -1573,7 +1573,10 @@ bool Application::init() {
 			}
 		}
 
-		int filtered = Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		int filtered = Inventory::Instance()->filter(_networkTypeWhiteList,
+		                                             _networkTypeBlackList,
+		                                             _stationTypeWhiteList,
+		                                             _stationTypeBlackList);
 		if ( filtered > 0 )
 			SEISCOMP_INFO("Filtered %d stations by type", filtered);
 	}
@@ -1600,7 +1603,10 @@ bool Application::init() {
 			}
 		}
 
-		int filtered = Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		int filtered = Inventory::Instance()->filter(_networkTypeWhiteList,
+		                                             _networkTypeBlackList,
+		                                             _stationTypeWhiteList,
+		                                             _stationTypeBlackList);
 		if ( filtered > 0 )
 			SEISCOMP_INFO("Filtered %d stations by type", filtered);
 	}
@@ -2131,13 +2137,23 @@ bool Application::initConfiguration() {
 	} catch ( ... ) {}
 
 	try {
-		std::vector<std::string> whiteList = configGetStrings("inventory.whitelist.type");
-		std::copy(whiteList.begin(), whiteList.end(), std::inserter(_inventoryTypeWhiteList, _inventoryTypeWhiteList.end()));
+		std::vector<std::string> whiteList = configGetStrings("inventory.whitelist.nettype");
+		std::copy(whiteList.begin(), whiteList.end(), std::inserter(_networkTypeWhiteList, _networkTypeWhiteList.end()));
 	} catch ( ... ) {}
 
 	try {
-		std::vector<std::string> blackList = configGetStrings("inventory.blacklist.type");
-		std::copy(blackList.begin(), blackList.end(), std::inserter(_inventoryTypeBlackList, _inventoryTypeBlackList.end()));
+		std::vector<std::string> blackList = configGetStrings("inventory.blacklist.nettype");
+		std::copy(blackList.begin(), blackList.end(), std::inserter(_networkTypeBlackList, _networkTypeBlackList.end()));
+	} catch ( ... ) {}
+
+	try {
+		std::vector<std::string> whiteList = configGetStrings("inventory.whitelist.statype");
+		std::copy(whiteList.begin(), whiteList.end(), std::inserter(_stationTypeWhiteList, _stationTypeWhiteList.end()));
+	} catch ( ... ) {}
+
+	try {
+		std::vector<std::string> blackList = configGetStrings("inventory.blacklist.statype");
+		std::copy(blackList.begin(), blackList.end(), std::inserter(_stationTypeBlackList, _stationTypeBlackList.end()));
 	} catch ( ... ) {}
 
 	try { _enableLoadCities = configGetBool("loadCities"); } catch ( ... ) {}

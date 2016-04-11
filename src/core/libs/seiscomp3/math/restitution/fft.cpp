@@ -159,27 +159,12 @@ bool transformFFT(int n, T *inout, double fsamp,
 
 // Explicit template instantiation for float and double types
 template SC_CORE_MATH_API
-bool transformFFT<float>
-(
-	int n, float *inout, double fsamp,
-	int n_poles,
-	SeismometerResponse::Pole *poles,
-	int n_zeros,
-	SeismometerResponse::Zero *zeros,
-	double norm, double cutoff,
-	double min_freq, double max_freq
-);
+bool transformFFT<float>(int n, float *inout, double fsamp, const FFT::TransferFunction *tf,
+                         double cutoff, double min_freq, double max_freq);
 
 template SC_CORE_MATH_API
-bool transformFFT<double>
-(
-	int n, double *inout, double fsamp, int n_poles,
-	SeismometerResponse::Pole *poles,
-	int n_zeros,
-	SeismometerResponse::Zero *zeros,
-	double norm, double cutoff,
-	double min_freq, double max_freq
-);
+bool transformFFT<double>(int n, double *inout, double fsamp, const FFT::TransferFunction *tf,
+                          double cutoff, double min_freq, double max_freq);
 
 
 }

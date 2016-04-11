@@ -386,7 +386,7 @@ string Socket::readline() {
 			_buf[_wp] = 0;
 			int a = strcspn(_buf + _rp, _eol.c_str());
 			int b = strspn(_buf + _rp + a, _eol.c_str());
-			if ( b > 0 ) {
+			if ( b > 0 && *(_buf + _rp + a + b - 1) == '\n' ) {
 				string s(_buf + _rp, a);
 				_rp += (a + b);
 				return s;

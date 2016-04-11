@@ -378,8 +378,12 @@ size_t DatabaseIterator::count() const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DatabaseObjectWriter::DatabaseObjectWriter(DatabaseArchive& archive, int batchSize)
-  : Visitor(TM_TOPDOWN), _archive(archive), _errors(0), _count(0), _batchSize(batchSize) {}
+DatabaseObjectWriter::DatabaseObjectWriter(DatabaseArchive& archive,
+                                           bool addToDatabase,
+                                           int batchSize)
+  : Visitor(addToDatabase?TM_TOPDOWN:TM_BOTTOMUP),
+    _archive(archive), _addObjects(addToDatabase), _errors(0),
+    _count(0), _batchSize(batchSize) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -441,8 +445,8 @@ bool DatabaseObjectWriter::write(Object* object) {
 
 	if ( _batchSize == 1 )
 		_archive.driver()->start();
-	bool result = _archive.write(object, _parentID);
-	
+	bool result = _addObjects?_archive.write(object, _parentID):_archive.remove(object, _parentID);
+
 	if ( !result ) {
 		++_errors;
 		if ( _batchSize == 1 )
@@ -1766,6 +1770,32 @@ bool DatabaseArchive::remove(Object* object, const std::string& parentID) {
 	removeId(object);
 
 	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool DatabaseArchive::addTree(Object *object, const std::string &parentID,
+                              int *objectsHandled) {
+	DatabaseObjectWriter writer(*this, true);
+	bool res = writer(object, parentID);
+	if ( objectsHandled ) *objectsHandled = writer.count();
+	return res;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool DatabaseArchive::removeTree(Object *object, const std::string &parentID,
+                                 int *objectsHandled) {
+	DatabaseObjectWriter writer(*this, false);
+	bool res = writer(object, parentID);
+	if ( objectsHandled ) *objectsHandled = writer.count();
+	return res;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

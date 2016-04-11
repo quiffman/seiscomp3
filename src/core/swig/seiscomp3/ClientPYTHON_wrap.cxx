@@ -20383,18 +20383,26 @@ SWIGINTERN PyObject *_wrap_Inventory_filter(PyObject *SWIGUNUSEDPARM(self), PyOb
   Seiscomp::Client::Inventory *arg1 = (Seiscomp::Client::Inventory *) 0 ;
   Seiscomp::Client::Inventory::TypeWhiteList *arg2 = 0 ;
   Seiscomp::Client::Inventory::TypeWhiteList *arg3 = 0 ;
+  Seiscomp::Client::Inventory::TypeWhiteList *arg4 = 0 ;
+  Seiscomp::Client::Inventory::TypeWhiteList *arg5 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  void *argp5 = 0 ;
+  int res5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Inventory_filter",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:Inventory_filter",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Inventory, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Inventory_filter" "', argument " "1"" of type '" "Seiscomp::Client::Inventory *""'"); 
@@ -20416,9 +20424,25 @@ SWIGINTERN PyObject *_wrap_Inventory_filter(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Inventory_filter" "', argument " "3"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
   }
   arg3 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,  0  | 0);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Inventory_filter" "', argument " "4"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Inventory_filter" "', argument " "4"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  arg4 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp4);
+  res5 = SWIG_ConvertPtr(obj4, &argp5, SWIGTYPE_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,  0  | 0);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "Inventory_filter" "', argument " "5"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  if (!argp5) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Inventory_filter" "', argument " "5"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  arg5 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp5);
   {
     try {
-      result = (int)(arg1)->filter((Seiscomp::Client::Inventory::TypeWhiteList const &)*arg2,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg3); 
+      result = (int)(arg1)->filter((Seiscomp::Client::Inventory::TypeWhiteList const &)*arg2,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg3,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg4,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg5); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -22077,7 +22101,11 @@ static PyMethodDef SwigMethods[] = {
 		"Inventory_load(Inventory self, DatabaseReader arg1)\n"
 		""},
 	 { (char *)"Inventory_setInventory", _wrap_Inventory_setInventory, METH_VARARGS, (char *)"Inventory_setInventory(Inventory self, Inventory arg1)"},
-	 { (char *)"Inventory_filter", _wrap_Inventory_filter, METH_VARARGS, (char *)"Inventory_filter(Inventory self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist) -> int"},
+	 { (char *)"Inventory_filter", _wrap_Inventory_filter, METH_VARARGS, (char *)"\n"
+		"Inventory_filter(Inventory self, TypeWhiteList networkTypeWhitelist, \n"
+		"    TypeWhiteList networkTypeBlacklist, TypeWhiteList stationTypeWhitelist, \n"
+		"    TypeWhiteList stationTypeBlacklist) -> int\n"
+		""},
 	 { (char *)"Inventory_loadStations", _wrap_Inventory_loadStations, METH_VARARGS, (char *)"Inventory_loadStations(Inventory self, DatabaseReader arg1)"},
 	 { (char *)"Inventory_stationLocation", _wrap_Inventory_stationLocation, METH_VARARGS, (char *)"\n"
 		"Inventory_stationLocation(Inventory self, string networkCode, string stationCode, \n"

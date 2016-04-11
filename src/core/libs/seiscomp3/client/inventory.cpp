@@ -314,8 +314,10 @@ void Inventory::loadStations(DataModel::DatabaseReader* reader) {
 }
 
 
-int Inventory::filter(const TypeWhiteList &typeWhitelist,
-                      const TypeWhiteList &typeBlacklist) {
+int Inventory::filter(const TypeWhiteList &networkTypeWhitelist,
+                      const TypeWhiteList &networkTypeBlacklist,
+                      const TypeWhiteList &stationTypeWhitelist,
+                      const TypeWhiteList &stationTypeBlacklist) {
 	int filtered = 0;
 
 	if ( !_inventory ) return filtered;
@@ -325,8 +327,8 @@ int Inventory::filter(const TypeWhiteList &typeWhitelist,
 		const std::string &net_type = net->type();
 
 		// Type blocked?
-		if ( !(typeWhitelist.empty()?true:typeWhitelist.find(net_type) != typeWhitelist.end()) ||
-		     !(typeBlacklist.empty()?true:typeBlacklist.find(net_type) == typeBlacklist.end()) ) {
+		if ( !(networkTypeWhitelist.empty()?true:networkTypeWhitelist.find(net_type) != networkTypeWhitelist.end()) ||
+		     !(networkTypeBlacklist.empty()?true:networkTypeBlacklist.find(net_type) == networkTypeBlacklist.end()) ) {
 			_inventory->removeNetwork(n);
 			filtered += net->stationCount();
 			continue;
@@ -339,8 +341,8 @@ int Inventory::filter(const TypeWhiteList &typeWhitelist,
 			const std::string &sta_type = sta->type();
 
 			// Type not blocked?
-			if ( (typeWhitelist.empty()?true:typeWhitelist.find(sta_type) != typeWhitelist.end()) &&
-			     (typeBlacklist.empty()?true:typeBlacklist.find(sta_type) == typeBlacklist.end()) ) {
+			if ( (stationTypeWhitelist.empty()?true:stationTypeWhitelist.find(sta_type) != stationTypeWhitelist.end()) &&
+			     (stationTypeBlacklist.empty()?true:stationTypeBlacklist.find(sta_type) == stationTypeBlacklist.end()) ) {
 				++s;
 				continue;
 			}

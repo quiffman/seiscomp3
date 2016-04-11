@@ -43,7 +43,7 @@ ADD_SC_PLUGIN(
 	"Locator implementation using NonLinLoc by Anthony Lomax "
 	"(http://alomax.free.fr/nlloc/)",
 	"Jan Becker, gempa GmbH",
-	0, 7, 1
+	0, 7, 2
 )
 
 
@@ -271,6 +271,17 @@ double normalizeAz(double az) {
 	else if ( az >= 360.0 )
 		az -= 360.0;
 	return az;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+double normalizeLon(double lon) {
+	while ( lon < -180.0 ) lon += 360.0;
+	while ( lon >  180.0 ) lon -= 360.0;
+	return lon;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1268,7 +1279,7 @@ bool NLLocator::NLL2SC3(Origin *origin, string &locComment, const void *vnode,
 
 	origin->setTime(ot);
 	origin->setLatitude(RealQuantity(phypo->dlat, lat_error, None, None, None));
-	origin->setLongitude(RealQuantity(phypo->dlong, lon_error, None, None, None));
+	origin->setLongitude(RealQuantity(normalizeLon(phypo->dlong), lon_error, None, None, None));
 
 	if ( depthFixed )
 		origin->setDepth(RealQuantity(phypo->depth));

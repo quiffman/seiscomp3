@@ -470,6 +470,8 @@ class DatabaseArchive(Observer):
     def write(self, *args): return _DataModel.DatabaseArchive_write(self, *args)
     def update(self, *args): return _DataModel.DatabaseArchive_update(self, *args)
     def remove(self, *args): return _DataModel.DatabaseArchive_remove(self, *args)
+    def addTree(self, *args): return _DataModel.DatabaseArchive_addTree(self, *args)
+    def removeTree(self, *args): return _DataModel.DatabaseArchive_removeTree(self, *args)
     def getObjectIterator(self, *args): return _DataModel.DatabaseArchive_getObjectIterator(self, *args)
 DatabaseArchive_swigregister = _DataModel.DatabaseArchive_swigregister
 DatabaseArchive_swigregister(DatabaseArchive)
