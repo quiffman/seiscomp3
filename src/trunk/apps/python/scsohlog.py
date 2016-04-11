@@ -12,7 +12,7 @@
 #    SeisComP Public License for more details.                             #
 ############################################################################
 
-import sys, os, time, re, seiscomp3.Client
+import sys, os, time, re, seiscomp3.Client, seiscomp3.System
 
 
 """
@@ -43,8 +43,7 @@ Tests = {\
 
 
 #----------------------------------------------------------------------------
-# Class TestLog to hold the properties of a certain test. It also creates
-# XML.
+# Class TestLog to hold the properties of a test. It also creates XML.
 #----------------------------------------------------------------------------
 class TestLog:
   def __init__(self):
@@ -54,7 +53,15 @@ class TestLog:
 
   def toXML(self, f, name):
     f.write('<test name="%s"' % name)
-    if self.value: f.write(' value="%s"' % self.value)
+    if self.value:
+      try:
+        # Try to convert to float
+        fvalue = float(self.value)
+        if fvalue % 1.0 >= 1E-6:
+          f.write(' value="%f"' % fvalue)
+        else:
+          f.write(' value="%d"' % int(fvalue))
+      except: f.write(' value="%s"' % self.value)
     if self.uom: f.write(' uom="%s"' % self.uom)
     if self.update: f.write(' updateTime="%s"' % self.update)
     f.write('/>')
@@ -239,11 +246,11 @@ class Monitor(seiscomp3.Client.Application):
     try: self._outputScript = self.commandline().optionString("script")
     except: pass
 
-    self._outputFile = seiscomp3.Config.Environment.Instance().absolutePath(self._outputFile)
+    self._outputFile = seiscomp3.System.Environment.Instance().absolutePath(self._outputFile)
     seiscomp3.Logging.info("Output file: %s" % self._outputFile)
 
     if self._outputScript:
-      self._outputScript = seiscomp3.Config.Environment.Instance().absolutePath(self._outputScript)
+      self._outputScript = seiscomp3.System.Environment.Instance().absolutePath(self._outputScript)
       seiscomp3.Logging.info("Output script: %s" % self._outputScript)
 
     self._monitor = self.addInputObjectLog("status", seiscomp3.Communication.Protocol.STATUS_GROUP)

@@ -803,24 +803,30 @@ void ConfigurationTreeItemModel::setModel(Seiscomp::System::ModuleBinding *b) {
 	bindItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	root->appendRow(bindItem);
 
-	QStandardItem *secItem = new QStandardItem(mod->definition->name.c_str());
-	secItem->setData(1, Level);
-	secItem->setData(qVariantFromValue((void*)b), Link);
-	secItem->setData(TypeSection, Type);
-	secItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-	bindItem->appendRow(secItem);
+	QStandardItem *secItem;
 
-	for ( size_t g = 0; g < b->groups.size(); ++g )
-		addGroup(secItem, b->groups[g].get(), 2, _configStage);
+	for ( size_t s = 0; s < b->sections.size(); ++s ) {
+		Section *sec = b->sections[s].get();
 
-	for ( size_t i = 0; i < b->structures.size(); ++i )
-		addStructure(secItem, b->structures[i].get(), 2, _configStage);
+		secItem = new QStandardItem(sec->name.c_str());
+		secItem->setData(1, Level);
+		secItem->setData(qVariantFromValue((void*)sec), Link);
+		secItem->setData(TypeSection, Type);
+		secItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+		bindItem->appendRow(secItem);
 
-	for ( size_t i = 0; i < b->structureTypes.size(); ++i )
-		addStructure(secItem, b->structureTypes[i].get(), 2, _configStage);
+		for ( size_t g = 0; g < sec->groups.size(); ++g )
+			addGroup(secItem, sec->groups[g].get(), 2, _configStage);
 
-	for ( size_t p = 0; p < b->parameters.size(); ++p )
-		addParameter(secItem, b->parameters[p].get(), 2, _configStage);
+		for ( size_t i = 0; i < sec->structures.size(); ++i )
+			addStructure(secItem, sec->structures[i].get(), 2, _configStage);
+
+		for ( size_t i = 0; i < sec->structureTypes.size(); ++i )
+			addStructure(secItem, sec->structureTypes[i].get(), 2, _configStage);
+
+		for ( size_t p = 0; p < sec->parameters.size(); ++p )
+			addParameter(secItem, sec->parameters[p].get(), 2, _configStage);
+	}
 
 	for ( size_t c = 0; c < b->categories.size(); ++c ) {
 		BindingCategory *cat = b->categories[c].get();
@@ -834,6 +840,7 @@ void ConfigurationTreeItemModel::setModel(Seiscomp::System::ModuleBinding *b) {
 
 		for ( size_t s = 0; s < cat->bindings.size(); ++s ) {
 			Binding *catBinding = cat->bindings[s].binding.get();
+
 			secItem = new QStandardItem(cat->bindings[s].alias.c_str());
 			secItem->setData(2, Level);
 			secItem->setData(qVariantFromValue((void*)catBinding), Link);
@@ -841,17 +848,21 @@ void ConfigurationTreeItemModel::setModel(Seiscomp::System::ModuleBinding *b) {
 			secItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 			catItem->appendRow(secItem);
 
-			for ( size_t g = 0; g < catBinding->groups.size(); ++g )
-				addGroup(secItem, catBinding->groups[g].get(), 3, _configStage);
+			for ( size_t i = 0; i < catBinding->sections.size(); ++i ) {
+				Section *sec = catBinding->sections[i].get();
 
-			for ( size_t p = 0; p < catBinding->parameters.size(); ++p )
-				addParameter(secItem, catBinding->parameters[p].get(), 3, _configStage);
+				for ( size_t g = 0; g < sec->groups.size(); ++g )
+					addGroup(secItem, sec->groups[g].get(), 3, _configStage);
 
-			for ( size_t i = 0; i < catBinding->structures.size(); ++i )
-				addStructure(secItem, catBinding->structures[i].get(), 3, _configStage);
+				for ( size_t p = 0; p < sec->parameters.size(); ++p )
+					addParameter(secItem, sec->parameters[p].get(), 3, _configStage);
 
-			for ( size_t i = 0; i < catBinding->structureTypes.size(); ++i )
-				addStructure(secItem, catBinding->structureTypes[i].get(), 3, _configStage);
+				for ( size_t i = 0; i < sec->structures.size(); ++i )
+					addStructure(secItem, sec->structures[i].get(), 3, _configStage);
+
+				for ( size_t i = 0; i < sec->structureTypes.size(); ++i )
+					addStructure(secItem, sec->structureTypes[i].get(), 3, _configStage);
+			}
 		}
 	}
 }
@@ -932,17 +943,21 @@ bool ConfigurationTreeItemModel::setData(const QModelIndex &idx, const QVariant 
 			Module *mod = (Module*)cat->parent->parent;
 			mod->model->updateBinding((ModuleBinding*)cat->parent, binding);
 
-			for ( size_t g = 0; g < binding->groups.size(); ++g )
-				addGroup(bindingItem, binding->groups[g].get(), idx.data(Level).toInt(), _configStage);
+			for ( size_t s = 0; s < binding->sections.size(); ++ s ) {
+				Section *sec = binding->sections[s].get();
 
-			for ( size_t p = 0; p < binding->parameters.size(); ++p )
-				addParameter(bindingItem, binding->parameters[p].get(), idx.data(Level).toInt(), _configStage);
+				for ( size_t g = 0; g < sec->groups.size(); ++g )
+					addGroup(bindingItem, sec->groups[g].get(), idx.data(Level).toInt(), _configStage);
 
-			for ( size_t i = 0; i < binding->structures.size(); ++i )
-				addStructure(bindingItem, binding->structures[i].get(), idx.data(Level).toInt(), _configStage);
+				for ( size_t p = 0; p < sec->parameters.size(); ++p )
+					addParameter(bindingItem, sec->parameters[p].get(), idx.data(Level).toInt(), _configStage);
 
-			for ( size_t i = 0; i < binding->structureTypes.size(); ++i )
-				addStructure(bindingItem, binding->structureTypes[i].get(), idx.data(Level).toInt(), _configStage);
+				for ( size_t i = 0; i < sec->structures.size(); ++i )
+					addStructure(bindingItem, sec->structures[i].get(), idx.data(Level).toInt(), _configStage);
+
+				for ( size_t i = 0; i < sec->structureTypes.size(); ++i )
+					addStructure(bindingItem, sec->structureTypes[i].get(), idx.data(Level).toInt(), _configStage);
+			}
 		}
 	}
 

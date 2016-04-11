@@ -104,6 +104,8 @@ Environment or preceding configuration variables can be used with ``${var}``.
    error if a string is assigned to a parameter that is expected to be an integer.
 
 
+.. _global-stations:
+
 Stations
 ========
 

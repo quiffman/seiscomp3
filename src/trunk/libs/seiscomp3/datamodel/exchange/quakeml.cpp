@@ -56,10 +56,14 @@ struct ResRefFormatter : Formatter {
 		else {
 			// TODO: Use regex and replace every char not matching pattern
 			// class: [\w\d\-\.\*\(\)\+\?_~'=,;#/&amp;]
-			std::string::iterator it = v.begin();
-			for ( ; it != v.end(); ++it)
-				if ( *it == ' ' || *it == ':') *it = '_';
-			v.insert(0, RES_REF_PREFIX);
+			// If it does not yet start with "smi:" and thus seems
+			// to be a valid smi
+			if ( v.compare(0, 4, "smi:") != 0 && v.compare(0, 8, "quakeml:") ) {
+				std::string::iterator it;
+				for ( it = v.begin(); it != v.end(); ++it )
+					if ( *it == ' ' || *it == ':' || *it == '#' ) *it = '_';
+				v.insert(0, RES_REF_PREFIX);
+			}
 		}
 	}
 };

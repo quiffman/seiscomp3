@@ -153,6 +153,7 @@ Core::Time now;
 
 pid_t startExternalProcess(const vector<string> &cmdparams) {
 	pid_t pid;
+	string cmdline;
 
 	pid = fork();
 
@@ -164,9 +165,12 @@ pid_t startExternalProcess(const vector<string> &cmdparams) {
 		for ( size_t i = 0; i < cmdparams.size(); ++i ) {
 			//cerr << toks[i] << endl;
 			params[i] = (char*)cmdparams[i].c_str();
+			if ( i > 0 ) cmdline += " ";
+			cmdline += cmdparams[i];
 		}
 		params.push_back(NULL);
 
+		SEISCOMP_DEBUG("$ %s", cmdline.c_str());
 		execv(params[0], &params[0]);
 		exit(1);
 	}
@@ -223,6 +227,7 @@ WFParam::Config::Config() {
 	enableShakeMapXMLOutput = true;
 	shakeMapOutputPath = "@LOGDIR@/shakemaps";
 	shakeMapOutputScriptWait = true;
+	shakeMapOutputSC3EventID = false;
 
 	waveformOutputPath = "@LOGDIR@/shakemaps/waveforms";
 	waveformOutputEventDirectory = false;
@@ -386,6 +391,7 @@ WFParam::WFParam(int argc, char **argv) : Application(argc, argv) {
 	NEW_OPT(_config.shakeMapOutputPath, "wfparam.output.shakeMap.path");
 	NEW_OPT(_config.shakeMapOutputScript, "wfparam.output.shakeMap.script");
 	NEW_OPT(_config.shakeMapOutputScriptWait, "wfparam.output.shakeMap.synchronous");
+	NEW_OPT(_config.shakeMapOutputSC3EventID, "wfparam.output.shakeMap.SC3EventID");
 	NEW_OPT(_config.magnitudeTolerance, "wfparam.magnitudeTolerance");
 	NEW_OPT_CLI(_config.fExpiry, "Generic", "expiry,x",
 	            "Time span in hours after which objects expire", true);
@@ -2340,12 +2346,17 @@ void WFParam::collectResults() {
 		ofstream of;
 		Core::Time timestamp = Core::Time::GMT();
 		string eventPath, path;
-		string eventID;
+		string eventID, shakeMapEventID;
 		bool writeToFile = _config.shakeMapOutputPath != "-";
 
 		eventID = generateEventID(evt.get());
 		if ( eventID.empty() )
 			eventID = timestamp.toString("%Y%m%d%H%M%S");
+
+		if ( _config.shakeMapOutputSC3EventID && evt )
+			shakeMapEventID = evt->publicID();
+		else
+			shakeMapEventID = eventID;
 
 		if ( writeToFile ) {
 			eventPath = _config.shakeMapOutputPath + eventID + "/";
@@ -2373,7 +2384,7 @@ void WFParam::collectResults() {
 				org->time().value().get(&year, &mon, &day, &hour, &min, &sec);
 				*os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" << endl;
 				*os << "<!DOCTYPE earthquake SYSTEM \"earthquake.dtd\">" << endl;
-				*os << "<earthquake id=\"" << eventID << "\""
+				*os << "<earthquake id=\"" << shakeMapEventID << "\""
 				    << " lat=\"" << org->latitude().value() << "\""
 				    << " lon=\"" << org->longitude().value() << "\""
 				    << " depth=\"" << org->depth().value() << "\""

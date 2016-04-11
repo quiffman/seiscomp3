@@ -65,7 +65,10 @@ MACRO(SC_QT4_WRAP_UI outfiles)
     GET_FILENAME_COMPONENT(outfile ${it} NAME_WE)
     GET_FILENAME_COMPONENT(infile ${it} ABSOLUTE)
     GET_FILENAME_COMPONENT(_rel ${it} PATH)
-    SET(outfile ${CMAKE_CURRENT_BINARY_DIR}/${_rel}/ui_${outfile}.h) # Here we set output
+    IF (_rel)
+      SET(_rel "${_rel}/")
+    ENDIF (_rel)
+    SET(outfile ${CMAKE_CURRENT_BINARY_DIR}/${_rel}ui_${outfile}.h) # Here we set output
     ADD_CUSTOM_COMMAND(OUTPUT ${outfile}
       COMMAND ${QT_UIC_EXECUTABLE}
       ARGS ${ui_options} -o ${outfile} ${infile}

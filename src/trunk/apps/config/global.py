@@ -116,7 +116,9 @@ class ConfigDBUpdater(seiscomp3.Client.Application):
         if not binding: continue
         sys.stdout.write("\r  + %s.%s" % (staid.networkCode, staid.stationCode))
         sys.stdout.flush()
-        params = collectParams(binding)
+        params = {}
+        for i in range(binding.sectionCount()):
+            params.update(collectParams(binding.section(i)))
         key = (staid.networkCode, staid.stationCode)
         if not key in self.stationSetups:
           self.stationSetups[key] = {}
@@ -374,3 +376,9 @@ class Module(seiscomp3.Kernel.Module):
     cfg.writeConfig()
 
     return 0
+
+
+if __name__ == "__main__":
+    import seiscomp3.System
+    app = ConfigDBUpdater(len(sys.argv), sys.argv)
+    sys.exit(app())

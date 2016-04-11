@@ -323,6 +323,8 @@ struct PathResolver : public Util::VariableResolver {
 			variable = env->installDir();
 		else if ( variable == "DATADIR" )
 			variable = env->shareDir();
+		else if ( variable == "KEYDIR" )
+			variable = env->appConfigDir() + "/key";
 		else if ( variable == "HOMEDIR" ) {
 #ifndef WIN32
 			const char *homeDir = getenv("HOME");

@@ -69,7 +69,12 @@ void FileOutput::log(const char* channelName,
 	_stream.width(w);
 	_stream.fill(f);
 
-	_stream << "[" << channelName << "/" << component() << "] ";
+	_stream << "[" << channelName;
+	if ( likely(_logComponent) )
+		_stream << "/" << component();
+	_stream << "] ";
+	if ( unlikely(_logContext) )
+		_stream << "(" << fileName() << ':' << lineNum() << ") ";
 	_stream << msg << std::endl;
 }
 

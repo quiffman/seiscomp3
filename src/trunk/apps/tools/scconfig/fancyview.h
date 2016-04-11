@@ -156,7 +156,7 @@ class FancyView : public QAbstractItemView {
 		QIcon _traceIcon;
 		QWidget *_currentItem;
 		QLabel *_optionEditHint;
-		bool _blockPopulate;
+		void *_blockPopulate;
 };
 
 

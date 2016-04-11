@@ -97,34 +97,42 @@ It describes a binary file, an application that can be started by SeisComP.
 
 Element: **module**
 
-+-------------------+----------+-----------+-----------------------------------------------+
-| Name              | XML type | Mandatory | Description                                   |
-+===================+==========+===========+===============================================+
-| **name**          | attrib   |    yes    | The name of the module. This name must be     |
-|                   |          |           | unique among all available modules.           |
-+-------------------+----------+-----------+-----------------------------------------------+
-| **category**      | attrib   |    no     | The category of the module. It is used by the |
-|                   |          |           | configurator to group modules and by the      |
-|                   |          |           | documentation generator to create the final   |
-|                   |          |           | document structure. The category can contain  |
-|                   |          |           | slashes to introduce hierarchies.             |
-+-------------------+----------+-----------+-----------------------------------------------+
-| **standalone**    | attrib   |    no     | The standalone attribute is also optional and |
-|                   |          |           | by default false. Standalone means that the   |
-|                   |          |           | module does not take the global configuration |
-|                   |          |           | files (eg :file:`etc/global.cfg`) into        |
-|                   |          |           | account.                                      |
-+-------------------+----------+-----------+-----------------------------------------------+
-| **description**   | element  |    no     | A short description of the module.            |
-+-------------------+----------+-----------+-----------------------------------------------+
-| **configuration** | element  |    no     | The available configuration parameters. See   |
-|                   |          |           | element                                       |
-|                   |          |           | :ref:`configuration<xml-configuration>`.      |
-+-------------------+----------+-----------+-----------------------------------------------+
-| **command-line**  | element  |    no     | The available command-line options. See       |
-|                   |          |           | element                                       |
-|                   |          |           | :ref:`command-line<xml-command-line>`.        |
-+-------------------+----------+-----------+-----------------------------------------------+
++-----------------------------+----------+-----------+-----------------------------------------------+
+| Name                        | XML type | Mandatory | Description                                   |
++=============================+==========+===========+===============================================+
+| **name**                    | attrib   |    yes    | The name of the module. This name must be     |
+|                             |          |           | unique among all available modules.           |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **category**                | attrib   |    no     | The category of the module. It is used by the |
+|                             |          |           | configurator to group modules and by the      |
+|                             |          |           | documentation generator to create the final   |
+|                             |          |           | document structure. The category can contain  |
+|                             |          |           | slashes to introduce hierarchies.             |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **standalone**              | attrib   |    no     | The standalone attribute is also optional and |
+|                             |          |           | by default false. Standalone means that the   |
+|                             |          |           | module does not take the global configuration |
+|                             |          |           | files (eg :file:`etc/global.cfg`) into        |
+|                             |          |           | account.                                      |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **inherit-global-bindings** | attrib   |    no     | If global bindings are inherited. The default |
+|                             |          |           | is 'false'. If 'yes' then all parameters of   |
+|                             |          |           | the global binding are also available in      |
+|                             |          |           | the module binding to allow overwriting them. |
+|                             |          |           | Standalone modules will never inherit global  |
+|                             |          |           | bindings regardless the value of this         |
+|                             |          |           | attribute.                                    |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **description**             | element  |    no     | A short description of the module.            |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **configuration**           | element  |    no     | The available configuration parameters. See   |
+|                             |          |           | element                                       |
+|                             |          |           | :ref:`configuration<xml-configuration>`.      |
++-----------------------------+----------+-----------+-----------------------------------------------+
+| **command-line**            | element  |    no     | The available command-line options. See       |
+|                             |          |           | element                                       |
+|                             |          |           | :ref:`command-line<xml-command-line>`.        |
++-----------------------------+----------+-----------+-----------------------------------------------+
 
 It follows a simple example of how a module definition looks like.
 

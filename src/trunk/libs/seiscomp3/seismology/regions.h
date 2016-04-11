@@ -29,7 +29,7 @@ class SC_SYSTEM_CORE_API Regions {
 
 		static void load();
 		static std::string getRegionName(double lat, double lon);
-		static const Seiscomp::Geo::PolyRegions &polyRegions();
+		static Seiscomp::Geo::PolyRegions &polyRegions();
 
 	private:
 		static std::string getFeGeoRegionName(double lat, double lon);

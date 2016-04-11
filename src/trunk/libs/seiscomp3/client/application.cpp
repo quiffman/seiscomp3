@@ -39,6 +39,7 @@
 #include <seiscomp3/datamodel/config.h>
 #include <seiscomp3/datamodel/configmodule.h>
 #include <seiscomp3/datamodel/configstation.h>
+#include <seiscomp3/datamodel/notifier.h>
 #include <seiscomp3/datamodel/version.h>
 
 #include <seiscomp3/io/archive/xmlarchive.h>
@@ -460,6 +461,8 @@ Application::Application(int argc, char** argv)
 	_retryCount = 0xFFFFFFFF;
 
 	_verbosity = 2;
+	_logContext = false;
+	_logComponent = -1; // -1=unset, 0=off, 1=on
 	_logToStdout = false;
 	_messagingTimeout = 3;
 	_messagingHost = "localhost";
@@ -479,10 +482,7 @@ Application::Application(int argc, char** argv)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Application::~Application() {
-	if ( _logger ) {
-		delete _logger;
-		_logger = NULL;
-	}
+	closeLogging();
 
 	if ( _inputMonitor ) delete _inputMonitor;
 	if ( _outputMonitor ) delete _outputMonitor;
@@ -495,8 +495,8 @@ Application::~Application() {
 
 	delete[] _argv;
 
-	// Unload plugins
-	Seiscomp::Client::PluginRegistry::Instance()->freePlugins();
+	// Remove all queued notifiers
+	DataModel::Notifier::Clear();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -890,6 +890,21 @@ void Application::setConnectionRetries(unsigned int r) {
 
 
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::setLoggingContext(bool e) {
+	_logContext = e;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::setLoggingComponent(bool e) {
+	_logComponent = e ? 1 : 0;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Application::setLoggingToStdErr(bool e) {
@@ -984,6 +999,18 @@ bool Application::isExitRequested() const {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Application::printUsage() const {
 	commandline().printOptions();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::closeLogging() {
+	if ( _logger ) {
+		delete _logger;
+		_logger = NULL;
+	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1989,13 +2016,16 @@ void Application::initCommandLine() {
 	commandline().addOption("Verbose", "verbosity", "verbosity level [0..4]", &_verbosity, false);
 	commandline().addCustomOption("Verbose", "v,v", "increase verbosity level (may be repeated, eg. -vv)", new FlagCounter(&_verbosity));
 	commandline().addOption("Verbose", "quiet,q", "quiet mode: no logging output");
+	commandline().addOption("Verbose", "print-component", "print the log component (default: file:1, stdout:0)", &_logComponent, false);
+	commandline().addOption("Verbose", "print-context", "print source file and line number", &_logContext);
 	commandline().addOption("Verbose", "component", "limits the logging to a certain component. this option can be given more than once", &_logComponents);
 #ifndef WIN32
 	commandline().addOption("Verbose", "syslog,s", "use syslog");
 #endif
 	commandline().addOption("Verbose", "lockfile,l", "path to lock file", &_lockfile);
 	commandline().addOption("Verbose", "console", "send log output to stdout", &_logToStdout);
-	commandline().addOption("Verbose", "debug", "debug mode: --verbosity=4 --console");
+	commandline().addOption("Verbose", "debug", "debug mode: --verbosity=4 --console=1");
+	commandline().addOption("Verbose", "trace", "trace mode: --verbosity=4 --console=1 --print-component=1 --print-context=1");
 	commandline().addOption("Verbose", "log-file", "Use alternative log file", &_alternativeLogFile);
 
 
@@ -2104,6 +2134,10 @@ bool Application::initConfiguration() {
 
 	try { _verbosity = configGetInt("logging.level"); } catch (...) {}
 	try { _logToStdout = !configGetBool("logging.file"); } catch (...) {}
+	try { _logContext = configGetBool("logging.context"); } catch (...) {}
+	try { _logComponent = configGetBool("logging.component") ? 1 : 0; } catch (...) {}
+	try { _logComponents = configGetStrings("logging.components"); } catch (...) {}
+
 	try { _objectLogTimeWindow = configGetInt("logging.objects.timeSpan"); } catch (...) {}
 
 	try { _crashHandler = configGetString("scripts.crashHandler"); } catch ( ... ) {}
@@ -2215,10 +2249,15 @@ bool Application::initLogging() {
 	bool enableLogging = _verbosity > 0;
 	bool syslog = commandline().hasOption("syslog");
 
-	if ( commandline().hasOption("debug") ) {
+	bool trace = commandline().hasOption("trace");
+	if ( trace || commandline().hasOption("debug") ) {
 		enableLogging = true;
 		_verbosity = 4;
 		_logToStdout = true;
+		if ( trace ) {
+			_logContext = true;
+			_logComponent = 1;
+		}
 	}
 
 	if ( enableLogging ) {
@@ -2263,6 +2302,8 @@ bool Application::initLogging() {
 			_logger = new Logging::FdOutput(STDERR_FILENO);
 
 		if ( _logger ) {
+			_logger->logComponent(_logComponent < 0 ? !_logToStdout : _logComponent);
+			_logger->logContext(_logContext);
 			if ( !_logComponents.empty() ) {
 				for ( ComponentList::iterator it = _logComponents.begin();
 				      it != _logComponents.end(); ++it ) {

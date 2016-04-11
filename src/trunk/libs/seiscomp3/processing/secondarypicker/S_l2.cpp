@@ -315,6 +315,10 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 		if ( snr < _minSNR ) {
 			_result = Result();
 			_initialized = false;
+			SEISCOMP_DEBUG("[S-L2] %s: snr %f too low at %s, need %f",
+			               rec->streamID().c_str(), snr,
+			               _result.time.iso().c_str(),
+			               _minSNR);
 			setStatus(LowSNR, snr);
 			return;
 		}
@@ -322,6 +326,10 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 		if ( _result.time <= _trigger.onset ) {
 			_result = Result();
 			_initialized = false;
+			SEISCOMP_DEBUG("[S-L2] %s: pick at %s is before trigger at %s: rejected",
+			               rec->streamID().c_str(),
+			               _result.time.iso().c_str(),
+			               _trigger.onset.iso().c_str());
 			setStatus(Terminated, 1);
 			return;
 		}
@@ -365,6 +373,10 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 					if ( snr < _minSNR ) {
 						_result = Result();
 						_initialized = false;
+						SEISCOMP_DEBUG("[S-L2] %s: snr %f too low at %s, need %f",
+						               rec->streamID().c_str(), snr,
+						               _result.time.iso().c_str(),
+						               _minSNR);
 						setStatus(LowSNR, snr);
 						return;
 					}
@@ -377,6 +389,10 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 				if ( _result.time <= _trigger.onset ) {
 					_result = Result();
 					_initialized = false;
+					SEISCOMP_DEBUG("[S-L2] %s: pick at %s is before trigger at %s: rejected",
+					               rec->streamID().c_str(),
+					               _result.time.iso().c_str(),
+					               _trigger.onset.iso().c_str());
 					setStatus(Terminated, 1);
 					return;
 				}

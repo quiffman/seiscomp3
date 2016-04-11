@@ -13,7 +13,7 @@
 ############################################################################
 
 import time, sys, os
-import seiscomp3.Client, seiscomp3.Utils
+import seiscomp3.Client, seiscomp3.Utils, seiscomp3.System
 
 
 def createDirectory(dir):
@@ -99,7 +99,7 @@ class ProcLatency(seiscomp3.Client.Application):
     except: pass
 
     if self._directory:
-      self._directory = seiscomp3.Config.Environment.Instance().absolutePath(self._directory)
+      self._directory = seiscomp3.System.Environment.Instance().absolutePath(self._directory)
       sys.stderr.write("Logging latencies to %s\n" % self._directory)
 
     return True

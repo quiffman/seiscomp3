@@ -5,7 +5,7 @@
 
 organization = "$organization"
 request_dir = "$request_dir"
-dcid = "$dcid"
+dcid = "$datacenterID"
 contact_email = "$contact_email"
 connections = $connections
 connections_per_ip = $connections_per_ip

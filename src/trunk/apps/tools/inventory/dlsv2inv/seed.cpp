@@ -964,7 +964,7 @@ void StationControl::ParseVolumeRecord(string record)
 							si[eos].ci[eoc].csg.push_back(ChannelSensitivityGain(record.substr(begin, size)));
 							break;
 						case(59):
-							si[eos].ci[eoc].cc.push_back(Comment(record.substr(begin, size)));
+	//						si[eos].ci[eoc].cc.push_back(Comment(record.substr(begin, size)));
 							break;
 						case(60):
 							si[eos].ci[eoc].rr.push_back(ResponseReference(record.substr(begin, size)));

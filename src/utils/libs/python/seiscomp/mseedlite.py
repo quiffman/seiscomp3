@@ -11,7 +11,6 @@
 # version. For more information, see http://www.gnu.org/
 #*****************************************************************************
 
-import re
 import datetime
 import struct
 import cStringIO
@@ -23,8 +22,6 @@ _BLK1000_LEN = 4
 _BLK1001_LEN = 4
 _MAX_RECLEN = 4096
 
-_rx_code = re.compile(r'[A-Z0-9]*')
-
 _doy = (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)
 
 def _is_leap(y):
@@ -34,7 +31,7 @@ def _is_leap(y):
 def _ldoy(y, m):
     """The day of the year of the first day of month m, in year y.
     Note: for January, m=0; for December, m=11.
-    
+
     Examples:
 
     _ldoy(1900, 3) = 90
@@ -77,10 +74,10 @@ class Record(object):
 
         if len(fixhead) == 0:
             raise StopIteration
-        
+
         if len(fixhead) < _FIXHEAD_LEN:
             raise MSeedError, "unexpected end of header"
-        
+
         (recno_str, self.rectype, sta, loc, cha, net, bt_year, bt_doy, bt_hour,
             bt_minute, bt_second, bt_tms, self.nsamp, self.sr_factor,
             self.sr_mult, self.aflgs, self.cflgs, self.qflgs, self.__num_blk,
@@ -88,16 +85,16 @@ class Record(object):
             struct.unpack(">6scx5s2s3s2s2H3Bx2H2h4Bl2H", fixhead)
 
         self.header += fixhead
-        
+
         if self.rectype != 'D' and self.rectype != 'R' and self.rectype != 'Q':
             fd.read(_MAX_RECLEN - _FIXHEAD_LEN)
             raise MSeedNoData, "non-data record"
-        
+
         if self.__pdata < _FIXHEAD_LEN or self.__pdata >= _MAX_RECLEN or \
             (self.__pblk != 0 and \
             (self.__pblk < _FIXHEAD_LEN or self.__pblk >= self.__pdata)):
             raise MSeedError, "invalid pointers"
-        
+
         if self.__pblk == 0:
             blklen = 0
         else:
@@ -108,7 +105,7 @@ class Record(object):
                 raise MSeedError, "unexpected end of data"
 
             self.header += gap
-        
+
         # defaults
         self.encoding = 11
         self.byteorder = 1
@@ -130,7 +127,7 @@ class Record(object):
             (blktype, nextblk) = struct.unpack(">2H", blkhead)
             self.header += blkhead
             pos += _BLKHEAD_LEN
-            
+
             if blktype == 1000:
                 blk1000 = fd.read(_BLK1000_LEN)
                 if len(blk1000) < _BLK1000_LEN:
@@ -143,7 +140,7 @@ class Record(object):
                 self.__rec_len_exp_idx = self.__pblk + pos + 2
                 self.header += blk1000
                 pos += _BLK1000_LEN
-                    
+
             elif blktype == 1001:
                 blk1001 = fd.read(_BLK1001_LEN)
                 if len(blk1001) < _BLK1001_LEN:
@@ -171,10 +168,10 @@ class Record(object):
 
             self.header += gap
             pos += gaplen
-        
+
         if pos > blklen:
             raise MSeedError, "corrupt record"
-        
+
         gaplen = self.__pdata - len(self.header)
         gap = fd.read(gaplen)
         if len(gap) < gaplen:
@@ -184,10 +181,10 @@ class Record(object):
         pos += gaplen
 
         self.recno = int(recno_str)
-        self.net = _rx_code.match(net).group()
-        self.sta = _rx_code.match(sta).group()
-        self.loc = _rx_code.match(loc).group()
-        self.cha = _rx_code.match(cha).group()
+        self.net = net.strip()
+        self.sta = sta.strip()
+        self.loc = loc.strip()
+        self.cha = cha.strip()
 
         if self.sr_factor > 0 and self.sr_mult > 0:
             self.samprate_num = self.sr_factor * self.sr_mult
@@ -204,9 +201,9 @@ class Record(object):
         else:
             self.samprate_num = 0
             self.samprate_denom = 1
-            
+
         self.fsamp = float(self.samprate_num) / float(self.samprate_denom)
-        
+
         # quick fix to avoid exception from datetime
         if bt_second > 59:
             self.leap = bt_second - 59
@@ -230,7 +227,7 @@ class Record(object):
         except ValueError, e:
             logs.error("tms = " + str(bt_tms) + ", micros = " + str(micros))
             raise MSeedError, "invalid time: " + str(e)
-            
+
         self.size = 1 << rec_len_exp
         if self.size < len(self.header) or self.size > _MAX_RECLEN:
             raise MSeedError, "invalid record size"
@@ -265,7 +262,7 @@ class Record(object):
                 if d0 > 0x7fffffff:
                     d0 -= 0xffffffff
                     d0 -= 1
-                    
+
         elif self.encoding == 11:
             """STEIM (2) Compression?"""
             if c3 == 1:
@@ -300,12 +297,12 @@ class Record(object):
                     d0 = (w3 >> 24) & 0xf
                     if d0 > 0x7:
                         d0 -= 0x10
-        
+
         if d0 is not None:
             self.X_minus1 = self.X0 - d0
         else:
             self.X_minus1 = None
-        
+
         if self.nframes is None or self.nframes == 0:
             i = 0
             self.nframes = 0
@@ -332,7 +329,7 @@ class Record(object):
     def write(self, fd, rec_len_exp):
         if self.size > (1 << rec_len_exp):
             raise MSeedError, "record is larger than requested write size"
-    
+
         recno_str = "%06d" % (self.recno,)
         sta = "%-5.5s" % (self.sta,)
         loc = "%-2.2s" % (self.loc,)
@@ -362,12 +359,12 @@ class Record(object):
 
         if self.__micros_idx is not None:
             buf[self.__micros_idx - _FIXHEAD_LEN] = struct.pack(">b", micros)
-        
+
         if self.__nframes_idx is not None:
             buf[self.__nframes_idx - _FIXHEAD_LEN] = struct.pack(">B", self.nframes)
 
         fd.write(''.join(buf))
-        
+
         buf = self.data[:4] + struct.pack(">ll", self.X0, self.Xn) + \
             self.data[12:] + ((1 << rec_len_exp) - self.size) * '\0'
 
@@ -384,7 +381,7 @@ class _Iter(object):
 
             except MSeedError, e:
                 logs.error(str(e))
-                
+
             except MSeedNoData:
                 pass
 

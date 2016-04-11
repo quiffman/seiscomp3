@@ -158,9 +158,13 @@ Notifier* Notifier::Create(const std::string& parentId,
 			// If there is already an equal notifier stored, discard the
 			// current one
 			if ( res == CR_EQUAL ) {
-				SEISCOMP_WARNING("equal notifiers found => discarding the given (%s(%d, %s), %s(%d, %s))",
-				                 (*it)->parentID().c_str(), (int)(*it)->operation(), (*it)->object()->className(),
-				                 notifier->parentID().c_str(), (int)notifier->operation(), notifier->object()->className());
+				SEISCOMP_WARNING("equal notifiers found => discarding the given (%s(%s, %s), %s(%s, %s))",
+				                 (*it)->parentID().c_str(),
+				                 (*it)->operation().toString(),
+				                 (*it)->object()->className(),
+				                 notifier->parentID().c_str(),
+				                 notifier->operation().toString(),
+				                 notifier->object()->className());
 				return NULL;
 			}
 			// If the notifier neutralize each other, remove the stored

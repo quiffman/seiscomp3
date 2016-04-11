@@ -33,7 +33,8 @@ ADD_CUSTOM_COMMAND(
         COMMAND ${CMAKE_COMMAND} -E echo '\"\; return OS_VERSION\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different  ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp ${GEN_VERSION}
-        COMMENT "create ${GEN_VERSION} for debug-mode"
+	COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+        COMMENT "create ${GEN_VERSION}"
 )
 
 SET(SYSTEM_CORE_SOURCES ${SYSTEM_CORE_SOURCES} ${GEN_VERSION})

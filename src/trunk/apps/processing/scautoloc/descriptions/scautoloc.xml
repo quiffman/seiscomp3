@@ -94,17 +94,17 @@
 					<description>
 					Location of autoloc grid file.
 					</description>
-				</parameter>				
-				<parameter name="stationConfig" type="string" default="@DATADIR@/scautoloc/station-locations.conf">
+				</parameter>
+				<parameter name="stationConfig" type="string" default="@DATADIR@/scautoloc/station.conf">
 					<description>
 					Location of autoloc stations config file.
 					</description>
-				</parameter>				
+				</parameter>
 				<parameter name="pickLog" type="string" default="@LOGDIR@/autoloc-picklog">
 					<description>
 					Location of autoloc stations config file.
 					</description>
-				</parameter>								
+				</parameter>
 				
 			</group>
 		</configuration>

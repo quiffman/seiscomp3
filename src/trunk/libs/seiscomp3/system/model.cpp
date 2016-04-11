@@ -190,21 +190,24 @@ Binding *loadCategoryBinding(SchemaBinding *def, const std::string &prefix,
 	Binding *binding = new Binding(def->name);
 	binding->definition = def;
 
+	SectionPtr sec = new Section(def->name);
+	binding->sections.push_back(sec);
+
 	for ( size_t i = 0; i < def->parameters.parameterCount(); ++i ) {
 		SchemaParameter *pdef = def->parameters.parameter(i);
 		std::string paramName = namePrefix + "." + pdef->name;
 		ParameterPtr param = new Parameter(pdef, paramName);
-		binding->add(param.get());
+		sec->add(param.get());
 	}
 
 	for ( size_t i = 0; i < def->parameters.groupCount(); ++i ) {
 		SchemaGroup *gdef = def->parameters.group(i);
-		loadGroup(binding, gdef, namePrefix + ".");
+		loadGroup(sec.get(), gdef, namePrefix + ".");
 	}
 
 	for ( size_t i = 0; i < def->parameters.structureCount(); ++i ) {
 		SchemaStructure *gdef = def->parameters.structure(i);
-		binding->addType(loadStructure(gdef, namePrefix + ".", ""));
+		sec->addType(loadStructure(gdef, namePrefix + ".", ""));
 	}
 
 	return binding;
@@ -548,6 +551,42 @@ bool Container::remove(Structure *s) {
 }
 
 
+Parameter *Container::findParameter(const std::string &fullName) const {
+	for ( size_t i = 0; i < parameters.size(); ++i ) {
+		if ( parameters[i]->variableName == fullName )
+			return parameters[i].get();
+	}
+
+	for ( size_t i = 0; i < groups.size(); ++i ) {
+		Parameter *param = groups[i]->findParameter(fullName);
+		if ( param != NULL ) return param;
+	}
+
+	for ( size_t i = 0; i < structures.size(); ++i ) {
+		Parameter *param = structures[i]->findParameter(fullName);
+		if ( param != NULL ) return param;
+	}
+
+	return NULL;
+}
+
+
+void Container::accept(ModelVisitor *visitor) const {
+	for ( size_t i = 0; i < parameters.size(); ++i )
+		visitor->visit(parameters[i].get(), false);
+
+	for ( size_t i = 0; i < groups.size(); ++i ) {
+		if ( !visitor->visit(groups[i].get()) ) continue;
+		groups[i]->accept(visitor);
+	}
+
+	for ( size_t i = 0; i < structures.size(); ++i ) {
+		if ( !visitor->visit(structures[i].get()) ) continue;
+		structures[i]->accept(visitor);
+	}
+}
+
+
 Structure *Structure::copy(bool backImport) {
 	Structure *struc = new Structure(definition, xpath, name);
 	if ( backImport ) {
@@ -665,6 +704,23 @@ Section *Section::copy(bool backImport) {
 }
 
 
+Section *Section::clone() const {
+	Section *section = new Section(name);
+	section->description = description;
+
+	for ( size_t i = 0; i < parameters.size(); ++i )
+		section->add(parameters[i]->clone());
+
+	for ( size_t i = 0; i < groups.size(); ++i )
+		section->add(groups[i]->clone());
+
+	for ( size_t i = 0; i < structureTypes.size(); ++i )
+		section->addType(structureTypes[i]->clone());
+
+	return section;
+}
+
+
 void Section::dump(std::ostream &os) const {
 	for ( size_t i = 0; i < parameters.size(); ++i )
 		parameters[i]->dump(os);
@@ -676,24 +732,19 @@ void Section::dump(std::ostream &os) const {
 
 Binding *Binding::clone() const {
 	Binding *b = new Binding(*this);
-	b->parent = NULL;
 
-	for ( size_t g = 0; g < b->groups.size(); ++g ) {
-		b->groups[g] = b->groups[g]->clone();
-		b->groups[g]->parent = b;
-	}
-
-	for ( size_t s = 0; s < b->structureTypes.size(); ++s ) {
-		b->structureTypes[s] = b->structureTypes[s]->clone();
-		b->structureTypes[s]->parent = b;
-	}
-
-	for ( size_t p = 0; p < b->parameters.size(); ++p ) {
-		b->parameters[p] = b->parameters[p]->clone();
-		b->parameters[p]->parent = b;
+	for ( size_t s = 0; s < b->sections.size(); ++s ) {
+		b->sections[s] = b->sections[s]->clone();
+		b->sections[s]->parent = b;
 	}
 
 	return b;
+}
+
+
+void Binding::dump(std::ostream &os) const {
+	for ( size_t i = 0; i < sections.size(); ++i )
+		sections[i]->dump(os);
 }
 
 
@@ -744,10 +795,12 @@ Binding *BindingCategory::instantiate(const Binding *b, const char *alias) {
 	if ( hasBinding(tmp.c_str()) ) return NULL;
 
 	Binding *nb = loadCategoryBinding(b->definition, name + ".", tmp);
-	updateContainer(nb, Environment::CS_QUANTITY);
+	for ( size_t i = 0; i < nb->sections.size(); ++i )
+		updateContainer(nb->sections[i].get(), Environment::CS_QUANTITY);
 
 	Model::SymbolFileMap symbols;
-	updateContainer(nb, symbols, Environment::CS_CONFIG_APP);
+	for ( size_t i = 0; i < nb->sections.size(); ++i )
+		updateContainer(nb->sections[i].get(), symbols, Environment::CS_CONFIG_APP);
 	nb->parent = this;
 	bindings.push_back(BindingInstance(nb, tmp));
 	return nb;
@@ -794,19 +847,9 @@ ModuleBinding *ModuleBinding::clone() const {
 	b->parent = NULL;
 	b->configFile = "";
 
-	for ( size_t g = 0; g < b->groups.size(); ++g ) {
-		b->groups[g] = b->groups[g]->clone();
-		b->groups[g]->parent = (ModuleBinding*)this;
-	}
-
-	for ( size_t s = 0; s < b->structureTypes.size(); ++s ) {
-		b->structureTypes[s] = b->structureTypes[s]->clone();
-		b->structureTypes[s]->parent = b;
-	}
-
-	for ( size_t p = 0; p < b->parameters.size(); ++p ) {
-		b->parameters[p] = b->parameters[p]->clone();
-		b->parameters[p]->parent = b;
+	for ( size_t s = 0; s < b->sections.size(); ++s ) {
+		b->sections[s] = b->sections[s]->clone();
+		b->sections[s]->parent = (ModuleBinding*)this;
 	}
 
 	for ( size_t i = 0; i < b->categories.size(); ++i ) {
@@ -851,15 +894,9 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 	bool first = true;
 	bool firstSection = true;
 
-	for ( size_t p = 0; p < parameters.size(); ++ p ) {
-		Parameter *param = parameters[p].get();
-		if ( !write(param, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
-			return false;
-	}
-
-	for ( size_t g = 0; g < groups.size(); ++g ) {
-		Group *group = groups[g].get();
-		if ( !write(group, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
+	for ( size_t s = 0; s < sections.size(); ++s ) {
+		Section *section = sections[s].get();
+		if ( !write(section, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
 			return false;
 	}
 
@@ -886,15 +923,9 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 		for ( size_t b = 0; b < cat->bindings.size(); ++b ) {
 			Binding *curr = cat->bindings[b].binding.get();
 
-			for ( size_t p = 0; p < curr->parameters.size(); ++ p ) {
-				Parameter *param = curr->parameters[p].get();
-				if ( !write(param, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
-					return false;
-			}
-	
-			for ( size_t g = 0; g < curr->groups.size(); ++g ) {
-				Group *group = curr->groups[g].get();
-				if ( !write(group, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
+			for ( size_t s = 0; s < curr->sections.size(); ++s ) {
+				Section *sec = curr->sections[s].get();
+				if ( !write(sec, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
 					return false;
 			}
 		}
@@ -907,6 +938,20 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 void Module::add(Section *sec) {
 	sec->parent = this;
 	sections.push_back(sec);
+}
+
+
+Parameter *Module::findParameter(const std::string &fullName) const {
+	for ( size_t i = 0; i < unknowns.size(); ++i ) {
+		if ( unknowns[i]->variableName == fullName ) return unknowns[i].get();
+	}
+
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		Parameter *param = sections[i]->findParameter(fullName);
+		if ( param != NULL ) return param;
+	}
+
+	return NULL;
 }
 
 
@@ -1147,14 +1192,9 @@ bool Module::loadBinding(ModuleBinding &binding,
 		return false;
 	}
 
-	for ( size_t g = 0; g < binding.groups.size(); ++g ) {
-		updateContainer(binding.groups[g].get(), symbols, Environment::CS_CONFIG_APP);
-		updateContainer(binding.groups[g].get(), Environment::CS_QUANTITY);
-	}
-
-	for ( size_t p = 0; p < binding.parameters.size(); ++p ) {
-		updateParameter(binding.parameters[p].get(), symbols, Environment::CS_CONFIG_APP);
-		updateParameter(binding.parameters[p].get(), Environment::CS_QUANTITY);
+	for ( size_t s = 0; s < binding.sections.size(); ++s ) {
+		updateContainer(binding.sections[s].get(), symbols, Environment::CS_CONFIG_APP);
+		updateContainer(binding.sections[s].get(), Environment::CS_QUANTITY);
 	}
 
 	for ( size_t c = 0; c < binding.categories.size(); ++c ) {
@@ -1195,14 +1235,9 @@ bool Module::loadBinding(ModuleBinding &binding,
 
 		for ( size_t b = 0; b < cat->bindings.size(); ++b ) {
 			Binding *binding = cat->bindings[b].binding.get();
-			for ( size_t g = 0; g < binding->groups.size(); ++g ) {
-				updateContainer(binding->groups[g].get(), symbols, Environment::CS_CONFIG_APP);
-				updateContainer(binding->groups[g].get(), Environment::CS_QUANTITY);
-			}
-
-			for ( size_t p = 0; p < binding->parameters.size(); ++p ) {
-				updateParameter(binding->parameters[p].get(), symbols, Environment::CS_CONFIG_APP);
-				updateParameter(binding->parameters[p].get(), Environment::CS_QUANTITY);
+			for ( size_t s = 0; s < binding->sections.size(); ++s ) {
+				updateContainer(binding->sections[s].get(), symbols, Environment::CS_CONFIG_APP);
+				updateContainer(binding->sections[s].get(), Environment::CS_QUANTITY);
 			}
 		}
 	}
@@ -1264,6 +1299,17 @@ ModuleBinding *Module::readBinding(const StationID &id,
 		return NULL;
 
 	return binding.get();
+}
+
+
+void Module::accept(ModelVisitor *visitor) const {
+	for ( size_t i = 0; i < unknowns.size(); ++i )
+		visitor->visit(unknowns[i].get(), true);
+
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		if ( !visitor->visit(sections[i].get()) ) continue;
+		sections[i]->accept(visitor);
+	}
 }
 
 
@@ -1380,6 +1426,8 @@ bool Model::create(SchemaDefinitions *schema) {
 	// Build back imports
 	for ( size_t i = 0; i < schema->moduleCount(); ++i ) {
 		SchemaModule *def = schema->module(i);
+		// We do not backimport aliases
+		if ( def->aliasedModule != NULL ) continue;
 
 		ModMap::iterator mit = modMap.find(def->name);
 		if ( mit == modMap.end() ) continue;
@@ -1403,7 +1451,10 @@ bool Model::create(SchemaDefinitions *schema) {
 			if ( mit == modMap.end() ) continue;
 
 			Module *baseMod = mit->second;
-			baseMod->add(modSec->copy(true));
+			Section *secCopy = modSec->copy(true);
+			secCopy->description = string("Backimport which allows to configure ") + mod->definition->name +
+			                              " (including its aliases) parameters in " + baseMod->definition->name + ".";
+			baseMod->add(secCopy);
 		}
 	}
 
@@ -1447,13 +1498,17 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 			return NULL;
 		}
 
-		for ( size_t i = 0; i < base->sections.size(); ++i )
-			mod->add(base->sections[i]->copy());
+		for ( size_t i = 0; i < base->sections.size(); ++i ) {
+			Section *secCopy = base->sections[i]->copy();
+			secCopy->description = string("Import of ") + base->definition->name + " parameters "
+			                       "which can be overwritten in this configuration.";
+			mod->add(secCopy);
+		}
 	}
 
 
 	SectionPtr sec = new Section(def->name);
-	sec->description = def->description;
+	//sec->description = def->description;
 
 	for ( size_t j = 0; j < def->parameters.parameterCount(); ++j ) {
 		SchemaParameter *pdef = def->parameters.parameter(j);
@@ -1488,6 +1543,49 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 
 	// Create bindings model
 	vector<SchemaBinding*> schemaBindings = schema->bindingsForModule(def->name);
+	vector<SchemaBinding*> globalBindings;
+
+	if ( !schemaBindings.empty() && imports.find("global") != imports.end() &&
+	     def->inheritGlobalBinding && *def->inheritGlobalBinding == true )
+		globalBindings = schema->bindingsForModule("global");
+
+	// Import global
+	if ( !globalBindings.empty() ) {
+		Section *sec = new Section("global");
+		sec->description = "The global section allows to override parameters of "
+		                   "the global binding. The values do not reflect the "
+		                   "currently assigned global binding values but the "
+		                   "values given in this binding.";
+
+		if ( mod->bindingTemplate == NULL ) {
+			mod->bindingTemplate = new ModuleBinding(def->name);
+			mod->bindingTemplate->parent = mod.get();
+		}
+
+		mod->bindingTemplate->sections.push_back(sec);
+
+		for ( size_t i = 0; i < globalBindings.size(); ++i ) {
+			SchemaBinding *sb = globalBindings[i];
+
+			// Category bindings are not supported for import
+			if ( !sb->category.empty() ) continue;
+
+			for ( size_t j = 0; j < sb->parameters.parameterCount(); ++j ) {
+				SchemaParameter *pdef = sb->parameters.parameter(j);
+				ParameterPtr param = new Parameter(pdef, pdef->name);
+				sec->add(param.get());
+			}
+
+			for ( size_t j = 0; j < sb->parameters.groupCount(); ++j )
+				loadGroup(sec, sb->parameters.group(j), "");
+
+			for ( size_t j = 0; j < sb->parameters.structureCount(); ++j )
+				sec->addType(loadStructure(sb->parameters.structure(j), "", ""));
+		}
+	}
+
+	Section *bindingSection = NULL;
+
 	for ( size_t i = 0; i < schemaBindings.size(); ++i ) {
 		SchemaBinding *sb = schemaBindings[i];
 		if ( mod->bindingTemplate == NULL ) {
@@ -1495,11 +1593,16 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 			mod->bindingTemplate->parent = mod.get();
 		}
 
+		if ( bindingSection == NULL ) {
+			bindingSection = new Section(def->name);
+			mod->bindingTemplate->sections.push_back(bindingSection);
+		}
+
 		Section *sec = NULL;
 		string prefix;
 
 		if ( sb->category.empty() ) {
-			sec = mod->bindingTemplate.get();
+			sec = bindingSection;
 			// TODO: use definition vector to store multiple
 			//       definitions (eg when using plugins)
 			mod->bindingTemplate->definition = sb;
@@ -1522,8 +1625,9 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 			b->definition = sb;
 			b->parent = cat.get();
 			b->description = b->definition->description;
+			b->sections.push_back(new Section(sb->name));
 			cat->bindingTypes.push_back(b);
-			sec = b.get();
+			sec = b->sections.back().get();
 
 			// Prefix configuration parameters with cat.name.
 			prefix = sb->category + "." + sb->name + ".";
@@ -1546,7 +1650,6 @@ Module *Model::create(SchemaDefinitions *schema, SchemaModule *def) {
 		for ( size_t j = 0; j < sb->parameters.structureCount(); ++j )
 			sec->addType(loadStructure(sb->parameters.structure(j), prefix, ""));
 	}
-
 
 	mod->model = this;
 	modules.push_back(mod);
@@ -1967,8 +2070,10 @@ void Model::update(const Module *mod, Container *container) {
 
 void Model::updateBinding(const ModuleBinding *mod, Binding *binding) {
 	SymbolFileMap *fileMap = &symbols[mod->configFile];
-	updateContainer(binding, *fileMap, Environment::CS_CONFIG_APP);
-	updateContainer(binding, Environment::CS_QUANTITY);
+	for ( size_t s = 0; s < binding->sections.size(); ++s ) {
+		updateContainer(binding->sections[s].get(), *fileMap, Environment::CS_CONFIG_APP);
+		updateContainer(binding->sections[s].get(), Environment::CS_QUANTITY);
+	}
 }
 
 
@@ -2006,6 +2111,14 @@ bool Model::removeStationModule(const StationID &id, Module *mod) {
 	}
 
 	return mod->removeStation(id);
+}
+
+
+void Model::accept(ModelVisitor *visitor) const {
+	for ( size_t i = 0; i < modules.size(); ++i ) {
+		if ( !visitor->visit(modules[i].get()) ) continue;
+		modules[i]->accept(visitor);
+	}
 }
 
 

@@ -193,7 +193,6 @@ int SpreadDriver::disconnect()
 NetworkMessage* SpreadDriver::receive(int* error)
 {
 	_spMessageType = 0;
-	memset(_spMessageReadBuffer, 0, Protocol::STD_MSG_LEN);
 	int ret = SP_receive(_spMBox, &_spServiceType, _spSender, Protocol::MAX_GROUPS, &_spNumGroups, _spTargetGroups,
 	                     &_spMessageType, &_spEndianMismatch, Protocol::STD_MSG_LEN, _spMessageReadBuffer);
 
@@ -291,7 +290,15 @@ NetworkMessage* SpreadDriver::receive(int* error)
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int SpreadDriver::send(const std::string& group, int type, NetworkMessage* msg, bool selfDiscard)
 {
-	int size = msg->write(_spMessageWriteBuffer, Protocol::STD_MSG_LEN);
+	int size;
+	try {
+		size = msg->write(_spMessageWriteBuffer, Protocol::STD_MSG_LEN);
+	}
+	catch ( const Seiscomp::Core::OverflowException &e ) {
+		SEISCOMP_ERROR("Message size exceeds maximum limit %i",
+		               Protocol::STD_MSG_LEN);
+		return Core::Status::SEISCOMP_MESSAGE_SIZE_ERROR;
+	}
 
 	if (size < 0 || size > (int)Protocol::STD_MSG_LEN)
 	{

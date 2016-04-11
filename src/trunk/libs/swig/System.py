@@ -583,6 +583,9 @@ class SchemaModule(Core.BaseObject):
     __swig_setmethods__["standalone"] = _System.SchemaModule_standalone_set
     __swig_getmethods__["standalone"] = _System.SchemaModule_standalone_get
     if _newclass:standalone = _swig_property(_System.SchemaModule_standalone_get, _System.SchemaModule_standalone_set)
+    __swig_setmethods__["inheritGlobalBinding"] = _System.SchemaModule_inheritGlobalBinding_set
+    __swig_getmethods__["inheritGlobalBinding"] = _System.SchemaModule_inheritGlobalBinding_get
+    if _newclass:inheritGlobalBinding = _swig_property(_System.SchemaModule_inheritGlobalBinding_get, _System.SchemaModule_inheritGlobalBinding_set)
     __swig_setmethods__["parameters"] = _System.SchemaModule_parameters_set
     __swig_getmethods__["parameters"] = _System.SchemaModule_parameters_get
     if _newclass:parameters = _swig_property(_System.SchemaModule_parameters_get, _System.SchemaModule_parameters_set)
@@ -757,6 +760,26 @@ class SchemaDefinitions(Core.BaseObject):
 SchemaDefinitions_swigregister = _System.SchemaDefinitions_swigregister
 SchemaDefinitions_swigregister(SchemaDefinitions)
 
+class ConfigDelegate(Config.Logger):
+    __swig_setmethods__ = {}
+    for _s in [Config.Logger]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    __setattr__ = lambda self, name, value: _swig_setattr(self, ConfigDelegate, name, value)
+    __swig_getmethods__ = {}
+    for _s in [Config.Logger]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    __getattr__ = lambda self, name: _swig_getattr(self, ConfigDelegate, name)
+    __repr__ = _swig_repr
+    def aboutToRead(self, *args): return _System.ConfigDelegate_aboutToRead(self, *args)
+    def finishedReading(self, *args): return _System.ConfigDelegate_finishedReading(self, *args)
+    def handleReadError(self, *args): return _System.ConfigDelegate_handleReadError(self, *args)
+    def __init__(self): 
+        this = _System.new_ConfigDelegate()
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _System.delete_ConfigDelegate
+    __del__ = lambda self : None;
+ConfigDelegate_swigregister = _System.ConfigDelegate_swigregister
+ConfigDelegate_swigregister(ConfigDelegate)
+
 class SymbolMapItem(Core.BaseObject):
     __swig_setmethods__ = {}
     for _s in [Core.BaseObject]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
@@ -800,6 +823,8 @@ class Container(Core.BaseObject):
     def hasStructure(self, *args): return _System.Container_hasStructure(self, *args)
     def instantiate(self, *args): return _System.Container_instantiate(self, *args)
     def remove(self, *args): return _System.Container_remove(self, *args)
+    def findParameter(self, *args): return _System.Container_findParameter(self, *args)
+    def accept(self, *args): return _System.Container_accept(self, *args)
     __swig_setmethods__["super"] = _System.Container_super_set
     __swig_getmethods__["super"] = _System.Container_super_get
     if _newclass:super = _swig_property(_System.Container_super_get, _System.Container_super_set)
@@ -983,6 +1008,7 @@ class Section(Container):
         try: self.this.append(this)
         except: self.this = this
     def copy(self, backImport = False): return _System.Section_copy(self, backImport)
+    def clone(self): return _System.Section_clone(self)
     def dump(self, *args): return _System.Section_dump(self, *args)
     __swig_setmethods__["parent"] = _System.Section_parent_set
     __swig_getmethods__["parent"] = _System.Section_parent_get
@@ -1006,12 +1032,12 @@ def Section_TypeInfo():
   return _System.Section_TypeInfo()
 Section_TypeInfo = _System.Section_TypeInfo
 
-class Binding(Section):
+class Binding(Core.BaseObject):
     __swig_setmethods__ = {}
-    for _s in [Section]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    for _s in [Core.BaseObject]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
     __setattr__ = lambda self, name, value: _swig_setattr(self, Binding, name, value)
     __swig_getmethods__ = {}
-    for _s in [Section]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    for _s in [Core.BaseObject]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
     __getattr__ = lambda self, name: _swig_getattr(self, Binding, name)
     __repr__ = _swig_repr
     __swig_getmethods__["ClassName"] = lambda x: _System.Binding_ClassName
@@ -1025,9 +1051,24 @@ class Binding(Section):
         try: self.this.append(this)
         except: self.this = this
     def clone(self): return _System.Binding_clone(self)
+    def dump(self, *args): return _System.Binding_dump(self, *args)
+    def section(self, *args): return _System.Binding_section(self, *args)
+    def sectionCount(self): return _System.Binding_sectionCount(self)
+    __swig_setmethods__["parent"] = _System.Binding_parent_set
+    __swig_getmethods__["parent"] = _System.Binding_parent_get
+    if _newclass:parent = _swig_property(_System.Binding_parent_get, _System.Binding_parent_set)
     __swig_setmethods__["definition"] = _System.Binding_definition_set
     __swig_getmethods__["definition"] = _System.Binding_definition_get
     if _newclass:definition = _swig_property(_System.Binding_definition_get, _System.Binding_definition_set)
+    __swig_setmethods__["name"] = _System.Binding_name_set
+    __swig_getmethods__["name"] = _System.Binding_name_get
+    if _newclass:name = _swig_property(_System.Binding_name_get, _System.Binding_name_set)
+    __swig_setmethods__["description"] = _System.Binding_description_set
+    __swig_getmethods__["description"] = _System.Binding_description_get
+    if _newclass:description = _swig_property(_System.Binding_description_get, _System.Binding_description_set)
+    __swig_setmethods__["sections"] = _System.Binding_sections_set
+    __swig_getmethods__["sections"] = _System.Binding_sections_get
+    if _newclass:sections = _swig_property(_System.Binding_sections_get, _System.Binding_sections_set)
     __swig_destroy__ = _System.delete_Binding
     __del__ = lambda self : None;
 Binding_swigregister = _System.Binding_swigregister
@@ -1162,6 +1203,9 @@ class Module(Core.BaseObject):
         except: self.this = this
     def hasConfiguration(self): return _System.Module_hasConfiguration(self)
     def add(self, *args): return _System.Module_add(self, *args)
+    def section(self, *args): return _System.Module_section(self, *args)
+    def sectionCount(self): return _System.Module_sectionCount(self)
+    def findParameter(self, *args): return _System.Module_findParameter(self, *args)
     def supportsBindings(self): return _System.Module_supportsBindings(self)
     def loadProfiles(self, *args): return _System.Module_loadProfiles(self, *args)
     def addProfile(self, *args): return _System.Module_addProfile(self, *args)
@@ -1173,6 +1217,7 @@ class Module(Core.BaseObject):
     def getProfile(self, *args): return _System.Module_getProfile(self, *args)
     def getBinding(self, *args): return _System.Module_getBinding(self, *args)
     def readBinding(self, *args): return _System.Module_readBinding(self, *args)
+    def accept(self, *args): return _System.Module_accept(self, *args)
     __swig_setmethods__["model"] = _System.Module_model_set
     __swig_getmethods__["model"] = _System.Module_model_get
     if _newclass:model = _swig_property(_System.Module_model_get, _System.Module_model_set)
@@ -1280,6 +1325,7 @@ class Model(Core.BaseObject):
     def addStation(self, *args): return _System.Model_addStation(self, *args)
     def removeStation(self, *args): return _System.Model_removeStation(self, *args)
     def removeStationModule(self, *args): return _System.Model_removeStationModule(self, *args)
+    def accept(self, *args): return _System.Model_accept(self, *args)
     __swig_setmethods__["schema"] = _System.Model_schema_set
     __swig_getmethods__["schema"] = _System.Model_schema_get
     if _newclass:schema = _swig_property(_System.Model_schema_get, _System.Model_schema_set)
@@ -1310,6 +1356,18 @@ Model_ClassName = _System.Model_ClassName
 def Model_TypeInfo():
   return _System.Model_TypeInfo()
 Model_TypeInfo = _System.Model_TypeInfo
+
+class ModelVisitor(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, ModelVisitor, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, ModelVisitor, name)
+    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+    __swig_destroy__ = _System.delete_ModelVisitor
+    __del__ = lambda self : None;
+ModelVisitor_swigregister = _System.ModelVisitor_swigregister
+ModelVisitor_swigregister(ModelVisitor)
 
 class BindingMap(_object):
     __swig_setmethods__ = {}

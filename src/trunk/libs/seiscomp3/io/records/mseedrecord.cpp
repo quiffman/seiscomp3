@@ -32,7 +32,7 @@ struct MSEEDLogger {
 		SEISCOMP_DEBUG("%s", msg);
 	}
 	static void diag(char *msg) {
-		SEISCOMP_INFO("%s", msg);
+		SEISCOMP_DEBUG("%s", msg);
 	}
 };
 

@@ -742,9 +742,21 @@ class Application(Core.InterruptibleObject):
         """isInterpretNotifierEnabled(self) -> bool"""
         return _Client.Application_isInterpretNotifierEnabled(self)
 
+    def hasCustomPublicIDPattern(self):
+        """hasCustomPublicIDPattern(self) -> bool"""
+        return _Client.Application_hasCustomPublicIDPattern(self)
+
     def setConnectionRetries(self, *args):
         """setConnectionRetries(self, unsigned int arg0)"""
         return _Client.Application_setConnectionRetries(self, *args)
+
+    def setLoggingContext(self, *args):
+        """setLoggingContext(self, bool arg0)"""
+        return _Client.Application_setLoggingContext(self, *args)
+
+    def setLoggingComponent(self, *args):
+        """setLoggingComponent(self, bool arg0)"""
+        return _Client.Application_setLoggingComponent(self, *args)
 
     def setLoggingToStdErr(self, *args):
         """setLoggingToStdErr(self, bool arg0)"""
@@ -769,6 +781,10 @@ class Application(Core.InterruptibleObject):
     def setShutdownMasterUsername(self, *args):
         """setShutdownMasterUsername(self, string username)"""
         return _Client.Application_setShutdownMasterUsername(self, *args)
+
+    def closeLogging(self):
+        """closeLogging(self)"""
+        return _Client.Application_closeLogging(self)
 
     def addInputObjectLog(self, *args):
         """

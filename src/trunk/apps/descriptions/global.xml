@@ -42,6 +42,24 @@
 						Enables logging into a log file.
 					</description>
 				</parameter>
+				<parameter name="components" type="list:string">
+					<description>
+						Limit the logging to the specified list of components, e.g. 'Application, Server'
+					</description>
+				</parameter>
+				<parameter name="component" type="boolean">
+					<description>
+						For each log entry print the component right after the
+						log level. By default the component output is enabled
+						for file output but disabled for console output.
+					</description>
+				</parameter>
+				<parameter name="context" type="boolean" default="false">
+					<description>
+						For each log entry print the source file name and line
+						number.
+					</description>
+				</parameter>
 				<group name="file">
 					<parameter name="rotator" type="boolean" default="true"/>
 					<group name="rotator">
@@ -226,6 +244,21 @@
 					<description>Quiet mode: no logging output</description>
 				</option>
 
+				<option flag="" long-flag="print-component" argument="arg" publicID="verbosity#print-component">
+					<description>
+						For each log entry print the component right after the
+						log level. By default the component output is enabled
+						for file output but disabled for console output.
+					</description>
+				</option>
+
+				<option flag="" long-flag="print-context" argument="arg" publicID="verbosity#context">
+					<description>
+						For each log entry print the source file name and line
+						number.
+					</description>
+				</option>
+
 				<option flag="" long-flag="component" argument="arg" publicID="verbosity#component">
 					<description>Limits the logging to a certain component. This option can be given more than once.</description>
 				</option>
@@ -243,7 +276,11 @@
 				</option>
 
 				<option flag="" long-flag="debug" argument="" publicID="verbosity#debug">
-					<description>Debug mode: --verbosity=4 --console</description>
+					<description>Debug mode: --verbosity=4 --console=1</description>
+				</option>
+
+				<option flag="" long-flag="trace" argument="" publicID="verbosity#trace">
+					<description>Trace mode: --verbosity=4 --console=1 --print-component=1 --print-context=1</description>
 				</option>
 
 				<option flag="" long-flag="log-file" argument="arg" publicID="verbosity#log-file">
@@ -323,7 +360,7 @@
 					</description>
 				</option>
 
-				<option flag="N" long-flag="non-interactive" argument="" default="" publicID="gui#non-interactive"> 
+				<option flag="N" long-flag="non-interactive" argument="" default="" publicID="gui#non-interactive">
 					<description>Use non-interactive presentation mode. This only works with GUI applications.</description>
 				</option>
 			</group>
@@ -377,6 +414,13 @@
 					<parameter name="enable" type="boolean" default="true">
 						<description>
 						Defines if amplitude calculation of certain type is enabled.
+						</description>
+					</parameter>
+					<parameter name="saturationThreshold" type="double" default="-1">
+						<description>
+						If greater than 0 and the absolute value of an incoming
+						unfiltered sample exceeds this value, the trace data is rejected and
+						not used (saturation check).
 						</description>
 					</parameter>
 					<parameter name="minSNR" type="double">
@@ -516,13 +560,13 @@
 						<description>
 						Overrides the default filter which is "raw". The typical filter grammar can be used.
 						</description>
-					</parameter>		
+					</parameter>
 					<parameter name="minSNR" type="double" default="3">
 						<description>
 						Defines the mininum SNR.
 						</description>
-					</parameter>			
-				</group>					
+					</parameter>
+				</group>
 			</group>
 			<group name="spicker">
 				<group name="L2">
@@ -545,22 +589,22 @@
 						<description>
 						Configures the filter used to compute the L2 and to pick the onset after the detector triggered.
 						</description>
-					</parameter>					
+					</parameter>
 					<parameter name="detector" type="string" default="STALTA(1,10)">
 						<description>
-						onfigures the detector in the filtered L2. 
+						onfigures the detector in the filtered L2.
 						</description>
-					</parameter>	
+					</parameter>
 					<parameter name="threshold" type="double" default="3">
 						<description>
-						The detector threshold that triggers the AIC picker. 
+						The detector threshold that triggers the AIC picker.
 						</description>
-					</parameter>	
+					</parameter>
 					<parameter name="timeCorr" type="double" default="-0.4" unit="s">
 						<description>
 						The time correction (in seconds) added to the final pick time.
 						</description>
-					</parameter>	
+					</parameter>
 					<parameter name="marginAIC" type="double" default="5" unit="s">
 						<description>
 						The AIC time window around the detection used to pick. If 0 AIC is not used.
@@ -570,9 +614,9 @@
 						<description>
 						Defines the mininum SNR.
 						</description>
-					</parameter>	
-				</group>					
-			</group>								
+					</parameter>
+				</group>
+			</group>
 		</configuration>
 	</binding>
 </seiscomp>

@@ -174,6 +174,7 @@ SensorLocation* getSensorLocation(const Inventory *inventory,
                                   const std::string &stationCode,
                                   const std::string &locationCode,
                                   const Core::Time &time) {
+	/*
 	DataModel::Station *sta = getStation(inventory, networkCode, stationCode, time);
 	if ( sta == NULL )
 		return NULL;
@@ -190,6 +191,36 @@ SensorLocation* getSensorLocation(const Inventory *inventory,
 		if ( loc->start() > time ) continue;
 
 		return loc;
+	}
+
+	return NULL;
+	*/
+
+	if ( inventory == NULL )
+		return NULL;
+
+	for ( size_t i = 0; i < inventory->networkCount(); ++i ) {
+		DataModel::Network* network = inventory->network(i);
+		if ( network->code() != networkCode ) continue;
+
+		for ( size_t j = 0; j < network->stationCount(); ++j ) {
+			DataModel::Station* sta = network->station(j);
+			if ( sta->code() != stationCode ) continue;
+
+			for ( size_t i = 0; i < sta->sensorLocationCount(); ++i ) {
+				DataModel::SensorLocation* loc = sta->sensorLocation(i);
+				if ( loc->code() != locationCode ) continue;
+
+				try {
+					if ( loc->end() <= time ) continue;
+				}
+				catch (...) {}
+
+				if ( loc->start() > time ) continue;
+
+				return loc;
+			}
+		}
 	}
 
 	return NULL;

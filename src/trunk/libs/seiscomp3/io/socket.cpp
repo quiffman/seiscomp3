@@ -265,7 +265,8 @@ void Socket::fillbuf() {
 #else
 	ssize_t byteCount = recv(_sockfd, _buf + _wp, BUFSIZE - _wp, 0);
 #endif
-		if ( byteCount < 0 ) {
+	if ( byteCount < 0 ) {
+		_reconnect = true;
 		SEISCOMP_ERROR("socket read: %s",strerror(errno));
 		throw SocketException("socket read error");
 	}

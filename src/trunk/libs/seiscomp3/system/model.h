@@ -51,6 +51,7 @@ struct SC_SYSTEM_CORE_API SymbolMapItem : public Core::BaseObject {
 	bool           known;
 };
 
+class ModelVisitor;
 
 DEFINE_SMARTPOINTER(Group);
 DEFINE_SMARTPOINTER(Structure);
@@ -91,6 +92,13 @@ class SC_SYSTEM_CORE_API Container : public Core::BaseObject {
 
 		//! Removes an existing structure
 		bool remove(Structure *s);
+
+		//! Returns a parameters in the tree where the fully expanded name
+		//! matches fullName.
+		Parameter *findParameter(const std::string &fullName) const;
+
+		//! Accepts a model visitor and starts to traversing its nodes
+		void accept(ModelVisitor *) const;
 
 
 	// ------------------------------------------------------------------
@@ -228,6 +236,7 @@ class SC_SYSTEM_CORE_API Section : public Container {
 	// ------------------------------------------------------------------
 	public:
 		Section *copy(bool backImport = false);
+		Section *clone() const;
 
 		void dump(std::ostream &os) const;
 
@@ -248,22 +257,31 @@ DEFINE_SMARTPOINTER(Model);
 
 
 DEFINE_SMARTPOINTER(Binding);
-class SC_SYSTEM_CORE_API Binding : public Section {
+class SC_SYSTEM_CORE_API Binding : public Core::BaseObject {
 	DECLARE_RTTI;
 
 	// ------------------------------------------------------------------
 	//  X'truction
 	// ------------------------------------------------------------------
 	public:
-		Binding(const std::string &n) : Section(n) {}
+		Binding(const std::string &n) : parent(NULL), definition(NULL), name(n) {}
 		Binding *clone() const;
+
+		void dump(std::ostream &os) const;
+
+		Section *section(size_t i) const { return sections[i].get(); }
+		size_t sectionCount() const { return sections.size(); }
 
 
 	// ------------------------------------------------------------------
 	//  Attributes
 	// ------------------------------------------------------------------
 	public:
-		SchemaBinding *definition;
+		Core::BaseObject         *parent;
+		SchemaBinding            *definition;
+		std::string               name;
+		std::string               description;
+		std::vector<SectionPtr>   sections;
 };
 
 
@@ -398,6 +416,12 @@ class SC_SYSTEM_CORE_API Module : public Core::BaseObject {
 		bool hasConfiguration() const;
 
 		void add(Section *);
+		Section *section(size_t i) const { return sections[i].get(); }
+		size_t sectionCount() const { return sections.size(); }
+
+		//! Returns a parameters in the tree where the fully expanded name
+		//! matches fullName.
+		Parameter *findParameter(const std::string &fullName) const;
 
 		bool supportsBindings() const { return bindingTemplate; }
 
@@ -444,6 +468,9 @@ class SC_SYSTEM_CORE_API Module : public Core::BaseObject {
 		                           const std::string &profile = "",
 		                           bool allowConfigFileErrors = false,
 		                           ConfigDelegate *delegate = NULL);
+
+		//! Accepts a model visitor and starts to traversing its nodes
+		void accept(ModelVisitor *) const;
 
 
 	// ------------------------------------------------------------------
@@ -566,6 +593,9 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		//! Removes a station binding from a module.
 		bool removeStationModule(const StationID &, Module *);
 
+		//! Accepts a model visitor and starts to traversing its nodes
+		void accept(ModelVisitor *) const;
+
 
 	// ------------------------------------------------------------------
 	//  Private interface
@@ -591,6 +621,25 @@ class SC_SYSTEM_CORE_API Model : public Core::BaseObject {
 		SymbolMap symbols;
 		ModMap modMap;
 };
+
+
+
+class SC_SYSTEM_CORE_API ModelVisitor {
+	protected:
+		ModelVisitor() {}
+
+	protected:
+		virtual bool visit(Module*) = 0;
+		virtual bool visit(Section*) = 0;
+		virtual bool visit(Group*) = 0;
+		virtual bool visit(Structure*) = 0;
+		virtual void visit(Parameter*, bool unknown = false) = 0;
+
+	friend class Container;
+	friend class Module;
+	friend class Model;
+};
+
 
 
 }

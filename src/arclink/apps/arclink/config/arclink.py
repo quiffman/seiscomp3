@@ -138,7 +138,9 @@ class InventoryResolver(object):
 
     def findEndDate(self, network, start, end):
         if end is None:
-            return None
+            try: return network.end()
+            except ValueException: return None
+
         return self._truncateDate(network, end)
 
     def expandStream(self, stations, streams, start, end):
@@ -297,7 +299,10 @@ class RoutingDBUpdater(Client.Application):
                     log("no route to station %s %s" % (staid.networkCode, staid.stationCode))
                     continue
     
-                params = collectParams(binding)
+                params = {}
+                for i in range(binding.sectionCount()):
+                    params.update(collectParams(binding.section(i)))
+
                 if 'routes' not in params:
                     log("no routes definition to station %s %s" % (staid.networkCode, staid.stationCode))
                     continue
@@ -419,7 +424,9 @@ class RoutingDBUpdater(Client.Application):
                 binding = mod_access.getBinding(staid)
                 if not binding: continue
 
-                params = collectParams(binding)
+                params = {}
+                for i in range(binding.sectionCount()):
+                    params.update(collectParams(binding.section(i)))
 
                 access_users = params.get('access.users')
                 access_start = params.get('access.start')
@@ -709,7 +716,7 @@ class Module(TemplateModule):
         daemon_opt += "-v -f " + os.path.join(self.config_dir, "arclink.ini")
 
         return self.env.start(self.name, self.env.binaryFile(self.name), daemon_opt,\
-                              not self.env.syslog)
+                              True)
 
     def _set_default(self, name, value):
         try: self.param(name)
@@ -728,7 +735,7 @@ class Module(TemplateModule):
         self._set('arclink._syslog_opt', syslog_opt)
 
         self._set_default("request_dir", "@ROOTDIR@/var/lib/arclink/requests")
-        self._set_default("dcid", "TEST")
+        self._set_default("datacenterID", "TEST")
         self._set_default("contact_email", "")
         self._set_default("connections", 500)
         self._set_default("connections_per_ip", 20)

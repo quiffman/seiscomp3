@@ -54,6 +54,7 @@ static QColor TextColor(38,80,128);
 static QColor DescColor(TextColor.red()*3/4+64,
                         TextColor.green()*3/4+64,
                         TextColor.blue()*3/4+64);
+static QColor DescBackColor(255,255,204);
 static QColor AlertColor(128*3/4+64,64,64);
 
 
@@ -444,8 +445,12 @@ class DescLabel : public QWidget {
 			return prefHeight;
 		}
 
-		void paintEvent(QPaintEvent *) {
+		void paintEvent(QPaintEvent *e) {
 			QPainter p(this);
+
+			if ( autoFillBackground() )
+				p.fillRect(e->rect(), palette().color(QPalette::Window));
+
 			p.drawText(contentsRect(), Qt::AlignLeft|Qt::AlignTop|Qt::TextWordWrap, _text);
 		}
 
@@ -539,7 +544,7 @@ FancyView::FancyView(QWidget *parent) : QAbstractItemView(parent) {
 	_unlockIcon = QIcon(":/res/icons/unlock.png");
 	_traceIcon = QIcon(":/res/icons/trace.png");
 	_configStage = Environment::CS_CONFIG_APP;
-	_blockPopulate = false;
+	_blockPopulate = NULL;
 	setFrameShape(QFrame::NoFrame);
 }
 
@@ -781,12 +786,20 @@ QWidget *FancyView::createWidgetFromIndex(const QModelIndex &idx,
 		case ConfigurationTreeItemModel::TypeSection:
 		{
 			Section *sec = reinterpret_cast<Section*>(idx.data(ConfigurationTreeItemModel::Link).value<void*>());
-			if (sec ) {
+			if ( sec ) {
 				FancyViewItem item(idx, w);
 				add(l, item, sec, idx.data().toString() != rootSecName);
 
 				bool firstParameter = true;
 				QLayout *paramLayout = NULL;
+
+				if ( !sec->description.empty() ) {
+					StatusLabel *desc = new StatusLabel;
+					desc->setWordWrap(true);
+					desc->setContentsMargins(8,0,0,0);
+					desc->setInfoText(sec->description.c_str());
+					l->addWidget(desc);
+				}
 
 				for ( int i = 0; i < rows; ++i ) {
 					QModelIndex child = idx.child(i,0);
@@ -1500,10 +1513,10 @@ FancyViewItem FancyView::add(QLayout *layout, const QModelIndex &idx) {
 
 
 void FancyView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) {
-	if ( !_blockPopulate ) {
-		ViewItems::iterator it = _viewItems.find(topLeft.sibling(topLeft.row(),0));
-		if ( it == _viewItems.end() ) return;
+	ViewItems::iterator it = _viewItems.find(topLeft.sibling(topLeft.row(),0));
+	if ( it == _viewItems.end() ) return;
 
+	if ( _blockPopulate != it.value().input->widget() ) {
 		it.value().label->setEnabled(model()->flags(topLeft.sibling(topLeft.row(),2)) & Qt::ItemIsEnabled);
 		it.value().input->widget()->setEnabled(model()->flags(topLeft.sibling(topLeft.row(),2)) & Qt::ItemIsEnabled);
 
@@ -1733,9 +1746,9 @@ void FancyView::optionTextChanged(const QString &txt) {
 	_optionEditHint->move(x,y);
 	_optionEditHint->show();
 
-	_blockPopulate = true;
+	_blockPopulate = w;
 	model()->setData(item.index.sibling(item.index.row(), 2), item.input->value());
-	_blockPopulate = false;
+	_blockPopulate = NULL;
 }
 
 

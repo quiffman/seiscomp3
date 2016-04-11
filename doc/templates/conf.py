@@ -59,7 +59,7 @@ copyright = u'2012, GFZ Potsdam, gempa GmbH'
 # built documents.
 #
 # The short X.Y version.
-version = '2012.248'
+version = '2012.289'
 # The full version, including alpha/beta/rc tags.
 release = 'Seattle'
 

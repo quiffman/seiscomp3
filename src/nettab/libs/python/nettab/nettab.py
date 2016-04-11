@@ -1,6 +1,10 @@
 #***************************************************************************** 
 # nettab.py
 #
+# This implemented the first version of the nettab file fomart currently
+# replaced by the nettab2 format. For more information about the nettab2
+# format look on the lineType.py and nodesncsl.py and nodesi.py files
+#
 # inst.db and net.tab reader
 #
 # (c) 2009 Andres Heinloo, GFZ Potsdam

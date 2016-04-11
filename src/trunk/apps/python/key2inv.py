@@ -23,7 +23,7 @@ import optparse
 from seiscomp import logs
 from seiscomp.keyfile import Keyfile
 from seiscomp.db.seiscomp3.inventory import Inventory
-from seiscomp.nettab import Instruments, NettabError
+from nettab.nettab import Instruments, NettabError
 import seiscomp3.Client
 
 if sys.version_info<(2,6,0):
@@ -592,7 +592,13 @@ class Key2DB(seiscomp3.Client.Application):
             seiscompRoot = self.commandline().unrecognizedOptions()[0]
             sys.stderr.write("root directory: %s\n" % seiscompRoot)
 
-            DCID = ""
+            try:
+                DCID = self.configGetString("datacenterID")
+
+            except Config.ConfigException:
+                logs.error("datacenterID not found in global.cfg")
+                return False
+
             networkRestricted = {}
             incompleteResponse = {}
 

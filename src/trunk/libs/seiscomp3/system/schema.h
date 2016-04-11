@@ -300,6 +300,7 @@ class SC_SYSTEM_CORE_API SchemaModule : public Core::BaseObject {
 		std::string      import;
 		std::string      description;
 		OPT(bool)        standalone;
+		OPT(bool)        inheritGlobalBinding;
 		SchemaParameters parameters;
 		SchemaSetupPtr   setup;
 };

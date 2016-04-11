@@ -801,6 +801,8 @@ class Inventory(_sc3wrap.base_inventory):
 		#print net_pat, sta_pat, chan_pat, loc_pat
 		#sys.stdout.flush()
 
+		ret = False
+		
 		if loc_pat is None:
 			loc_pat = ""
 
@@ -821,7 +823,8 @@ class Inventory(_sc3wrap.base_inventory):
 			for stationReference in stationGroup._stationReference:
 				R = _StationReference(stationReference.obj)
 #				G._link_stationReference(R)
-				vn_stations[stationReference.stationID] = (G, R)
+				try: vn_stations[stationReference.stationID].append((G, R))
+				except KeyError: vn_stations[stationReference.stationID] = [(G, R)]
 
 				station_obj = DataModel.Station.Find(stationReference.stationID)
 				if station_obj:
@@ -878,8 +881,8 @@ class Inventory(_sc3wrap.base_inventory):
 					stationFound = True
 
 					try:
-						(G, R) = vn_stations[S.publicID]
-						G._link_stationReference(R)
+						for (G, R) in vn_stations[S.publicID]:
+							G._link_stationReference(R)
 					
 					except KeyError:
 						pass
@@ -933,14 +936,17 @@ class Inventory(_sc3wrap.base_inventory):
 					stationFound = True
 
 					try:
-						(G, R) = vn_stations[S.publicID]
-						G._link_stationReference(R)
+						for (G, R) in vn_stations[S.publicID]:
+							G._link_stationReference(R)
 					
 					except KeyError:
 						pass
 					
 			if stationFound:
 				self._link_network(N)
+				ret = True
+
+		return ret
 
 
 	# D E B U G

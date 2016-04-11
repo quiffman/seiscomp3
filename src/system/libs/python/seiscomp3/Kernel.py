@@ -74,6 +74,9 @@ class Environment(seiscomp3.Config.Config):
     if self.readConfig(kernelCfg) == False:
       return
 
+    try: self.syslog = self.getBool("syslog")
+    except: pass
+
   # Changes into the SEISCOMP_ROOT directory
   def chroot(self):
     if self.root:
@@ -252,6 +255,8 @@ class Module:
     self.isKernelModule = False
     # Defines if this is a config only module
     self.isConfigModule = False
+    # Set default timeout when stopping a module to 10 seconds before killing it
+    self.killTimeout = 10
 
 
   def _get_start_params(self):
@@ -289,7 +294,7 @@ class Module:
 
     self.env.log("shutting down %s" % self.name)
     # Default timeout to 10 seconds
-    return self.env.stop(self.name, 10)
+    return self.env.stop(self.name, self.killTimeout)
 
 
   # Check is the same as start. If a module should be checked

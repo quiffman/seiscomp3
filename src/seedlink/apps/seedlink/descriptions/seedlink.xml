@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <seiscomp>
 	<module name="seedlink" category="Acquisition" standalone="true">
-		<description>Realtime waveform server implementing the SeedLink protocol.</description>
+		<description>Real-time waveform server implementing the SeedLink protocol.</description>
 		<configuration>
 			<parameter name="port" type="int" default="18000">
 				<description>
@@ -60,6 +60,16 @@
 					If activated Seedlink uses the mseedfifo to read records and
 					only the mseedfifo_plugin is started. This command is useful
 					to playback historic data by eg msrtsimul.
+				</description>
+			</parameter>
+			<parameter name="inventory_connection" type="string" default="">
+				<description>
+					Defines a database read connection to be used for Seedlink
+					station descriptions. If no database is to be used (the default;
+					configure with "") then the station code will be used. Example:
+					"mysql://sysop:sysop@localhost/seiscomp3". If a remote host is
+					specified, ensure that its database server is reachable from
+					this computer.
 				</description>
 			</parameter>
 			<parameter name="info" type="string" default="streams">

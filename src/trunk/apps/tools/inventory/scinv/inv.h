@@ -139,10 +139,13 @@ template <typename T>
 T *InventoryTask::create(const std::string &publicIDHint) {
 	T *obj;
 	if ( _publicObjects.find(publicIDHint) == _publicObjects.end() &&
-	     Seiscomp::DataModel::PublicObject::Find(publicIDHint) == NULL )
+	     (!Seiscomp::DataModel::PublicObject::IsRegistrationEnabled() ||
+	      Seiscomp::DataModel::PublicObject::Find(publicIDHint) == NULL) )
 		obj = T::Create(publicIDHint);
-	else
+	else {
+		std::cerr << "Cannot create " << publicIDHint << std::endl;
 		obj = T::Create();
+	}
 
 	_publicObjects[obj->publicID()] = obj;
 	return obj;

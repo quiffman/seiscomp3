@@ -84,12 +84,12 @@ def load_init_modules(path):
   for f in files:
     try: pmod = load_module(f)#imp.load_source(mod_name, f)
     except Exception, exc:
-      error(str(exc))
+      error(("%s: " % f) + str(exc))
       continue
 
     try: mod = pmod(env) #.Module(env)
     except Exception, exc:
-      error(str(exc))
+      error(("%s: " % f) + str(exc))
       continue
 
     mods.append(mod)
@@ -399,6 +399,7 @@ def on_print(args, flags):
     for mod in mods:
       mod.printCrontab()
   elif args[0] == "env":
+    print "export SEISCOMP_ROOT=%s" % SEISCOMP_ROOT
     print "export PATH=%s:$PATH" % BIN_PATH
     print "export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH" % LD_LIBRARY_PATH
     print "export PYTHONPATH=%s:$PYTHONPATH" % PYTHONPATH

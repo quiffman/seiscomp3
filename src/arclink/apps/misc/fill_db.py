@@ -17,46 +17,25 @@ import sys
 import time
 import datetime
 from seiscomp import logs
-from seiscomp.db.generic.routing import Routing as GRouting
-from seiscomp.db.generic.inventory import Inventory as GInventory
+from seiscomp.db.seiscomp3 import sc3wrap
+from seiscomp.db.seiscomp3.routing import Routing as SC3Routing
+from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
 from seiscomp3 import Core, Client, DataModel, Logging
 
-try:
-    from seiscomp.db.seiscomp3 import sc3wrap
-    from seiscomp.db.seiscomp3.routing import Routing as SC3Routing
-    from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
-    have_sc3wrap = True
-
-except ImportError:
-    have_sc3wrap = False
-
-try:
-    import sqlobject
-    from seiscomp.db.sqlobject.routing import Routing as SORouting
-    from seiscomp.db.sqlobject.inventory import Inventory as SOInventory
-    have_sqlobject = True
-
-except ImportError:
-    have_sqlobject = False
-
-VERSION = "1.1 (2012.165)"
+VERSION = "1.2 (2012.313)"
 
 class FillDB(Client.Application):
     def __init__(self, argc, argv):
         Client.Application.__init__(self, argc, argv)
     
         self.routingMode = False
-        self.use_sc3db = have_sc3wrap
-        self.db_url = None
-        self.seedlink_addr = None
-        self.arclink_addr = None
-        self.input_file = None
+        self.input_files = None
 
         self.setLoggingToStdErr(True)
         
-        self.setMessagingEnabled(have_sc3wrap)
-        self.setDatabaseEnabled(have_sc3wrap, have_sc3wrap)
-    
+        self.setMessagingEnabled(True)
+        self.setDatabaseEnabled(True, True)
+
         self.setAutoApplyNotifierEnabled(False)
         self.setInterpretNotifierEnabled(False)
     
@@ -66,53 +45,19 @@ class FillDB(Client.Application):
         Client.Application.createCommandLineDescription(self)
 
         self.commandline().addGroup("ArcLink")
-        self.commandline().addIntOption("ArcLink", "use-sc3db", "use SC3 messaging/database", have_sc3wrap)
-        self.commandline().addStringOption("ArcLink", "db-url", "database URL (sqlobject only)")
-        self.commandline().addStringOption("ArcLink", "arclink", "public arclink address for routing")
-        self.commandline().addStringOption("ArcLink", "seedlink", "public seedlink address for routing")
         self.commandline().addOption("ArcLink", "routing", "fill routing instead of inventory")
-	
+        
     def validateParameters(self):
         try:
-            if self.commandline().hasOption("use-sc3db"):
-                self.use_sc3db = self.commandline().optionInt("use-sc3db")
-
             if self.commandline().hasOption("routing"):
                 self.routingMode = True
 
-            if self.commandline().hasOption("db-url"):
-                self.db_url = self.commandline().optionString("db-url")
-
-            if self.commandline().hasOption("arclink"):
-                self.arclink_addr = self.commandline().optionString("arclink")
-
-            if self.commandline().hasOption("seedlink"):
-                self.seedlink_addr = self.commandline().optionString("seedlink")
-
-            if not have_sc3wrap and not have_sqlobject:
-                print >>sys.stderr, "Neither SC3 nor sqlobject support is available"
-                return False
-
-            if self.use_sc3db:
-                if not have_sc3wrap:
-                    print >>sys.stderr, "SC3 database support is not available"
-                    return False
-
-            else:
-                if not have_sqlobject:
-                    print >>sys.stderr, "sqlobject support not is available"
-                    return False
-
-                if self.db_url is None:
-                    print >>sys.stderr, "Please specify database URL using --db-url"
-                    return False
-
             args = self.commandline().unrecognizedOptions()
-            if len(args) != 1:
-                print >>sys.stderr, "Usage: fill_db [options] file"
+            if len(args) < 1:
+                print >>sys.stderr, "Usage: fill_db [options] files..."
                 return False
 
-            self.input_file = args[0]
+            self.input_files = args
 
         except Exception:
             logs.print_exc()
@@ -138,10 +83,10 @@ class FillDB(Client.Application):
         Nsize = DataModel.Notifier.Size()
 
         if Nsize > 0:
-            logs.info("trying to apply %d changes..." % Nsize)
+            logs.warning("trying to apply %d changes..." % Nsize)
         else:
-            logs.info("no changes to apply")
-            return
+            logs.notice("no changes to apply")
+            return 0
 
         Nmsg = DataModel.Notifier.GetMessage(True)
             
@@ -153,57 +98,57 @@ class FillDB(Client.Application):
         mcount = 0
 
         try:
-            while it.get():
-                msg.attach(DataModel.Notifier_Cast(it.get()))
-                mcount += 1
-                if msg and mcount == maxmsg:
-                    sent += mcount
-                    logs.debug("sending message (%5.1f %%)" % (sent / float(Nsize) * 100.0))
-                    self.send(group, msg)
-                    msg.clear()
-                    mcount = 0
-                it.next()
-        except:
-            pass
-
+            try:
+                while it.get():
+                    msg.attach(DataModel.Notifier_Cast(it.get()))
+                    mcount += 1
+                    if msg and mcount == maxmsg:
+                        sent += mcount
+                        logs.debug("sending message (%5.1f %%)" % (sent / float(Nsize) * 100.0))
+                        self.send(group, msg)
+                        msg.clear()
+                        mcount = 0
+                        self.sync("fill-db")
+                    it.next()
+            except:
+                pass
         finally:
-            if msg:
+            if msg.size():
                 logs.debug("sending message (%5.1f %%)" % 100.0)
                 self.send(group, msg)
                 msg.clear()
+                self.sync("fill-db")
+
+        return mcount
 
     def run(self):
         try:
-            if self.use_sc3db:
-                sc3wrap.dbQuery = self.query()
-                DataModel.Notifier.Enable()
-                DataModel.Notifier.SetCheckEnabled(False)
-                self.inv = SC3Inventory(self.query().loadInventory())
-                self.rtn = SC3Routing(self.query().loadRouting())
+            sc3wrap.dbQuery = self.query()
+            DataModel.Notifier.Enable()
+            DataModel.Notifier.SetCheckEnabled(False)
             
-            else:
-                connection = sqlobject.connectionForURI(self.db_url)
-                sqlobject.sqlhub.processConnection = connection
-                self.inv = SOInventory()
-                self.rtn = SORouting()
-
-            self.inv.load_stations("*")
-            self.inv.load_stations("*", "*")
-            self.inv.load_stations("*", "*", "*")
-            self.inv.load_stations("*", "*", "*", "*")
-            self.inv.load_instruments()
             if not self.routingMode:
-                self.inv.load_xml(self.input_file)
-                self.inv.flush()
-            else:
-                self.rtn.load_xml(self.input_file)
-                self.rtn.flush()
+                self.inv = SC3Inventory(self.query().loadInventory())
+                self.inv.load_stations("*")
+                self.inv.load_stations("*", "*")
+                self.inv.load_stations("*", "*", "*")
+                self.inv.load_stations("*", "*", "*", "*")
+                self.inv.load_instruments()
 
-            if self.use_sc3db:
-                if not self.routingMode:
-                    self.send_notifiers("INVENTORY")
-                else:
-                    self.send_notifiers("ROUTING")
+                for f in self.input_files:
+                    self.inv.load_xml(f)
+
+                self.inv.flush()
+                self.send_notifiers("INVENTORY")
+            else:
+                self.rtn = SC3Routing(self.query().loadRouting())
+                self.rtn.load_routes("*", "*")
+
+                for f in self.input_files:
+                    self.rtn.load_xml(f)
+
+                self.rtn.flush()
+                self.send_notifiers("ROUTING")
 
         except Exception:
             logs.print_exc()

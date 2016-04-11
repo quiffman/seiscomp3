@@ -98,10 +98,12 @@ void FdOutput::log(const char* channelName,
 	std::ostringstream ss;
 
 	ss << timeStamp;
-	ss << '[' << channelName << "] ";
-	
-	// CONTEXT
-	//ss << "(" << fileName() << ':' << lineNum() << ") ";
+	ss << '[' << channelName;
+	if ( likely(_logComponent) )
+		ss << "/" << component();
+	ss << "] ";
+	if ( unlikely(_logContext) )
+		ss << "(" << fileName() << ':' << lineNum() << ") ";
 
 #ifndef _WIN32
 	// THREAD ID

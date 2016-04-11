@@ -3337,6 +3337,17 @@ SWIGINTERNINLINE PyObject*
   return PyBool_FromLong(value ? 1 : 0);
 }
 
+
+SWIGINTERN int
+SWIG_AsVal_bool (PyObject *obj, bool *val)
+{
+  int r = PyObject_IsTrue(obj);
+  if (r == -1)
+    return SWIG_ERROR;
+  if (val) *val = r ? true : false;
+  return SWIG_OK;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -4052,6 +4063,66 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Output_logComponent(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::Output *arg1 = (Seiscomp::Logging::Output *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Output_logComponent",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__Output, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Output_logComponent" "', argument " "1"" of type '" "Seiscomp::Logging::Output *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::Output * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Output_logComponent" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  (arg1)->logComponent(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Output_logContext(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::Output *arg1 = (Seiscomp::Logging::Output *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Output_logContext",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__Output, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Output_logContext" "', argument " "1"" of type '" "Seiscomp::Logging::Output *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::Output * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Output_logContext" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  (arg1)->logContext(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *Output_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -4571,6 +4642,40 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FileRotatorOutput_open(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::FileRotatorOutput *arg1 = (Seiscomp::Logging::FileRotatorOutput *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FileRotatorOutput_open",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__FileRotatorOutput, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FileRotatorOutput_open" "', argument " "1"" of type '" "Seiscomp::Logging::FileRotatorOutput *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::FileRotatorOutput * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "FileRotatorOutput_open" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (bool)(arg1)->open((char const *)arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_FileRotatorOutput(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Logging::FileRotatorOutput *arg1 = (Seiscomp::Logging::FileRotatorOutput *) 0 ;
@@ -4797,6 +4902,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_Output", _wrap_delete_Output, METH_VARARGS, NULL},
 	 { (char *)"Output_subscribe", _wrap_Output_subscribe, METH_VARARGS, NULL},
 	 { (char *)"Output_unsubscribe", _wrap_Output_unsubscribe, METH_VARARGS, NULL},
+	 { (char *)"Output_logComponent", _wrap_Output_logComponent, METH_VARARGS, NULL},
+	 { (char *)"Output_logContext", _wrap_Output_logContext, METH_VARARGS, NULL},
 	 { (char *)"Output_swigregister", Output_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_FdOutput", _wrap_new_FdOutput, METH_VARARGS, NULL},
 	 { (char *)"delete_FdOutput", _wrap_delete_FdOutput, METH_VARARGS, NULL},
@@ -4807,6 +4914,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"FileOutput_isOpen", _wrap_FileOutput_isOpen, METH_VARARGS, NULL},
 	 { (char *)"FileOutput_swigregister", FileOutput_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_FileRotatorOutput", _wrap_new_FileRotatorOutput, METH_VARARGS, NULL},
+	 { (char *)"FileRotatorOutput_open", _wrap_FileRotatorOutput_open, METH_VARARGS, NULL},
 	 { (char *)"delete_FileRotatorOutput", _wrap_delete_FileRotatorOutput, METH_VARARGS, NULL},
 	 { (char *)"FileRotatorOutput_swigregister", FileRotatorOutput_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_SyslogOutput", _wrap_new_SyslogOutput, METH_VARARGS, NULL},

@@ -1,5 +1,5 @@
 import os, string, time, re, glob
-import seiscomp3.Kernel, seiscomp3.Config, seiscomp3.System
+import seiscomp3.Kernel, seiscomp3.Config
 
 class Module(seiscomp3.Kernel.Module):
   def __init__(self, env):

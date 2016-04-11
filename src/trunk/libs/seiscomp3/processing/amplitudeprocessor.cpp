@@ -82,6 +82,8 @@ void AmplitudeProcessor::init() {
 	_enableResponses = false;
 	_responseApplied = false;
 
+	_config.saturationThreshold = -1;
+
 	_config.noiseBegin = -35;
 	_config.noiseEnd = -5;
 	_config.signalBegin = -5;
@@ -599,6 +601,7 @@ bool AmplitudeProcessor::setup(const Settings &settings) {
 	}
 
 	settings.getValue(_enableResponses, "amplitudes.enableResponses");
+	settings.getValue(_config.saturationThreshold, "amplitudes.saturationThreshold");
 	settings.getValue(_config.snrMin, "amplitudes." + _type + ".minSNR");
 	settings.getValue(_config.noiseBegin, "amplitudes." + _type + ".noiseBegin");
 	settings.getValue(_config.noiseEnd, "amplitudes." + _type + ".noiseEnd");
@@ -662,6 +665,27 @@ void AmplitudeProcessor::emitAmplitude(const Result &res) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 double AmplitudeProcessor::timeWindowLength(double distance) const {
 	return _config.signalEnd;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void AmplitudeProcessor::fill(size_t n, double *samples) {
+	if ( _config.saturationThreshold > 0 ) {
+		for ( size_t i = 0; i < n; ++i ) {
+			if ( fabs(samples[i]) > _config.saturationThreshold ) {
+				SEISCOMP_WARNING("%s: data clipped: %f > %f",
+				                 _stream.lastRecord->streamID().c_str(),
+				                 fabs(samples[i]), _config.saturationThreshold);
+				setStatus(DataClipped, samples[i]);
+				break;
+			}
+		}
+	}
+
+	TimeWindowProcessor::fill(n, samples);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

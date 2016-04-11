@@ -45,7 +45,7 @@ fi
 
 
 # Update trunk
-./update
+test -x update && ./update
 
 if [ $? -ne 0 ]; then exit -2; fi
 

@@ -387,7 +387,7 @@ def catch(f):
     def wrap(*args, **kwargs):
 		try:
 			f(*args, **kwargs)
-		except Exception as e:
+		except Exception, e:
 			print "Hmm. An ERROR has occurred ...", e
     return wrap
 #------------------------------------------------------------------------------

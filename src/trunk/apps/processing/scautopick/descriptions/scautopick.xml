@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <seiscomp>
-	<module name="scautopick" category="Processing">
+	<module name="scautopick" category="Processing" inherit-global-bindings="true">
 		<description>Makes picks on waveforms.</description>
 		<configuration>
 			<parameter name="filter" type="string">
@@ -224,16 +224,6 @@
 			<parameter name="detecEnable" type="boolean" default="true">
 				<description>
 					Enables/disables picking on a station.
-				</description>
-			</parameter>
-			<parameter name="detecStream" type="string">
-				<description>
-					Allows to override the preferred stream.
-				</description>
-			</parameter>
-			<parameter name="detecLocid" type="string">
-				<description>
-					Allows to override the location code of the preferred stream.
 				</description>
 			</parameter>
 			<parameter name="detecFilter" type="string" default="&quot;RMHP(10)>>ITAPER(30)>>BW(4,0.7,2)>>STALTA(2,80)&quot;">

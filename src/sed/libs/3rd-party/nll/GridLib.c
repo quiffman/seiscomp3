@@ -2264,7 +2264,7 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
             phypo->amp_mag, phypo->num_amp_mag,
             phypo->dur_mag, phypo->num_dur_mag
             );
-    
+
     fprintf(fpio,
             "VPVSRATIO  VpVsRatio %lg  Npair %d  Diff %lg\n",
             phypo->VpVs, phypo->nVpVs, phypo->tsp_min_max_diff
@@ -2340,7 +2340,7 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
                 -1.0, // 20100617 AJL - horizontalUncertainty: not clear what this is, set undefined
                 phypo->ellipse.len1, phypo->ellipse.len2, azMaxHorUnc
                 );
-        
+
 
         // 20100617 AJL Added new hypo line
         // SED-ETH fields added for compatibility with legacy SED location quality indicators (AJL 201006)
@@ -3298,6 +3298,12 @@ INLINE int rect2latlon(int n_proj, double xrect, double yrect, double* pdlat, do
         ytemp = yrect * map_cosang[n_proj] - xrect * map_sinang[n_proj];
         *pdlat = map_orig_lat[n_proj] + ytemp / c111;
         *pdlong = map_orig_long[n_proj] + xtemp / (c111 * cos(cRPD * *pdlat));
+	// 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
+	if (*pdlong < -180.0)
+	    *pdlong += 360.0;
+	else if (*pdlong > 180.0)
+	         *pdlong -= 360.0;
+	//
 
         return (0);
 
@@ -3320,6 +3326,12 @@ INLINE int rect2latlon(int n_proj, double xrect, double yrect, double* pdlat, do
         xlt1 = atan(MAP_TRANS_SDC_DRLT * tan(DE2RA * (*pdlat + map_orig_lat[n_proj]) / 2.0));
         xtemp = xtemp / (map_sdc_xlnkm[n_proj] * cos(xlt1));
         *pdlong = map_orig_long[n_proj] + xtemp;
+	// 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
+	if (*pdlong < -180.0)
+	    *pdlong += 360.0;
+	else if (*pdlong > 180.0)
+	         *pdlong -= 360.0;
+	//
 
         return (0);
 
@@ -5039,4 +5051,3 @@ int WriteDiffArrival(FILE* fpio, HypoDesc* hypos, ArrivalDesc* parr, int iWriteT
 /* 250 Rue Albert Einstein | tel: 33 (0) 4 93 95 43 25        / */
 /* 06560 Valbonne, FRANCE  | fax: 33 (0) 4 93 65 27 17        / */
 /*------------------------------------------------------------/ */
-

@@ -224,6 +224,7 @@ void SchemaModule::serialize(Archive& ar) {
 	ar & NAMED_OBJECT("category", category);
 	ar & NAMED_OBJECT("import", import);
 	ar & NAMED_OBJECT("standalone", standalone);
+	ar & NAMED_OBJECT("inherit-global-bindings", inheritGlobalBinding);
 	ar & NAMED_OBJECT_HINT("description", description, Archive::XML_ELEMENT);
 
 	OPT(SchemaParameters) params;

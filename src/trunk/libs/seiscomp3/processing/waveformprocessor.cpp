@@ -312,6 +312,7 @@ bool WaveformProcessor::store(const Record *record) {
 
 	// Fill the values and do the actual filtering
 	fill(arr->size(), arr->typedData());
+	if ( _status > InProgress ) return false;
 
 	if ( !_stream.initialized ) {
 		if ( _stream.receivedSamples > _stream.neededSamples ) {

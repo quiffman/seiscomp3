@@ -1,5 +1,7 @@
-import os, string, time, re, glob, shutil, sys, imp
+import os, string, time, re, glob, shutil, sys, imp, resource
 import seiscomp3.Kernel, seiscomp3.Config, seiscomp3.System
+import seiscomp3.DataModel
+import seiscomp3.IO
 
 
 '''
@@ -11,9 +13,67 @@ All plugin specific parameters are stored in plugin.[type].*.
 All parameters from seedlink.cfg are not prefixed with "seedlink.".
 Local parameters that are created from seedlink.cfg parameters are
 prefixed with "seedlink.".
+
+NOTE2: Support a database connection to get station descriptions.
 '''
 
+def _loadDatabase(dbUrl):
+    """
+    Load inventory from a database, but only down to the station level.
+    """
+    m = re.match("(?P<dbDriverName>^.*):\/\/(?P<dbAddress>.+?:.+?@.+?\/.+$)", dbUrl)
+    if not m:
+    	raise Exception("error in parsing SC3 DB URL")
+    db = m.groupdict()
+    try:
+    	registry = seiscomp3.Client.PluginRegistry.Instance()
+    	registry.addPluginName("dbmysql")
+    	registry.loadPlugins()
+    except Exception, e:
+    	raise(e) ### "Cannot load database driver: %s" % e)
+    dbDriver = seiscomp3.IO.DatabaseInterface.Create(db["dbDriverName"])
+    if dbDriver is None:
+    	raise Exception("Cannot find database driver " + db["dbDriverName"])
+    if not dbDriver.connect(db["dbAddress"]):
+    	raise Exception("Cannot connect to database at " + db["dbAddress"])
+    dbQuery = seiscomp3.DataModel.DatabaseQuery(dbDriver)
+    if dbQuery is None:
+    	raise Exception("Cannot get DB query object")
+    print >> sys.stderr, " Loading inventory from database ... ",
+    inventory = seiscomp3.DataModel.Inventory()
+    dbQuery.loadNetworks(inventory)
+    for ni in xrange(inventory.networkCount()):
+    	dbQuery.loadStations(inventory.network(ni))
+    print >> sys.stderr, "Done."
+    return inventory
 
+
+def _loadStationDescriptions(inv):
+    """From an inventory, prepare a dictionary of station code descriptions.
+
+    In theory, we should only use stations with current time windows.
+
+    """
+    d = dict()
+
+    for ni in xrange(inv.networkCount()):
+        n = inv.network(ni)
+        net = n.code()
+        if not d.has_key(net):
+            d[net] = {}
+
+            for si in xrange(n.stationCount()):
+                s = n.station(si)
+                sta = s.code()
+                d[net][sta] = s.description()
+
+                try:
+                    end = s.end()
+                except:  # ValueException ???
+                    end = None
+                #print "Found in inventory:", net, sta, end, s.description()
+    return d
+                        
 class TemplateModule(seiscomp3.Kernel.Module):
     def __init__(self, env):
         seiscomp3.Kernel.Module.__init__(self, env, env.moduleName(__file__))
@@ -43,6 +103,14 @@ class TemplateModule(seiscomp3.Kernel.Module):
         self.template_dir = os.path.join(self.pkgroot, "share", "templates", self.name)
         self.alt_template_dir = "" #os.path.join(self.env.home
         self.config_dir = os.path.join(self.pkgroot, "var", "lib", self.name)
+
+        self.database_str = ""
+        if self.global_params.has_key("inventory_connection"):
+            #WRONG self.database_str = cfg.getStrings("seedlink.readConnection")
+            self.database_str = self.global_params["inventory_connection"]
+        #self.database_str = cfg.getStrings("seedlink.database.type")+cfg.getStrings("seedlink.database.parameters")
+
+        self.seedlink_station_descr = dict()
         self.rc_dir = os.path.join(self.pkgroot, "var", "lib", "rc")
         self.run_dir = os.path.join(self.pkgroot, "var", "run", self.name)
         self.bindings_dir = os.path.join(self.pkgroot, "etc", "key")
@@ -124,6 +192,8 @@ class TemplateModule(seiscomp3.Kernel.Module):
 class Module(TemplateModule):
     def __init__(self, env):
         TemplateModule.__init__(self, env)
+        # Set kill timeout to 5 minutes
+        self.killTimeout = 300
 
     def _run(self):
         if self.env.syslog:
@@ -132,6 +202,16 @@ class Module(TemplateModule):
             daemon_opt = ''
 
         daemon_opt += "-v -f " + os.path.join(self.config_dir, "seedlink.ini")
+
+        try:
+            lim = resource.getrlimit(resource.RLIMIT_NOFILE)
+            resource.setrlimit(resource.RLIMIT_NOFILE, (lim[1], lim[1]))
+
+            lim = resource.getrlimit(resource.RLIMIT_NOFILE)
+            print "maximum number of open files set to", lim[0]
+ 
+        except Exception, e:
+            print "failed to raise the maximum number open files:", str(e)
 
         return self.env.start(self.name, self.env.binaryFile(self.name), daemon_opt,\
                               not self.env.syslog)
@@ -205,14 +285,32 @@ class Module(TemplateModule):
         self._set('seedlink.station.access', self._get('access'))
         self._set('seedlink.station.sproc', self._get('proc'))
 
-        # read station description from var/lib/rc/station_NET_STA
-        # if not set, use the station code
-        try:
-          rc = seiscomp3.Config.Config()
-          rc.readConfig(os.path.join(self.rc_dir, "station_%s_%s" % (self.net, self.sta)))
-          self._set('seedlink.station.description', rc.getString("description"))
-        except:
-          self._set('seedlink.station.description', self.sta)
+        # Supply station description:
+        # 1. try getting station description from a database
+        # 2. read station description from seiscomp3/var/lib/rc/station_NET_STA
+        # 3. if not set, use the station code
+
+        description = ""
+
+        if len(self.seedlink_station_descr) > 0:
+            try:
+                description = self.seedlink_station_descr[self.net][self.sta]
+            except KeyError:
+                pass
+
+        if len(description) == 0:
+            try:
+                rc = seiscomp3.Config.Config()
+                rc.readConfig(os.path.join(self.rc_dir, "station_%s_%s" % (self.net, self.sta)))
+                description = rc.getString("description")
+            except Exception, e:
+                # Maybe the rc file doesn't exist, maybe there's no readable description.
+                pass
+
+        if len(description) == 0:
+            description = self.sta
+
+        self._set('seedlink.station.description', description)
 
         self.station_count += 1
 
@@ -220,7 +318,7 @@ class Module(TemplateModule):
             print "+ network %s" % self.net
             self._last_net = self.net
 
-        print "  + station %s" % self.sta
+        print "  + station %s %s" % (self.sta, description)
 
         # If real-time simulation is activated do not parse the sources
         # and force the usage of the mseedfifo_plugin
@@ -445,19 +543,19 @@ class Module(TemplateModule):
         self._set_default("gap_check_pattern", "", False)
         self._set_default("gap_treshold", "", False)
 
-	self._set_default("info", "streams", False)
-	self._set_default("info_trusted", "all", False)
-	self._set_default("request_log", "true", False)
-	self._set_default("proc_gap_warn", "10", False)
-	self._set_default("proc_gap_flush", "100000", False)
-	self._set_default("proc_gap_reset", "1000000", False)
-	self._set_default("seq_gap_limit", "100000", False)
-	self._set_default("connections", "500", False)
-	self._set_default("connections_per_ip", "20", False)
-	self._set_default("bytespersec", "0", False)
+        self._set_default("info", "streams", False)
+        self._set_default("info_trusted", "all", False)
+        self._set_default("request_log", "true", False)
+        self._set_default("proc_gap_warn", "10", False)
+        self._set_default("proc_gap_flush", "100000", False)
+        self._set_default("proc_gap_reset", "1000000", False)
+        self._set_default("seq_gap_limit", "100000", False)
+        self._set_default("connections", "500", False)
+        self._set_default("connections_per_ip", "20", False)
+        self._set_default("bytespersec", "0", False)
 
         ## Expand the @Variables@
-        e = seiscomp3.System.Environment_Instance()
+        e = seiscomp3.System.Environment.Instance()
         self.setParam("filebase", e.absolutePath(self.param("filebase")), False)
         self.setParam("lockfile", e.absolutePath(self.param("lockfile")), False)
         
@@ -470,10 +568,16 @@ class Module(TemplateModule):
         custom_procs = self._process_template("streams_custom.tpl", None)
         if custom_procs: self.sproc[""] = sproc
 
+        # Load descriptions from inventory:
+        if self.database_str:
+            print >>sys.stderr, " Loading station descriptions from %s" % self.database_str
+            inv = _loadDatabase(self.database_str)
+            self.seedlink_station_descr = _loadStationDescriptions(inv)
+        
         self.__load_stations()
 
         if self.msrtsimul:
-            self.seedlink_source['mseedfifo'] = {1:self._process_template("seedlink_plugin.tpl", "mseedfifo")}
+            self.seedlink_source['mseedfifo'] = {1:('mseedfifo',1,{})}
 
         try: os.makedirs(self.config_dir)
         except: pass

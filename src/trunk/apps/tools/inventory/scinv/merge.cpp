@@ -387,7 +387,14 @@ bool Merge::process(const StationGroup *group) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Merge::process(StationGroup *group, const StationReference *ref) {
 	StationReferencePtr sc_ref;
-	sc_ref = group->stationReference(ref->index());
+	StationReference tmp = *ref;
+
+	// Map ID if necessary
+	IDMap::iterator it = _stationIDMap.find(ref->stationID());
+	if ( it != _stationIDMap.end() )
+		tmp.setStationID(it->second);
+
+	sc_ref = group->stationReference(tmp.index());
 
 	bool newInstance = false;
 	if ( !sc_ref ) {
@@ -396,12 +403,7 @@ bool Merge::process(StationGroup *group, const StationReference *ref) {
 	}
 
 	// Assign values
-	*sc_ref = *ref;
-
-	// Map ID if necessary
-	IDMap::iterator it = _stationIDMap.find(ref->stationID());
-	if ( it != _stationIDMap.end() )
-		sc_ref->setStationID(it->second);
+	*sc_ref = tmp;
 
 	if ( newInstance ) group->add(sc_ref.get());
 	return true;
@@ -639,7 +641,7 @@ bool Merge::process(SensorLocation *loc, const AuxStream *aux) {
 	if ( !sc_aux->device().empty() ) {
 		const AuxDevice *d = findAuxDevice(sc_aux->device());
 		if ( d == NULL ) {
-			SEISCOMP_WARNING("%s.%s.%s.%s: aux device not found: %s",
+			SEISCOMP_INFO("%s.%s.%s.%s: aux device not found: %s",
 			                 loc->station()->network()->code().c_str(),
 			                 loc->station()->code().c_str(),
 			                 loc->code().c_str(), sc_aux->code().c_str(),

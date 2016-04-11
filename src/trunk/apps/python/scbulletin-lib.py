@@ -151,11 +151,17 @@ class Bulletin(object):
             try: timerr = org.time().uncertainty()
             except: timerr = None
         try: laterr = 0.5*(org.latitude().lowerUncertainty()+org.latitude().upperUncertainty())
-        except: laterr = org.latitude().uncertainty()
+        except:
+            try: laterr = org.latitude().uncertainty()
+            except: laterr = None
         try: lonerr = 0.5*(org.longitude().lowerUncertainty()+org.longitude().upperUncertainty())
-        except: lonerr = org.longitude().uncertainty()
+        except:
+            try: lonerr = org.longitude().uncertainty()
+            except: lonerr = None
         try: deperr = 0.5*(org.depth().lowerUncertainty()+org.depth().upperUncertainty())
-        except: deperr = org.depth().uncertainty()
+        except:
+            try: deperr = org.depth().uncertainty()
+            except: deperr = None
         tstr = time2str(tim)
 
         originHeader = "Origin:\n"
@@ -171,16 +177,24 @@ class Bulletin(object):
             txt += "    Time                   %s  +/- %4.1f s\n" % (tstr[11:-2], timerr)
         else:
             txt += "    Time                   %s\n" % tstr[11:-2]
-        txt += "    Latitude              %7.2f deg  +/- %4.0f km\n" % (lat, laterr)
-        txt += "    Longitude             %7.2f deg  +/- %4.0f km\n" % (lon, lonerr)
-        txt += "    Depth                 %7.0f km   " % dep
-        if deperr==0:
-            txt +="(fixed)\n"
+        if laterr:
+            txt += "    Latitude              %7.2f deg  +/- %4.0f km\n" % (lat, laterr)
+        else:
+            txt += "    Latitude              %7.2f deg\n" % lat
+        if lonerr:
+            txt += "    Longitude             %7.2f deg  +/- %4.0f km\n" % (lon, lonerr)
+        else:
+            txt += "    Longitude             %7.2f deg\n" % lon
+        txt += "    Depth                 %7.0f km" % dep
+        if not deperr:
+            txt += "\n"
+        elif deperr==0:
+            txt +="   (fixed)\n"
         else:
             if depthPhaseCount >= minDepthPhaseCount:
-                txt += "+/- %4.0f km  (%d depth phases)\n" % (deperr, depthPhaseCount)
+                txt += "   +/- %4.0f km  (%d depth phases)\n" % (deperr, depthPhaseCount)
             else:
-                txt += "+/- %4.0f km\n" % deperr
+                txt += "   +/- %4.0f km\n" % deperr
 
         agencyID = ""
         try: agencyID = org.creationInfo().agencyID()

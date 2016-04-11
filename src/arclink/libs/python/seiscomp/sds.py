@@ -33,7 +33,7 @@ class SDS(object):
     
     """
     
-    def __init__(self, nrtdir, archdir, isodir, filedb):
+    def __init__(self, nrtdir, archdir, isodir, filedb=None):
         """
         Constructor of class SDS.
         

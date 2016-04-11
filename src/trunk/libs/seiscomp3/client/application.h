@@ -456,6 +456,12 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		 */
 		void setConnectionRetries(unsigned int);
 
+		//! Enables/disables logging of context (source file + line number)
+		void setLoggingContext(bool);
+
+		//! Enables/disables logging of component
+		void setLoggingComponent(bool);
+
 		//! Enables/disables logging to stderr
 		void setLoggingToStdErr(bool);
 
@@ -476,6 +482,9 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		//! Sets the master username used when auto shutdown
 		//! is activated.
 		void setShutdownMasterUsername(const std::string &username);
+
+		//! Closes the logging backend
+		void closeLogging();
 
 		/**
 		 * Adds a logger for an input object flow.
@@ -854,6 +863,8 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		std::string _alternativeLogFile;
 
 		unsigned int _verbosity;
+		bool _logContext;
+		int _logComponent;
 		bool _logToStdout;
 
 		std::string _plugins;

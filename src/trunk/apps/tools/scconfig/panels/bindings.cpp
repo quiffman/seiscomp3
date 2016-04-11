@@ -1396,7 +1396,7 @@ void BindingsPanel::modulesFolderViewContextMenu(const QPoint &p) {
 	QAction *delAction = NULL;
 
 	if ( !_modulesFolderView->selectionModel()->selectedIndexes().empty() )
-		menu.addAction(tr("Delete selected profiles"));
+		delAction = menu.addAction(tr("Delete selected profiles"));
 
 	QAction *res = menu.exec(_modulesFolderView->mapToGlobal(p));
 	if ( res == addAction )
@@ -1633,6 +1633,7 @@ void BindingsPanel::switchToStationsListView() {
 void BindingsPanel::switchToProfileIconView() {
 	_modulesFolderView->setViewMode(QListView::IconMode);
 	_modulesFolderView->setGridSize(QSize(80,64));
+	_modulesFolderView->setDragEnabled(true);
 }
 
 
@@ -1640,6 +1641,7 @@ void BindingsPanel::switchToProfileListView() {
 	_modulesFolderView->setViewMode(QListView::ListMode);
 	_modulesFolderView->setGridSize(QSize());
 	_modulesFolderView->setSpacing(0);
+	_modulesFolderView->setDragEnabled(true);
 }
 
 

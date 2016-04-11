@@ -284,7 +284,10 @@ bool App::init() {
 		_stationConfig.read(&configuration(), configModule(), name());
 	}
 
-	bool acquireAllComponents = false;
+	// Components to acquire
+	bool acquireComps[3];
+	acquireComps[0] = true;
+
 	if ( !_config.secondaryPickerType.empty() ) {
 		SecondaryPickerPtr proc = SecondaryPickerFactory::Create(_config.secondaryPickerType.c_str());
 		if ( proc == NULL ) {
@@ -292,8 +295,50 @@ bool App::init() {
 			return false;
 		}
 
-		if ( proc->usedComponent() != WaveformProcessor::Vertical )
-			acquireAllComponents = true;
+		if ( proc->usedComponent() == WaveformProcessor::Horizontal ||
+		     proc->usedComponent() == WaveformProcessor::Any ||
+		     proc->usedComponent() == WaveformProcessor::FirstHorizontal ) {
+			acquireComps[1] = true;
+		}
+
+		if ( proc->usedComponent() == WaveformProcessor::Horizontal ||
+		     proc->usedComponent() == WaveformProcessor::Any ||
+		     proc->usedComponent() == WaveformProcessor::SecondHorizontal ) {
+			acquireComps[2] = true;
+		}
+	}
+
+	std::string logAmplTypes;
+	for ( StringSet::iterator it = _config.amplitudeList.begin();
+	      it != _config.amplitudeList.end(); ) {
+		AmplitudeProcessorPtr proc = AmplitudeProcessorFactory::Create(it->c_str());
+		logAmplTypes += " * ";
+		if ( !proc ) {
+			logAmplTypes += *it;
+			logAmplTypes += ": Disabled (unknown type)";
+			_config.amplitudeList.erase(it++);
+		}
+		else {
+			logAmplTypes += *it;
+			logAmplTypes += ": OK";
+			if ( _config.amplitudeUpdateList.find(*it) != _config.amplitudeUpdateList.end() )
+				logAmplTypes += " (updates enabled)";
+			++it;
+
+			if ( proc->usedComponent() == WaveformProcessor::Horizontal ||
+			     proc->usedComponent() == WaveformProcessor::Any ||
+			     proc->usedComponent() == WaveformProcessor::FirstHorizontal ) {
+				acquireComps[1] = true;
+			}
+
+			if ( proc->usedComponent() == WaveformProcessor::Horizontal ||
+			     proc->usedComponent() == WaveformProcessor::Any ||
+			     proc->usedComponent() == WaveformProcessor::SecondHorizontal ) {
+				acquireComps[2] = true;
+			}
+		}
+
+		logAmplTypes += '\n';
 	}
 
 	Core::Time now = Core::Time::GMT();
@@ -346,24 +391,22 @@ bool App::init() {
 
 		recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, channel);
 
-		if ( acquireAllComponents ) {
-			if ( compZ ) {
-				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compZ->code();
-				if ( _streamIDs.find(streamID) == _streamIDs.end() )
-					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compZ->code());
-			}
+		if ( compZ && acquireComps[0] ) {
+			streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compZ->code();
+			if ( _streamIDs.find(streamID) == _streamIDs.end() )
+				recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compZ->code());
+		}
 
-			if ( compN ) {
-				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compN->code();
-				if ( _streamIDs.find(streamID) == _streamIDs.end() )
-					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compN->code());
-			}
+		if ( compN && acquireComps[1] ) {
+			streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compN->code();
+			if ( _streamIDs.find(streamID) == _streamIDs.end() )
+				recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compN->code());
+		}
 
-			if ( compE ) {
-				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compE->code();
-				if ( _streamIDs.find(streamID) == _streamIDs.end() )
-					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compE->code());
-			}
+		if ( compE && acquireComps[2] ) {
+			streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compE->code();
+			if ( _streamIDs.find(streamID) == _streamIDs.end() )
+				recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compE->code());
 		}
 	}
 
@@ -378,27 +421,6 @@ bool App::init() {
 	}
 	else
 		SEISCOMP_INFO("%d stations added", (int)_streamIDs.size());
-
-	std::string logAmplTypes;
-	for ( StringSet::iterator it = _config.amplitudeList.begin();
-	      it != _config.amplitudeList.end(); ) {
-		AmplitudeProcessorPtr proc = AmplitudeProcessorFactory::Create(it->c_str());
-		logAmplTypes += " * ";
-		if ( !proc ) {
-			logAmplTypes += *it;
-			logAmplTypes += ": Disabled (unknown type)";
-			_config.amplitudeList.erase(it++);
-		}
-		else {
-			logAmplTypes += *it;
-			logAmplTypes += ": OK";
-			if ( _config.amplitudeUpdateList.find(*it) != _config.amplitudeUpdateList.end() )
-				logAmplTypes += " (updates enabled)";
-			++it;
-		}
-
-		logAmplTypes += '\n';
-	}
 
 	SEISCOMP_INFO("\nAmplitudes to calculate:\n%s", logAmplTypes.c_str());
 
@@ -901,11 +923,6 @@ void App::addAmplitudeProcessor(AmplitudeProcessorPtr proc,
                                 const Record *rec, const string &pickID) {
 	proc->setPublishFunction(boost::bind(&App::emitAmplitude, this, _1, _2));
 	proc->setReferencingPickID(pickID);
-
-	if ( proc->usedComponent() != WaveformProcessor::Vertical ) {
-		SEISCOMP_ERROR("Only vertical component supported for amplitude calculation, discard %s", proc->type().c_str());
-		return;
-	}
 
 	if ( !initProcessor(proc.get(), proc->usedComponent(),
 	                    proc->trigger(), rec->streamID(),

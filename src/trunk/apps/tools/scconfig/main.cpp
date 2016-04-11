@@ -56,14 +56,11 @@ int main(int argc, char **argv) {
 	// Activate error and warning logs
 	enableConsoleLogging(_SCErrorChannel);
 	enableConsoleLogging(_SCWarningChannel);
-	enableConsoleLogging(_SCDebugChannel);
 
-	/*
 	for ( int i = 1; i < argc; ++i ) {
 		if ( !strcmp("--debug", argv[i]) )
 			Seiscomp::Logging::enableConsoleLogging(Seiscomp::Logging::getAll());
 	}
-	*/
 
 	System::SchemaDefinitions defs;
 	cerr << "Loading definitions from: " << filebase << module_desc << endl;

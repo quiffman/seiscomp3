@@ -146,7 +146,7 @@ bool Sync::push(const Seiscomp::DataModel::Inventory *inv) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Sync::process(const StationGroup *group) {
-	SEISCOMP_INFO("Processing station group %s", group->code().c_str());
+	SEISCOMP_INFO("Synching station group %s", group->code().c_str());
 
 	bool newInstance = false;
 	bool needUpdate = false;
@@ -191,7 +191,14 @@ bool Sync::process(const StationGroup *group) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Sync::process(StationGroup *group, const StationReference *ref) {
 	StationReferencePtr sc_ref;
-	sc_ref = group->stationReference(ref->index());
+	StationReference tmp = *ref;
+
+	// Map ID if necessary
+	IDMap::iterator it = _stationIDMap.find(ref->stationID());
+	if ( it != _stationIDMap.end() )
+		tmp.setStationID(it->second);
+
+	sc_ref = group->stationReference(tmp.index());
 
 	bool newInstance = false;
 	bool needUpdate = false;
@@ -199,20 +206,13 @@ bool Sync::process(StationGroup *group, const StationReference *ref) {
 	if ( !sc_ref ) {
 		sc_ref = new StationReference();
 		newInstance = true;
+		SEISCOMP_DEBUG("Create new station reference for %s", ref->stationID().c_str());
 	}
 	else
-		needUpdate = !sc_ref->equal(*ref);
+		needUpdate = !sc_ref->equal(tmp);
 
 	// Assign values
-	*sc_ref = *ref;
-
-	// Map ID if necessary
-	IDMap::iterator it = _stationIDMap.find(ref->stationID());
-	if ( it != _stationIDMap.end() ) {
-		sc_ref->setStationID(it->second);
-		if ( sc_ref->stationID() != ref->stationID() )
-			needUpdate = true;
-	}
+	*sc_ref = tmp;
 
 	if ( newInstance )
 		group->add(sc_ref.get());
@@ -230,7 +230,7 @@ bool Sync::process(StationGroup *group, const StationReference *ref) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Sync::process(const Network *net) {
-	SEISCOMP_INFO("Processing network %s (%s)",
+	SEISCOMP_INFO("Synching network %s (%s)",
 	              net->code().c_str(), net->start().toString("%F %T").c_str());
 
 	bool newInstance = false;

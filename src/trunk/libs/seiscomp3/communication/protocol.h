@@ -172,7 +172,7 @@ public:
 	static const int MAX_GROUPS = 100;
 
 	//! Maximal size of a message
-	static const unsigned int STD_MSG_LEN = 97280;
+	static const unsigned int STD_MSG_LEN = 1048576;
 
 	//! Definition of the predefined groups
 	static const std::string MASTER_GROUP;

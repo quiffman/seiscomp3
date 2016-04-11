@@ -2,7 +2,7 @@
 #***************************************************************************** 
 # nettab2xml.py
 #
-# Convert network tables to XML
+# Convert network tables (version 1) to XML
 #
 # (c) 2009 Andres Heinloo, GFZ Potsdam
 #
@@ -25,7 +25,7 @@ from seiscomp import logs
 from seiscomp.db.seiscomp3 import sc3wrap
 from seiscomp.db.seiscomp3.routing import Routing as SC3Routing
 from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
-from seiscomp.nettab import Nettab, Instruments, NettabError, _EPOCH_DATE
+from nettab.nettab import Nettab, Instruments, NettabError, _EPOCH_DATE
 from seiscomp3 import Core, Client, DataModel, Logging, Config, System, IO
 from seiscomp3.helpers import writeobj
 

@@ -14560,6 +14560,35 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Application_hasCustomPublicIDPattern(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Application_hasCustomPublicIDPattern",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_hasCustomPublicIDPattern" "', argument " "1"" of type '" "Seiscomp::Client::Application const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  {
+    try {
+      result = (bool)((Seiscomp::Client::Application const *)arg1)->hasCustomPublicIDPattern(); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Application_setConnectionRetries(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
@@ -14585,6 +14614,80 @@ SWIGINTERN PyObject *_wrap_Application_setConnectionRetries(PyObject *SWIGUNUSED
   {
     try {
       (arg1)->setConnectionRetries(arg2); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Application_setLoggingContext(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Application_setLoggingContext",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_setLoggingContext" "', argument " "1"" of type '" "Seiscomp::Client::Application *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Application_setLoggingContext" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  {
+    try {
+      (arg1)->setLoggingContext(arg2); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Application_setLoggingComponent(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Application_setLoggingComponent",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_setLoggingComponent" "', argument " "1"" of type '" "Seiscomp::Client::Application *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Application_setLoggingComponent" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  {
+    try {
+      (arg1)->setLoggingComponent(arg2); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -14835,6 +14938,34 @@ SWIGINTERN PyObject *_wrap_Application_setShutdownMasterUsername(PyObject *SWIGU
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Application_closeLogging(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Application_closeLogging",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_closeLogging" "', argument " "1"" of type '" "Seiscomp::Client::Application *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  {
+    try {
+      (arg1)->closeLogging(); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -22603,13 +22734,17 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Application_isAutoApplyNotifierEnabled", _wrap_Application_isAutoApplyNotifierEnabled, METH_VARARGS, (char *)"Application_isAutoApplyNotifierEnabled(Application self) -> bool"},
 	 { (char *)"Application_setInterpretNotifierEnabled", _wrap_Application_setInterpretNotifierEnabled, METH_VARARGS, (char *)"Application_setInterpretNotifierEnabled(Application self, bool enable)"},
 	 { (char *)"Application_isInterpretNotifierEnabled", _wrap_Application_isInterpretNotifierEnabled, METH_VARARGS, (char *)"Application_isInterpretNotifierEnabled(Application self) -> bool"},
+	 { (char *)"Application_hasCustomPublicIDPattern", _wrap_Application_hasCustomPublicIDPattern, METH_VARARGS, (char *)"Application_hasCustomPublicIDPattern(Application self) -> bool"},
 	 { (char *)"Application_setConnectionRetries", _wrap_Application_setConnectionRetries, METH_VARARGS, (char *)"Application_setConnectionRetries(Application self, unsigned int arg1)"},
+	 { (char *)"Application_setLoggingContext", _wrap_Application_setLoggingContext, METH_VARARGS, (char *)"Application_setLoggingContext(Application self, bool arg1)"},
+	 { (char *)"Application_setLoggingComponent", _wrap_Application_setLoggingComponent, METH_VARARGS, (char *)"Application_setLoggingComponent(Application self, bool arg1)"},
 	 { (char *)"Application_setLoggingToStdErr", _wrap_Application_setLoggingToStdErr, METH_VARARGS, (char *)"Application_setLoggingToStdErr(Application self, bool arg1)"},
 	 { (char *)"Application_addLoggingComponentSubscription", _wrap_Application_addLoggingComponentSubscription, METH_VARARGS, (char *)"Application_addLoggingComponentSubscription(Application self, string arg1)"},
 	 { (char *)"Application_setConfigModuleName", _wrap_Application_setConfigModuleName, METH_VARARGS, (char *)"Application_setConfigModuleName(Application self, string module)"},
 	 { (char *)"Application_configModuleName", _wrap_Application_configModuleName, METH_VARARGS, (char *)"Application_configModuleName(Application self) -> string"},
 	 { (char *)"Application_setShutdownMasterModule", _wrap_Application_setShutdownMasterModule, METH_VARARGS, (char *)"Application_setShutdownMasterModule(Application self, string module)"},
 	 { (char *)"Application_setShutdownMasterUsername", _wrap_Application_setShutdownMasterUsername, METH_VARARGS, (char *)"Application_setShutdownMasterUsername(Application self, string username)"},
+	 { (char *)"Application_closeLogging", _wrap_Application_closeLogging, METH_VARARGS, (char *)"Application_closeLogging(Application self)"},
 	 { (char *)"Application_addInputObjectLog", _wrap_Application_addInputObjectLog, METH_VARARGS, (char *)"\n"
 		"addInputObjectLog(string name, string channel = \"\") -> ObjectLog\n"
 		"Application_addInputObjectLog(Application self, string name) -> ObjectLog\n"

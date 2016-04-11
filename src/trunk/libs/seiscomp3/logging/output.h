@@ -44,6 +44,8 @@ class SC_SYSTEM_CORE_API Output : public Node {
 		/** Subscribe to a particular channel */
 		bool subscribe(Channel* channel);
 		bool unsubscribe(Channel* channel);
+		void logComponent(bool e) { _logComponent = e; }
+		void logContext(bool e) { _logContext = e; }
 
 	protected:
 		/** Callback method for receiving log messages */
@@ -66,6 +68,10 @@ class SC_SYSTEM_CORE_API Output : public Node {
 
 	private:
 		void publish(const Data &data);
+
+	protected:
+		bool _logComponent;
+		bool _logContext;
 
 	private:
 		PublishLoc* _publisher;

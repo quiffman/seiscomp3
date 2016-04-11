@@ -1,3 +1,1 @@
-SUBDIRS(tabutils)
-
 INSTALL(PROGRAMS msrtsimul.py RENAME msrtsimul DESTINATION ${SC3_PACKAGE_BIN_DIR})

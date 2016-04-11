@@ -40,7 +40,7 @@ void Regions::load() {
 }
 
 
-const Geo::PolyRegions &Regions::polyRegions() {
+Geo::PolyRegions &Regions::polyRegions() {
 	return regions;
 }
 

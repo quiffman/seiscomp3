@@ -32,7 +32,7 @@ from seiscomp.db.generic.inventory import Inventory as GInventory
 from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
 from seiscomp3 import Core, Config, Client, DataModel, Logging
 
-VERSION = "0.10a (2012.272)"
+VERSION = "0.12a (2012.327)"
 
 def overlaps(pstart, pend, cstart, cend):
     if pend:
@@ -106,6 +106,24 @@ def unWrapRTN(objs, network = None, type = 'arclink'):
                         raise Exception("Invalid type: arclink or seedlink")
     return list
 
+def prepareMap(inv, stationReferenceList = None):
+    map = {}
+    for (ncode, nstart, net) in unWrapNSLC(inv.network):
+        for (scode, sstart, sta) in unWrapNSLC(net.station):
+            if stationReferenceList and sta.publicID not in stationReferenceList: continue
+            map[sta.publicID] = (net.code, net.start, sta.code, sta.start)
+    return map
+
+def findSID(map, content):
+    for (id, values) in map.iteritems():
+        if values == content:
+            return id 
+    return None
+
+""" 
+    This is a copy of the class Node from the file eida.py
+    It is copied here to make sync_arc independent from eida.py. 
+"""
 class Node(object):
     __slots__ = (
             "dcid",
@@ -115,29 +133,52 @@ class Node(object):
             "contact",
             "email",
             "networks",
-            "_pool",
-            "_inv",
-            "_rtn"
+            "stationGroups"
     )
 
-    def __init__(self, dcid, address, port, pool = '.'):
+    def __init__(self, dcid, address, port):
         for at in self.__slots__:
             setattr(self, at, None)
-
-        self._pool = pool
         self.dcid = dcid
         self.address = address
         self.port = port
         self.networks = {}
+        self.stationGroups = {}
 
-    def __iter__(self):
+    def networkList(self):
         pack = []
-        for list in self.networks.values():
-            for obj in list:
+        for ones in self.networks.values():
+            for obj in ones:
                 pack.append(obj)
-        iter = pack.__iter__()
-        pack = None
-        return iter
+        return pack
+
+    def stationGroupList(self):
+        pack = []
+        for ones in self.stationGroups.values():
+            for obj in ones:
+                pack.append(obj)
+        return pack
+
+    def _xml(self, doc):
+        xnode = doc.createElement("node")
+        for att in self.__slots__:
+            if att in ["networks", "stationGroups"]:
+                continue
+            if getattr(self, att) is not None:
+                xnode.setAttribute(att, str(getattr(self, att)))
+        for (n,s,e) in self.networkList():
+            nnode = doc.createElement("network")
+            nnode.setAttribute("code", n)
+            nnode.setAttribute("start", str(s))
+            if e is not None: nnode.setAttribute("end", str(e))
+            xnode.appendChild(nnode)
+        for (n,s,e) in self.stationGroupList():
+            nnode = doc.createElement("stationGroup")
+            nnode.setAttribute("code", n)
+            nnode.setAttribute("start", str(s))
+            if e is not None: nnode.setAttribute("end", str(e))
+            xnode.appendChild(nnode)
+        return xnode
 
     def __overlap__(self, s1, e1, s2, e2):
         if e1:
@@ -149,9 +190,9 @@ class Node(object):
                 return True
         return False
 
-    def conflict(self, nn, ss, ee):
+    def _conflict(self, obj, nn, ss, ee):
         try:
-            list = self.networks[nn]
+            list = obj[nn]
         except:
             list = []
         
@@ -161,23 +202,23 @@ class Node(object):
                 return True
         return False
 
-    def add(self, code, start, end):
+    def _add(self, obj, code, start, end):
         if code is None:
-            raise Exception("Invalid network code")
+            raise Exception("Invalid code")
         
         if start is None:
             raise Exception("Invalid start date")
         
-        if self.conflict(code, start, end):
+        if self._conflict(obj, code, start, end):
             raise Exception("Conflicting items")
         
-        if code not in self.networks:
-            self.networks[code] = []
+        if code not in obj:
+            obj[code] = []
         
-        self.networks[code].append((code, start, end))
-        self.networks[code].sort()
+        obj[code].append((code, start, end))
+        obj[code].sort()
 
-    def remove(self, code, start):
+    def _remove(self, obj, code, start):
         if code is None:
             raise Exception("Invalid network code")
         
@@ -185,28 +226,84 @@ class Node(object):
             raise Exception("Invalid start date")
         
         try:
-            list = self.networks[code]
-            for (n,s,e) in list:
+            ones = obj[code]
+            for (n,s,e) in ones:
                 if code == n and start == s:
-                    list.remove((n,s,e))
+                    ones.remove((n,s,e))
                     return
         except:
             raise Exception("Code Not found")
         raise Exception("Start/End not found")
 
-    def _sendRequest(self, obj, type, args, dcid):
-        if len(self.networks) == 0:
-            logs.warning("No networks defined for node %s" % self.dcid)
+    def addNetwork(self, code, start, end):
+        self._add(self.networks, code, start, end)
+
+    def removeNetwork(self, code, start):
+        self._remove(self.networks, code, start)
+
+    def addStationGroup(self, code, start, end):
+        self._add(self.stationGroups, code, start, end)
+
+    def removeStationGroup(self, code, start):
+        self._remove(self.stationGroups, code, start)
+
+    def info(self, where=sys.stderr):
+        print >>where,"%s" % (self.dcid)
+        print >>where," Name: %s" % (self.name)
+        print >>where," Contact: %s" % (self.contact),
+        print >>where,"\tEmail: %s" % (self.email)
+        print >>where," Address: %-15s" % (self.address),
+        print >>where,"\tPort: %s" % (self.port)
+        
+        nList = self.networkList()
+        sgList = self.stationGroupList()
+        
+        print >>where," %d network%s\t %d station group%s" % (len(nList),"" if len(nList) == 1 else "s", len(sgList), "" if len(sgList) == 1 else "s")
+        i=1
+        for (n,s,e) in nList:
+            print >>where,"  [%d] %s (%s) (%s)" % (i,n,s,e)
+            i=i+1
+        for (n,s,e) in sgList:
+            print >>where,"  [%d] %s (%s) (%s)" % (i,n,s,e)
+            i=i+1
+        print >>where,""
+
+class SyncNode(Node):
+    __slots__ = (
+            "_pool",
+            "_inv",
+            "_rtn",
+            "_sginv"
+    )
+
+    def __init__(self, dcid, address, port, pool = '.'):
+        Node.__init__(self, dcid, address, port)
+        self._pool = pool
+        self._inv = None
+        self._rtn = None
+        self._sginv = None
+
+    def _sendRequest(self, obj, type, args, dcid, lines, locationAndChannel = True):
+        if len(lines) == 0:
+            logs.warning("No items defined for node %s" % self.dcid)
             return False
 
         sport="%s:%s" % (self.address, self.port)
         arcl = ArclinkManager(sport, socket_timeout = 120, download_retry = 1)
         
+        if "compression" not in args:
+            args["compression"] = "bzip2"
+        
         req = arcl.new_request(type, args)
-        for (n, s, e) in self:
+        for (n, s, e) in lines:
+            if s is None:
+                e = datetime.datetime(1970,1,1,0,0,0)
             if e is None:
                 e = datetime.datetime(2030,1,1,0,0,0)
-            req.add(n, "*", "*", "*", s, e)
+            if locationAndChannel:
+                req.add(n, "*", "*", "*", s, e)
+            else:
+                req.add(n, "*", ".", ".", s, e)
         
         user = "sync@%s" % dcid
         logs.info("Submiting %s request to server: %s as %s" % (type, sport, user))
@@ -392,7 +489,7 @@ class Node(object):
             if loadVersion:
                 status = self._loadFromDisk(rtn, loadVersion)
             else:
-                status = self._sendRequest(rtn, "ROUTING", {}, dcid)
+                status = self._sendRequest(rtn, "ROUTING", {}, dcid, self.networkList(), True)
                 if status is True and saveraw:
                     try:
                         self._saveToDisk(rtn)
@@ -465,7 +562,7 @@ class Node(object):
             if loadVersion:
                 status = self._loadFromDisk(inv, loadVersion)
             else:
-                status = self._sendRequest(inv, "INVENTORY", {"instruments" : "true", "compression": "bzip2"}, dcid)
+                status = self._sendRequest(inv, "INVENTORY", {"instruments" : "true" }, dcid, self.networkList(), True)
                 if status is True and saveraw:
                     try:
                         self._saveToDisk(inv)
@@ -475,20 +572,23 @@ class Node(object):
                 self._inv = inv
         return self._inv
 
-    def info(self, where=sys.stderr):
-        print >>where,"%s" % (self.dcid)
-        print >>where," Name: %s" % (self.name)
-        print >>where," Contact: %s" % (self.contact),
-        print >>where,"\tEmail: %s" % (self.email)
-        print >>where," Address: %-15s" % (self.address),
-        print >>where,"\tPort: %s" % (self.port)
-        print >>where," %d network(s)" % (len(self.networks))
-        if self.networks:
-            i=1
-            for (n,s,e) in self:
-                print >>where,"  [%d] %s (%s) (%s)" % (i,n,s,e)
-                i=i+1
-        print >>where,""
+    def _validateStationGroup(self, inv):
+        map = prepareMap(inv, None)
+        for (sgcode, sg) in inv.stationGroup.iteritems():
+            for sid in sg.stationReference:
+                if sid not in map:
+                    logs.warning("Cleaning invalid station reference %s" % sid)
+                    sg.remove_stationReference(sid)
+        return True
+
+    def getStationGroup(self, dcid):
+        if self._sginv is None:
+            inv = GInventory()
+            status = self._sendRequest(inv, "INVENTORY", {}, dcid, self.stationGroupList(), False)
+            self._validateStationGroup(inv)
+            if status  and self._validateStationGroup(inv):
+                self._sginv = inv
+        return self._sginv
 
 class ArclinkSynchronizer(Client.Application):
     def __init__(self, argc, argv):
@@ -515,6 +615,8 @@ class ArclinkSynchronizer(Client.Application):
         self.keep = False
         self.nodeList = None
         self.nodeExclude = None
+        self.stationGroup = False
+        self.dryrun = False
         
         self.inv = None
         self.rtn = None
@@ -611,6 +713,9 @@ class ArclinkSynchronizer(Client.Application):
         if self.commandline().hasOption("keep-synced"):
             self.keep = True
         
+        if self.commandline().hasOption("with-sg"):
+            self.stationGroup = True
+        
         if self.commandline().hasOption("keep-raw"):
             self.keepraw = True
 
@@ -618,8 +723,7 @@ class ArclinkSynchronizer(Client.Application):
             self.force = True
 
         if self.commandline().hasOption("dry-run"):
-            print >>sys.stderr,"Option dry-run is not implemented"
-            return False
+            self.dryrun = True
 
         ### checks of the parameters
         error = False
@@ -679,6 +783,7 @@ class ArclinkSynchronizer(Client.Application):
         self.commandline().addStringOption("Options", "load-raw", "load a copy of the RAW Inventory/Routing information from disk. It expects a date value in the following format YYYY-MM-DD.")
         self.commandline().addOption("Options", "force", "Force merging against MYSELF.")
         self.commandline().addOption("Options", "dry-run", "Perform everything that should be done but don't write changes to the database.")
+        self.commandline().addOption("Options", "with-sg", "Merge also the Station Groups (Virtual Networks) after the inventory is merged.")
 
     def send(self, *args):
         while not self.connection().send(*args):
@@ -752,11 +857,11 @@ class ArclinkSynchronizer(Client.Application):
 
         try:
             r = urlopen(url)
-        except HTTPError,e:
+        except HTTPError, e:
             raise Exception("Invalid master table location %s [HTTP Error code %s]" % (url, e.code))
         except URLError, e:
             (code, reason) = e.reason
-            raise Exception("Error on fetching mater table: %s" % (reason)) 
+            raise Exception("Error on fetching master table: %s" % (reason)) 
         xdoc = parseString(r.read())
 
         for node in xdoc.getElementsByTagName("node"):
@@ -772,7 +877,7 @@ class ArclinkSynchronizer(Client.Application):
             ad = str(node.getAttribute("address"))
             pt = int(node.getAttribute("port"))
             
-            n = Node(id, ad, pt, self.poolFolder)
+            n = SyncNode(id, ad, pt, self.poolFolder)
             n.name = str(node.getAttribute("name"))
             n.email = str(node.getAttribute("email"))
             n.contact = str(node.getAttribute("contact"))
@@ -785,7 +890,18 @@ class ArclinkSynchronizer(Client.Application):
                     end = None
                 else:
                     end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
-                n.add(code, start, end)
+                n.addNetwork(code, start, end)
+
+            for stationGroup in node.getElementsByTagName("stationGroup"):
+                code = str(stationGroup.getAttribute("code"))
+                start = datetime.datetime.strptime(stationGroup.getAttribute("start"), "%Y-%m-%d %H:%M:%S")
+                end = stationGroup.getAttribute("end")
+                if end == "":
+                    end = None
+                else:
+                    end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+                n.addStationGroup(code, start, end)
+
             table[id.upper()] = n
         return table
 
@@ -832,9 +948,9 @@ class ArclinkSynchronizer(Client.Application):
         for (n, s, l, c, a) in sCollection:
             self.rtn.route[n][s][l][c].remove_seedlink(a)
         return
-    
+
     def _mRouting(self, node):
-        if node is None or not isinstance(node, Node):
+        if node is None or not isinstance(node, SyncNode):
             raise Exception("Invalid node object")
         
         if node.dcid.upper() == self.dcid:
@@ -948,9 +1064,9 @@ class ArclinkSynchronizer(Client.Application):
                                             continue
 
         return
-        
+
     def _mInventory(self, node):
-        if node is None or not isinstance(node, Node):
+        if node is None or not isinstance(node, SyncNode):
             raise Exception("Invalid node object")
         
         if node.dcid.upper() == self.dcid:
@@ -992,6 +1108,9 @@ class ArclinkSynchronizer(Client.Application):
                 for (nstart, network) in nspam.items():
                     inv.remove_network(ncode, nstart)
                     logs.notice("I [-] %s %s" % (ncode,nstart))
+            for (sgcode, sg) in inv.stationGroup.items():
+                inv.remove_stationGroup(sgcode)
+                logs.notice("Sg [-] %s" % (sgcode))
         else:
             logs.warning("No inventory to clean")
 
@@ -1045,6 +1164,13 @@ class ArclinkSynchronizer(Client.Application):
                     continue
                 inv.remove_network(ncode, nstart)
                 logs.notice("I [-] %s %s" % (ncode,nstart))
+            if inv.stationGroup:
+                for (sgcode,start,end) in node.stationGroupList():
+                    if sgcode in inv.stationGroup:
+                        inv.remove_stationGroup(sgcode)
+                        logs.notice("Sg [-] %s" % (sgcode))
+            else:
+                logs.warning("** local machine has no station groups loaded")
         else:
             logs.warning("** local machine has no inventory loaded")
 
@@ -1184,7 +1310,7 @@ class ArclinkSynchronizer(Client.Application):
         
         ## Loop the master table and find the local entries if any
         ##
-        for (n, s, e) in node:
+        for (n, s, e) in node.networkList():
             toremove = []
             found = False
             for (ncode, nstart, network) in list:
@@ -1210,7 +1336,7 @@ class ArclinkSynchronizer(Client.Application):
         logs.notice("** Checking Routing for dcid = %s" % node.dcid)
         logs.notice("   [-] is missing on local routing")
         logs.notice("   [=] is defined on master table and local inventory")
-        for (nCode, nStart, nEnd) in node:
+        for (nCode, nStart, nEnd) in node.networkList():
             ##
             ## Arclink
             found = False
@@ -1233,6 +1359,25 @@ class ArclinkSynchronizer(Client.Application):
                     logs.warning("[-] [Seedlink] %s.%s" % (nCode, nStart))
                     ok = False
                 
+        ### Check that we have the routings for networks
+        ##
+        if len(node.stationGroupList()) > 0:
+            logs.notice("** Checking Virtual network for dcid = %s" % node.dcid)
+            logs.notice("   [-] is missing on local inventory")
+            logs.notice("   [=] is defined on master table and local inventory")
+            for (sg,s,e) in node.stationGroupList():
+                found = False
+                for (sgcode, sg) in inv.stationGroup.items():
+                    ##
+                    ## Missing check of dates
+                    ##
+                    if sgcode == sg:
+                        found= True
+                        break
+                if not found: 
+                    logs.warning("[-] [StationGroup] %s,%s" % (sg, s))
+                    ok = False
+
         if ok:
             logs.notice("No Warnings found.")
         return ok
@@ -1354,6 +1499,95 @@ class ArclinkSynchronizer(Client.Application):
         if count == 0:
             logs.notice("No req-handlers found for re-starting.")
 
+    def _doGroupRebuild(self, node):
+        if node is None or not isinstance(node, SyncNode):
+            raise Exception("Invalid node object")
+        
+        if node.dcid.upper() == self.dcid:
+            if self.force:
+                logs.warning("Performing a station group rebuild against myself")
+            else:
+                logs.warning("Will not rebuild station group against myself (--force to overwrite this)")
+                return
+
+        logs.notice("** rebuilding station group from %s (%s:%d)" % (node.dcid, node.address, node.port))
+
+        if len(node.stationGroupList()) == 0:
+            logs.debug ("Nothing to do, no station groups defined for node %s")
+            return
+
+        sginv = node.getStationGroup(self.dcid)
+        if sginv is None:
+            logs.error("Could not fetch stationGroups from node: %s" % node.dcid)
+            return
+        sgmap = prepareMap(sginv)
+
+        inv = self.inv
+
+        for (sgcode, sgstart, sgend) in node.stationGroupList():
+            # Check the reference
+            try:
+                sgref = sginv.stationGroup[sgcode]
+            except KeyError:
+                if sgcode in inv.stationGroup:
+                    inv.remove_stationGroup(sgcode)
+                    logs.warning("Sg [-] %s" % sgcode)
+                continue
+
+            # Check the current
+            try:
+                sg = inv.stationGroup[sgcode]
+                logs.debug("Sg [=] %s" % sgcode)
+            except KeyError:
+                sg = inv.insert_stationGroup(sgcode)
+                logs.warning("Sg [+] %s" % sgcode)
+
+            # Update attributes
+            sg.end = sgref.end
+            sg.latitude = sgref.latitude
+            sg.longitude = sgref.longitude
+            sg.elevation = sgref.elevation
+
+            # Make a map and sanitize the stationGroup so that we can sync
+            sidToRemove = []
+            invmap = prepareMap(inv)
+
+            for sid in sg.stationReference:
+                if sid not in invmap:
+                    logs.warning("Sg [!] cleaning missing reference for public id %s" % sid)
+                    sidToRemove.append(sid)
+            for sid in sidToRemove:
+                sg.remove_stationReference(sid)
+
+            # Remove not listed references, and clean conflict ones
+            sidToRemove = []
+            for sid in sg.stationReference:
+                try:
+                    srref = sgref.stationReference[sid]
+                    if invmap[sid] != sgmap[sid]:
+                        logs.warning("Sg [!] %s key conflict error (%s/%s/%s/%s)" % ((sgcode,)+invmap[sid]))
+                        raise KeyError()
+                except KeyError:
+                    sidToRemove.append(sid)
+            for sid in sidToRemove:
+                sg.remove_stationReference(sid)
+                logs.warning("Sg [-] %s %s/%s/%s/%s" % ((sgcode,)+invmap[sid]))
+
+            # Add the missing or removed entries again when they are valid
+            for sid in sgref.stationReference:
+                try:
+                    sr = sg.stationReference[sid]
+                    logs.debug("Sg [=] %s %s/%s/%s/%s" % ((sgcode,) + sgmap[sid]))
+                except KeyError:
+                    newSID = findSID(invmap, sgmap[sid])
+                    if newSID is None:
+                        logs.warning("Sg [!] %s Skipping station reference %s/%s/%s/%s" % ((sgcode,)+sgmap[sid]))
+                        continue
+                    if newSID != sid: 
+                        logs.warning("Sg  [!] Linking to a different publicID %s -> %s" % (sid, newSID))
+                    sg.insert_stationReference(newSID)
+                    logs.warning("Sg [+] %s %s %s %s %s" % ((sgcode,)+invmap[newSID]))
+
     def run(self):
         sc3wrap.dbQuery = self.query()
         table = None
@@ -1409,7 +1643,7 @@ class ArclinkSynchronizer(Client.Application):
             for node in table.values():
                 self._clean(node)
             self.sendOnDone = True
-        
+
         elif self.doMerge:
             for (dcid, node) in table.items():
                 try:
@@ -1417,6 +1651,9 @@ class ArclinkSynchronizer(Client.Application):
                     self._mRouting(node)
                 except Exception,e:
                     logs.error("[%s] %s" % (dcid, e))
+            if self.stationGroup:
+                for (dcid, node) in table.items():
+                    self._doGroupRebuild(node)
             self.sendOnDone = True
             self.tidyOnDone = True
 
@@ -1468,26 +1705,29 @@ class ArclinkSynchronizer(Client.Application):
         return
 
     def done(self):
-        if self.sendOnDone:
-            sent = 0
-            if self.inv is not None: 
-                logs.notice("** cleaning Instruments")
-                self._cleanInstruments()
-                
-                logs.notice("** sending Inventory Notifiers")
-                self.inv.flush()
-                sent = sent + self.send_notifiers("INVENTORY")
+        if not self.dryrun:
+            if self.sendOnDone:
+                sent = 0
+                if self.inv is not None: 
+                    logs.notice("** cleaning Instruments")
+                    self._cleanInstruments()
+                    
+                    logs.notice("** sending Inventory Notifiers")
+                    self.inv.flush()
+                    sent = sent + self.send_notifiers("INVENTORY")
+        
+                if self.rtn is not None:
+                    logs.notice("** cleaning Routings")
+                    self._cleanRoutings()
+                    
+                    logs.notice("** sending Routing Notifiers")
+                    self.rtn.flush()
+                    sent = sent + self.send_notifiers("ROUTING")
     
-            if self.rtn is not None:
-                logs.notice("** cleaning Routings")
-                self._cleanRoutings()
-                
-                logs.notice("** sending Routing Notifiers")
-                self.rtn.flush()
-                sent = sent + self.send_notifiers("ROUTING")
-
-            if sent > 0:
-                self._restartReqHandler()
+                if sent > 0:
+                    self._restartReqHandler()
+        else:
+            logs.warning("*** Will not send notifiers DRY RUN *** ")
 
         if self.tidyOnDone:
             self.tidyPool()
