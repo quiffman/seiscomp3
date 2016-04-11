@@ -47,7 +47,7 @@ class FilterWrapper {
 				if ( _filter[i] ) delete _filter[i];
 		}
 
-		void operator()(T *data[N], int n, double sfreq) const {
+		void operator()(T *data[N], int n, const Core::Time &stime, double sfreq) const {
 			if ( _baseFilter ) {
 				for ( int i = 0; i < N; ++i ) {
 					if ( _filter[i] == NULL ) {
@@ -60,7 +60,7 @@ class FilterWrapper {
 			}
 
 			// Call real operator
-			_proc(data, n, sfreq);
+			_proc(data, n, stime, sfreq);
 		}
 
 		bool publish(int c) const { return _proc.publish(c); }
@@ -313,24 +313,24 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 		_result.time = tm + Core::TimeSpan(_timeCorr);
 
 		if ( snr < _minSNR ) {
-			_result = Result();
 			_initialized = false;
 			SEISCOMP_DEBUG("[S-L2] %s: snr %f too low at %s, need %f",
 			               rec->streamID().c_str(), snr,
 			               _result.time.iso().c_str(),
 			               _minSNR);
 			setStatus(LowSNR, snr);
+			_result = Result();
 			return;
 		}
 
 		if ( _result.time <= _trigger.onset ) {
-			_result = Result();
 			_initialized = false;
 			SEISCOMP_DEBUG("[S-L2] %s: pick at %s is before trigger at %s: rejected",
 			               rec->streamID().c_str(),
 			               _result.time.iso().c_str(),
 			               _trigger.onset.iso().c_str());
 			setStatus(Terminated, 1);
+			_result = Result();
 			return;
 		}
 

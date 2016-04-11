@@ -1,7 +1,7 @@
 * Generated at $date - Do not edit!
 * template: $template
 
-[seedlink]
+[$name]
 * Organization and default network code
 organization = "$organization"
 network = "$network"

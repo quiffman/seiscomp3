@@ -28,6 +28,8 @@ struct LogHandler {
 		Debug,
 		Information,
 		Conflict,
+		Unresolved,
+		Warning,
 		Error
 	};
 

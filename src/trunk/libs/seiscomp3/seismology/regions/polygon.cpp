@@ -16,13 +16,13 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include <boost/version.hpp>
 #include <boost/regex.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
 #define SEISCOMP_COMPONENT PolyRegion
 #include <seiscomp3/logging/log.h>
+#include <seiscomp3/core/system.h>
 
 namespace fs = boost::filesystem;
 
@@ -64,7 +64,7 @@ PolyRegions::~PolyRegions() {
 size_t PolyRegions::read(const std::string& location) {
 	fs::path directory;
 	try {
-		directory = fs::path(location, fs::native);
+		directory = SC_FS_PATH(location);
 	}
 	catch ( ... ) {
 		SEISCOMP_ERROR("Invalid path '%s'", location.c_str());
@@ -79,13 +79,9 @@ size_t PolyRegions::read(const std::string& location) {
 			if (fs::is_directory(*itr))
 				continue;
 
-#if (BOOST_VERSION <= 103301)
-			if (boost::regex_match(itr->leaf(), boost::regex(".*\\.(?:fep)")))
-#else
-			if (boost::regex_match(itr->path().leaf(), boost::regex(".*\\.(?:fep)")))
-#endif
-				if(! readFepBoundaries(itr->string()))
-					SEISCOMP_ERROR("Error reading file: %s", itr->string().c_str());
+			if (boost::regex_match(SC_FS_IT_LEAF(itr), boost::regex(".*\\.(?:fep)")))
+				if (! readFepBoundaries(SC_FS_IT_STR(itr)))
+					SEISCOMP_ERROR("Error reading file: %s", SC_FS_IT_STR(itr).c_str());
 		}
 	}
 	catch (const std::exception& ex){

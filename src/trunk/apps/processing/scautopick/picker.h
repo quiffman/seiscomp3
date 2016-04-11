@@ -131,6 +131,7 @@ class App : public Processing::Application {
 		typedef std::map<std::string, ProcList> ProcMap;
 		typedef std::map<TWProc*, std::string> ProcReverseMap;
 
+		int            _sentMessages;
 		StreamMap      _streams;
 		Config         _config;
 		PickMap        _lastPicks;

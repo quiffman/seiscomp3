@@ -22,9 +22,6 @@
 #define WGS84_FLATTENING (1.0/298.2572235630)
 
 
-// TODO: Documentation :-)
-
-
 namespace Seiscomp
 {
 namespace Math

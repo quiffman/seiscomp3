@@ -9643,6 +9643,58 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_LocatorInterface_isInitialLocationIgnored(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Seismology::LocatorInterface *arg1 = (Seiscomp::Seismology::LocatorInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:LocatorInterface_isInitialLocationIgnored",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Seismology__LocatorInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocatorInterface_isInitialLocationIgnored" "', argument " "1"" of type '" "Seiscomp::Seismology::LocatorInterface const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Seismology::LocatorInterface * >(argp1);
+  result = (bool)((Seiscomp::Seismology::LocatorInterface const *)arg1)->isInitialLocationIgnored();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_LocatorInterface_setIgnoreInitialLocation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Seismology::LocatorInterface *arg1 = (Seiscomp::Seismology::LocatorInterface *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:LocatorInterface_setIgnoreInitialLocation",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Seismology__LocatorInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocatorInterface_setIgnoreInitialLocation" "', argument " "1"" of type '" "Seiscomp::Seismology::LocatorInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Seismology::LocatorInterface * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "LocatorInterface_setIgnoreInitialLocation" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  (arg1)->setIgnoreInitialLocation(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_LocatorInterface_getPick(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Seismology::LocatorInterface *arg1 = (Seiscomp::Seismology::LocatorInterface *) 0 ;
@@ -11009,6 +11061,120 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_LocSAT_parameters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::LocSAT *arg1 = (Seiscomp::LocSAT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Seismology::LocatorInterface::IDList result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:LocSAT_parameters",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__LocSAT, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocSAT_parameters" "', argument " "1"" of type '" "Seiscomp::LocSAT const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::LocSAT * >(argp1);
+  result = ((Seiscomp::LocSAT const *)arg1)->parameters();
+  resultobj = swig::from(static_cast< std::vector<std::string,std::allocator< std::string > > >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_LocSAT_parameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::LocSAT *arg1 = (Seiscomp::LocSAT *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:LocSAT_parameter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__LocSAT, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocSAT_parameter" "', argument " "1"" of type '" "Seiscomp::LocSAT const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::LocSAT * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "LocSAT_parameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocSAT_parameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = ((Seiscomp::LocSAT const *)arg1)->parameter((std::string const &)*arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_LocSAT_setParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::LocSAT *arg1 = (Seiscomp::LocSAT *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:LocSAT_setParameter",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__LocSAT, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocSAT_setParameter" "', argument " "1"" of type '" "Seiscomp::LocSAT *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::LocSAT * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "LocSAT_setParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocSAT_setParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "LocSAT_setParameter" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocSAT_setParameter" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  result = (bool)(arg1)->setParameter((std::string const &)*arg2,(std::string const &)*arg3);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_LocSAT_profiles(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::LocSAT *arg1 = (Seiscomp::LocSAT *) 0 ;
@@ -11452,7 +11618,7 @@ SWIGINTERN PyObject *_wrap_LocSAT_getLocatorParams(PyObject *SWIGUNUSEDPARM(self
   if (!PyArg_ParseTuple(args,(char *)"OO:LocSAT_getLocatorParams",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__LocSAT, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocSAT_getLocatorParams" "', argument " "1"" of type '" "Seiscomp::LocSAT *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LocSAT_getLocatorParams" "', argument " "1"" of type '" "Seiscomp::LocSAT const *""'"); 
   }
   arg1 = reinterpret_cast< Seiscomp::LocSAT * >(argp1);
   ecode2 = SWIG_AsVal_int(obj1, &val2);
@@ -11460,7 +11626,7 @@ SWIGINTERN PyObject *_wrap_LocSAT_getLocatorParams(PyObject *SWIGUNUSEDPARM(self
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "LocSAT_getLocatorParams" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
-  result = (char *)(arg1)->getLocatorParams(arg2);
+  result = (char *)((Seiscomp::LocSAT const *)arg1)->getLocatorParams(arg2);
   resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
 fail:
@@ -12625,6 +12791,32 @@ SWIGINTERN PyObject *_wrap_delete_TravelTimeTableInterface(PyObject *SWIGUNUSEDP
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_Create(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::TravelTimeTableInterface *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TravelTimeTableInterface_Create",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TravelTimeTableInterface_Create" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (Seiscomp::TravelTimeTableInterface *)Seiscomp::TravelTimeTableInterface::Create((char const *)arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeTableInterface, SWIG_POINTER_OWN |  0 );
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return NULL;
 }
 
@@ -15465,6 +15657,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"LocatorInterface_releaseDepth", _wrap_LocatorInterface_releaseDepth, METH_VARARGS, NULL},
 	 { (char *)"LocatorInterface_setDistanceCutOff", _wrap_LocatorInterface_setDistanceCutOff, METH_VARARGS, NULL},
 	 { (char *)"LocatorInterface_releaseDistanceCutOff", _wrap_LocatorInterface_releaseDistanceCutOff, METH_VARARGS, NULL},
+	 { (char *)"LocatorInterface_isInitialLocationIgnored", _wrap_LocatorInterface_isInitialLocationIgnored, METH_VARARGS, NULL},
+	 { (char *)"LocatorInterface_setIgnoreInitialLocation", _wrap_LocatorInterface_setIgnoreInitialLocation, METH_VARARGS, NULL},
 	 { (char *)"LocatorInterface_getPick", _wrap_LocatorInterface_getPick, METH_VARARGS, NULL},
 	 { (char *)"LocatorInterface_getSensorLocation", _wrap_LocatorInterface_getSensorLocation, METH_VARARGS, NULL},
 	 { (char *)"LocatorInterface_swigregister", LocatorInterface_swigregister, METH_VARARGS, NULL},
@@ -15517,6 +15711,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_LocSAT", _wrap_new_LocSAT, METH_VARARGS, NULL},
 	 { (char *)"delete_LocSAT", _wrap_delete_LocSAT, METH_VARARGS, NULL},
 	 { (char *)"LocSAT_init", _wrap_LocSAT_init, METH_VARARGS, NULL},
+	 { (char *)"LocSAT_parameters", _wrap_LocSAT_parameters, METH_VARARGS, NULL},
+	 { (char *)"LocSAT_parameter", _wrap_LocSAT_parameter, METH_VARARGS, NULL},
+	 { (char *)"LocSAT_setParameter", _wrap_LocSAT_setParameter, METH_VARARGS, NULL},
 	 { (char *)"LocSAT_profiles", _wrap_LocSAT_profiles, METH_VARARGS, NULL},
 	 { (char *)"LocSAT_setProfile", _wrap_LocSAT_setProfile, METH_VARARGS, NULL},
 	 { (char *)"LocSAT_setDefaultProfile", _wrap_LocSAT_setDefaultProfile, METH_VARARGS, NULL},
@@ -15573,6 +15770,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_TravelTimeList", _wrap_delete_TravelTimeList, METH_VARARGS, NULL},
 	 { (char *)"TravelTimeList_swigregister", TravelTimeList_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TravelTimeTableInterface", _wrap_delete_TravelTimeTableInterface, METH_VARARGS, NULL},
+	 { (char *)"TravelTimeTableInterface_Create", _wrap_TravelTimeTableInterface_Create, METH_VARARGS, NULL},
 	 { (char *)"TravelTimeTableInterface_setModel", _wrap_TravelTimeTableInterface_setModel, METH_VARARGS, NULL},
 	 { (char *)"TravelTimeTableInterface_model", _wrap_TravelTimeTableInterface_model, METH_VARARGS, NULL},
 	 { (char *)"TravelTimeTableInterface_compute", _wrap_TravelTimeTableInterface_compute, METH_VARARGS, NULL},
@@ -18786,6 +18984,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "LocatorInterface_InitialLocation",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::InitialLocation)));
   SWIG_Python_SetConstant(d, "LocatorInterface_FixedDepth",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::FixedDepth)));
   SWIG_Python_SetConstant(d, "LocatorInterface_DistanceCutOff",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::DistanceCutOff)));
+  SWIG_Python_SetConstant(d, "LocatorInterface_IgnoreInitialLocation",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::IgnoreInitialLocation)));
   SWIG_Python_SetConstant(d, "LocatorInterface_CapQuantity",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::CapQuantity)));
   SWIG_Python_SetConstant(d, "LocatorInterface_Log",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::Log)));
   SWIG_Python_SetConstant(d, "LocatorInterface_Warning",SWIG_From_int(static_cast< int >(Seiscomp::Seismology::LocatorInterface::Warning)));

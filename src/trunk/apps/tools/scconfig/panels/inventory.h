@@ -95,6 +95,8 @@ class InventoryPanel : public ConfiguratorPanel {
 
 
 	private slots:
+		void headerSectionClicked(int);
+
 		void switchToIconView();
 		void switchToListView();
 		void switchToDetailedView();
@@ -111,7 +113,6 @@ class InventoryPanel : public ConfiguratorPanel {
 		QListView             *_folderView;
 		QTreeView             *_folderTree;
 		QDirModel             *_folderModel;
-		QSortFilterProxyModel *_sortModel;
 		QItemSelectionModel   *_selectionModel;
 };
 

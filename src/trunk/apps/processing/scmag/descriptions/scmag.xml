@@ -7,6 +7,9 @@
 				<parameter name="sendInterval" type="int" default="1">
 					<description>Interval between 2 sending processes. The interval has influence how often information is updated.</description>
 				</parameter>
+				<parameter name="minimumArrivalWeight" type="double" default="0.5">
+					<description>The minimum weight of an arrival to be used for magnitude calculations.</description>
+				</parameter>
 			</group>
 			<group name="summaryMagnitude">
 				<description>The summary magnitude is building a weighted summary above all defined magnitude types. The single magnitude value is multiplied with the magnitude type specific weight. This is summed up for all magnitude types and the resulting sum is divided through the sum of all weights.</description>

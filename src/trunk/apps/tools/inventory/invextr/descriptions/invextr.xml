@@ -12,9 +12,6 @@
 				<optionReference>generic#config-file</optionReference>
 				<optionReference>generic#plugins</optionReference>
 				<optionReference>generic#daemon</optionReference>
-				<optionReference>generic#auto-shutdown</optionReference>
-				<optionReference>generic#shutdown-master-module</optionReference>
-				<optionReference>generic#shutdown-master-username</optionReference>
 			</group>
 
 			<group name="Verbosity">

@@ -116,31 +116,31 @@ void decodeBase64(std::string &target, const char *bytes_to_decode, size_t in_le
 	while (in_len-- && ( bytes_to_decode[in_] != '=') && is_base64(bytes_to_decode[in_])) {
 		char_array_4[i++] = bytes_to_decode[in_]; in_++;
 		if (i ==4) {
-		for (i = 0; i <4; i++)
-			char_array_4[i] = base64_chars.find(char_array_4[i]);
-	
-		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-		char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-	
-		for (i = 0; (i < 3); i++)
-			target += char_array_3[i];
-		i = 0;
+			for ( i = 0; i <4; ++i )
+				char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+			char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+			char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+			char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+			for ( i = 0; (i < 3); ++i )
+				target += char_array_3[i];
+			i = 0;
 		}
 	}
-	
+
 	if (i) {
-		for (j = i; j <4; j++)
+		for ( j = i; j <4; ++j )
 			char_array_4[j] = 0;
 	
-		for (j = 0; j <4; j++)
+		for ( j = 0; j <4; ++j )
 			char_array_4[j] = base64_chars.find(char_array_4[j]);
 	
 		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
 		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
 		char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 	
-		for (j = 0; (j < i - 1); j++) target += char_array_3[j];
+		for ( j = 0; (j < i - 1); ++j ) target += char_array_3[j];
 	}
 }
 

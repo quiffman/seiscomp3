@@ -164,6 +164,7 @@ void EventTool::createCommandLineDescription() {
 	commandline().addOption("Database", "db-disable", "Do not use the database at all");
 	commandline().addOption("Generic", "expiry,x", "Time span in hours after which objects expire", &_fExpiry, true);
 	commandline().addOption("Generic", "origin-id,O", "Origin ID to associate (local only)", &_originID, true);
+	commandline().addOption("Generic", "event-id,E", "Event ID to update preferred objects (local only)", &_eventID, true);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -177,7 +178,7 @@ bool EventTool::validateParameters() {
 	if ( commandline().hasOption("db-disable") )
 		setDatabaseEnabled(false, false);
 
-	if ( _originID != "" )
+	if ( _originID != "" || _eventID != "" )
 		setMessagingEnabled(false);
 
 	return true;
@@ -263,6 +264,7 @@ bool EventTool::initConfiguration() {
 	} catch (...) {}
 
 	try { _config.delayPrefFocMech = configGetInt("eventAssociation.delayPrefFocMech"); } catch (...) {}
+	try { _config.ignoreMTDerivedOrigins = configGetBool("eventAssociation.ignoreFMDerivedOrigins"); } catch (...) {}
 
 	return true;
 }
@@ -302,6 +304,7 @@ bool EventTool::init() {
 	_config.updatePreferredSolutionAfterMerge = false;
 	_config.delayTimeSpan = 0;
 	_config.delayPrefFocMech = 0;
+	_config.ignoreMTDerivedOrigins = true;
 
 	if ( !Application::init() ) return false;
 
@@ -379,6 +382,20 @@ bool EventTool::run() {
 		}
 
 		std::cout << "Origin " << _originID << " has been associated to event " << info->event->publicID() << std::endl;
+		updatePreferredOrigin(info.get());
+
+		return true;
+	}
+
+	if ( !_eventID.empty() ) {
+		EventInformationPtr info = new EventInformation(&_cache, &_config, query(), _eventID);
+		if ( !info->event ) {
+				std::cout << "Event " << _eventID << " not found" << std::endl;
+				return false;
+		}
+
+		info->loadAssocations(query());
+		updatePreferredOrigin(info.get());
 		return true;
 	}
 
@@ -665,9 +682,11 @@ void EventTool::addObject(const string &parentID, Object* object) {
 			SEISCOMP_LOG(_infoChannel, "Received new momenttensor %s",
 			             mt->publicID().c_str());
 
-			// Blacklist the derived originID to prevent event
-			// association.
-			_originBlackList.insert(mt->derivedOriginID());
+			if ( _config.ignoreMTDerivedOrigins ) {
+				// Blacklist the derived originID to prevent event
+				// association.
+				_originBlackList.insert(mt->derivedOriginID());
+			}
 		}
 		return;
 	}
@@ -953,16 +972,16 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 				Notifier::Enable();
 				if ( !info->associate(origin.get()) ) {
 					SEISCOMP_ERROR("Association of origin %s to event %s failed",
-								   origin->publicID().c_str(), info->event->publicID().c_str());
+					               origin->publicID().c_str(), info->event->publicID().c_str());
 					SEISCOMP_LOG(_infoChannel, "Failed to associate origin %s to event %s",
-								 origin->publicID().c_str(), info->event->publicID().c_str());
+					             origin->publicID().c_str(), info->event->publicID().c_str());
 				}
 				else {
 					logObject(_outputOriginRef, Time::GMT());
 					SEISCOMP_INFO("%s: associated origin %s", info->event->publicID().c_str(),
-								  origin->publicID().c_str());
+					              origin->publicID().c_str());
 					SEISCOMP_LOG(_infoChannel, "Origin %s associated to event %s",
-								 origin->publicID().c_str(), info->event->publicID().c_str());
+					             origin->publicID().c_str(), info->event->publicID().c_str());
 					choosePreferred(info.get(), origin.get(), NULL, true);
 				}
 
@@ -2335,6 +2354,11 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 				             info->constraints.preferredOriginID.c_str());
 				return;
 			}
+			else {
+				SEISCOMP_LOG(_infoChannel, "Origin %s is fixed as preferred origin",
+				             origin->publicID().c_str());
+				SEISCOMP_DEBUG("... incoming origin is fixed");
+			}
 		}
 		// No fixed origin => select it using the automatic rules
 		else {
@@ -2701,7 +2725,7 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 						catch ( ValueException& ) {}
 
 						if ( status == AUTOMATIC ) {
-							SEISCOMP_DEBUG("Same priority and mode is AUTOMATIC");
+							SEISCOMP_DEBUG("... same priority and mode is AUTOMATIC");
 
 							if ( definingPhaseCount(origin) < definingPhaseCount(info->preferredOrigin.get()) ) {
 								SEISCOMP_DEBUG("... skipping potential preferred automatic origin, phaseCount too low");
@@ -2721,8 +2745,16 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 
 						if ( created(origin) < created(info->preferredOrigin.get()) ) {
 							SEISCOMP_DEBUG("... skipping potential preferred origin, there is a better one created later");
+							SEISCOMP_LOG(_infoChannel, "Origin %s: skipped potential preferred origin, there is a better one created later",
+							             origin->publicID().c_str());
 							return;
 						}
+					}
+					else {
+						SEISCOMP_DEBUG("... priority %d overrides current prioriy %d",
+						               originPriority, preferredOriginPriority);
+						SEISCOMP_LOG(_infoChannel, "Origin %s: priority %d overrides priority %d",
+						             origin->publicID().c_str(), originPriority, preferredOriginPriority);
 					}
 				}
 				else {

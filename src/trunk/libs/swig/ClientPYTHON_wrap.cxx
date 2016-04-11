@@ -18615,6 +18615,43 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_StreamApplication_setRecordInputHint(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::StreamApplication *arg1 = (Seiscomp::Client::StreamApplication *) 0 ;
+  Seiscomp::Record::Hint arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:StreamApplication_setRecordInputHint",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__StreamApplication, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "StreamApplication_setRecordInputHint" "', argument " "1"" of type '" "Seiscomp::Client::StreamApplication *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::StreamApplication * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "StreamApplication_setRecordInputHint" "', argument " "2"" of type '" "Seiscomp::Record::Hint""'");
+  } 
+  arg2 = static_cast< Seiscomp::Record::Hint >(val2);
+  {
+    try {
+      (arg1)->setRecordInputHint(arg2); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_StreamApplication_init(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::StreamApplication *arg1 = (Seiscomp::Client::StreamApplication *) 0 ;
@@ -23135,6 +23172,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"StreamApplication_setTimeWindow", _wrap_StreamApplication_setTimeWindow, METH_VARARGS, (char *)"StreamApplication_setTimeWindow(StreamApplication self, Seiscomp::Core::TimeWindow arg1) -> bool"},
 	 { (char *)"StreamApplication_setAutoAcquisitionStart", _wrap_StreamApplication_setAutoAcquisitionStart, METH_VARARGS, (char *)"StreamApplication_setAutoAcquisitionStart(StreamApplication self, bool arg1)"},
 	 { (char *)"StreamApplication_requestSync", _wrap_StreamApplication_requestSync, METH_VARARGS, (char *)"StreamApplication_requestSync(StreamApplication self)"},
+	 { (char *)"StreamApplication_setRecordInputHint", _wrap_StreamApplication_setRecordInputHint, METH_VARARGS, (char *)"StreamApplication_setRecordInputHint(StreamApplication self, Hint hint)"},
 	 { (char *)"StreamApplication_init", _wrap_StreamApplication_init, METH_VARARGS, (char *)"StreamApplication_init(StreamApplication self) -> bool"},
 	 { (char *)"StreamApplication_run", _wrap_StreamApplication_run, METH_VARARGS, (char *)"StreamApplication_run(StreamApplication self) -> bool"},
 	 { (char *)"StreamApplication_done", _wrap_StreamApplication_done, METH_VARARGS, (char *)"StreamApplication_done(StreamApplication self)"},

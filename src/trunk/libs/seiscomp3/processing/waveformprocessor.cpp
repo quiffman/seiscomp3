@@ -308,6 +308,11 @@ bool WaveformProcessor::store(const Record *record) {
 		std::cerr << "Received first record for " << record->streamID() << ", "
 		          << className() << " [" << record->startTime().iso() << " - " << record->endTime().iso() << std::endl;
 		*/
+		if ( _stream.filter ) {
+			_stream.filter->setStartTime(record->startTime());
+			_stream.filter->setStreamID(record->networkCode(), record->stationCode(),
+			                            record->locationCode(), record->channelCode());
+		}
 	}
 
 	// Fill the values and do the actual filtering

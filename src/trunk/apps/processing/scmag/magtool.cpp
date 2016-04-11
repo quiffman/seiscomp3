@@ -120,6 +120,8 @@ MagTool::MagTool() {
 	_magnitudeCoefficients["MLv"] = SummaryMagnitudeCoefficients(None, 2);
 	_magnitudeCoefficients["Mw(mB)"] = SummaryMagnitudeCoefficients(0.4, -1);
 	_magnitudeCoefficients["Mw(Mwp)"] = SummaryMagnitudeCoefficients(0.4, -1);
+
+	_minimumArrivalWeight = 0.5;
 }
 
 MagTool::~MagTool() {
@@ -165,6 +167,11 @@ void MagTool::setSummaryMagnitudeCoefficients(const Coefficients &c) {
 
 void MagTool::setAverageMethods(const AverageMethods &m) {
 	_magnitudeAverageMethods = m;
+}
+
+
+void MagTool::setMinimumArrivalWeight(double w) {
+	_minimumArrivalWeight = w;
 }
 
 
@@ -389,17 +396,17 @@ DataModel::Magnitude *MagTool::getMagnitude(DataModel::Origin* origin,
 		mag->setType(type);
 		origin->add(mag);
 
-		if ( newInstance )
-			*newInstance = true;
+		if ( newInstance ) *newInstance = true;
 	}
-	else if ( newInstance ) {
-		*newInstance = false;
+	else {
 		try {
 			// Check if evaluation status is set
 			mag->evaluationStatus();
 			return NULL;
 		}
 		catch ( ... ) {}
+
+		if ( newInstance ) *newInstance = false;
 	}
 
 	return mag;
@@ -766,7 +773,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 	     i < arrivalCount; i++) {
 
 		const DataModel::Arrival *arr = origin->arrival(i);
-		if ( !validArrival(arr) ) continue;
+		if ( !validArrival(arr, _minimumArrivalWeight) ) continue;
 
 		const string &pickID = arr->pickID();
 
@@ -776,7 +783,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 		// In the case of an uncached pick a amplitude pickID
 		// association is maybe available
 		StaAmpMap::iterator it = _ampl.find(pickID);
-		if (it != _ampl.end()) {
+		if ( it != _ampl.end() ) {
 			SEISCOMP_WARNING("Pick '%s' is not cached but associated to amplitudes",
 			                 pickID.c_str());
 			continue;
@@ -793,7 +800,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 		return 0;
 	}
 
-	SEISCOMP_WARNING("RETRIEVING %lu MISSING PICKS", (unsigned long)missingPicks.size());
+	SEISCOMP_INFO("RETRIEVING %lu MISSING PICKS", (unsigned long)missingPicks.size());
 
 	DataModel::DatabaseIterator dbit;
 	DataModel::Object* object;
@@ -810,8 +817,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 		if (missingPicks.find(id) == missingPicks.end())
 			continue;
 
-		SEISCOMP_WARNING("got pick id=%s from DB",
-				 pick->publicID().c_str());
+		SEISCOMP_INFO("got pick id=%s from DB", pick->publicID().c_str());
 
 		// XXX avoid recursion!
 		if ( ! feed(pick.get()))
@@ -833,7 +839,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 		if ( missingPicks.find(id) == missingPicks.end() )
 			continue;
 
-		SEISCOMP_WARNING("got ampl id=%s from DB", ampl->publicID().c_str());
+		SEISCOMP_INFO("got ampl id=%s from DB", ampl->publicID().c_str());
 
 		if ( !_feed(ampl.get(), false) )
 			continue;
@@ -842,7 +848,7 @@ int MagTool::retrieveMissingPicksAndArrivalsFromDB(const DataModel::Origin *orig
 	}
 	dbit.close();
 
-	SEISCOMP_WARNING("RETRIEVED  %d MISSING OBJECTS", count);
+	SEISCOMP_INFO("RETRIEVED  %d MISSING OBJECTS", count);
 
 	return count;
 }
@@ -924,7 +930,7 @@ bool MagTool::processOrigin(DataModel::Origin* origin) {
 		//      the expiration of cache lifetime.
 		bind(pickID, origin);
 
-		if ( !validArrival(arr) ) continue;
+		if ( !validArrival(arr, _minimumArrivalWeight) ) continue;
 
 		SEISCOMP_DEBUG("arrival #%3d  pick='%s'", i, pickID.c_str());
 
@@ -1107,7 +1113,7 @@ bool MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 		      i < arrivalCount; ++i ) {
 			DataModel::Arrival *a = origin->arrival(i);
 
-			if ( !validArrival(a) ) continue;
+			if ( !validArrival(a, _minimumArrivalWeight) ) continue;
 
 			DataModel::PickPtr p = _objectCache.get<DataModel::Pick>(a->pickID());
 			if ( !p ) {
@@ -1151,7 +1157,7 @@ bool MagTool::feed(DataModel::Amplitude* ampl, bool update) {
 				SEISCOMP_WARNING("No matching arrival for pickID '%s' found, but Origin '%s' has been returned in query",
 				                 ampl->pickID().c_str(), origin->publicID().c_str());
 			else
-				SEISCOMP_WARNING("There is another first P arrival than %s for amp %s", ampl->pickID().c_str(), ampl->publicID().c_str());
+				SEISCOMP_INFO("There is another first P arrival than %s for amp %s", ampl->pickID().c_str(), ampl->publicID().c_str());
 			continue;
 		}
 
@@ -1226,9 +1232,8 @@ bool MagTool::feed(DataModel::Origin *origin) {
 		return processOrigin(registered);
 	}
 
-	if (status(origin) == DataModel::REJECTED) {
-		SEISCOMP_WARNING("Ignoring rejected origin %s",
-		                 origin->publicID().c_str());
+	if ( status(origin) == DataModel::REJECTED ) {
+		SEISCOMP_INFO("Ignoring rejected origin %s", origin->publicID().c_str());
 		return false;
 	}
 
@@ -1242,8 +1247,7 @@ bool MagTool::feed(DataModel::Origin *origin) {
 	// if still there are no arrivals in this origin,
 	// we have to ignore it
 	if (origin->arrivalCount() == 0) {
-		SEISCOMP_WARNING("Ignoring incomplete origin %s",
-		                 origin->publicID().c_str());
+		SEISCOMP_INFO("Ignoring incomplete origin %s", origin->publicID().c_str());
 		return false;
 	}
 

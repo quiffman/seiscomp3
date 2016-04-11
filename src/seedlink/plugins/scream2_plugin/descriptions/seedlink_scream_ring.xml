@@ -20,6 +20,12 @@
 			<parameter name="udpport" type="int" default="1567">
 				<description>UDP port of the SCREAM!</description>
 			</parameter>
+			<parameter name="proc" type="string">
+				<description>
+				Name of the proc object (defined in streams.xml); used for processing
+				raw streams (streams submitted by a plugin as raw samples).
+				</description>
+			</parameter>
 			<parameter name="map" type="string">
 				<description>
 					Defines an alternative stream mapping file. The default file
@@ -28,10 +34,12 @@
 					path to $INSTALLDIR/var/lib/seedlink.
 				</description>
 			</parameter>
-			<parameter name="proc" type="string">
+			<parameter name="channels" type="list:string">
 				<description>
-				Name of the proc object (defined in streams.xml); used for processing
-				raw streams (streams submitted by a plugin as raw samples).
+					Defines the channel mappings (ID:channel, ...) from SCREAM!
+					to the channel code used in streams.xml. If no channel mappings
+					are given, the map file defined in map (either default or custom)
+					is used.
 				</description>
 			</parameter>
 		</configuration>

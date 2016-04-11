@@ -89,6 +89,7 @@ class SC_SYSTEM_CORE_API Locsat : public TravelTimeTableInterface {
 		static int _tabinCount;
 
 		bool _initialized;
+		int  _Pindex;
 };
 
 

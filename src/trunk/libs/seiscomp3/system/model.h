@@ -293,7 +293,13 @@ class SC_SYSTEM_CORE_API Binding : public Core::BaseObject {
 		size_t sectionCount() const { return sections.size(); }
 
 		//! Returns a container at path @path@.
-		Container *findContainer(const std::string &path) const;
+		virtual Container *findContainer(const std::string &path) const;
+
+		//! Returns a parameters in the tree where the fully expanded name
+		//! matches fullName.
+		virtual Parameter *findParameter(const std::string &fullName) const;
+
+		virtual void accept(ModelVisitor *) const;
 
 
 	// ------------------------------------------------------------------
@@ -346,6 +352,12 @@ class SC_SYSTEM_CORE_API BindingCategory : public Core::BaseObject {
 		//! Returns a container at path @path@.
 		Container *findContainer(const std::string &path) const;
 
+		//! Returns a parameters in the tree where the fully expanded name
+		//! matches fullName.
+		Parameter *findParameter(const std::string &fullName) const;
+
+		void accept(ModelVisitor *) const;
+
 
 	// ------------------------------------------------------------------
 	//  Attributes
@@ -393,6 +405,12 @@ class SC_SYSTEM_CORE_API ModuleBinding : public Binding {
 
 		//! Returns a container at path @path@.
 		Container *findContainer(const std::string &path) const;
+
+		//! Returns a parameters in the tree where the fully expanded name
+		//! matches fullName.
+		Parameter *findParameter(const std::string &fullName) const;
+
+		void accept(ModelVisitor *) const;
 
 
 	// ------------------------------------------------------------------
@@ -675,6 +693,7 @@ class SC_SYSTEM_CORE_API ModelVisitor {
 	friend class Container;
 	friend class Module;
 	friend class Model;
+	friend class Binding;
 };
 
 

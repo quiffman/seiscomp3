@@ -49,7 +49,7 @@ SC_SYSTEM_CORE_API void decodeBase64(std::string &target, const char *data, size
  * @param target The container for the decoded data stream
  * @param data The base64 encoded string
  */
-SC_SYSTEM_CORE_API void decodeBase64(std::string &target, std::string &data);
+SC_SYSTEM_CORE_API void decodeBase64(std::string &target, const std::string &data);
 
 }
 }

@@ -34,6 +34,7 @@ SensorLocationDelegate::SensorLocationDelegate() {}
 LocatorInterface::LocatorInterface() {
 	_fixDepth = false;
 	_enableDistanceCutOff = false;
+	_ignoreInitialLocation = false;
 }
 
 

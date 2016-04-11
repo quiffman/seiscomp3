@@ -104,6 +104,16 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 
 		virtual bool init(const Config::Config &config);
 
+		//! Returns supported parameters to be changed.
+		virtual IDList parameters() const;
+
+		//! Returns the value of a parameter.
+		virtual std::string parameter(const std::string &name) const;
+
+		//! Sets the value of a parameter.
+		virtual bool setParameter(const std::string &name,
+		                          const std::string &value);
+
 		virtual IDList profiles() const;
 		virtual void setProfile(const std::string &name);
 
@@ -122,7 +132,7 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		DataModel::Origin* relocate(const DataModel::Origin* origin) throw(Core::GeneralException);
 
 		void setLocatorParams(int param, const char* value);
-		const char* getLocatorParams(int param);
+		const char* getLocatorParams(int param) const;
 		void setDefaultLocatorParams();
 
 		const LocSATErrorEllipsoid &errorEllipsoid() const {
@@ -144,6 +154,7 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		typedef std::map<std::string, PhaseCorrectionMap> StationCorrectionMap;
 
 		static std::string   _defaultTablePrefix;
+		static IDList        _allowedParameters;
 
 		StationCorrectionMap _stationCorrection;
 		std::string          _newOriginID;

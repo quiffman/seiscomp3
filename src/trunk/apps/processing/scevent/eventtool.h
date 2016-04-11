@@ -186,6 +186,7 @@ class EventTool : public Application {
 		bool                          _testMode;
 		Util::StopWatch               _timer;
 		std::string                   _originID;
+		std::string                   _eventID;
 
 		Config                        _config;
 		EventProcessors               _processors;

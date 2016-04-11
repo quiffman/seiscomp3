@@ -133,7 +133,7 @@ inline pair<int,int> float2rational(double x) // to be improved
 	return make_pair(0, 1);
 }
 
-inline void check_fir(DataModel::ResponseFIRPtr rf)
+inline void check_fir(DataModel::ResponseFIRPtr rf, int &errors)
 {
 	vector<double> &v = rf->coefficients().content();
 	int nc = v.size();
@@ -142,6 +142,7 @@ inline void check_fir(DataModel::ResponseFIRPtr rf)
 	{
 		SEISCOMP_ERROR("expected %d coefficients, found %d", rf->numberOfCoefficients(), nc);
 		rf->setNumberOfCoefficients(nc);
+		++errors;
 	}
 
 	if(nc == 0 || rf->symmetry() != "A")
@@ -171,25 +172,27 @@ inline void check_fir(DataModel::ResponseFIRPtr rf)
 	}
 }
 
-inline void check_paz(DataModel::ResponsePAZPtr rp)
+inline void check_paz(DataModel::ResponsePAZPtr rp, int &errors)
 {
 	if(rp->numberOfPoles() != (int)rp->poles().content().size())
 	{
 		SEISCOMP_ERROR("expected %d poles, found %lu", rp->numberOfPoles(), (unsigned long)rp->poles().content().size());
 		rp->setNumberOfPoles(rp->poles().content().size());
+		++errors;
 	}
 
 	if(rp->numberOfZeros() != (int)rp->zeros().content().size())
 	{
 		SEISCOMP_ERROR("expected %d zeros, found %lu", rp->numberOfZeros(), (unsigned long)rp->zeros().content().size());
 		rp->setNumberOfZeros(rp->zeros().content().size());
+		++errors;
 	}
 }
-	
+
 Inventory::Inventory(const std::string &dcid, const std::string &net_description,
 	const std::string &net_type, const Seiscomp::Core::Time &net_start,
-	const Seiscomp::Core::Time &net_end, bool temporary, bool restricted, bool shared,
-        DataModel::Inventory *inv)
+	const OPT(Seiscomp::Core::Time) &net_end, bool temporary, bool restricted, bool shared,
+	DataModel::Inventory *inv)
 : _dcid(dcid), _net_description(net_description), _net_type(net_type),
 	_net_start(net_start), _net_end(net_end), _temporary(temporary),
 	_restricted(restricted), _shared(shared), inventory(inv) {
@@ -233,6 +236,8 @@ Inventory::Inventory(const std::string &dcid, const std::string &net_description
 	encoding.insert(make_pair(steim2, string("Steim2")));
 	encoding.insert(make_pair(geoscope3bit, string("mseed13")));
 	encoding.insert(make_pair(geoscope4bit, string("mseed14")));
+
+	_fixedErrors = 0;
 }
 
 /*******************************************************************************
@@ -243,8 +248,10 @@ Inventory::Inventory(const std::string &dcid, const std::string &net_description
 *******************************************************************************/
 void Inventory::SynchronizeInventory()
 {
+	_fixedErrors = 0;
 	ProcessStation();
-	CleanupDatabase();
+	SEISCOMP_INFO("Finished.");
+	// CleanupDatabase();
 }
 
 /*******************************************************************************
@@ -401,12 +408,14 @@ void Inventory::GetChannelComment(ChannelIdentifier& ci, DataModel::WaveformStre
 	}
 }
 
-Core::Time Inventory::GetTime(string strTime)
+Core::Time Inventory::GetTime(string strTime, bool *ok)
 {
 	int year=0, yday=0, month=0, day=0, hour=0, minute=0, second=0;
 	int ondergrens, bovengrens;
 	std::vector<std::string> date, time;
 	stringstream ss;
+
+	if ( ok ) *ok = true;
 
 	Core::split(date, strip(strTime).c_str(), ",", false);
 
@@ -441,7 +450,20 @@ Core::Time Inventory::GetTime(string strTime)
 	if(time.size() > 2)
 		sscanf(time[2].c_str(), "%d", &second);
 
+	if ( year <= 1970 || year > 2037 ) {
+		if ( ok ) *ok = false;
+		return Core::Time();
+	}
+
 	return Core::Time(year, month, day, hour, minute, second);
+}
+
+OPT(Core::Time) Inventory::GetOptTime(string strTime)
+{
+	bool ok;
+	Core::Time t = GetTime(strTime, &ok);
+	if ( !ok ) return Core::None;
+	return t;
 }
 
 /*******************************************************************************
@@ -509,8 +531,8 @@ void Inventory::ProcessStation()
 		else
 			net->setDescription(_net_description);
 
-		if(_net_end < Core::Time(2100, 1, 1))
-			net->setEnd(_net_end);
+		if ( _net_end )
+			net->setEnd(*_net_end);
 		else
 			net->setEnd(Core::None);
 
@@ -563,24 +585,7 @@ DataModel::StationPtr Inventory::InsertStation(StationIdentifier& si, DataModel:
 	station->setDescription(desc);
 	station->setAffiliation(GetNetworkDescription(si.GetNetworkIdentifierCode()));
 	station->setStart(GetTime(si.GetStartDate()));
-	
-	if(!si.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(si.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			station->setEnd(t);
-		else
-			station->setEnd(Core::None);
-	}
-	else
-	{
-		station->setEnd(Core::None);
-	}
-
+	station->setEnd(GetOptTime(si.GetEndDate()));
 	station->setLatitude(si.GetLatitude());
 	station->setLongitude(si.GetLongitude());
 	station->setElevation(si.GetElevation());
@@ -613,24 +618,7 @@ void Inventory::UpdateStation(StationIdentifier& si, DataModel::StationPtr stati
 
 	station->setDescription(desc);
 	station->setAffiliation(GetNetworkDescription(si.GetNetworkIdentifierCode()));
-
-	if(!si.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(si.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			station->setEnd(t);
-		else
-			station->setEnd(Core::None);
-	}
-	else
-	{
-		station->setEnd(Core::None);
-	}
-
+	station->setEnd(GetOptTime(si.GetEndDate()));
 	station->setLatitude(si.GetLatitude());
 	station->setLongitude(si.GetLongitude());
 	station->setElevation(si.GetElevation());
@@ -658,29 +646,46 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 	string net_code = strip(si.GetNetworkCode());
 	string sta_code = strip(si.GetStationCallLetters());
 
-	map<pair<double, double>, pair<Core::Time, Core::Time> > loc_map;
+	map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> > loc_map;
 	for(unsigned int i=0; i<si.ci.size(); i++)
 	{
 		ChannelIdentifier ci = si.ci[i];
+		string loc_code = strip(ci.GetLocation());
 		Core::Time loc_start = GetTime(ci.GetStartDate());
-		Core::Time loc_end;
-		if(ci.GetEndDate().empty())
-			loc_end = Core::Time(2100, 1, 1, 0, 0, 0);
-		else
-			loc_end = GetTime(ci.GetEndDate());
+		OPT(Core::Time) loc_end = GetOptTime(ci.GetEndDate());
 
-		map<pair<double, double>, pair<Core::Time, Core::Time> >::iterator p;
-		if((p = loc_map.find(make_pair(ci.GetLatitude(), ci.GetLongitude()))) == loc_map.end())
+		map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> >::iterator p;
+		if((p = loc_map.find(make_pair(make_pair(ci.GetLatitude(), ci.GetLongitude()), loc_code))) == loc_map.end())
 		{
-			loc_map.insert(make_pair(make_pair(ci.GetLatitude(), ci.GetLongitude()), make_pair(loc_start, loc_end)));
+			p = loc_map.insert(make_pair(make_pair(make_pair(ci.GetLatitude(), ci.GetLongitude()), loc_code), make_pair(loc_start, loc_end))).first;
 		}
 		else
 		{
 			if(p->second.first > loc_start)
 				p->second.first = loc_start;
 			
-			if(p->second.second < loc_end)
+			if(p->second.second && !loc_end)
 				p->second.second = loc_end;
+			else if (p->second.second && loc_end && *p->second.second < *loc_end)
+				p->second.second = *loc_end;
+		}
+
+		map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> >::iterator p1 = loc_map.begin();
+		while(p1 != loc_map.end())
+		{
+			if(p1 != p && p1->first.second == p->first.second && p1->second.first == p->second.first)
+			{
+				SEISCOMP_ERROR((net_code + " " + sta_code + " " + ci.GetChannel() + " sensor location '" + loc_code + "' starting " + loc_start.toString("%Y-%m-%d %H:%M:%S") + " has conflicting coordinates: "
+				               "%f/%f vs. %f/%f: increasing start time by 1 sec.").c_str(),
+				               p->first.first.first, p->first.first.second,
+				               p1->first.first.first, p1->first.first.second);
+				p->second.first += Core::TimeSpan(1.0);
+				p1 = loc_map.begin();
+				++_fixedErrors;
+				continue;
+			}
+
+			++p1;
 		}
 	}
 
@@ -694,10 +699,11 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 		string loc_code = strip(ci.GetLocation());
 		Core::Time sta_start = GetTime(si.GetStartDate());
 		Core::Time strm_start = GetTime(ci.GetStartDate());
-		Core::Time loc_start, loc_end;
+		Core::Time loc_start;
+		OPT(Core::Time) loc_end;
 
-		map<pair<double, double>, pair<Core::Time, Core::Time> >::iterator p;
-		if((p = loc_map.find(make_pair(ci.GetLatitude(), ci.GetLongitude()))) != loc_map.end())
+		map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> >::iterator p;
+		if((p = loc_map.find(make_pair(make_pair(ci.GetLatitude(), ci.GetLongitude()), loc_code))) != loc_map.end())
 		{
 			loc_start = p->second.first;
 			loc_end = p->second.second;
@@ -716,7 +722,7 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 			loc = InsertSensorLocation(ci, station, loc_start, loc_end);
 		else
 			UpdateSensorLocation(ci, loc, loc_start, loc_end);
-			
+
 		if(IsPAZStream(ci) || IsPolyStream(ci))
 		{
 			/* pair<set<pair<pair<pair<pair<pair<string, string>, string>, string>, Core::Time>, Core::Time> >::iterator, bool> ins = \
@@ -759,23 +765,14 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 * Returns:	nothing													    *
 * Description:	insert a new channel(seisstream)									    *
 *******************************************************************************/
-DataModel::SensorLocationPtr Inventory::InsertSensorLocation(ChannelIdentifier& ci, DataModel::StationPtr station, const Core::Time& loc_start, const Core::Time& loc_end)
+DataModel::SensorLocationPtr Inventory::InsertSensorLocation(ChannelIdentifier& ci, DataModel::StationPtr station, const Core::Time& loc_start, const OPT(Core::Time)& loc_end)
 {
 	SEISCOMP_DEBUG("Insert sensor location information (%s)", ci.GetChannel().c_str());
 
 	DataModel::SensorLocationPtr loc = DataModel::SensorLocation::Create();
 	loc->setCode(strip(ci.GetLocation()));
 	loc->setStart(loc_start);
-
-	int year = 0, year_today = 0;
-	loc_end.get(&year);
-	Core::Time::GMT().get(&year_today);
-
-	if(year > 1970 && year <= year_today)
-		loc->setEnd(loc_end);
-	else
-		loc->setEnd(Core::None);
-
+	loc->setEnd(loc_end);
 	loc->setLatitude(ci.GetLatitude());
 	loc->setLongitude(ci.GetLongitude());
 	loc->setElevation(ci.GetElevation());
@@ -791,19 +788,11 @@ DataModel::SensorLocationPtr Inventory::InsertSensorLocation(ChannelIdentifier& 
 * Returns:	nothing													    *
 * Description:	update the current channel with information from dataless						    *
 *******************************************************************************/
-void Inventory::UpdateSensorLocation(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, const Core::Time& loc_start, const Core::Time& loc_end)
+void Inventory::UpdateSensorLocation(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, const Core::Time& loc_start, const OPT(Core::Time)& loc_end)
 {
 	SEISCOMP_DEBUG("Update sensor location information (%s)", ci.GetChannel().c_str());
 
-	int year = 0, year_today = 0;
-	loc_end.get(&year);
-	Core::Time::GMT().get(&year_today);
-
-	if(year > 1970 && year <= year_today)
-		loc->setEnd(loc_end);
-	else
-		loc->setEnd(Core::None);
-
+	loc->setEnd(loc_end);
 	loc->setLatitude(ci.GetLatitude());
 	loc->setLongitude(ci.GetLongitude());
 	loc->setElevation(ci.GetElevation());
@@ -822,27 +811,15 @@ DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::S
 {
 	SEISCOMP_DEBUG("Insert seisstream information (%s)", ci.GetChannel().c_str());
 
+	// Adjust strm_start if loc_start was adjusted earlier
+	Core::Time strm_start = GetTime(ci.GetStartDate());
+	if(strm_start < loc->start())
+		strm_start = loc->start();
+
 	DataModel::StreamPtr strm = new DataModel::Stream();
 	strm->setCode(ci.GetChannel());
-	strm->setStart(GetTime(ci.GetStartDate()));
-
-	if(!ci.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(ci.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			strm->setEnd(t);
-		else
-			strm->setEnd(Core::None);
-	}
-	else
-	{
-		strm->setEnd(Core::None);
-	}
-
+	strm->setStart(strm_start);
+	strm->setEnd(GetOptTime(ci.GetEndDate()));
 	strm->setDataloggerSerialNumber("xxxx");
 	strm->setSensorSerialNumber("yyyy");
 
@@ -928,23 +905,7 @@ void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, b
 {
 	SEISCOMP_DEBUG("Update seisstream information (%s)", ci.GetChannel().c_str());
 
-	if(!ci.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(ci.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			strm->setEnd(t);
-		else
-			strm->setEnd(Core::None);
-	}
-	else
-	{
-		strm->setEnd(Core::None);
-	}
-
+	strm->setEnd(GetOptTime(ci.GetEndDate()));
 	strm->setDataloggerSerialNumber("xxxx");
 	strm->setSensorSerialNumber("yyyy");
 
@@ -1019,27 +980,15 @@ DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataMo
 {
 	SEISCOMP_DEBUG("Insert auxstream information");
 
+	// Adjust strm_start if loc_start was adjusted earlier
+	Core::Time strm_start = GetTime(ci.GetStartDate());
+	if(strm_start < loc->start())
+		strm_start = loc->start();
+
 	DataModel::AuxStreamPtr strm = new DataModel::AuxStream();
 	strm->setCode(ci.GetChannel());
-	strm->setStart(GetTime(ci.GetStartDate()));
-
-	if(!ci.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(ci.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			strm->setEnd(t);
-		else
-			strm->setEnd(Core::None);
-	}
-	else
-	{
-		strm->setEnd(Core::None);
-	}
-
+	strm->setStart(strm_start);
+	strm->setEnd(GetOptTime(ci.GetEndDate()));
 	strm->setDevice(station_name + "." + GetInstrumentName(ci.GetInstrument()));
 	strm->setFlags(ci.GetFlags());
 	strm->setFormat("Steim2");
@@ -1061,23 +1010,7 @@ void Inventory::UpdateAuxStream(ChannelIdentifier& ci, DataModel::AuxStreamPtr s
 {
 	SEISCOMP_DEBUG("Update auxstream information");
 
-	if(!ci.GetEndDate().empty())
-	{
-		int year = 0, year_today = 0;
-		Core::Time t = GetTime(ci.GetEndDate());
-		t.get(&year);
-		Core::Time::GMT().get(&year_today);
-
-		if(year > 1970 && year <= year_today)
-			strm->setEnd(t);
-		else
-			strm->setEnd(Core::None);
-	}
-	else
-	{
-		strm->setEnd(Core::None);
-	}
-
+	strm->setEnd(GetTime(ci.GetEndDate()));
 	strm->setDevice(station_name + "." + GetInstrumentName(ci.GetInstrument()));
 	strm->setFlags(ci.GetFlags());
 	strm->setFormat("Steim2");
@@ -1608,7 +1541,7 @@ DataModel::ResponseFIRPtr Inventory::InsertRespCoeff(ChannelIdentifier& ci, unsi
 	rf->setNumberOfCoefficients(non);
 	rf->setSymmetry("A");
 	rf->setCoefficients(parseRealArray(numerators));
-	check_fir(rf);
+	check_fir(rf, _fixedErrors);
 
 	inventory->add(rf.get());
 	
@@ -1661,7 +1594,7 @@ void Inventory::UpdateRespCoeff(ChannelIdentifier& ci, DataModel::ResponseFIRPtr
 	rf->setNumberOfCoefficients(non);
 	rf->setSymmetry("A");
 	rf->setCoefficients(parseRealArray(numerators));
-	check_fir(rf);
+	check_fir(rf, _fixedErrors);
 
 	rf->update();
 }
@@ -1716,7 +1649,7 @@ DataModel::ResponseFIRPtr Inventory::InsertResponseFIRr(ChannelIdentifier& ci, u
 	rf->setNumberOfCoefficients(non);
 	rf->setSymmetry(string(&sc, 1));
 	rf->setCoefficients(parseRealArray(numerators));
-	check_fir(rf);
+	check_fir(rf, _fixedErrors);
 
 	inventory->add(rf.get());
 
@@ -1771,7 +1704,7 @@ void Inventory::UpdateResponseFIRr(ChannelIdentifier& ci, DataModel::ResponseFIR
 	rf->setNumberOfCoefficients(non);
 	rf->setSymmetry(string(&sc, 1));
 	rf->setCoefficients(parseRealArray(numerators));
-	check_fir(rf);
+	check_fir(rf, _fixedErrors);
 
 	rf->update();
 }
@@ -2180,7 +2113,7 @@ DataModel::ResponsePAZPtr Inventory::InsertResponsePAZ(ChannelIdentifier& ci, st
 	rp->setNumberOfPoles(ci.rpz[sequence_number].GetNumberOfPoles());
 	rp->setZeros(parseComplexArray(ci.rpz[sequence_number].GetComplexZeros()));
 	rp->setPoles(parseComplexArray(ci.rpz[sequence_number].GetComplexPoles()));
-	check_paz(rp);
+	check_paz(rp, _fixedErrors);
 
 	inventory->add(rp.get());
 
@@ -2218,7 +2151,7 @@ void Inventory::UpdateResponsePAZ(ChannelIdentifier& ci, DataModel::ResponsePAZP
 	rp->setNumberOfPoles(ci.rpz[sequence_number].GetNumberOfPoles());
 	rp->setZeros(parseComplexArray(ci.rpz[sequence_number].GetComplexZeros()));
 	rp->setPoles(parseComplexArray(ci.rpz[sequence_number].GetComplexPoles()));
-	check_paz(rp);
+	check_paz(rp, _fixedErrors);
 
 	rp->update();
 }

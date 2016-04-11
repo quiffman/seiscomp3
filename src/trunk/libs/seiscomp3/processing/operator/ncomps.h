@@ -28,7 +28,7 @@ namespace Processing {
 template <typename T, int N>
 class Proc {
 	// Process N traces in place of length n
-	void operator()(T *data[N], int n, double sfreq) const;
+	void operator()(T *data[N], int n, const Core::Time &stime, double sfreq) const;
 
 	// Publish a processed component
 	bool publish(int c) const;
@@ -39,7 +39,7 @@ class Proc {
 */
 
 
-template <typename T, int N, class PROC>
+template <typename T, int N, class PROC, int BSIZE=-1>
 class NCompsOperator : public WaveformOperator {
 	public:
 		NCompsOperator(const PROC &proc) : _proc(proc) {}
@@ -51,7 +51,7 @@ class NCompsOperator : public WaveformOperator {
 
 	protected:
 		struct State {
-			State() : buffer(-1) {}
+			State() : buffer(BSIZE) {}
 			RingBuffer  buffer;
 			Core::Time  endTime;
 		};
@@ -75,7 +75,7 @@ class CodeWrapper<T,2,PROC> {
 		CodeWrapper(const std::string &code1, const std::string &code2,
 		            const PROC<T,2> &proc) : _proc(proc) {}
 
-		void operator()(T *data[2], int n, double sfreq) const { _proc(data, n, sfreq); }
+		void operator()(T *data[2], int n, const Core::Time &stime, double sfreq) const { _proc(data, n, stime, sfreq); }
 		bool publish(int c) const { return _proc.publish(c); }
 		int compIndex(const std::string &code) const { return -1; }
 
@@ -93,7 +93,7 @@ class CodeWrapper<T,3,PROC> {
 		            const std::string &code3, const PROC<T,3> &proc)
 		: _proc(proc), _code1(code1), _code2(code2), _code3(code3) {}
 
-		void operator()(T *data[3], int n, double sfreq) const { _proc(data, n, sfreq); }
+		void operator()(T *data[3], int n, const Core::Time &stime, double sfreq) const { _proc(data, n, stime, sfreq); }
 		bool publish(int c) const { return _proc.publish(c); }
 		int compIndex(const std::string &code) const {
 			if ( code == _code1 ) return 0;
@@ -116,7 +116,7 @@ class StreamConfigWrapper {
 		StreamConfigWrapper(Stream configs[N], const PROC<T,N> &proc)
 		: _proc(proc), _configs(configs) {}
 
-		void operator()(T *data[N], int n, double sfreq) const {
+		void operator()(T *data[N], int n, const Core::Time &stime, double sfreq) const {
 			// Sensitivity correction before applying the operator
 			for ( int c = 0; c < N; ++c ) {
 				if ( _configs[c].gain == 0.0 ) continue;
@@ -128,7 +128,7 @@ class StreamConfigWrapper {
 			}
 
 			// Call real operator
-			_proc(data, n, sfreq);
+			_proc(data, n, stime, sfreq);
 		}
 
 		bool publish(int c) const { return _proc.publish(c); }

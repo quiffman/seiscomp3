@@ -430,8 +430,6 @@
 					configured an error is raised and the data is not processed.
 					</description>
 				</parameter>
-			</group>
-			<group name="amp">
 				<struct type="Amplitude type profile">
 					<description>
 					An amplitude profile configures global parameters for a

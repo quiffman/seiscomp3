@@ -256,9 +256,13 @@ class Arclink(object):
             if user_ip != None:
                 self.send_command("USER_IP " + user_ip)
 
-        except:
-            self.__fd.close()
-            self.__sock.close()
+        except Exception, e:
+            self.__fd = None
+            self.__sock = None
+
+            if str(e).startswith("[Errno 32]"):
+                raise ArclinkError, "connection not accepted (probably limit of connetions per IP exceeded)"
+
             raise
 
     def close_connection(self):
@@ -435,7 +439,9 @@ class Arclink(object):
 
         decompressor = None
         decryptor = None
-        
+        decStatus = None
+        encStatus = None
+
         firstBlock = True
         try:
             try:

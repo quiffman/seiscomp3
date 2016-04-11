@@ -41,7 +41,9 @@ MagnitudeProcessor::MagnitudeProcessor() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 MagnitudeProcessor::MagnitudeProcessor(const std::string& type)
- : _type(type) {}
+ : _type(type) {
+	setCorrectionCoefficients(1.0, 0.0);
+}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

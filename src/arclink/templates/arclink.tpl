@@ -10,6 +10,7 @@ contact_email = "$contact_email"
 connections = $connections
 connections_per_ip = $connections_per_ip
 request_queue = $request_queue
+request_queue_per_user = $request_queue_per_user
 request_size = $request_size
 handlers_soft = $handlers_soft
 handlers_hard = $handlers_hard

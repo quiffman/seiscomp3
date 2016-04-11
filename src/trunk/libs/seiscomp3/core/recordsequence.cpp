@@ -328,7 +328,7 @@ RecordSequence::continuousRecord() const
 	}
 	cont->setData(arr.get());
 
-        return cont;
+	return cont;
 }
 
 Record*

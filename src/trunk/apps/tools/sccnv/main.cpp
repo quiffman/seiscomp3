@@ -92,8 +92,8 @@ class ConvertApp : public Application {
 			std::string inputFormat = inputSplitter != std::string::npos?_inputStream.substr(0, inputSplitter):"";
 			std::string outputFormat = outputSplitter != std::string::npos?_outputStream.substr(0, outputSplitter):"";
 
-			std::string inputFile = inputSplitter != std::string::npos?_inputStream.substr(inputSplitter + 1):std::string("");
-			std::string outputFile = outputSplitter != std::string::npos?_outputStream.substr(outputSplitter + 1):std::string("");
+			std::string inputFile = inputSplitter != std::string::npos?_inputStream.substr(inputSplitter + 1):_inputStream;
+			std::string outputFile = outputSplitter != std::string::npos?_outputStream.substr(outputSplitter + 1):_outputStream;
 
 			/*
 			if ( inputFormat == outputFormat ) {

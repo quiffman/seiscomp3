@@ -56,7 +56,7 @@ extern "C" {
 // BIANCHI|ENCRYPTION: Added the encryption class to arclink
 #include "encrypt.h"
 
-#define MYVERSION "1.2 (2012.317)"
+#define MYVERSION "1.2 (2013.070)"
 
 using namespace std;
 using namespace CfgParser;
@@ -75,6 +75,7 @@ const int         ERR_SIZE         = 100;
 const int         REQUEST_FD       = 62;
 const int         RESPONSE_FD      = 63;
 const int         CLEANUP_PERIOD   = 60;
+const int         QUEUE_STATUS_PER = 3600;
 const char *const SHELL            = "/bin/bash";
 const char *const ident_str        = "ArcLink v" MYVERSION;
 string            config_file      = "/home/sysop/config/arclink.ini";
@@ -1169,7 +1170,7 @@ void Request::push_line(const string &str)
 void Request::push_end()
   {
     if((int)content.size() >= max_lines)
-        throw ArclinkRequestError("maximum request size exceeded");
+        throw ArclinkRequestError("maximum request size exceeded (user=" + user + ",req=" + id + ",lines>" + to_string(max_lines) + ")");
 
     content.push_back("END");
   }
@@ -1400,9 +1401,14 @@ class Reqhandler: private CFIFO_Partner
     
     bool ready()
       {
-        return ((req == NULL || req->ready()) && !shutdown_requested);
+        return (req != NULL && req->ready());
       }
 
+    bool cancelled()
+      {
+        return (req != NULL && req->zombie());
+      }
+    
     bool pending()
       {
         return (output_active && req != NULL && req_iter != req->end());
@@ -1522,8 +1528,9 @@ void Reqhandler::cfifo_callback(const string &cmd)
   {
     if(req == NULL)
       {
-        logs(LOG_WARNING) << "["<< pid << "] response '" << cmd << "' ignored, "
-          "because the request handler is not associated with any request" << endl;
+        if(!shutdown_requested)
+            logs(LOG_WARNING) << "["<< pid << "] response '" << cmd << "' ignored, "
+              "because the request handler is not associated with any request" << endl;
 
         return;
       }
@@ -1732,6 +1739,9 @@ void Reqhandler::shutdown()
     if(!sigterm_sent && pid > 0)
         term_proc();
     
+    if(req != NULL && !req->ready())
+        req->kill();
+
     shutdown_requested = true;
   }
 
@@ -2202,8 +2212,8 @@ void Connection::request(const vector<string> &cmdvec)
                   }
                 else
                   {
-                    response(to_string(req->id) + "\r\n");
                     partner.queue_request(req);
+                    response(to_string(req->id) + "\r\n");
                   }
               }
             catch(ArclinkRequestError &e)
@@ -2625,6 +2635,142 @@ void RequestInfo::getxml(xmlNodePtr parent) const
   }
 
 //*****************************************************************************
+// RequestPrioritizer
+//*****************************************************************************
+
+class RequestPrioritizer
+  {
+  private:
+    int max_req_per_user;
+    map<string, list<rc_ptr<Request> > > user_requests[NREQTYPES];
+    map<string, list<rc_ptr<Request> > >::iterator last_user[NREQTYPES];
+
+  public:
+    void put(rc_ptr<Request> req);
+    rc_ptr<Request> get(RequestType type);
+    void remove(rc_ptr<Request> req);
+    int count(RequestType type);
+    void dump();
+    
+    RequestPrioritizer(): max_req_per_user(0)
+      {
+        for(int i = 0; i < NREQTYPES; ++i)
+          {
+            last_user[i] = user_requests[i].end();
+          }
+      }
+
+    void set_max_req_per_user(int n)
+      {
+        max_req_per_user = n;
+      }
+  };
+
+void RequestPrioritizer::put(rc_ptr<Request> req)
+  {
+    internal_check(req->type >= 0 && req->type < NREQTYPES);
+
+    map<string, list<rc_ptr<Request> > >::iterator p;
+    
+    int nreq = 0;
+    for(int i = 0; i < NREQTYPES; ++i)
+      {
+        if((p = user_requests[i].find(req->user)) != user_requests[i].end())
+            nreq += p->second.size();
+      }
+
+    if(max_req_per_user != 0 && nreq >= max_req_per_user)
+        throw ArclinkRequestError("maximum number of queued requests exceeded (" + req->user + ")");
+
+    if((p = user_requests[req->type].find(req->user)) != user_requests[req->type].end())
+      {
+        p->second.push_back(req);
+      }
+    else
+      {
+        list<rc_ptr<Request> > reqlist;
+        reqlist.push_back(req);
+        user_requests[req->type].insert(make_pair(req->user, reqlist));
+      }
+  }
+
+rc_ptr<Request> RequestPrioritizer::get(RequestType type)
+  {
+    internal_check(type >= 0 && type < NREQTYPES);
+
+    if(user_requests[type].empty())
+        return NULL;
+
+    if(last_user[type] == user_requests[type].end())
+        last_user[type] = user_requests[type].begin();
+
+    map<string, list<rc_ptr<Request> > >::iterator p = last_user[type]++;
+
+    internal_check(!p->second.empty());
+
+    rc_ptr<Request> req = p->second.front();
+    p->second.pop_front();
+
+    if(p->second.empty())
+        user_requests[type].erase(p);
+
+    return req;
+  }
+    
+void RequestPrioritizer::remove(rc_ptr<Request> req)
+  {
+    for(int i = 0; i < NREQTYPES; ++i)
+      {
+        map<string, list<rc_ptr<Request> > >::iterator p;
+        if((p = user_requests[i].find(req->user)) != user_requests[i].end())
+          {
+            list<rc_ptr<Request> >::iterator q;
+            for(q = p->second.begin(); q != p->second.end(); ++q)
+              {
+                if((*q) == req)
+                  {
+                    p->second.erase(q);
+                    if(p->second.empty())
+                      {
+                        if(last_user[req->type] == p)
+                            ++last_user[req->type];
+
+                        user_requests[i].erase(p);
+                      }
+
+                    logs(LOG_INFO) << "request " << req->id << " removed from queue" << endl;
+                    return;
+                  }
+              }
+          }
+      }
+
+    logs(LOG_INFO) << "request " << req->id << " not found in queue" << endl;
+  }
+
+int RequestPrioritizer::count(RequestType type)
+  {
+    internal_check(type >= 0 && type < NREQTYPES);
+
+    int nreq = 0;
+    map<string, list<rc_ptr<Request> > >::iterator p;
+    for(p = user_requests[type].begin(); p != user_requests[type].end(); ++p)
+        nreq += p->second.size();
+
+    return nreq;
+  }
+
+void RequestPrioritizer::dump()
+  {
+    for(int i = 0; i < NREQTYPES; ++i)
+      {
+        map<string, list<rc_ptr<Request> > >::iterator p;
+        for(p = user_requests[i].begin(); p != user_requests[i].end(); ++p)
+            logs(LOG_INFO) << "queued (" << p->first << "," << request_type2string(RequestType(i)) << "): " << p->second.size() << endl;
+      }
+  }
+
+//*****************************************************************************
 // RequestTypeAttribute
 //*****************************************************************************
 
@@ -2975,6 +3121,7 @@ class Arclink: private ConnectionPartner
     bool _encryption;
     int max_conn;
     int max_conn_per_ip;
+    int max_req_per_user;
     int max_requests;
     int max_lines;
     int max_handlers_soft;
@@ -2991,12 +3138,13 @@ class Arclink: private ConnectionPartner
     int request_count;
     time_t last_check;
     time_t last_cleanup;
+    time_t last_queue_status;
     bool shutdown_requested;
     map<unsigned int, int> nconn_per_ip;
 
     map<string, rc_ptr<RequestInfo> > request_infos;
     map<string, rc_ptr<Request> > requests;
-    list<rc_ptr<Request> > request_queue[NREQTYPES];
+    RequestPrioritizer queue;
     list<rc_ptr<Reqhandler> > free_handlers;
     list<rc_ptr<Reqhandler> > busy_handlers;
     list<rc_ptr<Connection> > connections;
@@ -3021,11 +3169,11 @@ class Arclink: private ConnectionPartner
 
   public:
     Arclink():
-      _password_file(""), _encryption(false), max_conn(500), max_conn_per_ip(0), max_requests(500),
-      max_lines(1000), max_handlers_soft(2), max_handlers_hard(4),
-      handler_start_retry(60), handler_shutdown_wait(10), handler_timeout(600),
-      tcp_port(0), swapout_time(0), purge_time(0), listenfd(-1),
-      request_count(0), last_check(0), last_cleanup(0), 
+      _password_file(""), _encryption(false), max_conn(500), max_conn_per_ip(0),
+      max_req_per_user(0), max_requests(500), max_lines(1000), max_handlers_soft(2),
+      max_handlers_hard(4), handler_start_retry(60), handler_shutdown_wait(10),
+      handler_timeout(600), tcp_port(0), swapout_time(0), purge_time(0), listenfd(-1),
+      request_count(0), last_check(0), last_cleanup(0), last_queue_status(0),
       shutdown_requested(false)
       {
         for(int i = 0; i < NREQTYPES; ++i)
@@ -3051,10 +3199,10 @@ rc_ptr<Request> Arclink::new_request(RequestType reqtype, const string &user,
 
     int requests_queued = 0;
     for(int i = 0; i < NREQTYPES; ++i)
-        requests_queued += request_queue[i].size();
+        requests_queued += queue.count(RequestType(i));
     
     if(requests_queued >= max_requests &&
-      (int)request_queue[reqtype].size() >= max_handlers[reqtype])
+      queue.count(reqtype) >= max_handlers[reqtype])
         return NULL;
 
     rc_ptr<Request> req = new Request(to_string(request_count), reqtype, user,
@@ -3069,10 +3217,9 @@ void Arclink::queue_request(rc_ptr<Request> req)
   {
     internal_check(req->type >= 0 && req->type < NREQTYPES);
 
+    queue.put(req);
     requests[req->id] = req;
-    request_queue[req->type].push_back(req);
-    request_infos[req->id] = new RequestInfo(req->id, req->user, time(NULL),
-      false);
+    request_infos[req->id] = new RequestInfo(req->id, req->user, time(NULL), false);
   }
 
 void Arclink::save_request(rc_ptr<Request> req)
@@ -3134,6 +3281,9 @@ bool Arclink::purge_request(string rid, const string &user)
     map<string, rc_ptr<Request> >::iterator p;
     if((p = get_request(rid)) != requests.end())
       {
+        if(!p->second->ready())
+            queue.remove(p->second);
+
         p->second->kill();
         requests.erase(p);
       }
@@ -3216,6 +3366,7 @@ void Arclink::config(rc_ptr<CfgAttributeMap> atts, rc_ptr<CfgElementMap> elms)
     atts->add_item(IntAttribute("connections", max_conn, 1, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("connections_per_ip", max_conn_per_ip, 0, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("request_queue", max_requests, 1, IntAttribute::lower_bound));
+    atts->add_item(IntAttribute("request_queue_per_user", max_req_per_user, 0, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("request_size", max_lines, 1, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("handlers_soft", max_handlers_soft, 1, IntAttribute::lower_bound));
     atts->add_item(IntAttribute("handlers_hard", max_handlers_hard, 1, IntAttribute::lower_bound));
@@ -3402,11 +3553,14 @@ rc_ptr<Request> Arclink::get_next_req_from_queue()
     for(int i = 0; i < NREQTYPES; ++i)
       {
         internal_check(q < NREQTYPES);
-        if(request_queue[q].size() > 0 && num_handlers[q] < max_handlers[q])
+
+        rc_ptr<Request> req;
+        if(num_handlers[q] < max_handlers[q])
           {
-            rc_ptr<Request> req = request_queue[q].front();
-            request_queue[q].pop_front();
-            return req;
+            rc_ptr<Request> req = queue.get(RequestType(q));
+
+            if(req != NULL)
+                return req;
           }
 
         q = (q + 1) % NREQTYPES;
@@ -3424,6 +3578,7 @@ void Arclink::check()
     int fd_max = -1;
 
     time_t curtime = time(NULL);
+    queue.set_max_req_per_user(max_req_per_user);
     
     if(!shutdown_requested)
       {
@@ -3498,6 +3653,18 @@ void Arclink::check()
               }
 
             continue;
+          }
+        else if((*h)->cancelled())
+          {
+            rc_ptr<Request> req = (*h)->detach_request();
+
+            internal_check(req->type >= 0 && req->type < NREQTYPES);
+            internal_check(num_handlers[req->type] > 0);
+            --num_handlers[req->type];
+
+            (*h)->shutdown();
+
+            logs(LOG_INFO) << "processing of request " << req->id << " cancelled" << endl;
           }
 
         // FD of any request handler is added to read set. If we want to
@@ -3668,6 +3835,21 @@ void Arclink::check()
 
         last_cleanup = curtime;
       }
+
+    if(last_queue_status + QUEUE_STATUS_PER < curtime)
+      {
+        queue.dump();
+        
+        int requests_queued = 0;
+        for(int i = 0; i < NREQTYPES; ++i)
+          {
+            requests_queued += queue.count(RequestType(i));
+          }
+
+        logs(LOG_INFO) << "queued total: " << requests_queued << endl;
+
+        last_queue_status = curtime;
+      }
   }
 
 void Arclink::shutdown()
@@ -3762,7 +3944,7 @@ void Arclink::restore_state(const string &filename)
               }
 
             internal_check(p->second->type >= 0 && p->second->type < NREQTYPES);
-            request_queue[p->second->type].push_back(p->second);
+            queue.put(p->second);
           }
 
         ++i;

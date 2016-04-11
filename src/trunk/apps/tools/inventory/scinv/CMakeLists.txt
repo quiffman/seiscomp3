@@ -6,6 +6,7 @@ SET(
 		main.cpp
 		merge.cpp
 		sync.cpp
+		check.cpp
 		inv.cpp
 )
 

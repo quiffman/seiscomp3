@@ -1086,6 +1086,10 @@ class StreamApplication(Application):
         """requestSync(self)"""
         return _Client.StreamApplication_requestSync(self)
 
+    def setRecordInputHint(self, *args):
+        """setRecordInputHint(self, Hint hint)"""
+        return _Client.StreamApplication_setRecordInputHint(self, *args)
+
     def init(self):
         """init(self) -> bool"""
         return _Client.StreamApplication_init(self)

@@ -101,6 +101,8 @@ class MagTool {
 
 		void setAverageMethods(const AverageMethods &);
 
+		void setMinimumArrivalWeight(double);
+
 		bool init(const MagnitudeTypes &mags, const Core::TimeSpan& expiry);
 		void done();
 
@@ -175,6 +177,7 @@ class MagTool {
 		ProcessorList     _processors;
 		ParameterMap      _parameters;
 
+		double            _minimumArrivalWeight;
 		bool              _summaryMagnitudeEnabled;
 		int               _summaryMagnitudeMinStationCount;
 		std::string       _summaryMagnitudeType;

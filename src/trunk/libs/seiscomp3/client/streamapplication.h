@@ -62,6 +62,10 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		//! application after the last record has been flushed.
 		void requestSync();
 
+		//! Sets the storage hint of incoming records.
+		//! The default is: DATA_ONLY
+		void setRecordInputHint(Record::Hint hint);
+
 
 	// ----------------------------------------------------------------------
 	//  Protected interface
@@ -73,10 +77,6 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		void exit(int returnCode);
 
 		bool dispatch(Core::BaseObject* obj);
-
-		//! Sets the storage hint of incoming records.
-		//! The default is: DATA_ONLY
-		void setRecordInputHint(Record::Hint hint);
 
 		void startRecordThread();
 		void waitForRecordThread();

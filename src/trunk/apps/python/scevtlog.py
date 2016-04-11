@@ -12,7 +12,7 @@
 #    SeisComP Public License for more details.                             #
 ############################################################################
 
-import sys, os, time, traceback
+import sys, os, time, traceback, re
 import seiscomp3.Client, seiscomp3.System, seiscomp3.Utils
 from seiscomp3.scbulletin import Bulletin
 
@@ -272,7 +272,8 @@ class EventHistory(seiscomp3.Client.Application):
       # Otherwise use now (in case that event.created has not been set
       # which is always valid within the SC3 distribution
       except: arNow = now.get()
-
+      seiscomp3.Logging.error("directory is " + self._directory + "/".join(["%.2d" % i for i in arNow[1:4]]) + "/" + evt.publicID() + "/")
+      
       directory = self._directory + "/".join(["%.2d" % i for i in arNow[1:4]]) + "/" + evt.publicID() + "/"
       if directory != self._currentDirectory:
         if createDirectory(directory) == False:
@@ -280,10 +281,10 @@ class EventHistory(seiscomp3.Client.Application):
           return
 
       self._currentDirectory = directory
-      self.writeLog(self._currentDirectory + evt.publicID() + "." + ("%06d" % self.eventProgress(evt.publicID(), directory)), txt, "w")
-      self.writeLog(self._currentDirectory + evt.publicID() + ".last", txt, "w")
+      self.writeLog(self._currentDirectory + self.convertID(evt.publicID()) + "." + ("%06d" % self.eventProgress(evt.publicID(), directory)), txt, "w")
+      self.writeLog(self._currentDirectory + self.convertID(evt.publicID()) + ".last", txt, "w")
       self.writeLog(self._directory + "last", txt, "w")
-      self.writeLog(self._currentDirectory + evt.publicID() + ".summary",\
+      self.writeLog(self._currentDirectory + self.convertID(evt.publicID()) + ".summary",\
                     "|".join(summary), "a",\
                     "# Layout: Timestamp, +OT (minutes, decimal), Latitude, Longitude, Depth, PhaseCount, MagType, Magnitude, MagCount")
 
@@ -429,7 +430,7 @@ class EventHistory(seiscomp3.Client.Application):
       self._currentDirectory = directory
       #self.writeLog(self._currentDirectory + evt.publicID(), "#<\n" + txt + "#>\n")
       #self.writeLog(self._currentDirectory + evt.publicID() + ".last", txt, "w")
-      ar.create(self._currentDirectory + evt.publicID() + "." + ("%06d" % self.eventProgress(evt.publicID(), directory)) + ".xml.zip")
+      ar.create(self._currentDirectory + self.convertID(evt.publicID()) + "." + ("%06d" % self.eventProgress(evt.publicID(), directory)) + ".xml.zip")
       ar.setCompression(True)
       ar.writeObject(ep)
       ar.close()
@@ -439,16 +440,21 @@ class EventHistory(seiscomp3.Client.Application):
       ar.writeObject(ep)
       ar.close()
       # Write last xml
-      ar.create(self._currentDirectory + evt.publicID() + ".last.xml")
+      ar.create(self._currentDirectory + self.convertID(evt.publicID()) + ".last.xml")
       ar.setCompression(False)
       ar.writeObject(ep)
       ar.close()
-      self.writeLog(self._currentDirectory + evt.publicID() + ".summary",\
+      self.writeLog(self._currentDirectory + self.convertID(evt.publicID()) + ".summary",\
                     "|".join(summary), "a",\
                     "# Layout: Timestamp, +OT (minutes, decimal), Latitude, Longitude, Depth, PhaseCount, MagType, Magnitude, MagCount")
 
     del ep
 
+  def convertID(self,id):
+    '''Converts an ID containing slashes to one without slashes'''
+    p = re.compile('/')
+    return p.sub('_',id)
+    
 
   def writeLog(self, file, text, mode = "a", header = None):
     of = open(file, mode)

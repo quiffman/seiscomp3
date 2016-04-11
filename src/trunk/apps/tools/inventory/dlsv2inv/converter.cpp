@@ -79,13 +79,14 @@ bool Converter::validateParameters() {
 		_net_start = Core::Time(1980, 1, 1);
 	}
 
-	if( commandline().hasOption("net-end") && !Core::fromString(_net_end, _net_end_str) &&
-		!_net_end.fromString(_net_end_str.c_str(), "%Y-%m-%d")) {
-		SEISCOMP_ERROR("invalid time format: %s", _net_end_str.c_str());
-		exit(1);
-	}
-	else {
-		_net_end = Core::Time(2100, 1, 1);
+	Core::Time net_end;
+	if ( commandline().hasOption("net-end") ) {
+		if ( !Core::fromString(net_end, _net_end_str) &&
+		     !net_end.fromString(_net_end_str.c_str(), "%Y-%m-%d") ) {
+			SEISCOMP_ERROR("invalid time format: %s", _net_end_str.c_str());
+			return false;
+		}
+		_net_end = net_end;
 	}
 
 	if( commandline().hasOption("temporary") && _net_start_str.empty() ) {

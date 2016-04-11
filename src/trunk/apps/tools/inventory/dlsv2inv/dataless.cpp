@@ -33,7 +33,7 @@ bool Dataless::SynchronizeDataless(Seiscomp::DataModel::Inventory *inv,
 	SEISCOMP_INFO("START PROCESSING DATALESS");
 
 	invent = new Inventory(_dcid, _net_description, _net_type, _net_start, _net_end,
-		_temporary, _restricted, _shared, inv);
+	                       _temporary, _restricted, _shared, inv);
 	invent->vic = new VolumeIndexControl();
 	invent->adc = new AbbreviationDictionaryControl();
 	invent->sc = new StationControl();
@@ -85,6 +85,16 @@ bool Dataless::ParseDataless(const string &file)
 			invent->vic->EmptyVectors();
 			invent->adc->EmptyVectors();
 			invent->sc->EmptyVectors();
+
+			if ( invent->fixedErrors() > 0 ) {
+				std::cerr << "********************************************************************************" << std::endl;
+				std::cerr << "* WARNING!                                                                     *" << std::endl;
+				std::cerr << "*------------------------------------------------------------------------------*" << std::endl;
+				std::cerr << "* Errors found in input dataless SEED which were fixed by the conversion. This *" << std::endl;
+				std::cerr << "* may lead to subsequent errors or undefined behaviour. Check and correct the  *" << std::endl;
+				std::cerr << "* errors in dataless SEED and do the conversion again.                         *" << std::endl;
+				std::cerr << "********************************************************************************" << std::endl;
+			}
 
 			return true;
 		}

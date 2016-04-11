@@ -186,6 +186,10 @@ class MagToolApp : public Seiscomp::Client::Application {
 				_magtool.setSummaryMagnitudeWhitelist(configGetStrings("summaryMagnitude.whitelist"));
 			} catch ( ... ) {}
 
+			try {
+				_magtool.setMinimumArrivalWeight(configGetDouble("minimumArrivalWeight"));
+			} catch ( ... ) {}
+
 
 			try {
 				std::vector<std::string> averages = configGetStrings("magnitudes.average");

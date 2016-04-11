@@ -58,6 +58,7 @@ class DumpCfg(seiscomp3.Client.Application):
     self.commandline().addStringOption("Dump", "param,P", "Specify parameter name to filter for")
     self.commandline().addOption("Dump", "bindings,B", "Dump bindings instead of module configuration")
     self.commandline().addOption("Dump", "allow-global,G", "Print global bindings if no module binding is avaible")
+    self.commandline().addOption("Dump", "cfg", "Print output in .cfg format")
 
 
   def validateParameters(self):
@@ -70,6 +71,7 @@ class DumpCfg(seiscomp3.Client.Application):
     except: self.param = None
 
     self.allowGlobal = self.commandline().hasOption("allow-global")
+    self.formatCfg = self.commandline().hasOption("cfg")
 
     if not self.dumpBindings:
       self.setMessagingEnabled(False)
@@ -94,9 +96,15 @@ class DumpCfg(seiscomp3.Client.Application):
       for name in names:
         if self.param and self.param != name: continue
         sym = symtab.get(name)
-        print sym.name
-        print '  content: %s' % sym.content
-        print '  source:  %s' % sym.uri
+        if self.formatCfg:
+          if sym.comment:
+            if count > 0: print ""
+            print sym.comment
+          print sym.name + " = " + sym.content
+        else:
+          print sym.name
+          print '  value(s) : %s' % ", ".join(sym.values)
+          print '  source   : %s' % sym.uri
         count = count + 1
 
       if self.param and count == 0:
@@ -141,9 +149,9 @@ class DumpCfg(seiscomp3.Client.Application):
 
           params = readParams(params)
           count = 0
-          for name in sorted(params.keys()):
-            if self.param and self.param != name: continue
-            out += "  %s: %s\n" % (name, params[name])
+          for param_name in sorted(params.keys()):
+            if self.param and self.param != param_name: continue
+            out += "  %s: %s\n" % (param_name, params[param_name])
             count = count + 1
 
           if count > 0:

@@ -151,7 +151,7 @@ class SC_SYSTEM_CORE_API Record : public Seiscomp::Core::BaseObject {
 DEFINE_INTERFACE_FACTORY(Record);
 
 #define REGISTER_RECORD(Class, Service) \
-Seiscomp::Core::Generic::InterfaceFactory<Record, Class> __##Class##InterfaceFactory__(Service)
+Seiscomp::Core::Generic::InterfaceFactory<Seiscomp::Record, Class> __##Class##InterfaceFactory__(Service)
 
 }
 

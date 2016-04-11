@@ -53,6 +53,7 @@ ARCLINK_TIMEOUT_CHECK = 5
 SOCKET_TIMEOUT = 100
 REQUEST_TIMEOUT = 1800
 REQUEST_WAIT = 10
+MAX_LINES = 1000
 
 BASEDIR = "/home/sysop/breqfast"
 
@@ -72,22 +73,27 @@ LABEL = "breq_req"
 FORMAIL_BIN = "/usr/bin/formail"
 SENDMAIL_BIN = "/usr/sbin/sendmail"
 
-VERSION = "0.9 (2013.028)"
+VERSION = "0.11 (2013.086)"
 
 class BreqParser(object):
 	"""
 	Parses the breq_fast email format using regular expressions.
 	
-	@classvaribales: __tokenrule, defines the syntax of the beginning of a Breq_fast header token
+	@classvariables: __tokenrule, defines the syntax of the beginning of a Breq_fast header token
 					 __tokenlist, specifies the tokens required for the ArcLink request
 					 __reqlist,   defines the syntax for a request line in Breq_fast format
+
+	NOTE: parsing of e-mail addresses is rather more restrictive than allowed by RFC 5322/RFC 5321.
+	In particular, white space should be allowed in the local part if escaped by '\' or quoted,
+	and we may need to support Unicode characters in future.
+
 	"""
 	__tokenrule="^\.[A-Z_]+[:]?\s"
 	
 	__tokenlist=(
 				 "\.NAME\s+(?P<name>.+)",
 				 "\.INST\s+(?P<institution>.+)?",
-				 "\.EMAIL\s+(?P<email>.+[@].+)",
+				 "\.EMAIL\s+(?P<email>[A-Za-z0-9._+-]+[@][A-Za-z0-9.-]+)",
 				 "\.LABEL\s+(?P<label>.+)?")
 	
 	__reqlist=("(?P<station>[\w?\*]+)",
@@ -133,7 +139,7 @@ class BreqParser(object):
 	def __parse_token(self, head):
 		"""
 		Gets the Breq_fast header to match it against the corresponding pattern.
-		If successul sets the dictionary for storing the ArcLink required matches.
+		If successful, sets the dictionary for storing the ArcLink required matches.
 		
 		@arguments: head, a string storing the email request header in Breq_fast format
 		"""
@@ -147,8 +153,11 @@ class BreqParser(object):
 					if v is not None: self.tokendict[k] = v
 		
 		if not "name" in self.tokendict or not "email" in self.tokendict:
-			self.failstr = "%sBreq_fast header must contain at least .NAME and .EMAIL arguments.\n" % self.failstr 
+			self.failstr = "%sBreq_fast header must contain at least .NAME and .EMAIL arguments.\n" % self.failstr
 
+		# Longest local part 64 octets, + "@" + longest domain part 255 octets.
+		if self.tokendict.has_key("email") and len(self.tokendict["email"]) > 320:
+			self.failstr = "%s.EMAIL argument is too long.\n" % self.failstr
 
 
 	def __expand_net_station(self, network, station, beg_time, end_time):
@@ -274,6 +283,10 @@ class BreqParser(object):
 					else:
 						if reqflag:
 							break
+
+					if len(self.reqlist) > MAX_LINES:
+						break
+
 		finally:
 			fh.close()
 
@@ -605,7 +618,11 @@ def check_request(fname, basename, parser):
 	sys.stderr.write( "--> Estimated total size of request: %f MByte\n" % (requestSize / 1024.0**2))
 	gigabyte = 1024.0**3
 	maxRequestSize = 5.0 * gigabyte
-	if requestSize > maxRequestSize:
+	if len(parser.reqlist) > MAX_LINES:
+		sys.stderr.write( "--> this request is too large!!\n")
+		msg = _toolarge + "\n----> reason for refusal: too many lines (after wildcard expansion)"
+		_write_status_file(os.path.join(SPOOL_DIR,"make",basename),"too_large","")
+	elif requestSize > maxRequestSize:
 		sys.stderr.write( "--> this request is too large!!\n")
 		msg = _toolarge + "\n----> reason for refusal: request too large! (%.1f > %.1f GByte)" % (requestSize / gigabyte,
 													  maxRequestSize / gigabyte)
@@ -689,8 +706,8 @@ def submit_request(parser, req_name, breq_id):
 	Returns an email message containing the processing status of the breqfast request.
 
 	@arguments: parser,  a BreqParser object
-				reqname, a string defining the request name
-				breqid,  a string specifying the internal Breq_fast request ID
+		    req_name, a string defining the request name
+		    breq_id,  a string specifying the internal Breq_fast request ID
 	@return: a string, giving the processing status email message
 	"""
 	emailaddr = EMAIL_ADDR
@@ -806,13 +823,7 @@ def submit_request(parser, req_name, breq_id):
 
 				except (ArclinkError, socket.error), e:
 					logs.error('error on downloading request: ' + str(e))
-					try:
-						failed_content[STATUS_ERROR] += req.content
-
-					except KeyError:
-						failed_content[STATUS_ERROR] = req.content
-					
-					fd_out.close()
+					if fd_out is not None: fd_out.close()
 					raise
 
 				except (IOError, OSError, DBError, SEEDError, mseed.MSeedError), e:
@@ -853,7 +864,7 @@ def submit_request(parser, req_name, breq_id):
 							failed_content[status] = [ctuple]
 							
 				if vol_status != STATUS_OK:
-					fd_out.close()
+					if fd_out is not None: fd_out.close()
 					continue
 				
 				if not canJoin and fd_out is not None:
@@ -955,7 +966,7 @@ def submit_email(to, subj, text):
 		#server.sendmail(EMAIL_ADDR,to,msg.as_string())
 		#server.quit()        
 
-		cmd = "%s -I'From: %s' -I'To: %s' -I'Subject: %s' -a'Message-ID:' -A'X-Loop: %s' | %s -f%s %s" % \
+		cmd = "%s -I'From: %s' -I'To: %s' -I'Subject: %s' -a'Message-ID:' -A'X-Loop: %s' | %s -f'%s' -- '%s'" % \
 			(FORMAIL_BIN, EMAIL_FROM, to, subj, EMAIL_ADDR, SENDMAIL_BIN, EMAIL_ADDR, to)
 			
 		logs.debug("executing cmd: %s" % cmd)
@@ -971,13 +982,24 @@ def start():
 	Checks request spool directory for files => iterating and processing
 	"""
 
-	for fname in os.listdir(os.path.join(SPOOL_DIR,"check")):
-		fname = os.path.join(SPOOL_DIR,"check",fname)
-		if os.path.isfile(fname) and not fname.endswith("_checking"):
+	while True:
+		names = set()
+		checklist = [ f for f in os.listdir(os.path.join(SPOOL_DIR,"check")) if os.path.isfile(os.path.join(SPOOL_DIR,"check",f)) and not f.endswith("_checking") ]
+
+		if not checklist:
+			break
+
+		for fname in checklist:
+			fname = os.path.join(SPOOL_DIR,"check",fname)
 			basename = os.path.basename(fname)
 			m = re.match("^.+/(?P<req_name>.+)[_](?P<breq_id>\w+[_]\d+)$",fname)
 			if m:
 				(req_name, breq_id) = (m.group("req_name"), m.group("breq_id"))
+				if req_name in names:
+					continue
+
+				names.add(req_name)
+
 				sys.stderr.write("working on: %s %s\n" % (req_name, breq_id))
 			else:
 				os.rename(fname,fname.replace("_checking","_fail"))

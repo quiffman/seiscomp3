@@ -176,8 +176,8 @@ getShortPhaseName(const string &phase) {
 
 
 bool
-validArrival(const Seiscomp::DataModel::Arrival *arr) {
-	return arrivalWeight(arr) >= 0.5
+validArrival(const Seiscomp::DataModel::Arrival *arr, double minWeight) {
+	return arrivalWeight(arr) >= minWeight
 	       && getShortPhaseName(arr->phase().code()) == 'P';
 }
 

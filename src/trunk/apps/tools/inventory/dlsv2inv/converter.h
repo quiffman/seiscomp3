@@ -30,7 +30,7 @@ class Converter : public Seiscomp::Client::Application {
 		std::string _net_start_str;
 		std::string _net_end_str;
 		Core::Time _net_start;
-		Core::Time _net_end;
+		OPT(Core::Time) _net_end;
 };
 
 } // namespace Seiscomp

@@ -83,6 +83,7 @@ struct Config {
 	int             delayTimeSpan;
 
 	int             delayPrefFocMech;
+	bool            ignoreMTDerivedOrigins;
 };
 
 

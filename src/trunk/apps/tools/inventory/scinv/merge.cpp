@@ -21,6 +21,34 @@ using namespace Seiscomp::DataModel;
 namespace {
 
 
+string id(const Network *obj) {
+	return obj->code();
+}
+
+string id(const Station *obj) {
+	return id(obj->network()) + "." + obj->code();
+}
+
+string id(const SensorLocation *obj) {
+	return id(obj->station()) + "." + obj->code();
+}
+
+string id(const Stream *obj) {
+	return id(obj->sensorLocation()) + "." + obj->code();
+}
+
+string id(const PublicObject *obj) {
+	return obj->publicID();
+}
+
+string id(const Core::Time &t) {
+	if ( t.microseconds() > 0 )
+		return t.toString("%F %T.%f");
+	else
+		return t.toString("%F %T");
+}
+
+
 Network *findNetwork(Inventory *inv, const string &code,
                      const Core::Time &start, const OPT(Core::Time)&end ) {
 	for ( size_t i = 0; i < inv->networkCount(); ++i ) {
@@ -592,11 +620,16 @@ bool Merge::process(SensorLocation *loc, const Stream *stream) {
 	if ( !sc_cha->datalogger().empty() ) {
 		const Datalogger *dl = findDatalogger(sc_cha->datalogger());
 		if ( dl == NULL ) {
+			log(LogHandler::Unresolved,
+			    (string(sc_cha->className()) + " " + id(loc) + "." + sc_cha->code() + "/" + id(sc_cha->start()) + "\n  "
+			     "referenced datalogger is not available").c_str(), NULL, NULL);
+			/*
 			SEISCOMP_WARNING("%s.%s.%s.%s: datalogger not found: %s",
 			                 loc->station()->network()->code().c_str(),
 			                 loc->station()->code().c_str(),
 			                 loc->code().c_str(), sc_cha->code().c_str(),
 			                 sc_cha->datalogger().c_str());
+			*/
 		}
 		else
 			process(sc_cha.get(), dl);
@@ -605,11 +638,16 @@ bool Merge::process(SensorLocation *loc, const Stream *stream) {
 	if ( !sc_cha->sensor().empty() ) {
 		const Sensor *sensor = findSensor(sc_cha->sensor());
 		if ( sensor == NULL ) {
+			log(LogHandler::Unresolved,
+			    (string(sc_cha->className()) + " " + id(loc) + "." + sc_cha->code() + "/" + id(sc_cha->start()) + "\n  "
+			    "referenced sensor is not available").c_str(), NULL, NULL);
+			/*
 			SEISCOMP_WARNING("%s.%s.%s.%s: sensor not found: %s",
 			                 loc->station()->network()->code().c_str(),
 			                 loc->station()->code().c_str(),
 			                 loc->code().c_str(), sc_cha->code().c_str(),
 			                 sc_cha->sensor().c_str());
+			*/
 		}
 		else
 			process(sc_cha.get(), sensor);
@@ -747,11 +785,16 @@ bool Merge::process(Datalogger *dl, const Decimation *deci) {
 			if ( paz == NULL ) {
 				const ResponsePolynomial *poly = findPoly(filters[i]);
 				if ( poly == NULL ) {
+					log(LogHandler::Unresolved,
+					    (string(dl->className()) + " " + id(dl) + "/decimation " + Core::toString(sc_deci->sampleRateNumerator()) + "/" + Core::toString(sc_deci->sampleRateDenominator()) + "\n  "
+					    "analogue filter chain: response not found: " + filters[i]).c_str(), NULL, NULL);
+					/*
 					SEISCOMP_WARNING("Datalogger %s/decimation %d/%d analogue filter chain: response not found: %s",
 					                 dl->publicID().c_str(),
 					                 sc_deci->sampleRateNumerator(),
 					                 sc_deci->sampleRateDenominator(),
 					                 filters[i].c_str());
+					*/
 					deciAnalogueChain += filters[i];
 				}
 				else {
@@ -784,11 +827,16 @@ bool Merge::process(Datalogger *dl, const Decimation *deci) {
 			if ( paz == NULL ) {
 				const ResponseFIR *fir = findFIR(filters[i]);
 				if ( fir == NULL ) {
+					log(LogHandler::Unresolved,
+					    (string(dl->className()) + " " + id(dl) + "/decimation " + Core::toString(sc_deci->sampleRateNumerator()) + "/" + Core::toString(sc_deci->sampleRateDenominator()) + "\n  "
+					    "digital filter chain: response not found: " + filters[i]).c_str(), NULL, NULL);
+					/*
 					SEISCOMP_WARNING("Datalogger %s/decimation %d/%d digital filter chain: response not found: %s",
 					                 dl->publicID().c_str(),
 					                 sc_deci->sampleRateNumerator(),
 					                 sc_deci->sampleRateDenominator(),
 					                 filters[i].c_str());
+					*/
 					deciDigitalChain += filters[i];
 				}
 				else {
@@ -876,9 +924,14 @@ bool Merge::process(Stream *cha, const Sensor *sensor) {
 		if ( paz == NULL ) {
 			const ResponsePolynomial *poly = findPoly(sensor->response());
 			if ( poly == NULL ) {
+				log(LogHandler::Unresolved,
+				    (string(sensor->className()) + " " + id(sensor) + "\n  "
+				     "referenced response is not available").c_str(), NULL, NULL);
+				/*
 				SEISCOMP_WARNING("Sensor %s: response not found: %s",
 				                 sensor->publicID().c_str(),
 				                 sensor->response().c_str());
+				*/
 			}
 			else {
 				ResponsePolynomialPtr sc_poly = process(poly);

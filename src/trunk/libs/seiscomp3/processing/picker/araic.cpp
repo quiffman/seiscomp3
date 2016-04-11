@@ -33,7 +33,7 @@ namespace {
 //
 
 template<typename TYPE>
-static void
+void
 maeda_aic(int n, TYPE *data, int &kmin, double &snr, int margin=10)
 {
 	// expects a properly filtered and demeaned trace
@@ -79,7 +79,7 @@ maeda_aic(int n, TYPE *data, int &kmin, double &snr, int margin=10)
 
 
 template<typename TYPE>
-static void
+void
 maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 {
 	// expects a properly filtered and demeaned trace
@@ -115,25 +115,26 @@ maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 
 
 template<typename TYPE>
-static bool repick(int n, const TYPE *data, int &kmin, double &snr)
+bool repick(int n, const TYPE *data, int iofs, int &kmin, double &snr, WaveformProcessor::Filter *f)
 {
 	if (n<=0) return false;
 
 	double average = 0;
-	int n2 = n/2; // use only first half of seismogram
+	int n2 = (n-iofs)/2; // use only first half of seismogram
 	// FIXME somewhat hackish but better than nothing
 	for (int i=0; i<n2; i++)
-		average += data[i];
+		average += data[iofs+i];
 	average /= n2;
 
 	vector<TYPE> tmp(n);
-	for (int i=0; i<n; i++) {
-		tmp[i] = data[i]-average;
+	for ( int i = 0; i < n; ++i ) tmp[i] = data[i]-average;
 
-	}
+	if ( f != NULL ) f->apply(tmp);
+
 	kmin = -1;
 	snr = -1;
-	maeda_aic_const(n, &tmp[0], kmin, snr);
+	maeda_aic_const(n-iofs, &tmp[iofs], kmin, snr);
+	kmin += iofs;
 
 	return true;
 }
@@ -173,17 +174,16 @@ bool ARAICPicker::setup(const Settings &settings) {
 	settings.getValue(_config.signalEnd, "picker.AIC.signalEnd");
 	settings.getValue(_config.snrMin, "picker.AIC.minSNR");
 
-	string filter;
-	settings.getValue(filter, "picker.AIC.filter");
-	if ( !filter.empty() ) {
+	settings.getValue(_filter, "picker.AIC.filter");
+
+	if ( !_filter.empty() ) {
 		string error;
-		Filter *f = Filter::Create(filter, &error);
-		if ( f == NULL ) {
+		Core::SmartPointer<Filter>::Impl tmp = Filter::Create(_filter, &error);
+		if ( tmp == NULL ) {
 			SEISCOMP_ERROR("failed to create filter '%s': %s",
-			               filter.c_str(), error.c_str());
+			               _filter.c_str(), error.c_str());
 			return false;
 		}
-		setFilter(f);
 	}
 
 	return true;
@@ -208,11 +208,15 @@ bool ARAICPicker::calculatePick(int n, const double *data,
                                 int signalStartIdx, int signalEndIdx,
                                 int &triggerIdx, int &lowerUncertainty,
                                 int &upperUncertainty, double &snr) {
-	int relTriggerIdx = triggerIdx - signalStartIdx;
-	if ( !repick(signalEndIdx-signalStartIdx, data+signalStartIdx, relTriggerIdx, snr) )
+	Core::SmartPointer<Filter>::Impl filter = _filter.empty()?NULL:Filter::Create(_filter);
+	if ( filter ) {
+		SEISCOMP_DEBUG("AIC: created filter %s", _filter.c_str());
+		filter->setSamplingFrequency(_stream.fsamp);
+	}
+
+	if ( !repick(signalEndIdx, data, signalStartIdx, triggerIdx, snr, filter.get()) )
 		return false;
 
-	triggerIdx = relTriggerIdx + signalStartIdx;
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

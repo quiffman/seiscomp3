@@ -13,20 +13,22 @@
 
 
 #include <math.h>
+#include <seiscomp3/math/geo.h>
 #include <seiscomp3/seismology/magnitudes.h>
 
+/*
 static float __qml[] = { 0., 1.4, 1.4, 1.5, 1.6, 1.7, 1.9, 2.1, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.8, 2.8, 2.8, 2.9, 2.9, 3.0, 3.0, 3.0, 3.1, 3.1, 3.2, 3.2, 3.3, 3.3, 3.4, 3.4, 3.5, 3.5, 3.6, 3.65, 3.7, 3.7, 3.8, 3.8, 3.9, 3.9, 4.0, 4.0, 4.1, 4.1, 4.2, 4.2, 4.3, 4.3, 4.3, 4.4, 4.4, 4.5, 4.5, 4.5, 4.6, 4.6, 4.6, 4.6, 4.7, 4.7, 4.7, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8, 4.9, 4.9, 4.9, 4.9, 4.9, 5.2, 5.4, 5.5, 5.7 };
 
 static double lmagn(double amp, double dist, int *err)
 {
-/*   Computes ML from amplitudes
- *
- *   Distance correction for ML (after C.F.RICHTER (1958): Elementary
- *   Seismology. p 342, up to 600 km epicenter distance; and after G.SCHNEIDER
- *   (1975): Erdbeben. p 338, for 700-1000 km focal distance).
- *
- *   Based on a Fortran routine written by Winfried Hanka
- */
+	//   Computes ML from amplitudes
+	//
+	//   Distance correction for ML (after C.F.RICHTER (1958): Elementary
+	//   Seismology. p 342, up to 600 km epicenter distance; and after G.SCHNEIDER
+	//   (1975): Erdbeben. p 338, for 700-1000 km focal distance).
+	//
+	//   Based on a Fortran routine written by Winfried Hanka
+
 	double del=0;
 	int i0 = 0;
 
@@ -76,10 +78,12 @@ static double lmagn(double amp, double dist, int *err)
 
 	return log10(amp) + sm10;
 }
+*/
+
 
 namespace Seiscomp {
 namespace Magnitudes {
-	
+
 bool
 compute_ML(
 	double amplitude, // in micrometers
@@ -87,12 +91,41 @@ compute_ML(
 	double depth,     // in kilometers
 	double *mag)
 {
-	int err;
-	double m = lmagn(amplitude, delta, &err);
-	if (err) return false;
+	//   Computes ML from amplitudes
+	//
+	//   Distance correction for ML (after C.F.RICHTER (1958): Elementary
+	//   Seismology. p 342, up to 600 km epicenter distance; and after G.SCHNEIDER
+	//   (1975): Erdbeben. p 338, for 700-1000 km focal distance).
+	//
+	//   Based on a Fortran routine written by Winfried Hanka
 
-	*mag = m;
 
+	if (amplitude <= 0.)
+		return false;
+
+	double logA0; // Richter (1935): ML = log(A) - log(A0)
+	double distkm = Math::Geo::deg2km(delta);
+
+	// Approximation of previous ML computation by three
+	// straight-line segments.
+	// TODO: Make this configurable
+
+	// distkm -logA0
+	//      0    1.3
+	//     60    2.8
+	//    400    4.5
+	//   1000    5.85
+
+        if (distkm <= 60)
+	        logA0 = -1.3 - distkm*0.025;
+	else if (distkm <= 400)
+		logA0 = -2.5 - distkm*0.005;
+	else if (distkm <= 1000)
+		logA0 = -3.6 - distkm*0.00225;
+	else
+		return false; // no MLv for dist > 1000 km
+
+	*mag = log10(amplitude) - logA0;
 	return true;
 }
 } // namespace Magnitudes

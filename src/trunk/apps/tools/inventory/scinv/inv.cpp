@@ -290,10 +290,14 @@ ResponseFIR *InventoryTask::process(const ResponseFIR *fir) {
 	//ResponseFIRPtr sc_fir = _inv->responseFIR(fir->name());
 
 	bool newInstance = false;
+	bool needUpdate = false;
+
 	if ( !sc_fir ) {
 		sc_fir = create<ResponseFIR>(fir->publicID());
 		newInstance = true;
 	}
+	else
+		needUpdate = !sc_fir->equal(*fir);
 
 	*sc_fir = *fir;
 
@@ -301,6 +305,8 @@ ResponseFIR *InventoryTask::process(const ResponseFIR *fir) {
 		_FIRNames[sc_fir->name()] = sc_fir.get();
 		_inv->add(sc_fir.get());
 	}
+	else if ( needUpdate )
+		sc_fir->update();
 
 	return sc_fir.get();
 }
@@ -316,10 +322,14 @@ ResponsePAZ *InventoryTask::process(const ResponsePAZ *paz) {
 	//ResponsePAZPtr sc_paz = _inv->responsePAZ(paz->name());
 
 	bool newInstance = false;
+	bool needUpdate = false;
+
 	if ( !sc_paz ) {
 		sc_paz = create<ResponsePAZ>(paz->publicID());
 		newInstance = true;
 	}
+	else
+		needUpdate = !sc_paz->equal(*paz);
 
 	*sc_paz = *paz;
 
@@ -327,6 +337,8 @@ ResponsePAZ *InventoryTask::process(const ResponsePAZ *paz) {
 		_PAZNames[sc_paz->name()] = sc_paz.get();
 		_inv->add(sc_paz.get());
 	}
+	else if ( needUpdate )
+		sc_paz->update();
 
 	return sc_paz.get();
 }
@@ -341,10 +353,14 @@ ResponsePolynomial *InventoryTask::process(const ResponsePolynomial *poly) {
 	//ResponsePolynomialPtr sc_poly = _inv->responsePolynomial(poly->name());
 
 	bool newInstance = false;
+	bool needUpdate = false;
+
 	if ( !sc_poly ) {
 		sc_poly = create<ResponsePolynomial>(poly->publicID());
 		newInstance = true;
 	}
+	else
+		needUpdate = !sc_poly->equal(*poly);
 
 	*sc_poly = *poly;
 
@@ -352,6 +368,8 @@ ResponsePolynomial *InventoryTask::process(const ResponsePolynomial *poly) {
 		_PolyNames[sc_poly->name()] = sc_poly.get();
 		_inv->add(sc_poly.get());
 	}
+	else if ( needUpdate )
+		sc_poly->update();
 
 	return sc_poly.get();
 }

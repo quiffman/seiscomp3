@@ -18,6 +18,7 @@
 #include <seiscomp3/core/strings.h>
 #include <seiscomp3/core/typedarray.h>
 #include <seiscomp3/core/greensfunction.h>
+#include <seiscomp3/core/system.h>
 #include <seiscomp3/io/gfarchive/saul.h>
 #include <seiscomp3/io/records/sacrecord.h>
 
@@ -163,7 +164,7 @@ SaulArchive::~SaulArchive() {
 bool SaulArchive::setSource(std::string source) {
 	fs::path directory;
 	try {
-		directory = fs::path(source, fs::native);
+		directory = SC_FS_PATH(source);
 	}
 	catch ( ... ) {
 		SEISCOMP_ERROR("Unable to open directory: %s", source.c_str());
@@ -177,11 +178,7 @@ bool SaulArchive::setSource(std::string source) {
 		for ( fs::directory_iterator itr(directory); itr != end_itr; ++itr ) {
 			if ( !fs::is_directory(*itr) ) continue;
 
-#if (BOOST_VERSION <= 103301)
-			std::string name = itr->leaf();
-#else
-			std::string name = itr->path().leaf();
-#endif
+			std::string name = SC_FS_IT_LEAF(itr);
 
 			/*
 			size_t pos = name.rfind("_efl");

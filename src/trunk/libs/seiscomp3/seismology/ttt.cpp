@@ -238,6 +238,11 @@ TravelTimeTableInterface::TravelTimeTableInterface() {}
 TravelTimeTableInterface::~TravelTimeTableInterface() {}
 
 
+TravelTimeTableInterface *TravelTimeTableInterface::Create(const char *name) {
+	return TravelTimeTableInterfaceFactory::Create(name);
+}
+
+
 TravelTime TravelTimeTableInterface::compute(const char *phase,
                                              double lat1, double lon1, double dep1,
                                              double lat2, double lon2, double alt2,

@@ -678,8 +678,12 @@ static bool preliminary(const DataModel::Origin *origin) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void App::addObject(const std::string& parentID, DataModel::Object* o) {
+	DataModel::PublicObject *po = DataModel::PublicObject::Cast(o);
+	if ( po != NULL )
+		SEISCOMP_DEBUG("adding  %-12s %s",o->className(),po->publicID().c_str());
+	else
+		SEISCOMP_DEBUG("adding  %-12s",o->className());
 
-	SEISCOMP_DEBUG("adding  %-12s %s",o->className(),DataModel::PublicObject::Cast(o)->publicID().c_str());
 	DataModel::Pick *pick = DataModel::Pick::Cast(o);
 	if ( pick ) {
 		logObject(_inputPicks, Core::Time::GMT());

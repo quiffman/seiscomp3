@@ -470,7 +470,7 @@ void WFParam::createCommandLineDescription() {
 bool WFParam::validateParameters() {
 	if ( !Application::validateParameters() ) return false;
 
-	if ( !_config.eventID.empty() )
+	if ( !_config.eventID.empty() && !_config.enableMessagingOutput )
 		setMessagingEnabled(false);
 
 	if ( _config.naturalPeriodsStr == "fixed" )

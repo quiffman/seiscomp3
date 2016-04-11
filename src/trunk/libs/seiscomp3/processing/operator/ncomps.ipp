@@ -23,8 +23,8 @@ namespace Processing {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-template <typename T, int N, class PROC>
-WaveformProcessor::Status NCompsOperator<T,N,PROC>::process(int, const Record *rec) {
+template <typename T, int N, class PROC, int BSIZE>
+WaveformProcessor::Status NCompsOperator<T,N,PROC,BSIZE>::process(int, const Record *rec) {
 	Core::Time minStartTime;
 	Core::Time maxStartTime;
 	Core::Time minEndTime;
@@ -235,7 +235,7 @@ WaveformProcessor::Status NCompsOperator<T,N,PROC>::process(int, const Record *r
 
 		if ( minLen > 0 ) {
 			// Process finally
-			_proc(data, minLen, rec->samplingFrequency());
+			_proc(data, minLen, maxStartTime, rec->samplingFrequency());
 
 			for ( int i = 0; i < N; ++i )
 				if ( _proc.publish(i) ) store(comps[i].get());
@@ -254,8 +254,8 @@ WaveformProcessor::Status NCompsOperator<T,N,PROC>::process(int, const Record *r
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-template <typename T, int N, class PROC>
-WaveformProcessor::Status NCompsOperator<T,N,PROC>::feed(const Record *rec) {
+template <typename T, int N, class PROC, int BSIZE>
+WaveformProcessor::Status NCompsOperator<T,N,PROC,BSIZE>::feed(const Record *rec) {
 	if ( rec->data() == NULL ) return WaveformProcessor::WaitingForData;
 
 	int i = _proc.compIndex(rec->channelCode());

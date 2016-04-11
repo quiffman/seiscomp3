@@ -53,6 +53,12 @@ class SC_SYSTEM_CLIENT_API ARAICPicker : public Picker {
 		                   int signalStartIdx, int signalEndIdx,
 		                   int &triggerIdx, int &lowerUncertainty,
 		                   int &upperUncertainty, double &snr);
+
+	// ----------------------------------------------------------------------
+	//  Private Interface
+	// ----------------------------------------------------------------------
+	private:
+		std::string _filter;
 };
 
 

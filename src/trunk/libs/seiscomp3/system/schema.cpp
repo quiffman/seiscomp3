@@ -20,6 +20,7 @@
 
 #include <seiscomp3/system/schema.h>
 #include <seiscomp3/core/strings.h>
+#include <seiscomp3/core/system.h>
 
 
 namespace fs = boost::filesystem;
@@ -447,13 +448,13 @@ bool SchemaDefinitions::load(const char *path) {
 	IO::XMLArchive ar;
 
 	try {
-		fs::path directory(path, fs::native);
+		SC_FS_DECLARE_PATH(directory, path);
 
 		// Search for all XML files and parse them
 		for ( fs::directory_iterator it(directory); it != fsDirEnd; ++it ) {
 			if ( fs::is_directory(*it) ) continue;
-			string filename = it->string();
-			if ( fs::extension(FS_STR(it)) != ".xml" ) continue;
+			string filename = SC_FS_IT_STR(it);
+			if ( fs::extension(filename) != ".xml" ) continue;
 			if ( !ar.open(filename.c_str()) ) continue;
 
 			serialize(ar);

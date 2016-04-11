@@ -32,6 +32,34 @@ namespace QML {
 REGISTER_EXPORTER_INTERFACE(Exporter, "qml1.2");
 REGISTER_EXPORTER_INTERFACE(RTExporter, "qml1.2rt");
 
+Amplitude *findAmplitude(EventParameters *ep, const std::string& id) {
+	for ( size_t i = 0; i < ep->amplitudeCount(); ++i )
+		if ( ep->amplitude(i)->publicID() == id )
+			return ep->amplitude(i);
+	return NULL;
+}
+
+FocalMechanism *findFocalMechanism(EventParameters *ep, const std::string& id) {
+	for ( size_t i = 0; i < ep->focalMechanismCount(); ++i )
+		if ( ep->focalMechanism(i)->publicID() == id )
+			return ep->focalMechanism(i);
+	return NULL;
+}
+
+Origin *findOrigin(EventParameters *ep, const std::string& id) {
+	for ( size_t i = 0; i < ep->originCount(); ++i )
+		if ( ep->origin(i)->publicID() == id )
+			return ep->origin(i);
+	return NULL;
+}
+
+Pick *findPick(EventParameters *ep, const std::string& id) {
+	for ( size_t i = 0; i < ep->pickCount(); ++i )
+		if ( ep->pick(i)->publicID() == id )
+			return ep->pick(i);
+	return NULL;
+}
+
 // Local type map
 struct TypeMapCommon : IO::XML::TypeMap {
 	TypeMapCommon();
@@ -134,7 +162,7 @@ struct FocalMechanismConnector : IO::XML::MemberHandler {
 		EventParameters *ep = event->eventParameters();
 		FocalMechanism *fm;
 		for ( size_t i = 0; i < event->focalMechanismReferenceCount(); ++i ) {
-			fm = ep->findFocalMechanism(event->focalMechanismReference(i)->focalMechanismID());
+			fm = findFocalMechanism(ep, event->focalMechanismReference(i)->focalMechanismID());
 			if ( fm != NULL ) {
 				output->handle(fm, tag, ns);
 			}
@@ -159,14 +187,14 @@ struct OriginConnector : IO::XML::MemberHandler {
 		Amplitude *amplitude;
 		Pick *pick;
 		for ( size_t oi = 0; oi < event->originReferenceCount(); ++oi ) {
-			origin = ep->findOrigin(event->originReference(oi)->originID());
+			origin = findOrigin(ep, event->originReference(oi)->originID());
 			if ( origin != NULL ) {
 				for ( size_t mi = 0; mi < origin->magnitudeCount(); ++mi ) {
 					output->handle(origin->magnitude(mi), "magnitude", "");
 				}
 				for ( size_t si = 0; si < origin->stationMagnitudeCount(); ++si ) {
 					staMag = origin->stationMagnitude(si);
-					amplitude = ep->findAmplitude(staMag->amplitudeID());
+					amplitude = findAmplitude(ep, staMag->amplitudeID());
 					if ( amplitude != NULL) {
 						output->handle(amplitude, "amplitude", "");
 					}
@@ -174,7 +202,7 @@ struct OriginConnector : IO::XML::MemberHandler {
 				}
 				output->handle(origin, tag, ns);
 				for ( size_t ai = 0; ai < origin->arrivalCount(); ++ai ) {
-					pick = ep->findPick(origin->arrival(ai)->index().pickID);
+					pick = findPick(ep, origin->arrival(ai)->index().pickID);
 					if ( pick != NULL ) {
 						output->handle(pick, "pick", "");
 					}
@@ -199,7 +227,7 @@ struct RTMagnitudeConnector : IO::XML::MemberHandler {
 		for ( size_t ei = 0; ei < ep->eventCount(); ++ei ) {
 			event = ep->event(ei);
 			for ( size_t oi = 0; oi < event->originReferenceCount(); ++oi ) {
-				origin = ep->findOrigin(event->originReference(oi)->originID());
+				origin = findOrigin(ep, event->originReference(oi)->originID());
 				if ( origin == NULL ) continue;
 				for ( size_t mi = 0; mi < origin->magnitudeCount(); ++mi ) {
 					output->handle(origin->magnitude(mi), tag, ns);
@@ -224,7 +252,7 @@ struct RTMagnitudeReferenceConnector : IO::XML::MemberHandler {
 		EventParameters *ep = event->eventParameters();
 		Origin *origin;
 		for ( size_t oi = 0; oi < event->originReferenceCount(); ++oi ) {
-			origin = ep->findOrigin(event->originReference(oi)->originID());
+			origin = findOrigin(ep, event->originReference(oi)->originID());
 			if ( origin == NULL ) continue;
 			for ( size_t mi = 0; mi < origin->magnitudeCount(); ++mi ) {
 				std::string v = origin->magnitude(mi)->publicID();
@@ -349,6 +377,7 @@ struct TimeQuantityHandler : TypedClassHandler<TimeQuantity> {
 		        "confidenceLevel");
 	}
 };
+static TimeQuantityHandler __timeQuantityHandler;
 
 struct RealQuantityHandler : TypedClassHandler<RealQuantity> {
 	RealQuantityHandler() {
@@ -357,6 +386,7 @@ struct RealQuantityHandler : TypedClassHandler<RealQuantity> {
 		        "confidenceLevel");
 	}
 };
+static RealQuantityHandler __realQuantityHandler;
 
 struct IntegerQuantityHandler : TypedClassHandler<IntegerQuantity> {
 	IntegerQuantityHandler() {
@@ -365,6 +395,7 @@ struct IntegerQuantityHandler : TypedClassHandler<IntegerQuantity> {
 		        "confidenceLevel");
 	}
 };
+static IntegerQuantityHandler __integerQuantityHandler;
 
 struct CreationInfoHandler : TypedClassHandler<CreationInfo> {
 	CreationInfoHandler() {
@@ -417,6 +448,27 @@ struct OriginQualityHandler : TypedClassHandler<OriginQuality> {
 	}
 };
 
+// QuakeML requires depth in meter (not kilometer)
+struct OriginDepthHandler : IO::XML::MemberHandler {
+	bool put(Core::BaseObject *object, const char *tag, const char *ns,
+	         bool opt, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
+		Origin *o = Origin::Cast(object);
+		if ( o == NULL ) return false;
+		RealQuantity& depth = o->depth();
+		depth.setValue(depth.value() * 1000);
+		try { depth.setUncertainty(depth.uncertainty() * 1000); }
+		catch ( Core::ValueException ) {}
+		try { depth.setUpperUncertainty(depth.upperUncertainty() * 1000); }
+		catch ( Core::ValueException ) {}
+		try { depth.setLowerUncertainty(depth.lowerUncertainty() * 1000); }
+		catch ( Core::ValueException ) {}
+		output->handle(&depth, tag, ns, &__realQuantityHandler);
+		return true;
+	}
+	std::string value(Core::BaseObject *obj) { return ""; }
+	bool get(Core::BaseObject *object, void *node, IO::XML::NodeHandler *h) { return false; }
+};
+
 struct ArrivalHandler : TypedClassHandler<Arrival> {
 	ArrivalHandler() {
 		addEmptyPID();
@@ -465,8 +517,9 @@ struct OriginHandler : TypedClassHandler<Origin> {
 		addPID();
 		// NA: region
 		addList("comment, compositeTime, arrival, time, longitude, latitude, "
-		        "depth, depthType, timeFixed, epicenterFixed, quality, type, "
+		        "depthType, timeFixed, epicenterFixed, quality, type, "
 		        "evaluationMode, creationInfo");
+		addChild("depth", "", new OriginDepthHandler());
 		add("uncertainty", "originUncertainty");
 		add("referenceSystemID", &__resRef);
 		add("methodID", &__resRef);
@@ -708,15 +761,12 @@ struct RTQuakeMLHandler : IO::XML::NodeHandler {
 
 TypeMapCommon::TypeMapCommon() {
 	// Generic, used at different locations
-	static RealQuantityHandler realQuantityHandler;
-	static IntegerQuantityHandler integerQuantityHandler;
-	static TimeQuantityHandler timeQuantityHandler;
 	static CreationInfoHandler creationInfoHandler;
 	static CommentHandler commentHandler;
 	static WaveformStreamIDHandler waveformStreamIDHandler;
-	registerMapping<RealQuantity>("", "", &realQuantityHandler);
-	registerMapping<IntegerQuantity>("", "", &integerQuantityHandler);
-	registerMapping<TimeQuantity>("", "", &timeQuantityHandler);
+	registerMapping<RealQuantity>("", "", &__realQuantityHandler);
+	registerMapping<IntegerQuantity>("", "", &__integerQuantityHandler);
+	registerMapping<TimeQuantity>("", "", &__timeQuantityHandler);
 	registerMapping<CreationInfo>("creationInfo", "", &creationInfoHandler);
 	registerMapping<Comment>("comment", "", &commentHandler);
 	registerMapping<WaveformStreamID>("waveformID", "", &waveformStreamIDHandler);

@@ -1049,19 +1049,23 @@ class _GenericAbbreviationDict(object):
         self.__blk = []   # blk33
 
     def lookup_sensor(self, name):     # instrument id for blk52
-        k = self.__used_sensor.get(name)
+        sensor = self.__inventory.object.get(name)
+        if sensor is None:
+            raise SEEDError, "unknown sensor: " + name
+
+        desc = sensor.description
+        if not desc:
+            desc = "unknown"
+    
+        k = self.__used_sensor.get(desc)
         if k is not None:
             return k
 
         self.__num += 1
         k = self.__num
-        self.__used_sensor[name] = k
+        self.__used_sensor[desc] = k
 
-        sensor = self.__inventory.object.get(name)
-        if sensor is None:
-            raise SEEDError, "unknown sensor: " + name
-
-        self.__blk.append(_Blockette33(k, sensor.description))
+        self.__blk.append(_Blockette33(k, desc))
         return k
 
     def lookup_network(self, code, start):    # network id for blk50
@@ -1793,7 +1797,8 @@ class _Channel(object):
             
         if strmcfg.sampleRateNumerator == 0 or \
             strmcfg.sampleRateDenominator == 0:
-            raise SEEDError, "invalid sample rate"
+            raise SEEDError, "invalid sample rate %d/%d" % \
+                (strmcfg.sampleRateNumerator, strmcfg.sampleRateDenominator)
         
         sample_rate = float(strmcfg.sampleRateNumerator) / \
             float(strmcfg.sampleRateDenominator)

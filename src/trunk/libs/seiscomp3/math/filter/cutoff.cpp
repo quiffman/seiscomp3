@@ -20,12 +20,10 @@
 #include<seiscomp3/logging/log.h>
 
 
-namespace Seiscomp
-{
-namespace Math
-{
-namespace Filtering
-{
+namespace Seiscomp {
+namespace Math {
+namespace Filtering {
+
 
 namespace _private {
 
@@ -38,33 +36,51 @@ class FilterException : public Seiscomp::Core::GeneralException {
 
 }
 
+
 template<typename TYPE>
-CutOff<TYPE>::CutOff(double threshold)
- : _threshold(threshold) {}
+CutOff<TYPE>::CutOff(TYPE threshold) : _threshold(threshold), _outstanding(2) {}
 
 
 template<typename TYPE>
 void CutOff<TYPE>::apply(int n, TYPE *inout) {
 	if ( _threshold <= 0.0 )
 		throw _private::FilterException("Threshold not initialized");
-	if ( n < 2 ) return;
 
-	for ( int i = 0, j = 1; j < n; ++i, ++j ) {
-		double diff = fabs(inout[i] - inout[j]);
-		if ( diff >= _threshold ) {
-			int tmp = (i > 0) ? i - 1 : 0;
-			inout[j] = (inout[i] + inout[tmp]) / 2;
+	for ( int i = 0; i < n; ++i ) {
+		if ( _outstanding == 2 ) {
+			_samples[0] = _samples[1] = inout[i];
+			--_outstanding;
+			continue;
 		}
+		else if ( _outstanding == 1 ) {
+			_samples[1] = inout[i];
+			--_outstanding;
+		}
+
+		TYPE s = inout[i];
+
+		if ( fabs(_samples[0] - _samples[1]) > _threshold ) {
+			inout[i] = (_samples[0] + inout[i]) / 2;
+			_samples[1] = inout[i];
+		}
+		else
+			inout[i] = _samples[1];
+
+		_samples[0] = _samples[1];
+		_samples[1] = s;
 	}
 }
 
+
 template<typename TYPE>
 void CutOff<TYPE>::setSamplingFrequency(double fsamp) {}
+
 
 template<typename TYPE>
 InPlaceFilter<TYPE>* CutOff<TYPE>::clone() const {
 	return new CutOff<TYPE>(_threshold);
 }
+
 
 template<typename TYPE>
 int CutOff<TYPE>::setParameters(int n, const double *params) {
@@ -81,8 +97,6 @@ INSTANTIATE_INPLACE_FILTER(CutOff, SC_SYSTEM_CORE_API);
 REGISTER_INPLACE_FILTER(CutOff, "CUTOFF");
 
 
-} // namespace Seiscomp::Math::Filtering
-
-} // namespace Seiscomp::Math
-
+} // namespace Filtering
+} // namespace Math
 } // namespace Seiscomp

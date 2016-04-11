@@ -15,6 +15,7 @@
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/system/model.h>
 #include <seiscomp3/core/strings.h>
+#include <seiscomp3/core/system.h>
 #include <seiscomp3/utils/files.h>
 
 #include <boost/version.hpp>
@@ -28,15 +29,6 @@
 
 #include <fstream>
 #include <set>
-
-
-#if BOOST_VERSION <= 103301
-#define FS_LEAF(it) it->leaf()
-#define FS_STR(it) it->string()
-#else
-#define FS_LEAF(it) it->path().leaf()
-#define FS_STR(it) it->path().string()
-#endif
 
 
 using namespace std;
@@ -111,6 +103,61 @@ class CaseSensitivityCheck : public ModelVisitor {
 		int             _stage;
 		Config::Symbol *_symbol;
 };
+
+
+
+class DuplicateNameCheck : public ModelVisitor {
+	public:
+		DuplicateNameCheck()
+		: _currentModule(NULL) {}
+
+		bool visit(Module *mod) {
+			_currentModule = mod;
+			_currentSection = NULL;
+			_names.clear();
+			return true;
+		}
+
+		bool visit(Section *sec) {
+			_currentSection = sec;
+			return true;
+		}
+
+		bool visit(Group*) {
+			return true;
+		}
+
+		bool visit(Structure*) {
+			return true;
+		}
+
+		void visit(Parameter *param, bool unknown) {
+			// Do not touch unknown parameters
+			if ( unknown ) return;
+
+			if ( _names.find(param->variableName) != _names.end() ) {
+				if ( _currentSection )
+					SEISCOMP_WARNING("C duplicate parameter definition in %s/%s: %s",
+					                 _currentModule->definition->name.c_str(),
+					                 _currentSection->name.c_str(),
+					                 param->variableName.c_str());
+				else
+					SEISCOMP_WARNING("C duplicate parameter definition in %s: %s",
+					                 _currentModule->definition->name.c_str(),
+					                 param->variableName.c_str());
+
+				return;
+			}
+
+			_names.insert(param->variableName);
+		}
+
+	private:
+		const Module  *_currentModule;
+		const Section *_currentSection;
+		set<string>    _names;
+};
+
 
 
 
@@ -827,6 +874,24 @@ Container *Binding::findContainer(const std::string &path) const {
 }
 
 
+Parameter *Binding::findParameter(const std::string &fullName) const {
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		Parameter *param = sections[i]->findParameter(fullName);
+		if ( param != NULL ) return param;
+	}
+
+	return NULL;
+}
+
+
+void Binding::accept(ModelVisitor *visitor) const {
+	for ( size_t i = 0; i < sections.size(); ++i ) {
+		if ( !visitor->visit(sections[i].get()) ) continue;
+		sections[i]->accept(visitor);
+	}
+}
+
+
 Binding *BindingCategory::binding(const std::string &name) const {
 	for ( size_t i = 0; i < bindingTypes.size(); ++i )
 		if ( bindingTypes[i]->name == name )
@@ -868,6 +933,24 @@ Container *BindingCategory::findContainer(const std::string &path) const {
 	}
 	return NULL;
 }
+
+
+Parameter *BindingCategory::findParameter(const std::string &fullName) const {
+	BindingInstances::const_iterator it;
+	for ( it = bindings.begin(); it != bindings.end(); ++it ) {
+		Parameter *p = it->binding->findParameter(fullName);
+		if ( p != NULL ) return p;
+	}
+	return NULL;
+}
+
+
+void BindingCategory::accept(ModelVisitor *visitor) const {
+	BindingInstances::const_iterator it;
+	for ( it = bindings.begin(); it != bindings.end(); ++it )
+		it->binding->accept(visitor);
+}
+
 
 
 bool BindingCategory::hasBinding(const char *alias) const {
@@ -988,6 +1071,30 @@ Container *ModuleBinding::findContainer(const std::string &path) const {
 }
 
 
+Parameter *ModuleBinding::findParameter(const std::string &fullName) const {
+	Parameter *p = Binding::findParameter(fullName);
+	if ( p != NULL ) return p;
+
+	Categories::const_iterator it;
+	for ( it = categories.begin(); it != categories.end(); ++it ) {
+		p = (*it)->findParameter(fullName);
+		if ( p != NULL ) return p;
+	}
+
+	return NULL;
+}
+
+
+void ModuleBinding::accept(ModelVisitor *visitor) const {
+	Binding::accept(visitor);
+
+	Categories::const_iterator it;
+	for ( it = categories.begin(); it != categories.end(); ++it )
+		(*it)->accept(visitor);
+}
+
+
+
 bool ModuleBinding::writeConfig(const string &filename) const {
 	ofstream ofs(filename.c_str());
 	if ( !ofs.is_open() ) return false;
@@ -1000,7 +1107,7 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 
 	for ( size_t s = 0; s < sections.size(); ++s ) {
 		Section *section = sections[s].get();
-		if ( !write(section, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
+		if ( !write(section, NULL, stage, symbols, ofs, filename, true, firstSection, first) )
 			return false;
 	}
 
@@ -1010,6 +1117,8 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 		if ( cat->bindings.empty() ) continue;
 
 		if ( !symbols.empty() ) ofs << endl;
+
+		ofs << "# Activated plugins for category " << cat->name << endl;
 		ofs << cat->name << " = ";
 		symbols.insert(cat->name);
 
@@ -1029,7 +1138,7 @@ bool ModuleBinding::writeConfig(const string &filename) const {
 
 			for ( size_t s = 0; s < curr->sections.size(); ++s ) {
 				Section *sec = curr->sections[s].get();
-				if ( !write(sec, NULL, stage, symbols, ofs, filename, false, firstSection, first) )
+				if ( !write(sec, NULL, stage, symbols, ofs, filename, true, firstSection, first) )
 					return false;
 			}
 		}
@@ -1085,7 +1194,7 @@ int Module::loadProfiles(const std::string &keyDir, ConfigDelegate *delegate) {
 	fs::directory_iterator fsDirEnd;
 
 	try {
-		it = fs::directory_iterator(fs::path(keyDir, fs::native));
+		it = fs::directory_iterator(SC_FS_PATH(keyDir));
 	}
 	catch ( ... ) {
 		it = fsDirEnd;
@@ -1096,7 +1205,7 @@ int Module::loadProfiles(const std::string &keyDir, ConfigDelegate *delegate) {
 	for ( ; it != fsDirEnd; ++it ) {
 		if ( fs::is_directory(*it) ) continue;
 
-		string filename = FS_LEAF(it);
+		string filename = SC_FS_IT_LEAF(it);
 		if ( filename.compare(0, 8, "profile_") != 0 )
 			continue;
 
@@ -1107,9 +1216,8 @@ int Module::loadProfiles(const std::string &keyDir, ConfigDelegate *delegate) {
 		}
 
 		profile->name = filename.substr(8);
-		profile->configFile = FS_STR(it);
+		profile->configFile = SC_FS_IT_STR(it);
 
-		//SEISCOMP_DEBUG("reading profile %s", it->path().string().c_str());
 		if ( !loadBinding(*profile, profile->configFile, false, delegate) ) {
 			cerr << "ERROR: invalid config file" << endl;
 			continue;
@@ -1572,6 +1680,11 @@ bool Model::create(SchemaDefinitions *schema) {
 		}
 	}
 
+	/*
+	DuplicateNameCheck check;
+	accept(&check);
+	*/
+
 	return true;
 }
 
@@ -1793,6 +1906,10 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 	for ( size_t i = 0; i < modules.size(); ++i ) {
 		Module *mod = modules[i].get();
 
+		// Clear bindings and profiles
+		mod->bindings.clear();
+		mod->profiles.clear();
+
 		// Initialize key directory
 		mod->keyDirectory = stationConfigDir(true, mod->definition->name);
 
@@ -1907,7 +2024,7 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 	keyDir = stationConfigDir(true);
 
 	try {
-		it = fs::directory_iterator(fs::path(keyDir, fs::native));
+		it = fs::directory_iterator(SC_FS_PATH(keyDir));
 	}
 	catch ( ... ) {
 		it = fsDirEnd;
@@ -1916,7 +2033,7 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 
 	for ( ; it != fsDirEnd; ++it ) {
 		if ( fs::is_directory(*it) ) continue;
-		string filename = FS_LEAF(it);
+		string filename = SC_FS_IT_LEAF(it);
 		if ( filename.compare(0, 8, "station_") != 0 )
 			continue;
 
@@ -1945,8 +2062,8 @@ bool Model::readConfig(int updateMaxStage, ConfigDelegate *delegate) {
 
 		//SEISCOMP_DEBUG("reading station key %s", it->path().string().c_str());
 		StationPtr station = new Station;
-		if ( !station->readConfig(FS_STR(it).c_str()) )
-			cerr << FS_STR(it) << ": error reading configuration: "
+		if ( !station->readConfig(SC_FS_IT_STR(it).c_str()) )
+			cerr << SC_FS_IT_STR(it) << ": error reading configuration: "
 			                               "set empty" << endl;
 
 		stations[id] = station;
@@ -2035,14 +2152,14 @@ bool Model::writeConfig(int stage) {
 
 	// Clean up old key directory
 	try {
-		it = fs::directory_iterator(fs::path(keyDir, fs::native));
+		it = fs::directory_iterator(SC_FS_PATH(keyDir));
 	}
 	catch ( ... ) {
 		it = fsDirEnd;
 	}
 
 	for ( ; it != fsDirEnd; ++it ) {
-		string filename = FS_LEAF(it);
+		string filename = SC_FS_IT_LEAF(it);
 		if ( filename.compare(0, 8, "station_") != 0 )
 			continue;
 
@@ -2124,14 +2241,14 @@ bool Model::writeConfig(int stage) {
 
 		// Remove unused files
 		try {
-			it = fs::directory_iterator(fs::path(keyDir, fs::native));
+			it = fs::directory_iterator(SC_FS_PATH(keyDir));
 		}
 		catch ( ... ) {
 			it = fsDirEnd;
 		}
 
 		for ( ; it != fsDirEnd; ++it ) {
-			if ( files.find(FS_LEAF(it)) == files.end() ) {
+			if ( files.find(SC_FS_IT_LEAF(it)) == files.end() ) {
 				try { fs::remove(*it); } catch ( ... ) {}
 			}
 		}

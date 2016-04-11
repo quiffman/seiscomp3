@@ -149,8 +149,18 @@ GridPoint::feed(const Pick* pick)
 		
 	}
 
-//	if ( sw.distance > sw.station->maxNucDist )
-//		return NULL;
+	// At this point we hold a "wrapper" which wraps a station and adds a
+	// fews grid-point specific attributes such as the distance from this
+	// gridpoint to the station etc.
+
+	// If the station distance exceeds the maximum station distance
+	// configured for the grid point...
+	if ( wrapper->distance > maxStaDist ) return NULL;
+
+	// If the station distance exceeds the maximum nucleation distance
+	// configured for the station...
+	if ( wrapper->distance > wrapper->station->maxNucDist )
+		return NULL;
 
 	// back-project pick to hypothetical origin time
 	ProjectedPick pp(pick, wrapper);

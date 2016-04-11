@@ -17,6 +17,7 @@
 
 #include <seiscomp3/system/environment.h>
 #include <seiscomp3/core/strings.h>
+#include <seiscomp3/core/system.h>
 #include <seiscomp3/logging/log.h>
 
 #include <boost/version.hpp>
@@ -68,7 +69,7 @@ size_t GeoFeatureSet::readBNADir(const std::string& dirPath) {
 	// Get the config base directory
 	fs::path directory;
 	try {
-		directory = fs::path(dirPath, fs::native);
+		directory = SC_FS_PATH(dirPath);
 	}
 	catch ( ... ) {
 		SEISCOMP_ERROR("Invalid path '%s'", dirPath.c_str());
@@ -97,11 +98,7 @@ size_t GeoFeatureSet::readBNADirRecursive(const fs::path directory,
 
 		std::string fileName;
 		for ( ; itd != end_itd; ++itd ) {
-#if (BOOST_VERSION <= 103301)
-			fileName = itd->leaf();
-#else
-			fileName = itd->path().leaf();
-#endif
+			fileName = SC_FS_IT_LEAF(itd);
 
 			// If the current directory entry is a directory, then
 			// descend into this directory
@@ -111,11 +108,10 @@ size_t GeoFeatureSet::readBNADirRecursive(const fs::path directory,
 			else if ( fileName.length() < 4 ||
 			          fileName.substr(fileName.length() - 4) != ".bna")
 				continue;
-			else if ( readBNAFile(itd->string(), category) )
+			else if ( readBNAFile(SC_FS_IT_STR(itd), category) )
 				++fileCount;
 			else
-				SEISCOMP_ERROR("Error reading file: %s",
-					       itd->string().c_str());
+				SEISCOMP_ERROR("Error reading file: %s", SC_FS_IT_STR(itd).c_str());
 		}
 	}
 	catch (const std::exception& ex) {}

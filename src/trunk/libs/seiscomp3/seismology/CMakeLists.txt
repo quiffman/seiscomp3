@@ -6,8 +6,8 @@ SET(SEISMOLOGY_SOURCES
 	ttt.cpp
 
 	locsat.cpp
-        locatorinterface.cpp
-        locsat_internal.cpp
+	locatorinterface.cpp
+	locsat_internal.cpp
 )
 
 SET(SEISMOLOGY_HEADERS
@@ -15,7 +15,7 @@ SET(SEISMOLOGY_HEADERS
 	regions.h
 	magnitudes.h
 	locsat.h
-        locatorinterface.h
+	locatorinterface.h
 )
 
 SC_ADD_SUBDIR_SOURCES(SEISMOLOGY regions)

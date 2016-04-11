@@ -27,7 +27,7 @@ class Dataless
 {
 	public:
 		Dataless(const std::string &dcid, const std::string &net_description, const std::string &net_type,
-			const Seiscomp::Core::Time &net_start, const Seiscomp::Core::Time &net_end,
+			const Seiscomp::Core::Time &net_start, const OPT(Seiscomp::Core::Time) &net_end,
 			bool temporary, bool restricted, bool shared):
 			_dcid(dcid), _net_description(net_description), _net_type(net_type),
 			_net_start(net_start), _net_end(net_end), _temporary(temporary),
@@ -40,7 +40,7 @@ class Dataless
 		std::string _net_description;
 		std::string _net_type;
 		Seiscomp::Core::Time _net_start;
-		Seiscomp::Core::Time _net_end;
+		OPT(Seiscomp::Core::Time) _net_end;
 		bool _temporary;
 		bool _restricted;
 		bool _shared;

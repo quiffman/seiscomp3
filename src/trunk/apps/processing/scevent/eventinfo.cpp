@@ -76,7 +76,7 @@ void EventInformation::load(DatabaseQuery *q, EventPtr &e) {
 	if ( preferredOrigin ) {
 		if ( !preferredOrigin->arrivalCount() && q )
 			q->loadArrivals(preferredOrigin.get());
-	
+
 		if ( !preferredOrigin->magnitudeCount() && q )
 			q->loadMagnitudes(preferredOrigin.get());
 	}
@@ -267,6 +267,25 @@ bool EventInformation::addJournalEntry(DataModel::JournalEntry *e) {
 	else if ( e->action() == "EvPrefOrgAutomatic" ) {
 		constraints.preferredOriginEvaluationMode = Core::None;
 		constraints.preferredOriginID = "";
+	}
+	else if ( e->action() == "EvPrefFocEvalMode" ) {
+		if ( e->parameters().empty() ) {
+			constraints.preferredFocalMechanismEvaluationMode = Core::None;
+			constraints.preferredFocalMechanismID = "";
+		}
+		else {
+			DataModel::EvaluationMode em;
+			if ( em.fromString(e->parameters().c_str()) ) {
+				constraints.preferredFocalMechanismID = "";
+				constraints.preferredFocalMechanismEvaluationMode = em;
+			}
+			else
+				return false;
+		}
+	}
+	else if ( e->action() == "EvPrefFocAutomatic" ) {
+		constraints.preferredFocalMechanismEvaluationMode = Core::None;
+		constraints.preferredFocalMechanismID = "";
 	}
 
 	return true;

@@ -28,7 +28,7 @@ namespace Filtering
 template<typename TYPE>
 class CutOff : public InPlaceFilter<TYPE> {
 	public:
-		CutOff(double threshold = 0.0);
+		CutOff(TYPE threshold = 0);
 
 	public:
 		virtual void setSamplingFrequency(double fsamp);
@@ -39,7 +39,9 @@ class CutOff : public InPlaceFilter<TYPE> {
 		virtual InPlaceFilter<TYPE>* clone() const;
 
 	private:
-		double _threshold;
+		TYPE _threshold;
+		TYPE _samples[2];
+		int  _outstanding;
 };
 
 

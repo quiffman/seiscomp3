@@ -15,6 +15,7 @@
 #include <math.h>
 #include <iostream>
 #include <stdexcept>
+#include <string.h>
 
 #include <seiscomp3/system/environment.h>
 #include <seiscomp3/math/geo.h>
@@ -39,7 +40,7 @@ char **phase_types();
 std::string Locsat::_model;
 int Locsat::_tabinCount = 0;
 
-Locsat::Locsat() : _initialized(false) {}
+Locsat::Locsat() : _initialized(false), _Pindex(-1) {}
 
 
 Locsat::Locsat(const Locsat &other) {
@@ -78,7 +79,7 @@ bool Locsat::setModel(const std::string &model) {
 
 	_initialized = true;
 
-	return true;
+	return _Pindex != -1;
 }
 
 
@@ -97,6 +98,19 @@ void Locsat::InitPath(const std::string &model)
 
 	setup_tttables_dir((Environment::Instance()->shareDir() + "/locsat/tables/" + model).c_str());
 	_model = model;
+
+	int nphases = num_phases();
+	char **phases = phase_types();
+
+	_Pindex = -1;
+	if ( phases != NULL ) {
+		for ( int i = 0; i < nphases; ++i ) {
+			if ( !strcmp(phases[i], "P") ) {
+				_Pindex = i;
+				break;
+			}
+		}
+	}
 }
 
 
@@ -151,11 +165,9 @@ TravelTimeList *Locsat::compute(double lat1, double lon1, double dep1,
 
 
 TravelTime Locsat::computeFirst(double delta, double depth) throw(NoPhaseError) {
-	int nphases = num_phases();
+	if ( _Pindex < 0 ) throw NoPhaseError();
 	char **phases = phase_types();
-
-	if ( nphases < 1 ) throw NoPhaseError();
-	char *phase = phases[0];
+	char *phase = phases[_Pindex];
 	double ttime = compute_ttime(delta, depth, phase, 1);
 	if ( ttime < 0 ) throw NoPhaseError();
 

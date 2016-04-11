@@ -17,7 +17,7 @@
 #include <seiscomp3/math/geo.h>
 
 
-#define DELTA_MIN 0.
+#define DELTA_MIN 0.3
 #define DELTA_MAX 20.
 
 #define DEPTH_MAX 80
@@ -45,7 +45,7 @@ MagnitudeProcessor_Mjma::MagnitudeProcessor_Mjma()
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 MagnitudeProcessor::Status MagnitudeProcessor_Mjma::computeMagnitude(
 	double amplitude, // in micrometers per second
-	double period,      // in seconds
+	double period,    // in seconds
 	double delta,     // in degrees
 	double depth,     // in kilometers
 	double &value)

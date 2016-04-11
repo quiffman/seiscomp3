@@ -142,3 +142,21 @@ To check the available networks and stations in the inventory pool, calling
    scinv ls
 
 is enough.
+
+
+check
+-----
+
+Checks consistency of passed inventory files or a complete filebase. In the
+first step the inventory is merged from all files. In the second step several
+consistency checks are applied such as:
+
+- overlapping epochs on each level (network, station, ...)
+- valid epochs (start < end)
+- defined gain in a stream
+- set gainUnit
+- distance of the sensor location to the station location
+- "invalid" location 0/0
+
+In future further checks will be added to make this tool a real help for
+correct meta data creation.

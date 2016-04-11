@@ -157,7 +157,7 @@ Examples
    :header: "URL", "Description"
 
    "``combined://localhost:18000;localhost:18001``", "Seedlink on localhost:18000 combined with Arclink on localhost 18001"
-   "``combined://slink/localhost:180001;arclink/localhost:18001``", "Same as above"
+   "``combined://slink/localhost:18000;arclink/localhost:18001``", "Same as above"
    "``combined://;``", "Same as above"
    "``combined://:18042;?user=foo&pwd=secret??rtMax=1800``", "Seedlink on localhost:18042 combined with Arclink on localhost 18001, real-time (SeedLink) buffer size set to 30min"
    "``combined://;sdsarchive//home/sysop/seiscomp3/var/lib/archive?``", Seedlink combined with SDS archive

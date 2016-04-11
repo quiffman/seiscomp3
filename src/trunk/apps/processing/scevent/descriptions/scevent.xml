@@ -177,9 +177,19 @@
 
 				<parameter name="priorities" type="list:string">
 					<description>
-						The general priority list to decide if an origin becomes preferred. This feature is new not used
-						unless this parameter is activated. This list replicates the old hard wired behaviour:
+						The general priority list to decide if an origin becomes preferred.
+						This list is not used unless this parameter is activated.
+						This example list replicates the default hard wired behaviour:
 							AGENCY, STATUS, PHASES_AUTOMATIC, TIME_AUTOMATIC
+
+						Each item in the list corresponds to a check that is performed.
+						Each check computes a score of the incoming origin (s1) and the
+						current preferred origin (s2). If the s1 is lower than s2,
+						the incoming origin is rejected and does not become preferred. All
+						subsequent checks are ignored.
+						If s1 is equal to s2, the next check in the list is performed.
+						If s1 is larger than s2, the origin becomes preferred and
+						all subsequent checks are ignored.
 
 						Available tokens:
 
@@ -197,11 +207,11 @@
 
 						RMS: lower rms = higher priority
 
-						RMS_AUTMATIC: [**check spelling!**]  only check RMS on incoming automatic origins
+						RMS_AUTOMATIC: only check RMS on incoming automatic origins
 
 						TIME: more recent origins (creationTime) have higher priorities
 
-						TIME_AUTOMATIC: only checks creationTime priority on incoming automatic origins
+						TIME_AUTOMATIC: only check creationTime priority on incoming automatic origins
 					</description>
 				</parameter>
 

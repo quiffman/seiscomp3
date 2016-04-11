@@ -22,6 +22,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <seiscomp3/core/plugin.h>
+#include <seiscomp3/core/system.h>
 #include <seiscomp3/client/application.h>
 
 
@@ -158,7 +159,7 @@ bool MTextPlugin::initOut(const Config::Config& cfg)
 		_outputDir = env->logDir() + "/" + SCCoreApp->name() + "/";
 		SEISCOMP_DEBUG("Basepath: %s", _outputDir.c_str());
 
-		boost::filesystem::path p(_outputDir, boost::filesystem::native);
+		SC_FS_DECLARE_PATH(p, _outputDir);
 
 		if ( boost::filesystem::exists(p) )
 			boost::filesystem::remove_all(p);

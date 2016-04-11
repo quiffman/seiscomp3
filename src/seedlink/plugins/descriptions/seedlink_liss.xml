@@ -3,7 +3,7 @@
 	<binding module="seedlink" name="liss" category="sources">
 		<description>LISS server (TCP/IP)</description>
 		<configuration>
-			<parameter name="address" type="string" default="$STATION.$NET.liss.org">
+			<parameter name="address" type="string" default="&quot;$STATION.$NET.liss.org&quot;">
 				<description>
 					Hostname or IP of the LISS server.
 				</description>

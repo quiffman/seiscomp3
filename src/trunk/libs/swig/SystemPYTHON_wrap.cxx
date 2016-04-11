@@ -18846,6 +18846,74 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Binding_findParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Binding *arg1 = (Seiscomp::System::Binding *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Parameter *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Binding_findParameter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Binding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Binding_findParameter" "', argument " "1"" of type '" "Seiscomp::System::Binding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Binding * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Binding_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Binding_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Parameter *)((Seiscomp::System::Binding const *)arg1)->findParameter((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Parameter, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Binding_accept(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::Binding *arg1 = (Seiscomp::System::Binding *) 0 ;
+  Seiscomp::System::ModelVisitor *arg2 = (Seiscomp::System::ModelVisitor *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Binding_accept",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__Binding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Binding_accept" "', argument " "1"" of type '" "Seiscomp::System::Binding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::Binding * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__System__ModelVisitor, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Binding_accept" "', argument " "2"" of type '" "Seiscomp::System::ModelVisitor *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::System::ModelVisitor * >(argp2);
+  ((Seiscomp::System::Binding const *)arg1)->accept(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Binding_parent_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::Binding *arg1 = (Seiscomp::System::Binding *) 0 ;
@@ -19526,6 +19594,74 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BindingCategory_findParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::BindingCategory *arg1 = (Seiscomp::System::BindingCategory *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Parameter *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BindingCategory_findParameter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__BindingCategory, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BindingCategory_findParameter" "', argument " "1"" of type '" "Seiscomp::System::BindingCategory const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::BindingCategory * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BindingCategory_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BindingCategory_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Parameter *)((Seiscomp::System::BindingCategory const *)arg1)->findParameter((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Parameter, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BindingCategory_accept(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::BindingCategory *arg1 = (Seiscomp::System::BindingCategory *) 0 ;
+  Seiscomp::System::ModelVisitor *arg2 = (Seiscomp::System::ModelVisitor *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BindingCategory_accept",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__BindingCategory, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BindingCategory_accept" "', argument " "1"" of type '" "Seiscomp::System::BindingCategory const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::BindingCategory * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__System__ModelVisitor, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BindingCategory_accept" "', argument " "2"" of type '" "Seiscomp::System::ModelVisitor *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::System::ModelVisitor * >(argp2);
+  ((Seiscomp::System::BindingCategory const *)arg1)->accept(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_BindingCategory_parent_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::System::BindingCategory *arg1 = (Seiscomp::System::BindingCategory *) 0 ;
@@ -20065,6 +20201,74 @@ SWIGINTERN PyObject *_wrap_ModuleBinding_findContainer(PyObject *SWIGUNUSEDPARM(
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ModuleBinding_findParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::ModuleBinding *arg1 = (Seiscomp::System::ModuleBinding *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::System::Parameter *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:ModuleBinding_findParameter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__ModuleBinding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ModuleBinding_findParameter" "', argument " "1"" of type '" "Seiscomp::System::ModuleBinding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::ModuleBinding * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "ModuleBinding_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "ModuleBinding_findParameter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (Seiscomp::System::Parameter *)((Seiscomp::System::ModuleBinding const *)arg1)->findParameter((std::string const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__System__Parameter, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ModuleBinding_accept(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::System::ModuleBinding *arg1 = (Seiscomp::System::ModuleBinding *) 0 ;
+  Seiscomp::System::ModelVisitor *arg2 = (Seiscomp::System::ModelVisitor *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:ModuleBinding_accept",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__System__ModuleBinding, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ModuleBinding_accept" "', argument " "1"" of type '" "Seiscomp::System::ModuleBinding const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::System::ModuleBinding * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__System__ModelVisitor, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "ModuleBinding_accept" "', argument " "2"" of type '" "Seiscomp::System::ModelVisitor *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::System::ModelVisitor * >(argp2);
+  ((Seiscomp::System::ModuleBinding const *)arg1)->accept(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -31065,6 +31269,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Binding_section", _wrap_Binding_section, METH_VARARGS, NULL},
 	 { (char *)"Binding_sectionCount", _wrap_Binding_sectionCount, METH_VARARGS, NULL},
 	 { (char *)"Binding_findContainer", _wrap_Binding_findContainer, METH_VARARGS, NULL},
+	 { (char *)"Binding_findParameter", _wrap_Binding_findParameter, METH_VARARGS, NULL},
+	 { (char *)"Binding_accept", _wrap_Binding_accept, METH_VARARGS, NULL},
 	 { (char *)"Binding_parent_set", _wrap_Binding_parent_set, METH_VARARGS, NULL},
 	 { (char *)"Binding_parent_get", _wrap_Binding_parent_get, METH_VARARGS, NULL},
 	 { (char *)"Binding_definition_set", _wrap_Binding_definition_set, METH_VARARGS, NULL},
@@ -31086,6 +31292,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BindingCategory_alias", _wrap_BindingCategory_alias, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_removeInstance", _wrap_BindingCategory_removeInstance, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_findContainer", _wrap_BindingCategory_findContainer, METH_VARARGS, NULL},
+	 { (char *)"BindingCategory_findParameter", _wrap_BindingCategory_findParameter, METH_VARARGS, NULL},
+	 { (char *)"BindingCategory_accept", _wrap_BindingCategory_accept, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_parent_set", _wrap_BindingCategory_parent_set, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_parent_get", _wrap_BindingCategory_parent_get, METH_VARARGS, NULL},
 	 { (char *)"BindingCategory_name_set", _wrap_BindingCategory_name_set, METH_VARARGS, NULL},
@@ -31107,6 +31315,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ModuleBinding_writeConfig", _wrap_ModuleBinding_writeConfig, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_dump", _wrap_ModuleBinding_dump, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_findContainer", _wrap_ModuleBinding_findContainer, METH_VARARGS, NULL},
+	 { (char *)"ModuleBinding_findParameter", _wrap_ModuleBinding_findParameter, METH_VARARGS, NULL},
+	 { (char *)"ModuleBinding_accept", _wrap_ModuleBinding_accept, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_configFile_set", _wrap_ModuleBinding_configFile_set, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_configFile_get", _wrap_ModuleBinding_configFile_get, METH_VARARGS, NULL},
 	 { (char *)"ModuleBinding_categories_set", _wrap_ModuleBinding_categories_set, METH_VARARGS, NULL},

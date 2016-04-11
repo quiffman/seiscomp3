@@ -39,6 +39,8 @@ namespace Seiscomp{
 
 
 std::string LocSAT::_defaultTablePrefix = "iasp91";
+LocSAT::IDList LocSAT::_allowedParameters;
+
 REGISTER_LOCATOR(LocSAT, "LOCSAT");
 
 
@@ -51,6 +53,11 @@ LocSAT::~LocSAT(){
 LocSAT::LocSAT() {
 	_name = "LOCSAT";
 	_newOriginID = "";
+
+	if ( _allowedParameters.empty() ) {
+		_allowedParameters.push_back("MAX_ITERATIONS");
+		_allowedParameters.push_back("NUM_DEG_FREEDOM");
+	}
 
 	_locator_params = new Internal::Locator_params;
 	_locator_params->outfile_name = new char[1024];
@@ -77,13 +84,42 @@ bool LocSAT::init(const Config::Config &config) {
 	return true;
 }
 
+
+LocatorInterface::IDList LocSAT::parameters() const {
+	return _allowedParameters;
+}
+
+
+std::string LocSAT::parameter(const std::string &name) const {
+	if ( name == "MAX_ITERATIONS" )
+		return getLocatorParams(LP_MAX_ITERATIONS);
+	else if ( name == "NUM_DEG_FREEDOM" )
+		return getLocatorParams(LP_NUM_DEG_FREEDOM);
+
+	return std::string();
+}
+
+
+bool LocSAT::setParameter(const std::string &name,
+                          const std::string &value) {
+	if ( name == "MAX_ITERATIONS" )
+		setLocatorParams(LP_MAX_ITERATIONS, value.c_str());
+	else if ( name == "NUM_DEG_FREEDOM" )
+		setLocatorParams(LP_NUM_DEG_FREEDOM, value.c_str());
+	else
+		return false;
+
+	return true;
+}
+
+
 void LocSAT::setNewOriginID(const std::string& newOriginID) {
 	_newOriginID = newOriginID;
 }
 
 
 int LocSAT::capabilities() const {
-	return InitialLocation | FixedDepth;
+	return InitialLocation | FixedDepth | IgnoreInitialLocation;
 }
 
 
@@ -95,7 +131,10 @@ DataModel::Origin* LocSAT::locate(PickList& pickList,
 	_locateEvent->setOrigin(initLat, initLon, initDepth);
 	_locateEvent->setOriginTime((double)initTime);
 
-	setLocatorParams(LP_USE_LOCATION, "TRUE");
+	if ( isInitialLocationIgnored() )
+		setLocatorParams(LP_USE_LOCATION, "n");
+	else
+		setLocatorParams(LP_USE_LOCATION, "y");
 
 	return fromPicks(pickList);
 }
@@ -106,7 +145,7 @@ DataModel::Origin* LocSAT::locate(PickList& picks) throw(Core::GeneralException)
 	_locateEvent = new Internal::LocSAT;
 	_locateEvent->setOrigin(0.0, 0.0, 0.0);
 	_locateEvent->setOriginTime(0.0);
-	setLocatorParams(LP_USE_LOCATION, "FALSE");
+	setLocatorParams(LP_USE_LOCATION, "n");
 
 	return fromPicks(picks);
 }
@@ -250,10 +289,12 @@ DataModel::Origin* LocSAT::fromPicks(PickList& picks){
 
 
 DataModel::Origin* LocSAT::relocate(const DataModel::Origin* origin, double timeError) {
+	if ( origin == NULL ) return NULL;
 
-	if (!origin) return NULL;
-
-	setLocatorParams(LP_USE_LOCATION, "TRUE");
+	if ( isInitialLocationIgnored() )
+		setLocatorParams(LP_USE_LOCATION, "n");
+	else
+		setLocatorParams(LP_USE_LOCATION, "y");
 
 	if (_locateEvent) delete _locateEvent;
 	_locateEvent = new Internal::LocSAT;
@@ -774,17 +815,16 @@ void LocSAT::setProfile(const std::string &prefix) {
 }
 
 
-const char* LocSAT::getLocatorParams(int param){
-
+const char* LocSAT::getLocatorParams(int param) const {
 	char* value = new char[1024];
 
 	switch(param){
 
 	case LP_USE_LOCATION:
 		if (_locator_params->use_location == TRUE)
-			strcpy(value, "TRUE");
+			strcpy(value, "y");
 		else
-			strcpy(value, "FALSE");
+			strcpy(value, "n");
 		break;
 
 	case LP_FIX_DEPTH:
@@ -829,54 +869,55 @@ const char* LocSAT::getLocatorParams(int param){
 
 
 void LocSAT::setLocatorParams(int param, const char* value){
+	switch ( param ) {
+		case LP_USE_LOCATION:
+			if (!strcmp(value, "y"))
+				_locator_params->use_location = TRUE;
+			else
+				_locator_params->use_location = FALSE;
+			break;
 
-	switch(param){
+		case LP_FIX_DEPTH:
+			_locator_params->fix_depth = value[0];
+			break;
 
-	case LP_USE_LOCATION:
-		if (!strcmp(value, "TRUE"))
-			_locator_params->use_location = TRUE;
-		else
-			_locator_params->use_location = FALSE;
-		break;
+		case LP_FIXING_DEPTH:
+			_locator_params->fixing_depth = atof(value);
+			break;
 
-	case LP_FIX_DEPTH:
-		_locator_params->fix_depth = value[0];
-		break;
+		case LP_VERBOSE:
+			if ( !strcmp(value, "y") )
+				_locator_params->verbose = 'y';
+			else
+				_locator_params->verbose = 'n';
+			break;
 
-	case LP_FIXING_DEPTH:
-		_locator_params->fixing_depth = atof(value);
-		break;
+		case LP_PREFIX:
+			strcpy(_locator_params->prefix, value);
+			break;
 
-	case LP_VERBOSE:
-		strcpy(&_locator_params->verbose, value);
-		break;
+		case LP_MAX_ITERATIONS:
+			_locator_params->max_iterations = atoi(value);
+			break;
 
-	case LP_PREFIX:
-		strcpy(_locator_params->prefix, value);
-		break;
+		case LP_EST_STD_ERROR:
+			_locator_params->est_std_error = atof(value);
+			break;
 
-	case LP_MAX_ITERATIONS:
-		_locator_params->max_iterations = atoi(value);
-		break;
+		case LP_NUM_DEG_FREEDOM:
+			_locator_params->num_dof = atoi(value);
+			break;
 
-	case LP_EST_STD_ERROR:
-		_locator_params->est_std_error = atof(value);
-		break;
+		case LP_MIN_ARRIVAL_WEIGHT:
+			_minArrivalWeight = atof(value);
+			break;
 
-	case LP_NUM_DEG_FREEDOM:
-		_locator_params->num_dof = atoi(value);
-		break;
+		case LP_RMS_AS_TIME_ERROR:
+			_useArrivalRMSAsTimeError = !strcmp(value, "y");
+			break;
 
-	case LP_MIN_ARRIVAL_WEIGHT:
-		_minArrivalWeight = atof(value);
-		break;
-
-	case LP_RMS_AS_TIME_ERROR:
-		_useArrivalRMSAsTimeError = !strcmp(value, "TRUE");
-		break;
-
-	default:
-		SEISCOMP_ERROR("setLocatorParam: wrong Parameter: %d", param);
+		default:
+			SEISCOMP_ERROR("setLocatorParam: wrong Parameter: %d", param);
 	}
 }
 

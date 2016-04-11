@@ -30,6 +30,12 @@
 				</description>
 			</parameter>
 
+			<parameter name="request_queue_per_user" type="int" default="10">
+				<description>
+					Maximum number of queued requests per user (0 - no limit).
+				</description>
+			</parameter>
+
 			<parameter name="request_size" type="int" default="1000">
 				<description>Maximum request size in lines.</description>
 			</parameter>

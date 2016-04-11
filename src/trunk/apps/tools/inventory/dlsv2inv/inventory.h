@@ -28,12 +28,15 @@ class Inventory
 		Inventory(INIT_MAP& init, Seiscomp::DataModel::Inventory *inv);
 		Inventory(const std::string &dcid, const std::string &net_description,
 		const std::string &net_type, const Seiscomp::Core::Time &net_start,
-		const Seiscomp::Core::Time &net_end, bool temporary, bool restricted, bool shared,
+		const OPT(Seiscomp::Core::Time) &net_end, bool temporary, bool restricted, bool shared,
 		Seiscomp::DataModel::Inventory *inv);
 		VolumeIndexControl *vic;
 		AbbreviationDictionaryControl *adc;
 		StationControl *sc;
 		void SynchronizeInventory();
+
+		int fixedErrors() const { return _fixedErrors; }
+
 	protected:
 	private:
 		//std::stringstream command, output;
@@ -48,10 +51,11 @@ class Inventory
 		std::string _net_description;
 		std::string _net_type;
 		Seiscomp::Core::Time _net_start;
-		Seiscomp::Core::Time _net_end;
+		OPT(Seiscomp::Core::Time) _net_end;
 		bool _temporary;
 		bool _restricted;
 		bool _shared;
+		int _fixedErrors;
 		Seiscomp::DataModel::Inventory *inventory;
 		std::map<std::vector<std::string>, std::string> encoding;
 		//STATION_INFO info;
@@ -62,7 +66,8 @@ class Inventory
 		void GetComment(StationIdentifier&);
 		void GetStationComment(Comment&, Seiscomp::DataModel::WaveformStreamID *);
 		void GetChannelComment(ChannelIdentifier&, Seiscomp::DataModel::WaveformStreamID *);
-		Seiscomp::Core::Time GetTime(std::string);
+		OPT(Seiscomp::Core::Time) GetOptTime(std::string);
+		Seiscomp::Core::Time GetTime(std::string, bool *ok = NULL);
 		void ProcessStream(StationIdentifier&, Seiscomp::DataModel::StationPtr);
 		void ProcessComponent(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr); 
 		void ProcessDatalogger(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr);
@@ -76,7 +81,7 @@ class Inventory
 		void ProcessSensorPAZ(ChannelIdentifier& ci, Seiscomp::DataModel::SensorPtr sm);
 		void ProcessSensorPolynomial(ChannelIdentifier& ci, Seiscomp::DataModel::SensorPtr sm);
 		Seiscomp::DataModel::StationPtr InsertStation(StationIdentifier&, Seiscomp::DataModel::NetworkPtr);
-		Seiscomp::DataModel::SensorLocationPtr InsertSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::StationPtr station, const Seiscomp::Core::Time& loc_start, const Seiscomp::Core::Time& loc_end);
+		Seiscomp::DataModel::SensorLocationPtr InsertSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::StationPtr station, const Seiscomp::Core::Time& loc_start, const OPT(Seiscomp::Core::Time)& loc_end);
 		Seiscomp::DataModel::StreamPtr InsertStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted, bool shared);
 		Seiscomp::DataModel::AuxStreamPtr InsertAuxStream(ChannelIdentifier&, Seiscomp::DataModel::SensorLocationPtr, bool restricted, bool shared);
 		Seiscomp::DataModel::DataloggerPtr InsertDatalogger(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr, const std::string& name);
@@ -89,7 +94,7 @@ class Inventory
 		Seiscomp::DataModel::ResponsePAZPtr InsertResponsePAZ(ChannelIdentifier&, std::string);
 		Seiscomp::DataModel::ResponsePolynomialPtr InsertResponsePolynomial(ChannelIdentifier&, std::string);
 		void UpdateStation(StationIdentifier&, Seiscomp::DataModel::StationPtr);
-		void UpdateSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::SensorLocationPtr loc, const Seiscomp::Core::Time& loc_start, const Seiscomp::Core::Time& loc_end);
+		void UpdateSensorLocation(ChannelIdentifier& ci, Seiscomp::DataModel::SensorLocationPtr loc, const Seiscomp::Core::Time& loc_start, const OPT(Seiscomp::Core::Time)& loc_end);
 		void UpdateStream(ChannelIdentifier&, Seiscomp::DataModel::StreamPtr, bool restricted, bool shared);
 		void UpdateAuxStream(ChannelIdentifier&, Seiscomp::DataModel::AuxStreamPtr, bool restricted, bool shared);
 		void UpdateDatalogger(ChannelIdentifier&, Seiscomp::DataModel::DataloggerPtr, Seiscomp::DataModel::StreamPtr);

@@ -48,6 +48,9 @@ using namespace Seiscomp::Math;
 using namespace Seiscomp::Processing;
 
 
+#define MESSAGE_LIMIT 500
+
+
 namespace {
 
 char statusFlag(const Seiscomp::DataModel::Pick* pick) {
@@ -255,6 +258,7 @@ bool App::initConfiguration() {
 bool App::init() {
 	if ( !StreamApplication::init() ) return false;
 
+	_sentMessages = 0;
 	_logPicks = addOutputObjectLog("pick", primaryMessagingGroup());
 	_logAmps = addOutputObjectLog("amplitude", _config.amplitudeGroup);
 
@@ -822,7 +826,7 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 	else
 		ss << "OK";
 
-	SEISCOMP_INFO("%s:%s: %s", rec->streamID().c_str(),
+	SEISCOMP_INFO("%s:%s: %s", rec != NULL?rec->streamID().c_str():"-",
 	                           wp->className(),
 	                           ss.str().c_str());
 
@@ -837,11 +841,11 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 	if ( mit == _runningStreamProcs.end() ) return;
 
 	ProcList &list = mit->second;
-	for ( ProcList::iterator it = list.begin(); it != list.end(); ++it ) {
-		if ( it->proc == wp ) {
-			list.erase(it);
-			break;
-		}
+	for ( ProcList::iterator it = list.begin(); it != list.end(); ) {
+		if ( it->proc == wp )
+			it = list.erase(it);
+		else
+			++it;
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -917,8 +921,17 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 	// ...
 	for ( ProcList::iterator it = list.begin(); it != list.end(); ) {
 		if ( it->dataEndTime <= onset ) {
-			SEISCOMP_INFO("Remove expired running processor on %s",
-			              rec->streamID().c_str());
+			SEISCOMP_DEBUG("Remove expired proc %ld", (long)it->proc);
+			SEISCOMP_INFO("Remove expired running processor %s on %s",
+			              it->proc->className(), rec->streamID().c_str());
+
+			if ( it->proc->status() == Processing::WaveformProcessor::LowSNR )
+				SEISCOMP_DEBUG("  -> status: SNR(%f) too low", it->proc->statusValue());
+			else if ( it->proc->status() > Processing::WaveformProcessor::Terminated )
+				SEISCOMP_DEBUG("  -> status: ERROR (%s, %f)",
+				               it->proc->status().toString(), it->proc->statusValue());
+			else
+				SEISCOMP_DEBUG("  -> status: OK");
 
 			// Remove processor from application
 			removeProcessor(it->proc);
@@ -1148,6 +1161,7 @@ void App::emitPPick(const Processing::Picker *proc,
 		DataModel::NotifierMessagePtr m = new DataModel::NotifierMessage;
 		m->attach(n.get());
 		connection()->send(m.get());
+		++_sentMessages;
 
 		// Send amplitude
 		if ( amp ) {
@@ -1155,6 +1169,7 @@ void App::emitPPick(const Processing::Picker *proc,
 			m = new DataModel::NotifierMessage;
 			m->attach(n.get());
 			connection()->send(_config.amplitudeGroup, m.get());
+			++_sentMessages;
 		}
 	}
 
@@ -1170,6 +1185,16 @@ void App::emitPPick(const Processing::Picker *proc,
 			proc->setTrigger(res.time);
 			addAmplitudeProcessor(proc.get(), res.record, pick->publicID());
 		}
+	}
+
+	// Request a sync token every n messages to not flood the message bus
+	// and to prevent a disconnect by the master
+	if ( _sentMessages > MESSAGE_LIMIT ) {
+		_sentMessages = 0;
+		// Tell the record acquisition to request synchronization and to
+		// stop sending records until the sync is completed.
+		SEISCOMP_DEBUG("Synchronize with messaging");
+		requestSync();
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1248,6 +1273,17 @@ void App::emitSPick(const Processing::SecondaryPicker *proc,
 		DataModel::NotifierMessagePtr m = new DataModel::NotifierMessage;
 		m->attach(n.get());
 		connection()->send(m.get());
+		++_sentMessages;
+	}
+
+	// Request a sync token every n messages to not flood the message bus
+	// and to prevent a disconnect by the master
+	if ( _sentMessages > MESSAGE_LIMIT ) {
+		_sentMessages = 0;
+		// Tell the record acquisition to request synchronization and to
+		// stop sending records until the sync is completed.
+		SEISCOMP_DEBUG("Synchronize with messaging");
+		requestSync();
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1308,6 +1344,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 		DataModel::NotifierMessagePtr m = new DataModel::NotifierMessage;
 		m->attach(n.get());
 		connection()->send(m.get());
+		++_sentMessages;
 	}
 
 	if ( !_config.secondaryPickerType.empty() )
@@ -1322,6 +1359,16 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 			proc->setTrigger(time);
 			addAmplitudeProcessor(proc.get(), rec, pick->publicID());
 		}
+	}
+
+	// Request a sync token every n messages to not flood the message bus
+	// and to prevent a disconnect by the master
+	if ( _sentMessages > MESSAGE_LIMIT ) {
+		_sentMessages = 0;
+		// Tell the record acquisition to request synchronization and to
+		// stop sending records until the sync is completed.
+		SEISCOMP_DEBUG("Synchronize with messaging");
+		requestSync();
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1419,6 +1466,18 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 		if ( !connection()->send(_config.amplitudeGroup, m.get()) && !update ) {
 			ampProc->setUserData(NULL);
 		}
+		else
+			++_sentMessages;
+	}
+
+	// Request a sync token every n messages to not flood the message bus
+	// and to prevent a disconnect by the master
+	if ( _sentMessages > MESSAGE_LIMIT ) {
+		_sentMessages = 0;
+		// Tell the record acquisition to request synchronization and to
+		// stop sending records until the sync is completed.
+		SEISCOMP_DEBUG("Synchronize with messaging");
+		requestSync();
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -187,8 +187,10 @@ void Application::registerProcessor(const std::string& networkCode,
 		}
 	}
 
-	if ( twp->isFinished() )
+	if ( twp->isFinished() ) {
+		processorFinished(twp->lastRecord(), twp);
 		removeProcessor(twp);
+	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -257,6 +259,7 @@ void Application::removeProcessor(Processing::WaveformProcessor *wp) {
 	      it != _processors.end(); )
 	{
 		if ( it->second.get() == wp ) {
+			SEISCOMP_DEBUG("Removed proc %ld", (long)wp);
 			SEISCOMP_DEBUG("Removed processor from stream %s", it->first.c_str());
 			_processors.erase(it++);
 		}

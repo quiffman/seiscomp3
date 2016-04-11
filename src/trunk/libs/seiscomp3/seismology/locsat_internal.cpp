@@ -80,7 +80,6 @@ void LocSAT::reset(){
 
 
 Loc* LocSAT::doLocation(){
-
 	if( (_num_sta <= 0) || (_num_obs <= 0))
 		throw LocatorException("error: Too few usable data");
 
@@ -266,7 +265,6 @@ void LocSAT::setOrigin(float lat_init, float lon_init, float depth_init){
 
 
 void LocSAT::printLocatorParams(){
-	
 	std::cerr << "_locator_params->outfile_name   = " <<_locator_params->outfile_name  << std::endl;
 	std::cerr << "_locator_params->prefix         = " << _locator_params->prefix << std::endl;
 
@@ -274,7 +272,7 @@ void LocSAT::printLocatorParams(){
 
 	std::cerr << "_locator_params->use_location   = " << _locator_params->use_location << std::endl;
 	std::cerr << "_locator_params->fix_depth      = " << _locator_params->fix_depth << std::endl;
-	std::cerr << "_locator_params->fixing_depth     = " << _locator_params->fixing_depth << std::endl;
+	std::cerr << "_locator_params->fixing_depth   = " << _locator_params->fixing_depth << std::endl;
 	std::cerr << "_locator_params->verbose        = " << _locator_params->verbose << std::endl;
 
 	std::cerr << "_locator_params->conf_level     = " << _locator_params->conf_level << std::endl;
@@ -282,7 +280,6 @@ void LocSAT::printLocatorParams(){
 	std::cerr << "_locator_params->est_std_error  = " << _locator_params->est_std_error << std::endl;
 	std::cerr << "_locator_params->num_dof        = " << _locator_params->num_dof << std::endl;
 	std::cerr << "_locator_params->max_iterations = " << _locator_params->max_iterations << std::endl;
-
 }
 
 

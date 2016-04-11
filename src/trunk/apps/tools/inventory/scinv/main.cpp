@@ -5,16 +5,20 @@
  * Email: jabe@gempa.de
  ***************************************************************************/
 
+#define SEISCOMP_COMPONENT INVMGR
 
+#include <boost/version.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <seiscomp3/logging/log.h>
 #include <seiscomp3/config/config.h>
+#include <seiscomp3/core/system.h>
 #include <seiscomp3/client/application.h>
 #include <seiscomp3/client/inventory.h>
 #include <seiscomp3/datamodel/utils.h>
 #include <seiscomp3/io/archive/xmlarchive.h>
 #include <seiscomp3/utils/files.h>
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 
 #include <iostream>
 #include <iomanip>
@@ -24,20 +28,13 @@
 
 #include "merge.h"
 #include "sync.h"
+#include "check.h"
 
 
 using namespace std;
 using namespace Seiscomp;
 
 namespace fs = boost::filesystem;
-
-#if BOOST_VERSION <= 103301
-#define FS_LEAF(it) it->leaf()
-#define FS_STR(it) it->string()
-#else
-#define FS_LEAF(it) it->path().leaf()
-#define FS_STR(it) it->path().string()
-#endif
 
 
 template <typename T>
@@ -158,7 +155,8 @@ class InventoryManager : public Client::Application,
 			     _operation != "merge" &&
 			     _operation != "apply" &&
 			     _operation != "ls" &&
-			     _operation != "keys" ) {
+			     _operation != "keys" &&
+			     _operation != "check" ) {
 				cerr << "Invalid operation: " << _operation << endl;
 				return false;
 			}
@@ -212,6 +210,8 @@ class InventoryManager : public Client::Application,
 			     << "        Useful to test/debug or prepare an inventory for offline processing." << endl;
 			cout << "  keys  Synchronise station key files with current inventory pool." << endl;
 			cout << "  ls    List contained items up to channel level." << endl;
+			cout << "  check Check consistency of given inventory files. If no files are given," << endl;
+			cout << "        all files in filebase are merged and checked." << endl;
 
 			Client::Application::printUsage();
 		}
@@ -236,6 +236,8 @@ class InventoryManager : public Client::Application,
 				return syncKeys();
 			else if ( _operation == "ls" )
 				return listNetworks();
+			else if ( _operation == "check" )
+				return checkInventory();
 
 			return false;
 		}
@@ -256,12 +258,13 @@ class InventoryManager : public Client::Application,
 			}
 
 			try {
-				fs::directory_iterator it(fs::path(_filebase, fs::native));
+				fs::path directory = SC_FS_PATH(_filebase);
+				fs::directory_iterator it(directory);
 				fs::directory_iterator dirEnd;
 
 				for ( ; it != dirEnd; ++it ) {
-					if ( fs::is_directory(*it) ) continue;
-					string name = it->string();
+					if ( fs::is_directory(SC_FS_IT_PATH(it)) ) continue;
+					string name = SC_FS_IT_STR(it);
 					if ( name.size() > 4 && name.compare(name.size()-4, 4, ".xml") != 0 )
 						cerr << "WARNING: " << name
 						     << " ignored: wrong extension"
@@ -465,6 +468,47 @@ class InventoryManager : public Client::Application,
 			syncTask.cleanUp();
 			cerr << "done" << endl;
 
+			// --- Check key files
+			// Collect all station key files
+			map<string,string> keyFiles;
+			try {
+				fs::path directory = SC_FS_PATH(_keydir);
+				fs::directory_iterator it(directory);
+				fs::directory_iterator dirEnd;
+
+				for ( ; it != dirEnd; ++it ) {
+					if ( fs::is_directory(SC_FS_IT_PATH(it)) ) continue;
+					string name = SC_FS_IT_LEAF(it);
+					if ( name.compare(0, 8, "station_") == 0 )
+						keyFiles[SC_FS_IT_LEAF(it)] = SC_FS_IT_STR(it);
+				}
+			}
+			catch ( ... ) {}
+
+			for ( size_t n = 0; n < mergedInventory->networkCount(); ++n ) {
+				DataModel::Network *net = mergedInventory->network(n);
+				for ( size_t s = 0; s < net->stationCount(); ++s ) {
+					DataModel::Station *sta = net->station(s);
+					string id = net->code() + "_" + sta->code();
+					string filename = "station_" + id;
+
+					// Remove filename from keyFiles
+					map<string,string>::iterator it = keyFiles.find(filename);
+					if ( it != keyFiles.end() ) keyFiles.erase(it);
+				}
+			}
+
+			// Warn about existing key files without a corresponding station
+			// in inventory
+			if ( !keyFiles.empty() ) {
+				SEISCOMP_WARNING("Found %d key file%s without a corresponding "
+				                 "station in inventory:",
+				                 (int)keyFiles.size(), keyFiles.size() > 1?"s":"");
+				for ( map<string,string>::iterator it = keyFiles.begin();
+					  it != keyFiles.end(); ++it )
+					SEISCOMP_WARNING("  %s", it->second.c_str());
+			}
+
 			DataModel::Notifier::SetEnabled(false);
 
 			_currentTask = NULL;
@@ -612,6 +656,86 @@ class InventoryManager : public Client::Application,
 		}
 
 
+		bool checkInventory() {
+			_conflicts = _errors = _warnings = _unresolved = 0;
+
+			// Disable object registration
+			DataModel::PublicObject::SetRegistrationEnabled(false);
+
+			vector<string> files;
+			collectFiles(files);
+
+			if ( files.empty() ) {
+				cerr << "Nothing to merge, no files given" << endl;
+				return false;
+			}
+
+			DataModel::InventoryPtr finalInventory = new DataModel::Inventory();
+			Merge merger(finalInventory.get());
+			merger.setLogHandler(this);
+			_continueOperation = true;
+
+			_currentTask = &merger;
+
+			for ( size_t i = 0; i < files.size(); ++i ) {
+				if ( _exitRequested ) break;
+
+				IO::XMLArchive ar;
+				if ( !ar.open(files[i].c_str()) ) {
+					cerr << "Could not open file (ignored): " << files[i] << endl;
+					continue;
+				}
+
+				DataModel::InventoryPtr inv;
+				cerr << "Parsing " << files[i] << " ... " << flush;
+				ar >> inv;
+				cerr << "done" << endl;
+				if ( !inv ) {
+					cerr << "No inventory found (ignored): " << files[i] << endl;
+					continue;
+				}
+
+				// Pushing the inventory into the merger cleans it
+				// completely. The ownership of all childs went to
+				// the merger
+				merger.push(inv.get());
+			}
+
+			_currentTask = NULL;
+
+			if ( _exitRequested ) {
+				cerr << "Exit requested: abort" << endl;
+				return false;
+			}
+
+			cerr << "Merging inventory ... " << flush;
+			merger.merge(false);
+			cerr << "done" << endl;
+
+			Check checker(finalInventory.get());
+			checker.setLogHandler(this);
+			cerr << "Checking inventory ... " << flush;
+			checker.check();
+			cerr << "done" << endl;
+
+			printLogs(cout);
+
+			if ( _conflicts > 0 )
+				cerr << _conflicts << " conflict" << (_conflicts == 1?"":"s") << endl;
+
+			if ( _unresolved > 0 )
+				cerr << _unresolved << " unresolved reference" << (_unresolved == 1?"":"s") << endl;
+
+			if ( _errors > 0 )
+				cerr << _errors << " error" << (_errors == 1?"":"s") << endl;
+
+			if ( _warnings > 0 )
+				cerr << _warnings << " warning" << (_warnings == 1?"":"s") << endl;
+
+			return _conflicts == 0 && _errors == 0;
+		}
+
+
 		bool syncKeys() {
 			// Disable object registration
 			DataModel::PublicObject::SetRegistrationEnabled(false);
@@ -724,14 +848,15 @@ class InventoryManager : public Client::Application,
 			// Collect all station files
 			vector<string> oldFiles;
 			try {
-				fs::directory_iterator it(fs::path(_rcdir, fs::native));
+				fs::path directory = SC_FS_PATH(_rcdir);
+				fs::directory_iterator it(directory);
 				fs::directory_iterator dirEnd;
 
 				for ( ; it != dirEnd; ++it ) {
 					if ( fs::is_directory(*it) ) continue;
-					string name = FS_LEAF(it);
+					string name = SC_FS_IT_LEAF(it);
 					if ( name.compare(0, 8, "station_") == 0 )
-						oldFiles.push_back(FS_STR(it));
+						oldFiles.push_back(SC_FS_IT_STR(it));
 				}
 			}
 			catch ( ... ) {}
@@ -741,7 +866,7 @@ class InventoryManager : public Client::Application,
 				unlink(oldFiles[i].c_str());
 
 			for ( DescMap::iterator it = descs.begin(); it != descs.end(); ++it ) {
-				fs::path fp = fs::path(_rcdir, fs::native) / fs::path((string("station_") + it->first), fs::native);
+				fs::path fp = SC_FS_PATH(_rcdir) / SC_FS_PATH((string("station_") + it->first));
 				Config::Config cfg;
 				cfg.setString("description", it->second.second);
 				if (! cfg.writeConfig(fp.string()) ) {
@@ -766,14 +891,15 @@ class InventoryManager : public Client::Application,
 			// Collect all station key files
 			map<string, string> oldFiles;
 			try {
-				fs::directory_iterator it(fs::path(_keydir, fs::native));
+				fs::path dir = SC_FS_PATH(_keydir);
+				fs::directory_iterator it(dir);
 				fs::directory_iterator dirEnd;
 
 				for ( ; it != dirEnd; ++it ) {
 					if ( fs::is_directory(*it) ) continue;
-					string name = FS_LEAF(it);
+					string name = SC_FS_IT_LEAF(it);
 					if ( name.compare(0, 8, "station_") == 0 )
-						oldFiles[FS_LEAF(it)] = FS_STR(it);
+						oldFiles[SC_FS_IT_LEAF(it)] = SC_FS_IT_STR(it);
 				}
 			}
 			catch ( ... ) {}
@@ -792,7 +918,7 @@ class InventoryManager : public Client::Application,
 					map<string, string>::iterator it = oldFiles.find(filename);
 					if ( it != oldFiles.end() ) oldFiles.erase(it);
 
-					fs::path fp = fs::path(_keydir, fs::native) / fs::path(filename, fs::native);
+					fs::path fp = SC_FS_PATH(_keydir) / SC_FS_PATH(filename);
 					// Ignore existing files
 					if ( fs::exists(fp) ) continue;
 
@@ -1109,6 +1235,11 @@ class InventoryManager : public Client::Application,
 		void publish(LogHandler::Level level, const char *message,
 		             const DataModel::Object *obj1,
 		             const DataModel::Object *obj2) {
+			if ( level == LogHandler::Conflict ) ++_conflicts;
+			else if ( level == LogHandler::Error ) ++_errors;
+			else if ( level == LogHandler::Warning ) ++_warnings;
+			else if ( level == LogHandler::Unresolved ) ++_unresolved;
+
 			if ( level == LogHandler::Conflict ) {
 				_logs << "C " << message << endl;
 				_continueOperation = false;
@@ -1120,15 +1251,27 @@ class InventoryManager : public Client::Application,
 				_logs << "! " << message << endl;
 				_continueOperation = false;
 			}
+			else if ( level == LogHandler::Warning ) {
+				_logs << "W " << message << endl;
+			}
 			else if ( level == LogHandler::Information ) {
 				_logs << "I " << message << endl;
+			}
+			else if ( level == LogHandler::Debug ) {
+				_logs << "D " << message << endl;
+			}
+			else if ( level == LogHandler::Unresolved ) {
+				_logs << "R " << message << endl;
+			}
+			else {
+				_logs << "? " << message << endl;
 			}
 		}
 
 
-		void printLogs() {
+		void printLogs(ostream &os = cerr) {
 			string content = _logs.str();
-			if ( !content.empty() ) cerr << content << endl;
+			if ( !content.empty() ) os << content;
 			_logs.str(string());
 			_logs.clear();
 		}
@@ -1144,6 +1287,10 @@ class InventoryManager : public Client::Application,
 		string  _level;
 		bool    _continueOperation;
 		std::stringstream  _logs;
+		int     _conflicts;
+		int     _errors;
+		int     _warnings;
+		int     _unresolved;
 };
 
 

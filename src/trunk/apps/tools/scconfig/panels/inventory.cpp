@@ -522,6 +522,9 @@ InventoryPanel::InventoryPanel(QWidget *parent)
 	_folderModel->setReadOnly(false);
 	_folderModel->setFilter(QDir::Files);
 
+	connect(_folderTree->header(), SIGNAL(sectionClicked(int)),
+	        this, SLOT(headerSectionClicked(int)));
+
 	QAction *a = folderViewTools->addAction("Icons");
 	a->setIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
 	connect(a, SIGNAL(triggered(bool)), this, SLOT(switchToIconView()));
@@ -563,19 +566,15 @@ InventoryPanel::InventoryPanel(QWidget *parent)
 	l->addWidget(_folderView);
 	l->addWidget(_folderTree);
 
-	_sortModel = new QSortFilterProxyModel(this);
-	_sortModel->setSourceModel(_folderModel);
+	_folderView->setModel(_folderModel);
+	_folderTree->setModel(_folderModel);
 
-	_folderView->setModel(_sortModel);
-	_folderTree->setModel(_sortModel);
-
-	_selectionModel = new QItemSelectionModel(_sortModel, this);
+	_selectionModel = new QItemSelectionModel(_folderModel, this);
 
 	_folderTree->setSelectionModel(_selectionModel);
 	_folderView->setSelectionModel(_selectionModel);
 
 	QModelIndex root = _folderModel->index(inventoryDir);
-	root = _sortModel->mapFromSource(root);
 
 	_folderView->setRootIndex(root);
 	_folderTree->setRootIndex(root);
@@ -596,11 +595,23 @@ int InventoryPanel::runSCProc(const QString &cmd, const QStringList &params) {
 	return runSC(sc_params);
 }
 
+
 int InventoryPanel::runSC(const QStringList &params) {
 	Seiscomp::Environment *env = Seiscomp::Environment::Instance();
 	QString cmd = QString("%1%2")
 	              .arg(env->installDir().c_str()).arg("/bin/seiscomp");
 	return runProc(cmd, params);
+}
+
+
+void InventoryPanel::headerSectionClicked(int logicalIndex) {
+	Seiscomp::Environment *env = Seiscomp::Environment::Instance();
+	QString inventoryDir = QDir::toNativeSeparators((env->installDir() + "/etc/inventory").c_str());
+
+	QModelIndex root = _folderModel->index(inventoryDir);
+
+	_folderView->setRootIndex(root);
+	_folderTree->setRootIndex(root);
 }
 
 
@@ -649,7 +660,7 @@ void InventoryPanel::deleteFiles() {
 
 	QList<QPersistentModelIndex> toBeDeleted;
 	foreach ( const QModelIndex &i, indexes )
-		toBeDeleted.append(_sortModel->mapToSource(i));
+		toBeDeleted.append(/*_sortModel->mapToSource(i)*/i);
 
 	foreach ( const QPersistentModelIndex &i, toBeDeleted )
 		if ( i.isValid() ) _folderModel->remove(i);

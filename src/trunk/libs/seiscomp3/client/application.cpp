@@ -1876,6 +1876,9 @@ bool Application::processEvent() {
 				break;
 
 			case Notification::Disconnect:
+				// Reset sync request because server is not going to respond
+				// to our initial sync message anymore
+				_currentSyncID.clear();
 				handleDisconnect();
 				break;
 

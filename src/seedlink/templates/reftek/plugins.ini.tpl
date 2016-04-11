@@ -20,15 +20,15 @@ retry = nonfatal
 
 * Timeout length in seconds. If no data is received from a Reftek unit
 * during this period, the plugin assumes that the unit is disconnected.
-timeout = 60
+timeout = $sources.reftek.timeout
 
 * Default timing quality in percents. This value will be used when no
 * timing quality information is available. Can be -1 to omit the blockette
 * 1001 altogether.
-default_tq = 40
+default_tq = $sources.reftek.default_tq
 
 * Timing quality to use when GPS is out of lock
-unlock_tq = 10
+unlock_tq = $sources.reftek.unlock_tq
 
 * Send Reftek state-of-health data as Mini-SEED LOG stream
-log_soh = true
+log_soh = $sources.reftek.log_soh

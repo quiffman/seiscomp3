@@ -37,6 +37,14 @@
 					path to $INSTALLDIR/var/lib/seedlink.
 				</description>
 			</parameter>
+			<parameter name="channels" type="list:string">
+				<description>
+					Defines the channel mappings (ID:channel, ...) from SCREAM!
+					to the channel code used in streams.xml. If no channel mappings
+					are given, the map file defined in map (either default or custom)
+					is used.
+				</description>
+			</parameter>
 		</configuration>
 	</binding>
 </seiscomp>

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #############################################################################
 # reqhandler.py                                                             #
 #                                                                           #
@@ -35,9 +35,9 @@ from seiscomp.db.seiscomp3 import sc3wrap
 from seiscomp.db.seiscomp3.routing import Routing
 from seiscomp.db.seiscomp3.inventory import Inventory
 
-VERSION = "1.1 (2012.212)"
+VERSION = "1.1 (2013.084)"
 DEFAULT_USER = "arclink@webdc"
-DEFAULT_LABEL = "WebDC"
+DEFAULT_LABEL = ""
 SOCKET_TIMEOUT = 300
 DOWNLOAD_RETRY = 5
 

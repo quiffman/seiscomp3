@@ -7,7 +7,7 @@
 			scinv command [options] [files]
 			</synopsis>
 			<description>
-			Command is one of: sync, merge, apply, keys and ls.
+			Command is one of: sync, merge, apply, keys, ls and check.
 			</description>
 			<group name="Generic">
 				<optionReference>generic#help</optionReference>

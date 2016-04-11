@@ -120,7 +120,6 @@ bool Sync::push(const Seiscomp::DataModel::Inventory *inv) {
 		ResponseFIR *r = inv->responseFIR(i);
 		if ( _session.touchedPublics.find(r) == _session.touchedPublics.end() )
 			process(r);
-
 	}
 
 	for ( size_t i = 0; i < inv->responsePAZCount(); ++i ) {

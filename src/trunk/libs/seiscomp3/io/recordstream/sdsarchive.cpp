@@ -199,8 +199,8 @@ bool SDSArchive::setStart(const string &fname) {
 					recetime = recstime + TimeSpan((double)(prec->samplecnt / samprate));
 				else {
 					SEISCOMP_WARNING("sdsarchive: [%s@%ld] Wrong sampling frequency %.2f!", fname.c_str(), half*reclen, samprate);
-				   recetime = recstime + TimeSpan(1, 0);
-				   result = false;
+					recetime = recstime + TimeSpan(1, 0);
+					result = false;
 				}
 			}
 			else {
@@ -208,7 +208,6 @@ bool SDSArchive::setStart(const string &fname) {
 				break;
 			}
 
-			SEISCOMP_DEBUG("rec etime: %s", recetime.iso().c_str());
 			if ( stime > recetime ) {
 				start = half;
 				if ((end - start) == 1)

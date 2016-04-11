@@ -749,6 +749,7 @@ class Module(TemplateModule):
         self._set_default("connections", 500)
         self._set_default("connections_per_ip", 20)
         self._set_default("request_queue", 500)
+        self._set_default("request_queue_per_user", 10)
         self._set_default("request_size", 1000)
         self._set_default("handlers_soft", 4)
         self._set_default("handlers_hard", 10)

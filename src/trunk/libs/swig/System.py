@@ -1056,6 +1056,8 @@ class Binding(Core.BaseObject):
     def section(self, *args): return _System.Binding_section(self, *args)
     def sectionCount(self): return _System.Binding_sectionCount(self)
     def findContainer(self, *args): return _System.Binding_findContainer(self, *args)
+    def findParameter(self, *args): return _System.Binding_findParameter(self, *args)
+    def accept(self, *args): return _System.Binding_accept(self, *args)
     __swig_setmethods__["parent"] = _System.Binding_parent_set
     __swig_getmethods__["parent"] = _System.Binding_parent_get
     if _newclass:parent = _swig_property(_System.Binding_parent_get, _System.Binding_parent_set)
@@ -1104,6 +1106,8 @@ class BindingCategory(Core.BaseObject):
     def alias(self, *args): return _System.BindingCategory_alias(self, *args)
     def removeInstance(self, *args): return _System.BindingCategory_removeInstance(self, *args)
     def findContainer(self, *args): return _System.BindingCategory_findContainer(self, *args)
+    def findParameter(self, *args): return _System.BindingCategory_findParameter(self, *args)
+    def accept(self, *args): return _System.BindingCategory_accept(self, *args)
     __swig_setmethods__["parent"] = _System.BindingCategory_parent_set
     __swig_getmethods__["parent"] = _System.BindingCategory_parent_get
     if _newclass:parent = _swig_property(_System.BindingCategory_parent_get, _System.BindingCategory_parent_set)
@@ -1145,6 +1149,8 @@ class ModuleBinding(Binding):
     def writeConfig(self, *args): return _System.ModuleBinding_writeConfig(self, *args)
     def dump(self, *args): return _System.ModuleBinding_dump(self, *args)
     def findContainer(self, *args): return _System.ModuleBinding_findContainer(self, *args)
+    def findParameter(self, *args): return _System.ModuleBinding_findParameter(self, *args)
+    def accept(self, *args): return _System.ModuleBinding_accept(self, *args)
     __swig_setmethods__["configFile"] = _System.ModuleBinding_configFile_set
     __swig_getmethods__["configFile"] = _System.ModuleBinding_configFile_get
     if _newclass:configFile = _swig_property(_System.ModuleBinding_configFile_get, _System.ModuleBinding_configFile_set)

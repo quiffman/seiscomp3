@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import os, sys, signal, subprocess, pipes, glob, shutil, imp, traceback
 
 
@@ -608,8 +608,14 @@ def on_alias(args, flags):
       error("module '%s' does not support aliases" % args[2])
       return 1
 
-    mod1 = os.path.join("bin", args[1])
     mod2 = args[2]
+    if os.path.exists(os.path.join("bin", mod2)):
+      mod1 = os.path.join("bin", args[1])
+    elif os.path.exists(os.path.join("sbin", mod2)):
+      mod1 = os.path.join("sbin", args[1])
+    else:
+      error("no %s binary found (neither bin nor sbin)")
+      return 1
 
     # create alias line in etc/descriptions/aliases
     if not os.path.exists(DESC_PATH):
@@ -683,9 +689,6 @@ def on_alias(args, flags):
     shutil.copyfile(os.path.join(SEISCOMP_ROOT, init2), os.path.join(SEISCOMP_ROOT, init1))
 
     return 0
-
-    # TODO: create alias
-    #  - implement module method to check if aliasing is supported
   elif args[0] == "remove":
     if len(args) != 2:
       error("expected one argument for remove: alias-name")
@@ -735,10 +738,17 @@ def on_alias(args, flags):
     except: pass
 
     # remove symlink from bin/mod1
-    sym_link = os.path.join("bin", args[1])
-    print "Remove app symlink: %s" % sym_link
-    try: os.remove(os.path.join(SEISCOMP_ROOT, sym_link))
-    except: pass
+    if os.path.exists(os.path.join("bin", args[1])):
+      sym_link = os.path.join("bin", args[1])
+    elif os.path.exists(os.path.join("sbin", args[1])):
+      sym_link = os.path.join("sbin", args[1])
+    else:
+      sym_link = ""
+
+    if sym_link:
+      print "Remove app symlink: %s" % sym_link
+      try: os.remove(os.path.join(SEISCOMP_ROOT, sym_link))
+      except: pass
 
     # remove symlink from etc/init/mod1.py
     init_scr = os.path.join("etc", "init", args[1] + ".py")
@@ -840,27 +850,25 @@ def on_csv_help(args):
 # ------------------------------------------------------------------------------
 # Check command line
 # ------------------------------------------------------------------------------
-if len(sys.argv) < 2:
-  print "seiscomp [flags] {%s} [args]" % "|".join(allowed_actions)
-  sys.exit(1)
-
-
 useCSV = False
 
 argv = sys.argv[1:]
 argflags = []
 
 # Check for flags
-i = 0
-while i < len(argv):
-  if argv[i] == "--csv":
+while len(argv):
+  if argv[0] == "--csv":
     useCSV = True
     argv = argv[1:]
-  elif argv[i].startswith("--"):
-    argflags.append(argv[i][2:])
+  elif argv[0].startswith("--"):
+    argflags.append(argv[0][2:])
     argv = argv[1:]
   else:
     break
+
+if len(argv) < 1:
+  print "seiscomp [flags] {%s} [args]" % "|".join(allowed_actions)
+  sys.exit(1)
 
 action = argv[0]
 args = argv[1:]
@@ -883,6 +891,7 @@ INIT_PATH = os.path.join(SEISCOMP_ROOT, "etc", "init")
 DESC_PATH = os.path.join(SEISCOMP_ROOT, "etc", "descriptions")
 ALIAS_FILE = os.path.join(DESC_PATH, "aliases")
 BIN_PATH = os.path.join(SEISCOMP_ROOT, "bin")
+SBIN_PATH = os.path.join(SEISCOMP_ROOT, "sbin")
 PYTHONPATH = os.path.join(SEISCOMP_ROOT, "lib", "python")
 LD_LIBRARY_PATH = os.path.join(SEISCOMP_ROOT, "lib")
 

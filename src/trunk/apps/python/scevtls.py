@@ -12,7 +12,7 @@
 #    SeisComP Public License for more details.                             #
 ############################################################################
 
-import sys
+import traceback, sys
 import seiscomp3.Client
 
 class EventList(seiscomp3.Client.Application):
@@ -35,50 +35,44 @@ class EventList(seiscomp3.Client.Application):
 
 
   def init(self):
+    if not seiscomp3.Client.Application.init(self): return False
+
     try:
-      if not seiscomp3.Client.Application.init(self): return False
-
-      try:
-        start = self.commandline().optionString("begin")
-        self._startTime = seiscomp3.Core.Time()
-        if self._startTime.fromString(start, "%F %T") == False:
-          print >> sys.stderr, "Wrong 'begin' format '%s' -> setting to None" % start
-      except:
-        print >> sys.stderr, "Wrong 'begin' format -> setting to None"
-        self._startTime = seiscomp3.Core.Time()
-
-      print >> sys.stderr, "Setting start to %s" % self._startTime.toString("%F %T")
-
-      try:
-        end = self.commandline().optionString("end")
-        self._endTime = seiscomp3.Core.Time.FromString(end, "%F %T")
-      except:
-        self._endTime = seiscomp3.Core.Time.GMT()
-
-      print >> sys.stderr, "Setting end to %s" % self._endTime.toString("%F %T")
-
-      return True
+      start = self.commandline().optionString("begin")
+      self._startTime = seiscomp3.Core.Time()
+      if self._startTime.fromString(start, "%F %T") == False:
+        print >> sys.stderr, "Wrong 'begin' format '%s' -> setting to None" % start
     except:
-      cla, exc, trbk = sys.exc_info()
-      print cla.__name__
-      print exc.__dict__["args"]
-      print traceback.format_tb(trbk, 5)
+      print >> sys.stderr, "Wrong 'begin' format -> setting to None"
+      self._startTime = seiscomp3.Core.Time()
+
+    print >> sys.stderr, "Setting start to %s" % self._startTime.toString("%F %T")
+
+    try:
+      end = self.commandline().optionString("end")
+      self._endTime = seiscomp3.Core.Time.FromString(end, "%F %T")
+    except:
+      self._endTime = seiscomp3.Core.Time.GMT()
+
+    print >> sys.stderr, "Setting end to %s" % self._endTime.toString("%F %T")
+
+    return True
 
 
   def run(self):
-    try:
-      for obj in self.query().getEvents(self._startTime, self._endTime):
-        evt = seiscomp3.DataModel.Event.Cast(obj)
-        if evt:
-          print evt.publicID()
+    for obj in self.query().getEvents(self._startTime, self._endTime):
+      evt = seiscomp3.DataModel.Event.Cast(obj)
+      if evt:
+        print evt.publicID()
 
-      return True
-    except:
-      cla, exc, trbk = sys.exc_info()
-      print cla.__name__
-      print exc.__dict__["args"]
-      print traceback.format_tb(trbk, 5)
+    return True
 
 
-app = EventList(len(sys.argv), sys.argv)
-sys.exit(app())
+try:
+  app = EventList(len(sys.argv), sys.argv)
+  rc = app()
+except:
+  print traceback.format_exc()
+  sys.exit(1)
+
+sys.exit(rc)

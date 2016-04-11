@@ -26,17 +26,17 @@ from seiscomp.db.generic.inventory import Inventory
 from seiscomp.mseedlite import Input as MSeedInput, MSeedError
 from seiscomp.fseed import SEEDVolume, SEEDError, _WaveformData
 
-VERSION = "1.2.6 (2012.278)"
+VERSION = "1.2.7 (2013.084)"
 
-ORGANIZATION = "WebDC"
-LABEL = "WebDC SEED Volume"
+ORGANIZATION = "EIDA"
 
 verbosity = 0
 
 class SeedOutput(object):
-    def __init__(self, fd, inv, resp_dict):
+    def __init__(self, fd, inv, label, resp_dict):
         self.__fd = fd
         self.__inv = inv
+        self.__label = label
         self.__resp_dict = resp_dict
         self.__mseed_fd = TemporaryFile()
 
@@ -46,7 +46,7 @@ class SeedOutput(object):
     def close(self):
         try:
             try:
-                seed_volume = SEEDVolume(self.__inv, ORGANIZATION, LABEL,
+                seed_volume = SEEDVolume(self.__inv, ORGANIZATION, self.__label,
                     self.__resp_dict)
 
                 self.__mseed_fd.seek(0)
@@ -120,6 +120,14 @@ def show_status(request):
               (arclink_status_string(rqln.status), rqln.size, rqln.message))
 
     logs.info("")
+
+def show_lines(request):
+    for (network, station, stream, loc_id, begin, end, constraints, blacklist) in request.content:
+        logs.warning("%d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" % \
+            (begin.year, begin.month, begin.day, begin.hour, begin.minute, begin.second,
+            end.year, end.month, end.day, end.hour, end.minute, end.second,
+            network, station, stream, loc_id,
+            " ".join([ "%s=%s" % (a, v) for a, v in constraints.iteritems() ])))
 
 def parse_native(req, input_file):
     fd = open(input_file)
@@ -211,9 +219,10 @@ def add_quietness(option, opt_str, value, parser):
 def process_options():
     parser = OptionParser(usage="usage: %prog [-h|--help] [OPTIONS] -u USER -o OUTPUTFILE [REQUEST]", version="%prog v" + VERSION, add_help_option=False)
 
-    parser.set_defaults(address = "webdc.eu:18001",
+    parser.set_defaults(address = "eida.gfz-potsdam.de:18001",
                         request_format = "native",
                         data_format = "mseed",
+                        label = None,
                         no_resp_dict = False,
                         rebuild_volume = False,
                         proxymode = False,
@@ -237,6 +246,9 @@ def process_options():
     koptions = ("mseed", "mseed4k", "fseed", "dseed", "inv", "inventory")
     parser.add_option("-k", "--data-format", type="choice", dest="data_format", choices=koptions,
       help="data format: mseed, mseed4k, fseed, dseed, inv[entory] (default %default)")
+
+    parser.add_option("-L", "--label", type="string", dest="label",
+      help="label of SEED volume")
 
     parser.add_option("-n", "--no-resp-dict", action="store_true", dest="no_resp_dict",
       help="avoid using response dictionary (default %default)")
@@ -407,8 +419,8 @@ http://www.iris.edu/manuals/breq_fast.htm
         sys.exit()
 
     return (SSLpasswordDict, options.address, options.request_format, options.data_format,
-      not options.no_resp_dict, options.rebuild_volume, options.proxymode, options.user,
-      options.timeout, options.retries, options.output_file, request_file)
+      options.label, not options.no_resp_dict, options.rebuild_volume, options.proxymode,
+      options.user, options.timeout, options.retries, options.output_file, request_file)
 
 def build_filename(encrypted, compressed, req_args):
     endung = ''
@@ -422,8 +434,15 @@ def build_filename(encrypted, compressed, req_args):
     return endung;
 
 def main():
-    (SSLpasswordDict, addr, request_format, data_format, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file) = process_options()
+    (SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file) = process_options()
+    ret = _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file)
+    
+    if addr.startswith("eida.gfz-potsdam.de:") or addr.startswith("webdc.eu:"):
+        logs.notice("\nin case of problems with your request, please contact eida@gfz-potsdam.de")
 
+    return ret
+
+def _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file):
     reblock_mseed = False
     use_inventory = False
     use_routing = not proxymode
@@ -466,7 +485,7 @@ def main():
     
 
     mgr = ArclinkManager(addr, user, socket_timeout=timeout, download_retry=retries)
-    req = mgr.new_request(req_type, req_args)
+    req = mgr.new_request(req_type, req_args, label)
 
     if request_format == "native":
         if input_file:
@@ -511,23 +530,26 @@ def main():
         show_status(req)
 
     if req_nodata:
-        warn = True
-        logs.warning("\nthe following entries returned no data:")
-        req_nodata.dump(sys.stdout)
+        logs.warning("\nthe following entries returned no data after trying all routes")
+        show_lines(req_nodata)
 
     if req_noroute:
-        logs.info("\nthe following entries could not be routed:")
-        logs.warning('some requests could not be routed')
-        req_noroute.dump(sys.stdout)
+        logs.warning("\nthe following entries could not be routed:")
+        show_lines(req_noroute)
 
-    warn = False
+    retry_lines = set()
     for req in req_ok:
         for vol in req.status().volume:
             for line in vol.line:
-                if (line.size == 0) and arclink_status_string(line.status) == "NODATA":
-                    warn = True
-    if warn:
-        logs.warning('\nsome lines may have returned NODATA if failed to be re-routed')
+                if line.status == STATUS_RETRY:
+                    retry_lines.add(line.content)
+                elif line.content in retry_lines:
+                    retry_lines.remove(line.content)
+
+    if retry_lines:
+        logs.warning("\nthe following data is temporarily off-line (try again later)")
+        for ln in retry_lines:
+            logs.warning(ln)
 
 ## Prepare to download
     canJoin = True
@@ -546,7 +568,7 @@ def main():
                     logs.warning("some requests returned a Warning status")
 
     if volumecount == 0:
-        logs.warning("none of the requests returned data")
+        logs.warning("\nnone of the requests returned data")
         return 1
     
     if not canJoin and volumecount > 1:
@@ -558,7 +580,7 @@ def main():
         fd_out = open(filename, "wb")
         if rebuild_volume:
             logs.info("rebuilding SEED volume")
-            fd_out = SeedOutput(fd_out, inv, resp_dict)
+            fd_out = SeedOutput(fd_out, inv, label, resp_dict)
         elif reblock_mseed:
             logs.info("reblocking Mini-SEED data")
             fd_out = MSeed4KOutput(fd_out)

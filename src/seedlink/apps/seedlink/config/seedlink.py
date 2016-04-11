@@ -103,8 +103,8 @@ class TemplateModule(seiscomp3.Kernel.Module):
         #self.global_params_ex = dict(filter(lambda s: s[1].find("$") != -1, [(x, ",".join(cfg.getStrings(x))) for x in cfg.names()]))
         self.station_params = dict()
         #self.station_params_ex = dict()
-        self.plugin_dir = os.path.join(self.pkgroot, "share", "plugins", self.name)
-        self.template_dir = os.path.join(self.pkgroot, "share", "templates", self.name)
+        self.plugin_dir = os.path.join(self.pkgroot, "share", "plugins", "seedlink")
+        self.template_dir = os.path.join(self.pkgroot, "share", "templates", "seedlink")
         self.alt_template_dir = "" #os.path.join(self.env.home
         self.config_dir = os.path.join(self.pkgroot, "var", "lib", self.name)
 
@@ -411,7 +411,7 @@ class Module(TemplateModule):
             # Update internal parameters usable by a template
             self._set('seedlink.source.type', source_type)
             self._set('seedlink.source.id', source_id)
-            source_dict[source_key] = (source_type, source_id, self.station_params.copy())
+            source_dict[source_key] = (source_type, source_id, self.global_params.copy(), self.station_params.copy())
                 
             # Create procs for this type for streams.xml
             sproc_name = self._get('sources.%s.proc' % (source_type)) or self._get('proc')
@@ -423,7 +423,7 @@ class Module(TemplateModule):
                     self.sproc[sproc_name] = sproc
 
                 else:
-                    print "cannot find streams_%s.tpl" % sproc_name
+                    print "WARNING: cannot find streams_%s.tpl" % sproc_name
 
             # Read plugins.ini template for this source and store content
             # under the provided key for this binding
@@ -436,9 +436,11 @@ class Module(TemplateModule):
                 for t in templates.split(','):
                     self.templates.add((t, source_type, 0))
 
+            # Allow plugin handler to override station id
+            station_params['seedlink.station.id'] = self.station_params['seedlink.station.id']
+
             # Set original parameters
             self.station_params = station_params
-            #self.station_params_ex = station_params_ex
 
         if len(station_sproc) > 1:
             data = '  <proc name="%s">\n' % (",".join(station_sproc),)
@@ -527,13 +529,16 @@ class Module(TemplateModule):
         try: self.param(name)
         except: self._set(name, value, station_scope)
 
+    def supportsAliases(self):
+        return True
+
     def updateConfig(self):
         # Set default values
         try: self._set_default("organization", self.env.getString("organization"), False)
         except: pass
 
         self._set_default("lockfile", os.path.join("@ROOTDIR@", self.env.lockFile(self.name)), False)
-        self._set_default("filebase", os.path.join("@ROOTDIR@", "var", "lib", "seedlink", "buffers"), False)
+        self._set_default("filebase", os.path.join("@ROOTDIR@", "var", "lib", self.name, "buffers"), False)
         self._set_default("port", "18000", False)
         self._set_default("encoding", "steim2", False)
         self._set_default("trusted", "127.0.0.0/8", False)
@@ -586,7 +591,7 @@ class Module(TemplateModule):
         self.__load_stations()
 
         if self.msrtsimul:
-            self.seedlink_source['mseedfifo'] = {1:('mseedfifo',1,{})}
+            self.seedlink_source['mseedfifo'] = {1:('mseedfifo',1,self.global_params.copy(),{})}
 
         try: os.makedirs(self.config_dir)
         except: pass
@@ -617,6 +622,7 @@ class Module(TemplateModule):
         else:
             self._set("request_log", "disabled", False)
 
+        self._set("name", self.name, False)
         fd = open(os.path.join(self.config_dir, "seedlink.ini"), "w")
         fd.write(self._process_template("seedlink_head.tpl", None, False))
 
@@ -624,7 +630,7 @@ class Module(TemplateModule):
             fd.write(self._process_template("seedlink_sproc.tpl", None, False))
 
         for i in self.seedlink_source.itervalues():
-            for (source_type, source_id, self.station_params) in i.itervalues():
+            for (source_type, source_id, self.global_params, self.station_params) in i.itervalues():
                 source = self._process_template("seedlink_plugin.tpl", source_type)
                 if source:
                     fd.write(source)

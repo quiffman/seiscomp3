@@ -18,6 +18,30 @@
 				raw streams (streams submitted by a plugin as raw samples).
 				</description>
 			</parameter>
+			<parameter name="timeout" type="int" default="60" unit="s">
+				<description>
+				Timeout length in seconds. If no data is received from a Reftek
+				unit during this period, the plugin assumes that the unit is
+				disconnected.
+				</description>
+			</parameter>
+			<parameter name="default_tq" type="int" default="40">
+				<description>
+				Default timing quality in percents. This value will be used when
+				no timing quality information is available. Can be -1 to omit
+				the blockette 1001 altogether.
+				</description>
+			</parameter>
+			<parameter name="unlock_tq" type="int" default="10">
+				<description>
+				Timing quality to use when GPS is out of lock.
+				</description>
+			</parameter>
+			<parameter name="log_soh" type="boolean" default="true">
+				<description>
+				Send Reftek state-of-health data as Mini-SEED LOG stream.
+				</description>
+			</parameter>
 		</configuration>
 	</binding>
 </seiscomp>

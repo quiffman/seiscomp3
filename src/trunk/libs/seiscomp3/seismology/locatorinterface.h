@@ -60,10 +60,11 @@ class SC_SYSTEM_CORE_API LocatorInterface : public Core::BaseObject {
 		typedef std::map<std::string, std::string> ParameterMap;
 
 		enum Capability {
-			NoCapability    = 0x0000,
-			InitialLocation = 0x0001,
-			FixedDepth      = 0x0002,
-			DistanceCutOff  = 0x0004,
+			NoCapability          = 0x0000,
+			InitialLocation       = 0x0001,
+			FixedDepth            = 0x0002,
+			DistanceCutOff        = 0x0004,
+			IgnoreInitialLocation = 0x0008,
 			CapQuantity
 		};
 
@@ -139,6 +140,9 @@ class SC_SYSTEM_CORE_API LocatorInterface : public Core::BaseObject {
 		void setDistanceCutOff(double distance);
 		void releaseDistanceCutOff();
 
+		bool isInitialLocationIgnored() const { return _ignoreInitialLocation; }
+		void setIgnoreInitialLocation(bool f) { _ignoreInitialLocation = f; }
+
 
 	public:
 		//! Finds the pick referenced by an arrival
@@ -160,6 +164,7 @@ class SC_SYSTEM_CORE_API LocatorInterface : public Core::BaseObject {
 		double                    _fixedDepth;
 		bool                      _enableDistanceCutOff;
 		double                    _distanceCutOff;
+		bool                      _ignoreInitialLocation;
 };
 
 

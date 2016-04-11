@@ -220,6 +220,7 @@ class LocatorInterface(Core.BaseObject):
     InitialLocation = _Seismology.LocatorInterface_InitialLocation
     FixedDepth = _Seismology.LocatorInterface_FixedDepth
     DistanceCutOff = _Seismology.LocatorInterface_DistanceCutOff
+    IgnoreInitialLocation = _Seismology.LocatorInterface_IgnoreInitialLocation
     CapQuantity = _Seismology.LocatorInterface_CapQuantity
     Log = _Seismology.LocatorInterface_Log
     Warning = _Seismology.LocatorInterface_Warning
@@ -246,6 +247,8 @@ class LocatorInterface(Core.BaseObject):
     def releaseDepth(self): return _Seismology.LocatorInterface_releaseDepth(self)
     def setDistanceCutOff(self, *args): return _Seismology.LocatorInterface_setDistanceCutOff(self, *args)
     def releaseDistanceCutOff(self): return _Seismology.LocatorInterface_releaseDistanceCutOff(self)
+    def isInitialLocationIgnored(self): return _Seismology.LocatorInterface_isInitialLocationIgnored(self)
+    def setIgnoreInitialLocation(self, *args): return _Seismology.LocatorInterface_setIgnoreInitialLocation(self, *args)
     def getPick(self, *args): return _Seismology.LocatorInterface_getPick(self, *args)
     def getSensorLocation(self, *args): return _Seismology.LocatorInterface_getSensorLocation(self, *args)
 LocatorInterface_swigregister = _Seismology.LocatorInterface_swigregister
@@ -405,6 +408,9 @@ class LocSAT(LocatorInterface):
     __swig_destroy__ = _Seismology.delete_LocSAT
     __del__ = lambda self : None;
     def init(self, *args): return _Seismology.LocSAT_init(self, *args)
+    def parameters(self): return _Seismology.LocSAT_parameters(self)
+    def parameter(self, *args): return _Seismology.LocSAT_parameter(self, *args)
+    def setParameter(self, *args): return _Seismology.LocSAT_setParameter(self, *args)
     def profiles(self): return _Seismology.LocSAT_profiles(self)
     def setProfile(self, *args): return _Seismology.LocSAT_setProfile(self, *args)
     __swig_getmethods__["setDefaultProfile"] = lambda x: _Seismology.LocSAT_setDefaultProfile
@@ -555,12 +561,18 @@ class TravelTimeTableInterface(Core.BaseObject):
     __repr__ = _swig_repr
     __swig_destroy__ = _Seismology.delete_TravelTimeTableInterface
     __del__ = lambda self : None;
+    __swig_getmethods__["Create"] = lambda x: _Seismology.TravelTimeTableInterface_Create
+    if _newclass:Create = staticmethod(_Seismology.TravelTimeTableInterface_Create)
     def setModel(self, *args): return _Seismology.TravelTimeTableInterface_setModel(self, *args)
     def model(self): return _Seismology.TravelTimeTableInterface_model(self)
     def compute(self, *args): return _Seismology.TravelTimeTableInterface_compute(self, *args)
     def computeFirst(self, *args): return _Seismology.TravelTimeTableInterface_computeFirst(self, *args)
 TravelTimeTableInterface_swigregister = _Seismology.TravelTimeTableInterface_swigregister
 TravelTimeTableInterface_swigregister(TravelTimeTableInterface)
+
+def TravelTimeTableInterface_Create(*args):
+  return _Seismology.TravelTimeTableInterface_Create(*args)
+TravelTimeTableInterface_Create = _Seismology.TravelTimeTableInterface_Create
 
 class TravelTimeTable(TravelTimeTableInterface):
     __swig_setmethods__ = {}

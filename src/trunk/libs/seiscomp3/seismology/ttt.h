@@ -112,6 +112,13 @@ class SC_SYSTEM_CORE_API TravelTimeTableInterface : public Core::BaseObject {
 
 	public:
 		/**
+		 * Instantiates a TTT interface and returns the pointer to
+		 * be freed by the caller. If name is not valid, NULL is
+		 * returned. Available interfaces: libtau, LOCSAT
+		 */
+		static TravelTimeTableInterface *Create(const char *name);
+
+		/**
 		 * Sets the model to use. Implementations can use this model
 		 * string for whatever purpose and must not be validated by
 		 * the caller.
