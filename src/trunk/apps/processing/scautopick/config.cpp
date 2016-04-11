@@ -75,9 +75,6 @@ void Picker::Config::init(const Client::Application *app) {
 	try { phaseHint = app->configGetString("phaseHint"); }
 	catch ( ... ) {}
 
-	try { staConfFile = Environment::Instance()->absolutePath(app->configGetString("stationConfig")); }
-	catch (...) { staConfFile = Environment::Instance()->shareDir() + "/autopick/station.conf"; }
-
 	try { calculateAmplitudes = app->configGetBool("calculateAmplitudes"); }
 	catch (...) {}
 
@@ -185,14 +182,15 @@ void Picker::Config::dump() const {
 	printf("defaultTriggerOffThreshold       %.2f\n",   defaultTriggerOffThreshold);
 	//printf("minDuration                      %.2f\n",   minDuration);
 	//printf("maxDuration                      %.2f\n",   maxDuration);
-	printf("triggerDeadTime                  %.2f s\n", triggerDeadTime);
-	printf("amplitudeMaxTimeWindow           %.2f s\n", amplitudeMaxTimeWindow);
-	printf("amplitudeMinOffset               %.2f s\n", amplitudeMinOffset);
-	printf("defaultTimeCorrection            %.2f s\n", defaultTimeCorrection);
-	printf("ringBufferSize                   %.0f s\n", ringBufferSize);
-	printf("leadTime                         %.0f s\n", leadTime);
-	printf("initTime                         %.0f s\n", initTime);
+	printf("triggerDeadTime                  %.2fs\n", triggerDeadTime);
+	printf("amplitudeMaxTimeWindow           %.2fs\n", amplitudeMaxTimeWindow);
+	printf("amplitudeMinOffset               %.2fs\n", amplitudeMinOffset);
+	printf("defaultTimeCorrection            %.2fs\n", defaultTimeCorrection);
+	printf("ringBufferSize                   %.0fs\n", ringBufferSize);
+	printf("leadTime                         %.0fs\n", leadTime);
+	printf("initTime                         %.0fs\n", initTime);
 	printf("pickerType                       %s\n",     pickerType.c_str());
+	printf("secondaryPickerType              %s\n",     secondaryPickerType.c_str());
 	printf("sendDetections                   %s\n",     sendDetections ? "true" : "false");
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

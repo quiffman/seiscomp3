@@ -1,5 +1,0 @@
-SOURCE_DESC="SeedLink server (TCP/IP)"
-SOURCE_ATTR="chain,tcp"
-SOURCE_MSG=""
-SRCADDR="geofon.gfz-potsdam.de"
-SRCPORT="18000"

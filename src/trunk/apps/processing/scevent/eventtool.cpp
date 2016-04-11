@@ -70,7 +70,7 @@ DEFINE_SMARTPOINTER(GlobalRegion);
 struct GlobalRegion : public Client::Config::Region {
 	GlobalRegion() {}
 
-	bool init(const Seiscomp::Config &config, const std::string &prefix) {
+	bool init(const Seiscomp::Config::Config &config, const std::string &prefix) {
 		vector<double> region;
 		try { region = config.getDoubles(prefix + "rect"); }
 		catch ( ... ) {
@@ -1116,6 +1116,27 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 			}
 			else {
 				info->event->setType(None);
+				response = createEntry(entry->objectID(), entry->action() + "OK", ":unset:");
+			}
+			Notifier::Enable();
+			updateEvent(info->event.get());
+			Notifier::Disable();
+		}
+	}
+	else if ( entry->action() == "EvTypeCertainty" ) {
+		SEISCOMP_DEBUG("...set event type certainty");
+
+		EventTypeCertainty etc;
+		if ( !entry->parameters().empty() && !etc.fromString(entry->parameters()) ) {
+			response = createEntry(entry->objectID(), entry->action() + "Failed", ":invalid type certainty:");
+		}
+		else {
+			if ( !entry->parameters().empty() ) {
+				info->event->setTypeCertainty(etc);
+				response = createEntry(entry->objectID(), entry->action() + "OK", entry->parameters());
+			}
+			else {
+				info->event->setTypeCertainty(None);
 				response = createEntry(entry->objectID(), entry->action() + "OK", ":unset:");
 			}
 			Notifier::Enable();
@@ -2221,9 +2242,20 @@ bool EventTool::isEventCached(const string &eventID) const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-EventInformationPtr EventTool::cachedEvent(const std::string &eventID) const {
+EventInformationPtr EventTool::cachedEvent(const std::string &eventID) {
 	EventMap::const_iterator it = _events.find(eventID);
 	if ( it == _events.end() ) return NULL;
+
+	// If scheduled for removal, reset and cache it again
+	if ( it->second->aboutToBeRemoved ) {
+		// Reset removal flag
+		it->second->aboutToBeRemoved = false;
+		// Add it again to event parameters
+		_ep->add(it->second->event.get());
+		// Feed the cache again
+		_cache.feed(it->second->event.get());
+	}
+
 	return it->second;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -3423,6 +3455,10 @@ void EventTool::updateEvent(DataModel::Event *ev, bool callProcessors) {
 	}
 
 	logObject(_outputEvent, now);
+
+	if ( ev->parent() == NULL ) {
+
+	}
 
 	// Flag the event as updated to be sent around
 	ev->update();

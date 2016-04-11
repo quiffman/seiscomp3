@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<seiscomp>
+	<binding module="seedlink" name="nmxp" category="sources">
+		<description>NAQS (TCP/IP) with nmxptool</description>
+		<configuration>
+			<parameter name="address" type="string" default="idahub.ucsd.edu">
+				<description>Hostname or IP of the NAQS server.</description>
+			</parameter>
+			<parameter name="port" type="int" default="39136">
+				<description>TCP port of the NAQS server.</description>
+			</parameter>
+			<parameter name="max_latency" type="int" default="300">
+				<description>Max latency in seconds (time to wait for missing packets).</description>
+			</parameter>
+			<parameter name="proc" type="string" default="naqs_bb40_sm100">
+				<description>
+				Name of the proc object (defined in streams.xml); used for processing
+				raw streams (streams submitted by a plugin as raw samples).
+				</description>
+			</parameter>
+		</configuration>
+	</binding>
+</seiscomp>

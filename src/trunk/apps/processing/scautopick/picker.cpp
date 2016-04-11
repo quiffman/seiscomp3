@@ -281,11 +281,8 @@ bool App::init() {
 		_config.useAllStreams = false;
 		//cerr << "Reading configured streams:" << endl;
 
-		_stationConfig.read(&configuration(), configModule());
+		_stationConfig.read(&configuration(), configModule(), name());
 	}
-
-	if ( _config.staConfFile != "" && !_stationConfig.read(_config.staConfFile) )
-		return false;
 
 	bool acquireAllComponents = false;
 	if ( !_config.secondaryPickerType.empty() ) {
@@ -370,6 +367,17 @@ bool App::init() {
 		}
 	}
 
+
+	if ( _streamIDs.empty() ) {
+		if ( _config.useAllStreams )
+			SEISCOMP_INFO("No stations added (empty module configuration?)");
+		else {
+			SEISCOMP_ERROR("No stations added (empty module configuration?) and thus nothing to do");
+			return false;
+		}
+	}
+	else
+		SEISCOMP_INFO("%d stations added", (int)_streamIDs.size());
 
 	std::string logAmplTypes;
 	for ( StringSet::iterator it = _config.amplitudeList.begin();
@@ -991,12 +999,24 @@ void App::emitPPick(const Processing::Picker *proc,
 		}
 	}
 
-	std::string pickID = res.time.toString("%Y%m%d.%H%M%S.%2f-") + _config.pickerType +
-	                     "-" + res.record->streamID();
-	DataModel::PickPtr pick = DataModel::Pick::Create(pickID);
-	if ( !pick ) {
+	DataModel::PickPtr pick;
+	if ( hasCustomPublicIDPattern() ) {
+		pick = DataModel::Pick::Create();
+
+		if ( !pick ) {
+			SEISCOMP_WARNING("Duplicate pick ignored");
+			return;
+		}
+	}
+	else {
+		std::string pickID = res.time.toString("%Y%m%d.%H%M%S.%2f-") + _config.pickerType +
+		                     "-" + res.record->streamID();
+		pick = DataModel::Pick::Create(pickID);
+
+		if ( !pick ) {
 			SEISCOMP_WARNING("Duplicate pick %s ignored", pickID.c_str());
-			return;		
+			return;
+		}
 	}
 
 	Core::Time now = Core::Time::GMT();
@@ -1043,7 +1063,12 @@ void App::emitPPick(const Processing::Picker *proc,
 	tw.setBegin(res.timeWindowBegin);
 	tw.setEnd(res.timeWindowEnd);
 
-	DataModel::AmplitudePtr amp = DataModel::Amplitude::Create(pick->publicID() + ".snr");
+	DataModel::AmplitudePtr amp;
+	if ( hasCustomPublicIDPattern() )
+		amp = DataModel::Amplitude::Create();
+	else
+		amp = DataModel::Amplitude::Create(pick->publicID() + ".snr");
+
 	if ( amp ) {
 		amp->setCreationInfo(ci);
 
@@ -1108,12 +1133,24 @@ void App::emitPPick(const Processing::Picker *proc,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void App::emitSPick(const Processing::SecondaryPicker *proc,
                     const Processing::SecondaryPicker::Result &res) {
-	std::string pickID = res.time.toString("%Y%m%d.%H%M%S.%2f-") + _config.secondaryPickerType +
-	                     "-" + res.record->streamID();
-	DataModel::PickPtr pick = DataModel::Pick::Create(pickID);
-	if ( !pick ) {
-		SEISCOMP_WARNING("Duplicate pick %s ignored", pickID.c_str());
-		return;
+	DataModel::PickPtr pick;
+	if ( hasCustomPublicIDPattern() ) {
+		pick = DataModel::Pick::Create();
+
+		if ( !pick ) {
+			SEISCOMP_WARNING("Duplicate pick ignored");
+			return;
+		}
+	}
+	else {
+		std::string pickID = res.time.toString("%Y%m%d.%H%M%S.%2f-") + _config.secondaryPickerType +
+		                     "-" + res.record->streamID();
+		pick = DataModel::Pick::Create(pickID);
+
+		if ( !pick ) {
+			SEISCOMP_WARNING("Duplicate pick %s ignored", pickID.c_str());
+			return;
+		}
 	}
 
 	Core::Time now = Core::Time::GMT();
@@ -1182,7 +1219,12 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 	SEISCOMP_DEBUG("%s:%s: emit pick", rec->streamID().c_str(), proc->isEnabled()?"enabled":"disabled");
 
 	Core::Time now = Core::Time::GMT();
-	DataModel::PickPtr pick = DataModel::Pick::Create(time.toString("%Y%m%d.%H%M%S.%2f-") + rec->streamID());
+	DataModel::PickPtr pick;
+	if ( hasCustomPublicIDPattern() )
+		pick = DataModel::Pick::Create();
+	else
+		pick = DataModel::Pick::Create(time.toString("%Y%m%d.%H%M%S.%2f-") + rec->streamID());
+
 	DataModel::CreationInfo ci;
 	ci.setCreationTime(now);
 	ci.setAgencyID(agencyID());
@@ -1259,7 +1301,11 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 	Core::Time now = Core::Time::GMT();
 
 	if ( amp == NULL ) {
-		amp = DataModel::Amplitude::Create(ampProc->referencingPickID() + "." + ampProc->type());
+		if ( hasCustomPublicIDPattern() )
+			amp = DataModel::Amplitude::Create();
+		else
+			amp = DataModel::Amplitude::Create(ampProc->referencingPickID() + "." + ampProc->type());
+
 		if ( !amp ) {
 			SEISCOMP_INFO("Internal error: duplicate amplitudeID?");
 			return;

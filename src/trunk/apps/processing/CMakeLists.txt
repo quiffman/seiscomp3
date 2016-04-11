@@ -4,6 +4,7 @@ SET(DIRS
 	scautopick
 	scevent
 	scmag
+	scqc
 )
 
 SUBDIRS(${DIRS})

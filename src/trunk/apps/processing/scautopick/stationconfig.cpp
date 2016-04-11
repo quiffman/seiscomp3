@@ -21,6 +21,7 @@
 #include <seiscomp3/datamodel/configstation.h>
 #include <seiscomp3/datamodel/parameterset.h>
 #include <seiscomp3/datamodel/parameter.h>
+#include <seiscomp3/datamodel/utils.h>
 #include <seiscomp3/processing/processor.h>
 
 #include <iostream>
@@ -112,7 +113,7 @@ void StationConfig::setDefault(const StreamConfig &entry) {
 
 
 const StreamConfig *
-StationConfig::read(const Seiscomp::Config *config, const std::string &mod,
+StationConfig::read(const Seiscomp::Config::Config *config, const std::string &mod,
                     DataModel::ParameterSet *params,
                     const std::string &net, const std::string &sta) {
 	std::string loc, cha, filter = _default.filter;
@@ -153,26 +154,27 @@ StationConfig::read(const Seiscomp::Config *config, const std::string &mod,
 }
 
 
-void StationConfig::read(const Seiscomp::Config *localConfig, const DataModel::ConfigModule *module) {
+void StationConfig::read(const Seiscomp::Config::Config *localConfig,
+                         const DataModel::ConfigModule *module,
+                         const std::string &setupName) {
 	if ( module == NULL ) return;
 
 	for ( size_t j = 0; j < module->configStationCount(); ++j ) {
-		DataModel::ConfigStation* station = module->configStation(j);
-		for ( size_t k = 0; k < station->setupCount(); ++k ) {
-			DataModel::Setup* setup = station->setup(k);
-			if ( !setup->enabled() )
-				continue;
-	
+		DataModel::ConfigStation *station = module->configStation(j);
+		DataModel::Setup *configSetup = DataModel::findSetup(station, setupName, false);
+
+		if ( configSetup ) {
 			DataModel::ParameterSet* ps = NULL;
 			try {
-				ps = DataModel::ParameterSet::Find(setup->parameterSetID());
+				ps = DataModel::ParameterSet::Find(configSetup->parameterSetID());
 			}
 			catch ( Core::ValueException ) {
 				continue;
 			}
 
 			if ( !ps ) {
-				SEISCOMP_ERROR("Cannot find parameter set %s", setup->parameterSetID().c_str());
+				SEISCOMP_ERROR("Cannot find parameter set %s",
+				               configSetup->parameterSetID().c_str());
 				continue;
 			}
 	
@@ -183,156 +185,15 @@ void StationConfig::read(const Seiscomp::Config *localConfig, const DataModel::C
 }
 
 
-bool StationConfig::read(const std::string &staConfFile) {
-	#define NET    0
-	#define STA    1
-	#define TON    2
-	#define TOFF   3
-	#define TCORR  4
-	#define FILTER 5
-
-	std::ifstream ifile(staConfFile.c_str());
-	if ( !ifile.good()) {
-		SEISCOMP_ERROR("Failed to open station config file %s", staConfFile.c_str());
-		return false;
-	}
-
-	size_t iline = 0;
-	while ( !ifile.eof() ) {
-		std::string line;
-		std::getline(ifile, line);
-		Core::trim(line);
-
-		++iline;
-
-		// Skip empty lines
-		if ( line.empty() ) continue;
-
-		// Skip comments
-		if ( line[0] == '#' ) continue;
-
-		std::vector<std::string> toks;
-		parseToks(toks, line);
-
-		if ( toks.size() != 6 ) {
-			SEISCOMP_ERROR("%s:%lu: error: invalid token size, expected 6 tokens", staConfFile.c_str(), (unsigned long)iline);
-			return false;
-		}
-
-		Key key = Key(toks[NET],toks[STA]);
-
-		StreamConfig *sc;
-		bool newEntry;
-
-		ConfigMap::iterator it = _stationConfigs.find(key);
-		if ( it != _stationConfigs.end() ) {
-			sc = &it->second;
-			newEntry = false;
-		}
-		else {
-			sc = &_stationConfigs[key];
-			newEntry = true;
-		}
-
-		double value;
-
-		if ( toks[TON] != "." ) {
-			if ( !Core::fromString(value, toks[TON]) ) {
-				SEISCOMP_ERROR("%s:%lu: error: invalid trigOn '%s'", staConfFile.c_str(), (unsigned long)iline, toks[TON].c_str());
-				return false;
-			}
-			else
-				sc->triggerOn = value;
-		}
-
-		if ( toks[TOFF] != "." ) {
-			if ( !Core::fromString(value, toks[TOFF]) ) {
-				SEISCOMP_ERROR("%s:%lu: error: invalid trigOff '%s'", staConfFile.c_str(), (unsigned long)iline, toks[TOFF].c_str());
-				return false;
-			}
-			else
-				sc->triggerOff = value;
-		}
-
-		if ( toks[TCORR] != "." ) {
-			if ( !Core::fromString(value, toks[TCORR]) ) {
-				SEISCOMP_ERROR("%s:%lu: error: invalid tcorr '%s'", staConfFile.c_str(), (unsigned long)iline, toks[TCORR].c_str());
-				return false;
-			}
-			else
-				sc->timeCorrection = value;
-		}
-
-		if ( toks[FILTER] != "." )
-			sc->filter = toks[FILTER];
-		else
-			sc->filter = "";
-
-		sc->updatable = false;
-
-		if ( newEntry )
-			_stationConfigs[key] = *sc;
-	}
-
-	for ( ConfigMap::iterator it = _stationConfigs.begin(); it != _stationConfigs.end(); ++it ) {
-		// No wildcard key?
-		if ( it->first.first != "*" && it->first.second != "*" && it->second.updatable ) {
-			const StreamConfig *sc = getBestWildcard(it->first.first, it->first.second);
-			if ( sc != NULL ) {
-				if ( sc->triggerOn ) it->second.triggerOn = *sc->triggerOn;
-				if ( sc->triggerOff ) it->second.triggerOff = *sc->triggerOff;
-				if ( sc->timeCorrection ) it->second.timeCorrection = *sc->timeCorrection;
-				if ( !sc->filter.empty() ) it->second.filter = sc->filter;
-			}
-		}
-	}
-
-	/*
-	for ( ConfigMap::iterator it = _stationConfigs.begin(); it != _stationConfigs.end(); ++it ) {
-		if ( !it->second.updatable ) continue;
-		std::cout << it->first.first << "." << it->first.second << "." << it->second.locCode
-		          << "." << it->second.channel << ": " << *it->second.triggerOn << ", "
-		          << *it->second.triggerOff << ", " << *it->second.timeCorrection << ", "
-		          << it->second.filter << std::endl;
-	}
-	*/
-
-	return true;
-}
-
-
-const StreamConfig *StationConfig::getBestWildcard(const std::string &net, const std::string &sta) const {
-	ConfigMap::const_iterator it;
-
-	it = _stationConfigs.find(Key(net,"*"));
-	if ( it != _stationConfigs.end() )
-		return &it->second;
-
-	it = _stationConfigs.find(Key("*",sta));
-	if ( it != _stationConfigs.end() )
-		return &it->second;
-
-	it = _stationConfigs.find(Key("*","*"));
-	if ( it != _stationConfigs.end() )
-		return &it->second;
-
-	return NULL;
-}
-
-
 const StreamConfig *
-StationConfig::get(const Seiscomp::Config *config, const std::string &mod,
+StationConfig::get(const Seiscomp::Config::Config *config, const std::string &mod,
                    const std::string &net, const std::string &sta) {
 	ConfigMap::const_iterator it;
 	it = _stationConfigs.find(Key(net,sta));
 	if ( it != _stationConfigs.end() )
 		return &it->second;
 
-	const StreamConfig *sc = getBestWildcard(net, sta);
-	if ( !sc )
-		sc = read(config, mod, NULL, net, sta);
-
-	return sc;
+	return NULL;
 }
 
 

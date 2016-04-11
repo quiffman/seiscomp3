@@ -1,8 +1,0 @@
-SET(ART_TARGET scart)
-
-SET(
-	ART_FILES
-		scart.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(ART)

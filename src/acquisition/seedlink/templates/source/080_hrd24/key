@@ -1,6 +1,0 @@
-SOURCE_DESC="Nanometrics HRD24 digitizer (RS-232)"
-SOURCE_ATTR="serial,raw,instance_per_station"
-SOURCE_MSG=""
-COMPORT="/dev/data"
-BAUDRATE="19200"
-SPROC="generic_6x100"

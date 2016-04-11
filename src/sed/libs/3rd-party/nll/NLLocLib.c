@@ -10616,7 +10616,8 @@ double CalcAzimuthGap(ArrivalDesc *arrival, int num_arrivals, double *pgap_secon
     for (narr = 0; narr < num_arrivals; narr++) {
         // AJL 20091208 Zero weight phase modification
         //if (!(arrival + narr)->flag_ignore)
-        if (!(arrival + narr)->flag_ignore && (arrival + narr)->weight > VERY_SMALL_DOUBLE) // 20100521 AJL
+        //if (!(arrival + narr)->flag_ignore && (arrival + narr)->weight > VERY_SMALL_DOUBLE) // 20100521 AJL
+        if (!(arrival + narr)->flag_ignore && (arrival + narr)->weight > 0.01)                // 20120704 TD: It seems "VERY_SMALL_DOUBLE" can be too small to exclude weights of "0.000"
             //if ((arrival + narr)->weight > 0.001)
             azimuths[naz++] = (arrival + narr)->azim;
     }

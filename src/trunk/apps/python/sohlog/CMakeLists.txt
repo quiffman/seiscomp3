@@ -1,8 +1,0 @@
-SET(SOHLOG_TARGET scsohlog)
-
-SET(
-	SOHLOG_FILES
-		scsohlog.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(SOHLOG)

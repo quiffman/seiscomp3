@@ -307,29 +307,37 @@ MagTool::getStationMagnitude(
 	double value,
 	bool update) const
 {
-	if ( !update ) {
-		for ( size_t i = 0; i < origin->stationMagnitudeCount(); ++i ) {
-			StaMag *mag = origin->stationMagnitude(i);
-			if ( equivalent(mag->waveformID(), wfid) && mag->type() == type )
-				return NULL;
+	StaMag *mag = NULL;
+
+	for ( size_t i = 0; i < origin->stationMagnitudeCount(); ++i ) {
+		StaMag *stamag = origin->stationMagnitude(i);
+		if ( equivalent(stamag->waveformID(), wfid) && stamag->type() == type ) {
+			mag = stamag;
+			break;
 		}
 	}
 
+	if ( !update && mag != NULL ) return NULL;
 
 	// Returns a StationMagnitude for the given Origin, WaveformStreamID
 	// and magnitude type. If an instance already exists, it is updated,
 	// otherwise a new instance is created.
 
-	string id = origin->publicID() + "#staMag." + type + "#" +
-	            wfid.networkCode() + "." + wfid.stationCode();
+	if ( mag == NULL ) {
+		if ( SCCoreApp->hasCustomPublicIDPattern() )
+			mag = StaMag::Create();
+		else {
+			string id = origin->publicID() + "#staMag." + type + "#" +
+						wfid.networkCode() + "." + wfid.stationCode();
 
-	StaMag* mag = (StaMag*) DataModel::PublicObject::Find(id);
-	if (mag==NULL) {
-		mag = StaMag::Create(id);
-		if (mag==NULL) {
-			SEISCOMP_ERROR("Failed to create StaMag %s", id.c_str());
+			mag = StaMag::Create(id);
+		}
+
+		if ( mag == NULL ) {
+			SEISCOMP_ERROR("Failed to create StaMag");
 			return NULL;
 		}
+
 		Time now = Time::GMT();
 		SCCoreApp->logObject(outputMagLog, now);
 
@@ -355,12 +363,12 @@ MagTool::getStationMagnitude(
 		SCCoreApp->logObject(outputMagLog, now);
 	}
 
-	if (origin != mag->parent()) {
+	if ( origin != mag->parent() ) {
 		// otherwise, we get a warning at origin->add.
 		// XXX maybe that shouldn't generate a warning if an
 		// XXX object is added repeatedly to the same parent?
 
-		if (mag->parent() != NULL) {
+		if ( mag->parent() != NULL ) {
 			SEISCOMP_ERROR(
 				"This should never happen origin=%s "
 				"but StaMag parent=%s",
@@ -392,17 +400,16 @@ MagTool::getMagnitude(
 		}
 	}
 
-	if (!mag) {
-		std::string id = origin->publicID() + "#netMag." + type;
-		mag = NetMag::Create(id);
-		if (mag==NULL) {
-			SEISCOMP_ERROR("Failed to create NetMag %s", id.c_str());
-			mag = NetMag::Find(id);
-			if ( mag ) {
-				DataModel::Origin* parent = mag->origin();
-				SEISCOMP_ERROR("Found another instance with parent %ld (%s)",
-				               (long int)parent, parent?parent->publicID().c_str():"<none>");
-			}
+	if ( !mag ) {
+		if ( SCCoreApp->hasCustomPublicIDPattern() )
+			mag = NetMag::Create();
+		else {
+			std::string id = origin->publicID() + "#netMag." + type;
+			mag = NetMag::Create(id);
+		}
+
+		if ( mag == NULL ) {
+			SEISCOMP_ERROR("Failed to create NetMag");
 			return NULL;
 		}
 
@@ -477,15 +484,13 @@ MagTool::computeStationMagnitude(
 		params = it->second.get();
 	else if ( SCCoreApp->configModule() != NULL ) {
 		for ( size_t i = 0; i < SCCoreApp->configModule()->configStationCount(); ++i ) {
-			DataModel::ConfigStation* station = SCCoreApp->configModule()->configStation(i);
+			DataModel::ConfigStation *station = SCCoreApp->configModule()->configStation(i);
+
 			if ( station->networkCode() != ampl->waveformID().networkCode() ) continue;
 			if ( station->stationCode() != ampl->waveformID().stationCode() ) continue;
 
-			for ( size_t k = 0; k < station->setupCount(); ++k ) {
-				DataModel::Setup* setup = station->setup(k);
-				if ( !setup->enabled() )
-					continue;
-
+			DataModel::Setup *setup = DataModel::findSetup(station, SCCoreApp->name());
+			if ( setup ) {
 				DataModel::ParameterSet* ps = NULL;
 				try {
 					ps = DataModel::ParameterSet::Find(setup->parameterSetID());

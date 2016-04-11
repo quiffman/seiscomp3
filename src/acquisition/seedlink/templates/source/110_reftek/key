@@ -1,7 +1,0 @@
-SOURCE_DESC="RefTek RTPD (TCP/IP)"
-SOURCE_ATTR="reftek,tcp,raw,instance_per_address"
-SOURCE_MSG=""
-SRCADDR="127.0.0.1"
-SRCPORT="2543"
-UNIT="91F3"
-SPROC="reftek"

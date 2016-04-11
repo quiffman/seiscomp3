@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<seiscomp>
+	<binding module="seedlink" name="win" category="sources">
+		<description>WIN server</description>
+		<configuration>
+			<parameter name="udpport" type="int" default="18000">
+				<description>
+					UDP port to receive data packets.
+				</description>
+			</parameter>
+			<parameter name="channels" type="list:string" default="">
+				<description>
+					List of channels (hexID:name, ...).
+				</description>
+			</parameter>
+			<parameter name="proc" type="string" default="wago">
+				<description>
+				Name of the proc object (defined in streams.xml); used for processing
+				raw streams (streams submitted by a plugin as raw samples).
+				</description>
+			</parameter>
+		</configuration>
+	</binding>
+</seiscomp>

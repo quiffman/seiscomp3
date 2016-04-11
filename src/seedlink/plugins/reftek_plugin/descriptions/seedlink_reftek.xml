@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<seiscomp>
+	<binding module="seedlink" name="reftek" category="sources">
+		<description>RefTek RTPD (TCP/IP)</description>
+		<configuration>
+			<parameter name="address" type="string" default="127.0.0.1">
+				<description>Hostname or IP of the RTPD server.</description>
+			</parameter>
+			<parameter name="port" type="int" default="2543">
+				<description>Port of the RTPD server.</description>
+			</parameter>
+			<parameter name="unit" type="string" default="91F3">
+				<description>The unit id.</description>
+			</parameter>
+			<parameter name="proc" type="string">
+				<description>
+				Name of the proc object (defined in streams.xml); used for processing
+				raw streams (streams submitted by a plugin as raw samples).
+				</description>
+			</parameter>
+		</configuration>
+	</binding>
+</seiscomp>

@@ -1,1 +1,0 @@
-../../seedlink_station.tpl

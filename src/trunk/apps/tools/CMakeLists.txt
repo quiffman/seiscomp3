@@ -1,1 +1,1 @@
-SUBDIRS(imex import olk plot query)
+SC_ADD_SUBDIRS()

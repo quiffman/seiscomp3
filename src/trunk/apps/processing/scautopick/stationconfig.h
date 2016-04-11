@@ -25,9 +25,6 @@
 
 
 namespace Seiscomp {
-
-class Config;
-
 namespace Applications {
 namespace Picker {
 
@@ -65,24 +62,20 @@ class StationConfig {
 
 		void setDefault(const StreamConfig &entry);
 
-		const StreamConfig *read(const Seiscomp::Config *config, const std::string &mod,
+		const StreamConfig *read(const Seiscomp::Config::Config *config, const std::string &mod,
 		                         DataModel::ParameterSet *params,
 		                         const std::string &net, const std::string &sta);
 
-		bool read(const std::string &staConfFile);
-		void read(const Seiscomp::Config *config, const DataModel::ConfigModule *module);
+		void read(const Seiscomp::Config::Config *config, const DataModel::ConfigModule *module,
+		          const std::string &setup);
 
-		const StreamConfig *get(const Seiscomp::Config *config, const std::string &mod,
+		const StreamConfig *get(const Seiscomp::Config::Config *config, const std::string &mod,
 		                        const std::string &net, const std::string &sta);
 
 		const_iterator begin() const;
 		const_iterator end() const;
 
 		void dump() const;
-
-
-	private:
-		const StreamConfig *getBestWildcard(const std::string &net, const std::string &sta) const;
 
 
 	private:

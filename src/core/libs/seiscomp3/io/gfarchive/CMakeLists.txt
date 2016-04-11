@@ -1,8 +1,0 @@
-SET(
-	CORE_IO_GFARCHIVE_HEADERS
-		helmberger.h
-		arclink.h
-		saul.h
-)
-
-SC_LIB_INSTALL_HEADERS(CORE_IO_GFARCHIVE)

@@ -505,22 +505,14 @@ int AmpTool::addProcessor(Processing::AmplitudeProcessor *proc,
 		params = it->second.get();
 	else if ( configModule() != NULL ) {
 		for ( size_t i = 0; i < configModule()->configStationCount(); ++i ) {
-			ConfigStation* station = configModule()->configStation(i);
+			ConfigStation *station = configModule()->configStation(i);
+
 			if ( station->networkCode() != pick->waveformID().networkCode() ) continue;
 			if ( station->stationCode() != pick->waveformID().stationCode() ) continue;
 
-			for ( size_t k = 0; k < station->setupCount(); ++k ) {
-				Setup* setup = station->setup(k);
-				if ( !setup->enabled() )
-					continue;
-	
-				ParameterSet* ps = NULL;
-				try {
-					ps = ParameterSet::Find(setup->parameterSetID());
-				}
-				catch ( Core::ValueException ) {
-					continue;
-				}
+			Setup *setup = findSetup(station, name());
+			if ( setup ) {
+				ParameterSet *ps = ParameterSet::Find(setup->parameterSetID());
 
 				if ( !ps ) {
 					SEISCOMP_ERROR("Cannot find parameter set %s", setup->parameterSetID().c_str());

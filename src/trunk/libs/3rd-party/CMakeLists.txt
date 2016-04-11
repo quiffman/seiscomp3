@@ -1,0 +1,5 @@
+IF (SC_TRUNK_OWN_MSEED)
+        SUBDIRS(libmseed)
+ENDIF (SC_TRUNK_OWN_MSEED)
+
+SUBDIRS(tau locsat)

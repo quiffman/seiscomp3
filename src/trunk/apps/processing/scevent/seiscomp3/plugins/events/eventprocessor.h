@@ -50,7 +50,7 @@ class SC_EVPLUGIN_API EventProcessor : public Seiscomp::Core::BaseObject {
 	// ----------------------------------------------------------------------
 	public:
 		//! Setup all configuration parameters
-		virtual bool setup(const Config &config) = 0;
+		virtual bool setup(const Config::Config &config) = 0;
 
 		//! Processes an event. The preferred object (Origin, Magnitude,
 		//! FocalMechanism) are guaranteed to be found with *::Find(id)

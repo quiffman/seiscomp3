@@ -118,7 +118,7 @@ class EventTool : public Application {
 		DataModel::Event *getEventForFocalMechanism(const std::string &fmID);
 
 		void cacheEvent(EventInformationPtr info);
-		EventInformationPtr cachedEvent(const std::string &eventID) const;
+		EventInformationPtr cachedEvent(const std::string &eventID);
 		bool removeCachedEvent(const std::string &eventID);
 		bool isEventCached(const std::string &eventID) const;
 

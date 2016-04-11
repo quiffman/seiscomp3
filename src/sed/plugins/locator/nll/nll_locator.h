@@ -28,7 +28,7 @@ class NLLocator : public Seiscomp::Seismology::LocatorInterface {
 
 		struct Region : public Core::BaseObject {
 			virtual bool isGlobal() const { return false; }
-			virtual bool init(const Config &config, const std::string &prefix) = 0;
+			virtual bool init(const Config::Config &config, const std::string &prefix) = 0;
 			virtual bool isInside(double lat, double lon) const = 0;
 		};
 
@@ -50,7 +50,7 @@ class NLLocator : public Seiscomp::Seismology::LocatorInterface {
 	public:
 		//! Initializes the locator and reads at least the path of the
 		//! default control file used for NLLoc.
-		virtual bool init(const Config &config);
+		virtual bool init(const Config::Config &config);
 
 		//! Returns supported parameters to be changed.
 		virtual IDList parameters() const;

@@ -1,8 +1,0 @@
-SET(DBSTRIP_TARGET scdbstrip)
-
-SET(
-	DBSTRIP_FILES
-		scdbstrip.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(DBSTRIP)

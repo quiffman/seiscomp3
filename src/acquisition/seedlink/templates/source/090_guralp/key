@@ -1,7 +1,0 @@
-SOURCE_DESC="Guralp DM24 digitizer (RS-232)"
-SOURCE_ATTR="serial,raw,instance_per_station"
-SOURCE_MSG="Please edit source IDs in
-$PKGROOT/templates/source/090_guralp/plugins.ini.tpl"
-COMPORT="/dev/data"
-BAUDRATE="19200"
-SPROC="generic_3x20"

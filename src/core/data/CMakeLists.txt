@@ -1,2 +1,0 @@
-SET(CORE_DATA cities.xml)
-SC_INSTALL_DATA(CORE "")

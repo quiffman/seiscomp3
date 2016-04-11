@@ -41,6 +41,7 @@
 
 #define MAG_TYPE "MLh"
 
+using namespace std;
 
 using namespace std;
 
@@ -638,7 +639,7 @@ private:
         double depth,     // in kilometers
         double *mag) {
 
-        float epdistkm;
+        float epdistkm,hypdistkm;
 
         if (amplitude <= 0. ) {
             *mag = 0;
@@ -655,12 +656,14 @@ private:
 
         // calculate the distance in kilometers from the distance in degrees
         epdistkm = Math::Geo::deg2km(delta);
+        hypdistkm = sqrt(epdistkm*epdistkm + depth * depth);
 
         // read the values for A, B and epdistkm from the config file and
         // select the right set depending on the distance
-        selected_parameterset = selectParameters(epdistkm, list_of_parametersets);
+        selected_parameterset = selectParameters(hypdistkm, list_of_parametersets);
 
         SEISCOMP_DEBUG("epdistkm: %f\n",epdistkm);
+        SEISCOMP_DEBUG("hypdistkm: %f\n",hypdistkm);
 
         if ( selected_parameterset.nomag ) {
             SEISCOMP_DEBUG( "epicenter distance out of configured range, no magnitude");
@@ -670,7 +673,7 @@ private:
             SEISCOMP_DEBUG("The selected range is: %f", selected_parameterset.dist);
             SEISCOMP_DEBUG("A:     %f", selected_parameterset.A);
             SEISCOMP_DEBUG("B:     %f", selected_parameterset.B);
-            *mag = log10(amplitude)  + selected_parameterset.A * epdistkm + selected_parameterset.B;
+            *mag = log10(amplitude)  + selected_parameterset.A * hypdistkm + selected_parameterset.B;
             return OK;
         }
     }

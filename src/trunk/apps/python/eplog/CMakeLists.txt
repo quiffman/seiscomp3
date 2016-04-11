@@ -1,8 +1,0 @@
-SET(EPLOG_TARGET sceplog)
-
-SET(
-	EPLOG_FILES
-		sceplog.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(EPLOG)

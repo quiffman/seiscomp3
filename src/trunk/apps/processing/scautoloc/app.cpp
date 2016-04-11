@@ -218,10 +218,10 @@ bool App::initConfiguration() {
 	try { _keepEventsTimeSpan = configGetInt("keepEventsTimeSpan"); } catch ( ... ) {}
 
 	try { _gridConfigFile = Environment::Instance()->absolutePath(configGetString("autoloc.grid")); }
-	catch (...) { _gridConfigFile = Environment::Instance()->shareDir() + "/autoloc/grid.conf"; }
+	catch (...) { _gridConfigFile = Environment::Instance()->shareDir() + "/scautoloc/grid.conf"; }
 
 	try { _config.staConfFile = Environment::Instance()->absolutePath(configGetString("autoloc.stationConfig")); }
-	catch (...) { _config.staConfFile = Environment::Instance()->shareDir() + "/autoloc/station.conf"; }
+	catch (...) { _config.staConfFile = Environment::Instance()->shareDir() + "/scautoloc/station.conf"; }
 
 	try { _config.pickLogFile = configGetString("autoloc.pickLog"); }
 	catch (...) { _config.pickLogFile = ""; }

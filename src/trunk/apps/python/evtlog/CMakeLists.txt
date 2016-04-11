@@ -1,8 +1,0 @@
-SET(EVTLOG_TARGET scevtlog)
-
-SET(
-	EVTLOG_FILES
-		scevtlog.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(EVTLOG)

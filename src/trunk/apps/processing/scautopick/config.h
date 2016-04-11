@@ -55,9 +55,6 @@ class Config {
 		bool        offline;
 		bool        dumpRecords;
 
-		// The station.conf file to use
-		std::string staConfFile;
-
 		// Create a picker for every stream data is received
 		// for. This flag is set when the database is not used
 		// (offline mode) and records are read from files unless

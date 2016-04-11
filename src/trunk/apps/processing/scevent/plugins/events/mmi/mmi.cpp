@@ -57,7 +57,7 @@ class MMIProcessor : public Seiscomp::Client::EventProcessor {
 		}
 
 	public:
-		bool setup(const Seiscomp::Config &config) {
+		bool setup(const Seiscomp::Config::Config &config) {
 			config.getInt(minMM, "MMI.lowerBound");
 			config.getInt(maxMM, "MMI.upperBound");
 

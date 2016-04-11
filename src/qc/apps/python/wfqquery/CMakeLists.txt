@@ -1,8 +1,0 @@
-SET(WFQQUERY_TARGET scwfqquery)
-
-SET(
-	WFQQUERY_FILES
-		scwfqquery.py
-)
-
-SC_ADD_PYTHON_EXECUTABLE(WFQQUERY)

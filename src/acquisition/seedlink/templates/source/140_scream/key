@@ -1,6 +1,0 @@
-SOURCE_DESC="SCREAM server (UDP/IP)"
-SOURCE_ATTR="udp,raw,instance_per_address"
-SOURCE_MSG="Please edit $PKGROOT/templates/scream2sl.map
-This file maps SCREAM's streamnames to station and channel names"
-SRCPORT="1567"
-SPROC="stream_50"

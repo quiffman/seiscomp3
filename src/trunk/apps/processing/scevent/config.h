@@ -31,7 +31,7 @@ namespace Client {
 struct Config {
 	DEFINE_SMARTPOINTER(Region);
 	struct Region : public Core::BaseObject {
-		virtual bool init(const Seiscomp::Config &config, const std::string &prefix) = 0;
+		virtual bool init(const Seiscomp::Config::Config &config, const std::string &prefix) = 0;
 		virtual bool isInside(double lat, double lon) const = 0;
 	};
 

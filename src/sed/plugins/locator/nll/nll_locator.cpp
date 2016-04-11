@@ -70,7 +70,7 @@ struct GlobalRegion : public NLLocator::Region {
 
 	bool isGlobal() const { return isEmpty; }
 
-	bool init(const Config &config, const std::string &prefix) {
+	bool init(const Config::Config &config, const std::string &prefix) {
 		vector<string> region;
 		try { region = config.getStrings(prefix + "region"); }
 		catch ( ... ) {}
@@ -127,7 +127,7 @@ struct GlobalRegion : public NLLocator::Region {
 // here: http://alomax.free.fr/nlloc/
 // It expects the region to be a grid 
 struct SimpleTransformedRegion : public NLLocator::Region {
-	bool init(const Config &config, const std::string &prefix) {
+	bool init(const Config::Config &config, const std::string &prefix) {
 		vector<string> list;
 
 		try { list = config.getStrings(prefix + "origin"); }
@@ -197,7 +197,7 @@ struct SimpleTransformedRegion : public NLLocator::Region {
 		double sina = sin(-deg2rad(angle));
 
 		double tx = x * cosa - y * sina;
-        double ty = y * cosa + x * sina;
+		double ty = y * cosa + x * sina;
 
 		if ( tx < xmin ) return false;
 		if ( ty < ymin ) return false;
@@ -348,7 +348,7 @@ NLLocator::~NLLocator() {}
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool NLLocator::init(const Config &config) {
+bool NLLocator::init(const Config::Config &config) {
 	try {
 		_publicIDPattern = config.getString("NonLinLoc.publicID");
 	}
