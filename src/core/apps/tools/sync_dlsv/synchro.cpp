@@ -13,6 +13,7 @@
     Revision:	2007-11-16	0.1	initial
 
 =====================================================================*/
+#include <seiscomp3/client/inventory.h>
 #include "synchro.h"
 #include "dataless.h"
 
@@ -50,7 +51,10 @@ void Synchro::createCommandLineDescription() {
 	Client::Application::createCommandLineDescription();
 
 	commandline().addGroup("ArcLink");
-	commandline().addOption<string>("ArcLink", "dcid", "datacenter/archive ID", &_dcid, false);
+	commandline().addOption("ArcLink", "dcid", "datacenter/archive ID", &_dcid, false);
+	commandline().addGroup("Mode");
+	commandline().addOption("Mode", "dump", "do not update the database and dump resulting XML to stdout");
+	commandline().addOption("Mode", "offline", "do not connect to the messaging server and start with an empty inventory");
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -61,6 +65,12 @@ void Synchro::createCommandLineDescription() {
 bool Synchro::validateParameters() {
 	if( commandline().hasOption("dcid") )
 		_init[ARCHIVE] = _dcid;
+
+	if( commandline().hasOption("offline") ) {
+		setMessagingEnabled(false);
+		setDatabaseEnabled(false, false);
+		Client::Inventory::Instance()->setInventory(new DataModel::Inventory);
+	}
 
 	return true;
 }
@@ -102,7 +112,7 @@ bool Synchro::run() {
 
 	_syncID = name() + "_" + Core::Time::GMT().iso();
 
-	Dataless *dl = new Dataless(_init);
+	Dataless *dl = new Dataless(_init, commandline().hasOption("dump"));
 	dl->SynchronizeDataless(args[0], connection(), this);
 
 	return true;

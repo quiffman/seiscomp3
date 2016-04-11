@@ -441,7 +441,8 @@ class PickAzimuthHandler : public IO::XML::MemberHandler {
 			return true;
 		}
 
-		bool put(Core::BaseObject *obj, const char *tag, const char *ns, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
+		bool put(Core::BaseObject *obj, const char *tag, const char *ns,
+		         bool opt, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
 			Pick *pick = static_cast<Pick*>(obj);
 			try {
 				_handler.put(&pick->backazimuth(), tag, ns, output);

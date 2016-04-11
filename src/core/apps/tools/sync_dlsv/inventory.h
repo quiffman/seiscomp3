@@ -31,7 +31,7 @@ class Inventory
 		bool SetConnection();
 		void CloseConnection();
 		void SendNotifiers();
-		void SynchronizeInventory();
+		void SynchronizeInventory(bool dumpOnly);
 	protected:
 	private:
 		//std::stringstream command, output;
@@ -50,8 +50,8 @@ class Inventory
 		//STATION_INFO info;
 		//Logging *log;
 		int sequence_number;
-		void ProcessStation();
-		void CleanupDatabase();
+		void ProcessStation(bool dumpOnly);
+		void CleanupDatabase(bool dumpOnly);
 		void GetComment(StationIdentifier&);
 		void GetStationComment(Comment&, Seiscomp::DataModel::WaveformStreamID *);
 		void GetChannelComment(ChannelIdentifier&, Seiscomp::DataModel::WaveformStreamID *);

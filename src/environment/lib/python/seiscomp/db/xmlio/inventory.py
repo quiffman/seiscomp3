@@ -616,160 +616,93 @@ def _auxDevice_out(xinventory, auxDevice, modified_after, used):
 #***************************************************************************** 
 
 
-def _Stream_out(xsl, strm, modified_after, filter, used_instr):
-    if filter:
-        (filter, match) = filter.match(strm)
-        if not match:
-            return False
-
+def _Stream_out(xsl, strm, modified_after, used_instr):
     if used_instr is not None:
         used_sensor = used_instr.reg_sensor(strm.sensor)
         if strm.sensorSerialNumber != "":
             used_sensor.reg_calibration(strm.sensorSerialNumber)
-
         used_logger = used_instr.reg_datalogger(strm.datalogger)
         used_logger.reg_decimation(strm.sampleRateNumerator, strm.sampleRateDenominator)
         if strm.dataloggerSerialNumber != "":
             used_logger.reg_calibration(strm.dataloggerSerialNumber)
-
     if modified_after is None or strm.last_modified >= modified_after:
         xstrm = xsl._new_stream()
         xstrm._copy_from(strm)
         xsl._append_child(xstrm)
         return True
-
     return False
 
 
 
-def _AuxStream_out(xsl, aux, modified_after, filter, used_instr):
-    if filter:
-        (filter, match) = filter.match(aux)
-        if not match:
-            return False
-
+def _AuxStream_out(xsl, aux, modified_after, used_instr):
     if used_instr is not None:
         used_auxDevice = used_instr.reg_auxDevice(aux.device)
         used_auxDevice.reg_source(aux.source)
-
     if modified_after is None or aux.last_modified >= modified_after:
         xaux = xsl._new_auxStream()
         xaux._copy_from(aux)
         xsl._append_child(xaux)
         return True
-
     return False
 
 
 
 
-def _SensorLocation_out(xsta, sl, modified_after, filter, used_instr):
-    if filter:
-        (filter, match) = filter.match(sl)
-        if not match:
-            return False
-
-        child_elem = filter is not None
-
-    else:
-        child_elem = True
-
+def _SensorLocation_out(xsta, sl, modified_after, used_instr):
     xsl = xsta._new_sensorLocation()
     if modified_after is None or sl.last_modified >= modified_after:
         xsl._copy_from(sl)
-
+        retval = True
     else:
         xsl.code = sl.code
         xsl.start = sl.start
-
-    if child_elem:
         retval = False
-        for i in sl.stream.itervalues():
-            for j in i.itervalues():
-                retval |= _Stream_out(xsl, j, modified_after, filter, used_instr)
-        for i in sl.auxStream.itervalues():
-            for j in i.itervalues():
-                retval |= _AuxStream_out(xsl, j, modified_after, filter, used_instr)
-
-    else:
-        retval = True
-
+    for i in sl.stream.itervalues():
+        for j in i.itervalues():
+            retval |= _Stream_out(xsl, j, modified_after, used_instr)
+    for i in sl.auxStream.itervalues():
+        for j in i.itervalues():
+            retval |= _AuxStream_out(xsl, j, modified_after, used_instr)
     if retval:
         xsta._append_child(xsl)
-
     return retval
 
 
 
 
-def _Station_out(xnet, sta, modified_after, filter, used_instr):
-    if filter:
-        (filter, match) = filter.match(sta)
-        if not match:
-            return False
-
-        child_elem = filter is not None
-
-    else:
-        child_elem = True
-
+def _Station_out(xnet, sta, modified_after, used_instr):
     xsta = xnet._new_station()
     if modified_after is None or sta.last_modified >= modified_after:
         xsta._copy_from(sta)
-
+        retval = True
     else:
         xsta.code = sta.code
         xsta.start = sta.start
-
-    if child_elem:
         retval = False
-
-        for i in sta.sensorLocation.itervalues():
-            for j in i.itervalues():
-                retval |= _SensorLocation_out(xsta, j, modified_after, filter, used_instr)
-
-    else:
-        retval = True
-
+    for i in sta.sensorLocation.itervalues():
+        for j in i.itervalues():
+            retval |= _SensorLocation_out(xsta, j, modified_after, used_instr)
     if retval:
         xnet._append_child(xsta)
-
     return retval
 
 
 
 
-def _Network_out(xinventory, net, modified_after, filter, used_instr):
-    if filter:
-        (filter, match) = filter.match(net)
-        if not match:
-            return False
-
-        child_elem = filter is not None
-
-    else:
-        child_elem = True
-
+def _Network_out(xinventory, net, modified_after, used_instr):
     xnet = xinventory._new_network()
     if modified_after is None or net.last_modified >= modified_after:
         xnet._copy_from(net)
-
+        retval = True
     else:
         xnet.code = net.code
         xnet.start = net.start
-
-    if child_elem:
         retval = False
-        for i in net.station.itervalues():
-            for j in i.itervalues():
-                retval |= _Station_out(xnet, j, modified_after, filter, used_instr)
-
-    else:
-        retval = True
-
+    for i in net.station.itervalues():
+        for j in i.itervalues():
+            retval |= _Station_out(xnet, j, modified_after, used_instr)
     if retval:
         xinventory._append_child(xnet)
-
     return retval
 
 
@@ -798,19 +731,14 @@ def _StationGroup_out(xinventory, gr, modified_after, used_instr):
 # XML OUT (doc)
 #***************************************************************************** 
 
-def _xmldoc_out(xinventory, inventory, instr, modified_after, filter):
-    if filter:
-        net_filter = filter.network_filter()
-    else:
-        net_filter = None
-
+def _xmldoc_out(xinventory, inventory, instr, modified_after):
     if instr == 0:
         for i in inventory.network.itervalues():
             for j in i.itervalues():
-                _Network_out(xinventory, j, modified_after, net_filter, None)
+                _Network_out(xinventory, j, modified_after, None)
 
-        #for i in inventory.stationGroup.itervalues():
-        #    _StationGroup_out(xinventory, i, modified_after, None)
+        for i in inventory.stationGroup.itervalues():
+            _StationGroup_out(xinventory, i, modified_after, None)
 
     elif instr == 1:
         used_instr = _UsedInstruments()
@@ -818,10 +746,10 @@ def _xmldoc_out(xinventory, inventory, instr, modified_after, filter):
 
         for i in inventory.network.itervalues():
             for j in i.itervalues():
-                _Network_out(xinventory, j, modified_after, net_filter, used_instr)
+                _Network_out(xinventory, j, modified_after, used_instr)
 
-        #for i in inventory.stationGroup.itervalues():
-        #    _StationGroup_out(xinventory, i, modified_after, None)
+        for i in inventory.stationGroup.itervalues():
+            _StationGroup_out(xinventory, i, modified_after, None)
 
         for i in inventory.datalogger.itervalues():
             used_logger = used_instr.datalogger.get(i.publicID)
@@ -852,10 +780,10 @@ def _xmldoc_out(xinventory, inventory, instr, modified_after, filter):
     elif instr == 2:
         for i in inventory.network.itervalues():
             for j in i.itervalues():
-                _Network_out(xinventory, j, modified_after, net_filter, None)
+                _Network_out(xinventory, j, modified_after, None)
         
-        #for i in inventory.stationGroup.itervalues():
-        #    _StationGroup_out(xinventory, i, modified_after, None)
+        for i in inventory.stationGroup.itervalues():
+            _StationGroup_out(xinventory, i, modified_after, None)
 
         for i in inventory.datalogger.itervalues():
             _datalogger_out(xinventory, i, modified_after, None, None)
@@ -927,10 +855,10 @@ def _indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-def xml_out(inventory, dest, instr=0, modified_after=None, filter=None, stylesheet=None, indent=True):
+def xml_out(inventory, dest, instr=0, modified_after=None, stylesheet=None, indent=True):
     xinventory = _xmlwrap.xml_Inventory()
     
-    _xmldoc_out(xinventory, inventory, instr, modified_after, filter)
+    _xmldoc_out(xinventory, inventory, instr, modified_after)
 
     if isinstance(dest, basestring):
         fd = file(dest, "w")

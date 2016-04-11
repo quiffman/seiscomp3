@@ -31,6 +31,7 @@ class VoiceAlert(seiscomp3.Client.Application):
         self.setInterpretNotifierEnabled(True)
 
         self.setLoadCitiesEnabled(True)
+        self.setLoadRegionsEnabled(True)
 
         self._ampType = "snr"
         self._citiesMaxDist = 20

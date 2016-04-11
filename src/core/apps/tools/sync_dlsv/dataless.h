@@ -28,11 +28,12 @@
 class Dataless
 {
 	public:
-		Dataless(INIT_MAP& init):init_values(init){};
+		Dataless(INIT_MAP& init, bool dump_):init_values(init),dump(dump_){};
 		void SynchronizeDataless(std::string, Seiscomp::Communication::Connection*, Seiscomp::Applications::SynchroCallbacks*);
 	protected:
 	private:
 		INIT_MAP init_values;
+		bool dump;
 		Inventory *invent;
 		void ParseDataless(std::string);
 };

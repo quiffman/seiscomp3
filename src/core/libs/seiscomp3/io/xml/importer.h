@@ -40,6 +40,13 @@ class SC_CORE_IO_API Importer : public IO::Importer {
 		TypeMap* typeMap();
 		void setTypeMap(TypeMap *map);
 
+		//! Enables/disables strict namespace checking.
+		//! If disabled, tags will be accepted even if the
+		//! registered namespace doesn't match and the tag
+		//! is only registered with one namespace. Tags with
+		//! multiple namespaces will still fail.
+		void setStrictNamespaceCheck(bool);
+
 	// ----------------------------------------------------------------------
 	// Protected Inteface
 	// ----------------------------------------------------------------------
@@ -65,6 +72,7 @@ class SC_CORE_IO_API Importer : public IO::Importer {
 	private:
 		static NoneHandler _none;
 		GenericHandler _any;
+		bool _strictNamespaceCheck;
 
 		Core::BaseObject *_result;
 		std::string _headerNode;

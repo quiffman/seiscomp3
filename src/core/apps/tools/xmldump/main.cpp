@@ -96,8 +96,10 @@ class EventDump : public Seiscomp::Client::Application {
 			if ( commandline().hasOption("inventory") ) {
 				typedef string NetworkID;
 				typedef pair<NetworkID,string> StationID;
-				set<NetworkID> networkFilter;
-				set<StationID> stationFilter;
+				typedef set<NetworkID> NetworkFilter;
+				typedef set<StationID> StationFilter;
+				NetworkFilter networkFilter;
+				StationFilter stationFilter;
 				set<string> usedSensors, usedDataloggers, usedDevices, usedResponses;
 				vector<string> stationIDs;
 
@@ -131,23 +133,40 @@ class EventDump : public Seiscomp::Client::Application {
 					// Remove unwanted networks
 					for ( size_t n = 0; n < inv->networkCount(); ) {
 						Network *net = inv->network(n);
-						if ( networkFilter.find(net->code()) == networkFilter.end() ) {
+
+						bool passed;
+						NetworkFilter::iterator nit;
+						for ( nit = networkFilter.begin(), passed = false;
+						      nit != networkFilter.end(); ++ nit ) {
+							if ( Core::wildcmp(*nit, net->code()) ) {
+								passed = true;
+								break;
+							}
+						}
+
+						if ( !passed ) {
 							inv->removeNetwork(n);
 							continue;
 						}
 
 						++n;
 
-						// No stations should be removed
-						if ( stationFilter.find(StationID(net->code(), "*")) != stationFilter.end() )
-							continue;
-
 						// Remove unwanted stations
 						for ( size_t s = 0; s < net->stationCount(); ) {
 							Station *sta = net->station(s);
 
+							StationFilter::iterator sit;
+							for ( sit = stationFilter.begin(), passed = false;
+							      sit != stationFilter.end(); ++ sit ) {
+								if ( Core::wildcmp(sit->first, net->code()) &&
+								     Core::wildcmp(sit->second, sta->code()) ) {
+									passed = true;
+									break;
+								}
+							}
+
 							// Should this station be filtered
-							if ( stationFilter.find(StationID(net->code(), sta->code())) == stationFilter.end() ) {
+							if ( !passed ) {
 								net->removeStation(s);
 								continue;
 							}

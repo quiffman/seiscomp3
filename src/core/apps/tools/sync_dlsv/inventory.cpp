@@ -15,6 +15,7 @@
 #include "inventory.h"
 
 #include <seiscomp3/client/inventory.h>
+#include <seiscomp3/io/archive/xmlarchive.h>
 #include <seiscomp3/core/system.h>
 
 #define SEISCOMP_COMPONENT sync_dlsv
@@ -300,13 +301,21 @@ void Inventory::CloseConnection()
 * Returns:      nothing                                                                                                     *
 * Description:  start synchronizing the dataless with the inventory database						    *
 ****************************************************************************************************************************/
-void Inventory::SynchronizeInventory()
+void Inventory::SynchronizeInventory(bool dumpOnly)
 {
 	DataModel::Notifier::Enable();
 	DataModel::Notifier::SetCheckEnabled(false);
 	_qc = new DataModel::QualityControl();
-	ProcessStation();
-	CleanupDatabase();
+	ProcessStation(dumpOnly);
+	CleanupDatabase(dumpOnly);
+
+	if ( dumpOnly ) {
+		IO::XMLArchive ar;
+		ar.create("-");
+		DataModel::Inventory *inv = inventory();
+		ar << inv;
+		ar.close();
+	}
 }
 
 /****************************************************************************************************************************
@@ -315,7 +324,7 @@ void Inventory::SynchronizeInventory()
 * Returns:      nothing                                                                                                     *
 * Description:  start synchronizing the dataless with the inventory database						    *
 ****************************************************************************************************************************/
-void Inventory::CleanupDatabase()
+void Inventory::CleanupDatabase(bool dumpOnly)
 {
 	SEISCOMP_INFO("Cleaning up the database");
 	
@@ -393,8 +402,8 @@ void Inventory::CleanupDatabase()
 
 		++i;
 	}
-											
-	SendNotifiers();
+
+	if ( !dumpOnly ) SendNotifiers();
 }
 
 /****************************************************************************************************************************
@@ -516,7 +525,7 @@ Core::Time Inventory::GetTime(string strTime)
 * Returns:      nothing                                                                                                     *
 * Description:	check if the current station is under control of ODC, if yes than check the start- and endtimes		    *
 ****************************************************************************************************************************/
-void Inventory::ProcessStation()
+void Inventory::ProcessStation(bool dumpOnly)
 {
 	SEISCOMP_DEBUG("Start processing station information");
 
@@ -587,7 +596,7 @@ void Inventory::ProcessStation()
 			ProcessStream(sc->si[i], sta);
 		}
 
-		SendNotifiers();
+		if ( !dumpOnly ) SendNotifiers();
 	}
 }
 

@@ -235,6 +235,25 @@ bool PublicObjectCache::remove(PublicObject *po) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void PublicObjectCache::clear() {
+	while ( _front ) {
+		CacheItem *item = _front;
+		PublicObjectPtr po = item->object;
+		_front = _front->next;
+		delete item;
+		if ( _popCallback ) _popCallback(po.get());
+	}
+
+	_front = _back = NULL;
+	_size = 0;
+	_lookup.clear();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 PublicObject* PublicObjectCache::find(const Seiscomp::Core::RTTI& classType,
                                       const std::string& publicID) {
 	PublicObject *po = PublicObject::Find(publicID);

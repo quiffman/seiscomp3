@@ -769,7 +769,10 @@ def submit_request(parser, req_name, breq_id):
 		addname = ""
 		fd_out = None
 
-		if canJoin:
+		logs.warning("Can Join is set to: %s" % canJoin)
+		logs.warning("We have %s volumes to download" % volumecounts)
+
+		if canJoin and volumecounts > 0:
 			filename = FTP_DIR + '/' + prefix + '.seed'
 			fd_out = open(filename, "wb")
 			fd_out = SeedOutput(fd_out, inv)

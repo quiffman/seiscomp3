@@ -1348,9 +1348,10 @@ unsigned long DatabaseArchive::objectId(Object* object, const std::string& paren
 	object->serialize(*this);
 
 	if ( _indexAttributes.empty() ) {
-		SEISCOMP_ERROR("objectID: index is empty");
-		_isReading = true;
-		return (long unsigned int)-1;
+		SEISCOMP_WARNING("objectID: index is empty");
+		_indexAttributes = *_objectAttributes;
+		//_isReading = true;
+		//return (long unsigned int)-1;
 	}
 
 	_indexAttributes["_parent_oid"] = toString(iParentID);
@@ -1363,7 +1364,11 @@ unsigned long DatabaseArchive::objectId(Object* object, const std::string& paren
 	      it != _indexAttributes.end(); ++it ) {
 		if ( !first )
 			ss << " and ";
-		ss << it->first << "=" << (it->second?*it->second:"NULL");
+		ss << it->first;
+		if ( it->second )
+			ss << "=" << *it->second;
+		else
+			ss << " is null";
 		first = false;
 	}
 
@@ -1667,8 +1672,7 @@ bool DatabaseArchive::update(Object* object, const std::string& parentID) {
 	bool first = true;
 	for ( AttributeMap::iterator it = _objectAttributes->begin();
 	      it != _objectAttributes->end(); ++it ) {
-	    if ( !first )
-	    	ss << ",";
+		if ( !first ) ss << ",";
 		ss << it->first << "=" << (it->second?*it->second:"NULL");
 		first = false;
 	}
@@ -1678,9 +1682,12 @@ bool DatabaseArchive::update(Object* object, const std::string& parentID) {
 	first = true;
 	for ( AttributeMap::iterator it = _indexAttributes.begin();
 	      it != _indexAttributes.end(); ++it ) {
-		if ( !first )
-	    	ss << " and ";
-		ss << it->first << "=" << (it->second?*it->second:"NULL");
+		if ( !first ) ss << " and ";
+		ss << it->first;
+		if ( it->second )
+			ss << "=" << *it->second;
+		else
+			ss << " is null";
 		first = false;
 	}
 

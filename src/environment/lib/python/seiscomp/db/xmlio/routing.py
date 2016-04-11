@@ -116,12 +116,7 @@ def _xmldoc_in(xrouting, routing, use_access):
 # XML OUT
 #***************************************************************************** 
 
-def _arclink_out(xroute, arclink, modified_after, filter):
-    if filter:
-        (filter, match) = filter.match(arclink)
-        if not match:
-            return False
-
+def _arclink_out(xroute, arclink, modified_after):
     if modified_after is None or arclink.last_modified >= modified_after:
         xarclink = xroute._new_arclink()
         xarclink._copy_from(arclink)
@@ -139,21 +134,20 @@ def _seedlink_out(xroute, seedlink, modified_after):
 
     return False
 
-def _route_out(xrouting, route, modified_after, filter):
+def _route_out(xrouting, route, modified_after):
     xroute = xrouting._new_route()
 
     if modified_after is None or route.last_modified >= modified_after:
         xroute._copy_from(route)
+        retval = True
     else:
         xroute.networkCode = route.networkCode
         xroute.stationCode = route.stationCode
-        xroute.locationCode = route.locationCode
-        xroute.streamCode = route.streamCode
+        retval = False
 
-    retval = False
     for i in route.arclink.itervalues():
         for j in i.itervalues():
-            retval |= _arclink_out(xroute, j, modified_after, filter)
+            retval |= _arclink_out(xroute, j, modified_after)
 
     for i in route.seedlink.itervalues():
         retval |= _seedlink_out(xroute, i, modified_after)
@@ -173,36 +167,12 @@ def _access_out(xrouting, acc, modified_after):
 
     return False
 
-def _xmldoc_out(xrouting, routing, use_access, modified_after, filter):
-    fi = fj = fk = fl = fm = None
-    if filter:
-        fi = filter.network_filter()
-
-    for (ci, i) in routing.route.iteritems():
-        if fi:
-            (fj, match) = fi.match(ci)
-            if not match:
-                continue
-
-        for (cj, j) in i.iteritems():
-            if fj:
-                (fk, match) = fj.match(cj)
-                if not match:
-                    continue
-
-            for (ck, k) in j.iteritems():
-                if fk:
-                    (fl, match) = fk.match(ck)
-                    if not match:
-                        continue
-
-                for (cl, l) in k.iteritems():
-                    if fl:
-                        (fm, match) = fl.match(cl)
-                        if not match:
-                            continue
-
-                    _route_out(xrouting, l, modified_after, fm)
+def _xmldoc_out(xrouting, routing, use_access, modified_after):
+    for i in routing.route.itervalues():
+        for j in i.itervalues():
+            for k in j.itervalues():
+                for l in k.itervalues():
+                    _route_out(xrouting, l, modified_after)
 
     if use_access:
         for i in routing.access.itervalues():
@@ -266,10 +236,10 @@ def _indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-def xml_out(routing, dest, use_access=False, modified_after=None, filter=None, stylesheet=None, indent=True):
+def xml_out(routing, dest, use_access=False, modified_after=None, stylesheet=None, indent=True):
     xrouting = _xmlwrap.xml_Routing()
 
-    _xmldoc_out(xrouting, routing, use_access, modified_after, filter)
+    _xmldoc_out(xrouting, routing, use_access, modified_after)
 
     if isinstance(dest, basestring):
         fd = file(dest, "w")

@@ -78,6 +78,8 @@ struct SC_CORE_IO_API NodeHandler {
 	bool newInstance;
 	bool isOptional;
 	bool isAnyType;
+
+	static bool strictNsCheck;
 };
 
 
@@ -87,7 +89,8 @@ struct SC_CORE_IO_API MemberHandler {
 	virtual ~MemberHandler();
 
 	virtual std::string value(Core::BaseObject *obj) = 0;
-	virtual bool put(Core::BaseObject *object, const char *tag, const char *ns, OutputHandler *output, NodeHandler *h);
+	virtual bool put(Core::BaseObject *object, const char *tag, const char *ns,
+		             bool opt, OutputHandler *output, NodeHandler *h);
 
 	//! Get a "node" to the member of an object.
 	virtual bool get(Core::BaseObject *object, void *node, NodeHandler *h) = 0;
@@ -112,7 +115,8 @@ class PropertyHandler : public MemberHandler {
 			}
 		}
 
-		bool put(Core::BaseObject *object, const char *tag, const char *ns, OutputHandler *output, NodeHandler *h) {
+		bool put(Core::BaseObject *object, const char *tag, const char *ns,
+		         bool opt, OutputHandler *output, NodeHandler *h) {
 			if ( _property->isClass() ) {
 				try {
 					output->handle(boost::any_cast<Core::BaseObject*>(_property->read(object)), tag, ns);
@@ -121,7 +125,7 @@ class PropertyHandler : public MemberHandler {
 				catch ( ... ) {}
 			}
 			else
-				return MemberHandler::put(object, tag, ns, output, h);
+				return MemberHandler::put(object, tag, ns, opt, output, h);
 
 			return false;
 		}
@@ -141,7 +145,8 @@ class ChildPropertyHandler : public MemberHandler {
 
 		std::string value(Core::BaseObject *obj) { return ""; }
 
-		bool put(Core::BaseObject *object, const char *tag, const char *ns, OutputHandler *output, NodeHandler *h) {
+		bool put(Core::BaseObject *object, const char *tag, const char *ns,
+		         bool opt, OutputHandler *output, NodeHandler *h) {
 			size_t count = _property->arrayElementCount(object);
 			for ( size_t i = 0; i < count; ++i ) {
 				output->handle(_property->arrayObject(object, i), tag, ns);
@@ -220,11 +225,15 @@ struct SC_CORE_IO_API TypeMap {
 
 	// Maps a tag to a classname
 	typedef std::map<Tag, std::string> TagMap;
+	// Maps a tag without namespace to a classname
+	typedef std::map<std::string, std::string> RawTagMap;
+	// Maps a classname to a tag
 	typedef std::map<std::string, Tag> ClassMap;
 	// Maps a classname to a handler
 	typedef std::map<std::string, TypeHandler*> HandlerMap;
 
 	TagMap tags;
+	RawTagMap tagsWithoutNs;
 	ClassMap classes;
 	HandlerMap handlers;
 
@@ -236,9 +245,7 @@ struct SC_CORE_IO_API TypeMap {
 	template <typename T>
 	void registerMapping(const char *tag, const char *ns, NodeHandler *handler);
 
-	bool isClassTag(const char *tag, const char *ns);
-
-	const char *getClassname(const char *tag, const char *ns);
+	const char *getClassname(const char *tag, const char *ns, bool strictNsCheck);
 	const Tag *getTag(const char *classname);
 
 	NodeHandler *getHandler(const char *classname);

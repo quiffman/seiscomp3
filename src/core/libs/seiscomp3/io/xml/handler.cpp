@@ -28,6 +28,8 @@ namespace XML {
 OutputHandler::~OutputHandler() {}
 
 
+bool NodeHandler::strictNsCheck = true;
+
 NodeHandler::~NodeHandler() {}
 
 
@@ -64,17 +66,21 @@ std::string NodeHandler::content(void *n) const {
 bool NodeHandler::equalsTag(void *n, const char *tag, const char *ns) const {
 	xmlNodePtr node = reinterpret_cast<xmlNodePtr>(n);
 
-	// No namespace requested
-	if ( ns == NULL || *ns == '\0' ) {
-		// The node also must not have an associated namespace
-		if ( node->ns && node->ns->href && *node->ns->href != '\0' )
-			return false;
+	if ( strictNsCheck ) {
+		// No namespace requested
+		if ( ns == NULL || *ns == '\0' ) {
+			// The node also must not have an associated namespace
+			if ( node->ns && node->ns->href && *node->ns->href != '\0' )
+				return false;
 
-		return strcmp((const char*)node->name, tag) == 0;
+			return strcmp((const char*)node->name, tag) == 0;
+		}
 	}
 
 	if ( strcmp((const char*)node->name, tag) )
 		return false;
+	else if ( !strictNsCheck )
+		return true;
 
 	xmlNsPtr nns = node->ns;
 	for ( ; nns != NULL; nns = nns->next ) {
@@ -90,12 +96,18 @@ bool NodeHandler::equalsTag(void *n, const char *tag, const char *ns) const {
 MemberHandler::~MemberHandler() {}
 
 
-bool MemberHandler::put(Core::BaseObject *object, const char *tag, const char *ns, OutputHandler *output, NodeHandler *h) {
+bool MemberHandler::put(Core::BaseObject *object, const char *tag, const char *ns,
+                        bool opt, OutputHandler *output, NodeHandler *h) {
 	try {
 		std::string v = value(object);
 		if ( !v.empty() ) {
 			output->openElement(tag, ns);
 			output->put(v.c_str());
+			output->closeElement(tag, ns);
+			return true;
+		}
+		else if ( !opt ) {
+			output->openElement(tag, ns);
 			output->closeElement(tag, ns);
 			return true;
 		}
@@ -113,7 +125,7 @@ MemberNodeHandler::MemberNodeHandler(const char *t, const char *ns, bool opt, Me
 
 
 bool MemberNodeHandler::put(Core::BaseObject *obj, OutputHandler *output, NodeHandler *h) {
-	return setter->put(obj, tag.c_str(), nameSpace.c_str(), output, h);
+	return setter->put(obj, tag.c_str(), nameSpace.c_str(), optional, output, h);
 }
 
 
@@ -155,7 +167,7 @@ bool PropertyHandler::get(Core::BaseObject *object, void *n, NodeHandler *h) {
 	}
 
 	std::string v = h->content(n);
-	if ( v.empty() ) return false;
+	//if ( v.empty() ) return false;
 	return _property->writeString(object, v);
 }
 
@@ -195,9 +207,9 @@ bool GenericHandler::put(Core::BaseObject *, const char *, const char *, OutputH
 bool GenericHandler::get(Core::BaseObject *, void *n) {
 	xmlNodePtr node = reinterpret_cast<xmlNodePtr>(n);
 
-	const char *classname = mapper->getClassname((const char*)node->name, node->ns?(const char*)node->ns->href:"");
+	const char *classname = mapper->getClassname((const char*)node->name, node->ns?(const char*)node->ns->href:"", strictNsCheck);
 	if ( classname == NULL ) {
-		SEISCOMP_DEBUG("No class mapping for %s", node->name);
+		SEISCOMP_DEBUG("No class mapping for %s, ns = '%s'", node->name, node->ns?(const char*)node->ns->href:"");
 		return false;
 	}
 
@@ -244,8 +256,10 @@ bool ClassHandler::init(Core::BaseObject *obj, void *n, TagSet &mandatory) {
 			for ( MemberList::iterator it = attributes.begin();
 			      it != attributes.end(); ++it ) {
 				if ( equalsTag(attr, it->tag.c_str(), it->nameSpace.c_str()) ) {
-					if ( it->get(obj, attr, this) && !it->optional )
+					if ( it->get(obj, attr, this) && !it->optional ) {
 						mandatory.erase(it->tag);
+						break;
+					}
 				}
 			}
 		}
@@ -269,8 +283,8 @@ bool ClassHandler::get(Core::BaseObject *obj, void *n) {
 		}
 		else if ( equalsTag(n, it->tag.c_str(), it->nameSpace.c_str()) ) {
 			it->get(obj, n, this);
-			memberHandler = &*it;
 			isOptional = it->optional;
+			memberHandler = &*it;
 			return true;
 		}
 	}
@@ -285,8 +299,8 @@ bool ClassHandler::get(Core::BaseObject *obj, void *n) {
 		}
 		else if ( equalsTag(n, it->tag.c_str(), it->nameSpace.c_str()) ) {
 			it->get(obj, n, this);
-			memberHandler = &*it;
 			isOptional = it->optional;
+			memberHandler = &*it;
 			return true;
 		}
 	}
@@ -308,7 +322,7 @@ bool ClassHandler::put(Core::BaseObject *obj, const char *tag, const char *ns, O
 	for ( MemberList::iterator it = attributes.begin();
 	      it != attributes.end(); ++it ) {
 		std::string v = it->value(obj);
-		if ( v.empty() ) continue;
+		if ( v.empty() && it->optional ) continue;
 		output->addAttribute(it->tag.c_str(), it->nameSpace.c_str(), v.c_str());
 	}
 
@@ -391,19 +405,29 @@ TypeMap::~TypeMap() {
 
 void TypeMap::registerMapping(const char *tag, const char *ns, const char *classname, NodeHandler *handler) {
 	tags[Tag(tag, ns)] = classname;
+
+	std::pair<RawTagMap::iterator,bool> itp;
+	itp = tagsWithoutNs.insert(RawTagMap::value_type(tag, classname));
+
+	// Tag exists already -> set invalid classname
+	if ( !itp.second ) itp.first->second.clear();
+
 	classes[classname] = Tag(tag, ns);
 	handlers[classname] = new TypeNameHandler(handler, classname);
 }
 
 
-bool TypeMap::isClassTag(const char *tag, const char *ns) {
-	return tags.find(Tag(tag, ns)) != tags.end();
-}
-
-
-const char *TypeMap::getClassname(const char *tag, const char *ns) {
+const char *TypeMap::getClassname(const char *tag, const char *ns, bool strictNsCheck) {
 	TagMap::iterator it = tags.find(Tag(tag, ns));
-	if ( it == tags.end() ) return NULL;
+	if ( it == tags.end() ) {
+		if ( !strictNsCheck ) {
+			RawTagMap::iterator rit = tagsWithoutNs.find(tag);
+			if ( rit == tagsWithoutNs.end() ) return NULL;
+			if ( rit->second.empty() ) return NULL;
+			return rit->second.c_str();
+		}
+		return NULL;
+	}
 	return it->second.c_str();
 }
 

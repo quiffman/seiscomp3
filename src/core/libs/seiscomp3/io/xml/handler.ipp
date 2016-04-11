@@ -89,6 +89,13 @@ template <typename T>
 void TypeMap::registerMapping(const char *tag, const char *ns, NodeHandler *handler) {
 	TypeHandler *h = new TypeStaticHandler<T>(handler);
 	tags[Tag(tag, ns)] = h->className();
+
+	std::pair<RawTagMap::iterator,bool> itp;
+	itp = tagsWithoutNs.insert(RawTagMap::value_type(tag, h->className()));
+
+	// Tag exists already -> set invalid classname
+	if ( !itp.second ) itp.first->second.clear();
+
 	classes[h->className()] = Tag(tag, ns);
 	handlers[h->className()] = h;
 }

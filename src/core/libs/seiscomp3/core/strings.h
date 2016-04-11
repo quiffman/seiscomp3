@@ -73,6 +73,7 @@ std::string toString(const ::boost::optional<T>& v);
  *   int, long, time_t
  *   float, double
  *   std::vector of all above types
+ * IMPORTANT: integer types are converted in base 10!
  *
  * @param value The target value
  * @param str The source string

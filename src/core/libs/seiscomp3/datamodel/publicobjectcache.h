@@ -127,6 +127,8 @@ class SC_CORE_DATAMODEL_API PublicObjectCache : public Core::BaseObject {
 		 */
 		bool remove(PublicObject *po);
 
+		//! Clears the cache.
+		void clear();
 
 		/**
 		 * Retrieves the object from the cache. If the object is not

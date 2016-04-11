@@ -55,6 +55,7 @@ NoneHandler Importer::_none;
 
 Importer::Importer() {
 	_typemap = NULL;
+	_strictNamespaceCheck = true;
 }
 
 TypeMap* Importer::typeMap() {
@@ -63,6 +64,11 @@ TypeMap* Importer::typeMap() {
 
 void Importer::setTypeMap(TypeMap *map) {
 	_typemap = map;
+}
+
+
+void Importer::setStrictNamespaceCheck(bool e) {
+	_strictNamespaceCheck = e;
 }
 
 
@@ -93,6 +99,8 @@ Core::BaseObject *Importer::get(std::streambuf* buf) {
 
 	_any.mapper = _typemap;
 
+	bool saveStrictNsCheck = NodeHandler::strictNsCheck;
+
 	if ( !_headerNode.empty() ) {
 		// Check the root tag matching "seiscomp"
 		if ( xmlStrcmp(cur->name, (const xmlChar*)_headerNode.c_str()) ) {
@@ -101,10 +109,15 @@ Core::BaseObject *Importer::get(std::streambuf* buf) {
 			return false;
 		}
 
+		NodeHandler::strictNsCheck = _strictNamespaceCheck;
 		_hasErrors = traverse(&_any, cur, cur->children, NULL) == false;
 	}
-	else
+	else {
+		NodeHandler::strictNsCheck = _strictNamespaceCheck;
 		_hasErrors = traverse(&_any, NULL, cur, NULL) == false;
+	}
+
+	NodeHandler::strictNsCheck = saveStrictNsCheck;
 
 	xmlFreeDoc(doc);
 

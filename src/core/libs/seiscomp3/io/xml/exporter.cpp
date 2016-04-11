@@ -120,7 +120,7 @@ std::string convertUTF8(const std::string &in, const char *encoding, bool fromEn
 }
 
 
-static const char *xmlHeader = "<?xml version=\"1.0\"?>";
+static const char *xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
 Exporter::Exporter() : _ostr(std::cout.rdbuf()) {
 	_typemap = NULL;

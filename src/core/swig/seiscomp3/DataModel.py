@@ -499,6 +499,7 @@ class PublicObjectCache(Core.BaseObject):
     def removePopCallback(self): return _DataModel.PublicObjectCache_removePopCallback(self)
     def feed(self, *args): return _DataModel.PublicObjectCache_feed(self, *args)
     def remove(self, *args): return _DataModel.PublicObjectCache_remove(self, *args)
+    def clear(self): return _DataModel.PublicObjectCache_clear(self)
     def find(self, *args): return _DataModel.PublicObjectCache_find(self, *args)
     def timeWindow(self): return _DataModel.PublicObjectCache_timeWindow(self)
     def oldest(self): return _DataModel.PublicObjectCache_oldest(self)

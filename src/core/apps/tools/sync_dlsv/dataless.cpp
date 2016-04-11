@@ -80,7 +80,7 @@ void Dataless::ParseDataless(string file)
 		
 			if(invent->SetConnection())
 			{
-				invent->SynchronizeInventory();
+				invent->SynchronizeInventory(dump);
 				invent->CloseConnection();
 				invent->vic->EmptyVectors();
 				invent->adc->EmptyVectors();

@@ -64,7 +64,7 @@ template <>
 SC_CORE_CORE_API bool fromString(char& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -83,7 +83,7 @@ template <>
 SC_CORE_CORE_API bool fromString(unsigned char& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -102,7 +102,7 @@ template <>
 SC_CORE_CORE_API bool fromString(int& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -121,7 +121,7 @@ template <>
 SC_CORE_CORE_API bool fromString(unsigned int& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -140,7 +140,7 @@ template <>
 SC_CORE_CORE_API bool fromString(long& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -159,7 +159,7 @@ template <>
 SC_CORE_CORE_API bool fromString(unsigned long& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
@@ -226,7 +226,7 @@ SC_CORE_CORE_API bool fromString(bool& value, const std::string& str) {
 		return true;
 	}
 
-	long int retval = strtol(str.c_str(), &endptr, 0);
+	long int retval = strtol(str.c_str(), &endptr, 10);
 	if ( errno != 0 )
 		return false;
 	if ( endptr ) {
