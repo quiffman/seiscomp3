@@ -37,10 +37,8 @@ Locator::Locator()
 	_count = 0;
 
 	setDefaultLocatorParams();
-	_fixDepth = false;
+	_usingFixedDepth = false;
 
-	// TODO: make this configurable
-	// setLocatorParams(Seiscomp::LP_PREFIX, "/tmp/tables/tab");
 	_minDepth = 5;
 }
 
@@ -116,6 +114,7 @@ Origin *Locator::relocate(const Origin *origin)
 
 // vvvvvvvvvvvvvvvvv
 // FIXME: This is still needed, but it would be better to get rid of it!
+	// if the origin to relocate has a fixed depth, keep it fixed!
 	if (fixedDepth(origin)) {
 		setFixedDepth(origin->dep);
 		useFixedDepth(true);
@@ -127,18 +126,19 @@ Origin *Locator::relocate(const Origin *origin)
 */
 
 
-
-//std::cerr << "Locator::relocate  " << _fixDepth << "  " << _fixedDepth << std::endl; 
 	Origin* relo = _sc3relocate(origin);
 	if ( ! relo)
 		return NULL;
+
 	if (relo->dep <= _minDepth &&
-	    relo->depthType != Origin::DepthManuallyFixed ) {
+	    relo->depthType != Origin::DepthManuallyFixed &&
+	    ! usingFixedDepth()) {
 
 			// relocate again, this time fixing the depth to _minDepth
-			// NOTE: This reconfigures the locator
+			// NOTE: This reconfigures the locator temporarily!
 			setFixedDepth(_minDepth, true);
 			Origin *relo2 = _sc3relocate(origin);
+			useFixedDepth(false); // restore free depth
 
 			if (relo2) {
 				delete relo;
@@ -147,11 +147,6 @@ Origin *Locator::relocate(const Origin *origin)
 			}
 			else return NULL; // FIXME: memory leak?
 	}
-
-/*
-  	if (relo->dep > _minDepth && relo->depthType == Origin::DepthMinimum)
-		relo->depthType = Origin::DepthFree;
-*/
 
 	OriginQuality &q = relo->quality;
 	if ( ! determineAzimuthalGaps(relo, &q.aziGapPrimary, &q.aziGapSecondary))

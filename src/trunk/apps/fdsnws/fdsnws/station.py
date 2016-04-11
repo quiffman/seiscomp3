@@ -58,6 +58,7 @@ class _StationRequestOptions(RequestOptions):
 
 	#---------------------------------------------------------------------------
 	def parse(self):
+		self.parseNoData()
 		self.parseChannel()
 		self.parseTime(True)
 		self.parseGeo()
@@ -65,14 +66,14 @@ class _StationRequestOptions(RequestOptions):
 		# level: [network, station, channel, response]
 		if "level" in self._args:
 			value = self._args["level"][0].lower()
-			if value ==  "network":
+			if value ==  "network" or value == "net":
 				self.includeSta = False
-			elif value == "channel":
+			elif value == "channel" or value == "cha" or value == "chan":
 				self.includeCha = True
-			elif value == "response":
+			elif value == "response" or value == "res" or value == "resp":
 				self.includeCha = True
 				self.includeRes = True
-			elif value != "station":
+			elif value != "station" and value != "sta":
 				raise ValueError, "Invalid value in parameter: level"
 
 		# includeRestricted (optional)
@@ -169,7 +170,7 @@ class FDSNStation(resource.Resource):
 			newNet = DataModel.Network(net)
 
 			# iterate over inventory stations of current network
-			for sta in utils.stationIter(net, ro):
+			for sta in utils.stationIter(net, ro, matchGeo=True):
 				if not ro.restricted and sta.restricted(): continue
 				if not HTTP.checkObjects(req, objCount, maxObj): return False
 				if ro.includeCha:
@@ -241,7 +242,7 @@ class FDSNStation(resource.Resource):
 			return True
 
 		for loc in utils.locationIter(sta, ro):
-			if not ro.channel.cha:
+			if not ro.channel.cha and not ro.time:
 				return True
 
 			for stream in utils.streamIter(loc, ro):

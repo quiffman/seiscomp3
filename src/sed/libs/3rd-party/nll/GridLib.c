@@ -94,10 +94,11 @@ void SetConstants(void) {
     AnglesNULL = SetTakeOffAngles(400.0, 200.0, 0);
 
     /* set null elliposid */
-    Ellipsoid3D Ell3NULL = {-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0};
+    /*Ellipsoid3D Ell3NULL = {-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0};
     EllipsoidNULL = Ell3NULL;
     Ellipse2D Ell2NULL = {-1.0, -1.0, -1.0};
     EllipseNULL = Ell2NULL;
+    */
 
 }
 
@@ -388,6 +389,51 @@ SourceDesc* FindSource(char* label) {
     }
     return (NULL);
 }
+
+/** function to convert map projection string to map transformation parameter string by removing parameter tags
+ *
+ * Example: converts
+ * TRANSFORM  LAMBERT RefEllipsoid Clarke-1880  LatOrig 40.780400  LongOrig 15.415500  FirstStdParal 43.199300  SecondStdParal 44.996100  RotCW 0.000000
+ * to
+ * LAMBERT Clarke-1880  40.780400  15.415500  43.199300  44.996100  0.000000
+ *
+  ***/
+
+char* projection_str2transform_str(char* trans_str, char* proj_str) {
+
+    char *proj_ptr;
+    char *trans_ptr;
+
+    proj_ptr = proj_str;
+    trans_ptr = trans_str;
+    while (*proj_ptr != '\0') {
+        // skip tag
+        while (*proj_ptr != ' ' && *proj_ptr != '\0') {
+            proj_ptr++;
+        }
+        // skip space
+        while (*proj_ptr == ' ' && *proj_ptr != '\0') {
+            proj_ptr++;
+        }
+        // copy parameter value
+        while (*proj_ptr != ' ' && *proj_ptr != '\0') {
+            *trans_ptr = *proj_ptr;
+            trans_ptr++;
+            proj_ptr++;
+        }
+        // copy space
+        while (*proj_ptr == ' ' && *proj_ptr != '\0') {
+            *trans_ptr = *proj_ptr;
+            trans_ptr++;
+            proj_ptr++;
+        }
+    }
+
+    *trans_ptr = '\0';
+    return(trans_str);
+
+}
+
 
 /** function to read map transformation parameters from input line ***/
 
@@ -870,7 +916,7 @@ int CheckGridArray(GridDesc* pgrid, double gridMax, double gridMaxReplace,
 
 /* reads from  array if fp_grid_new == NULL */
 
-int SumGrids(GridDesc* pgrid_sum, GridDesc* pgrid_new, FILE* fp_grid_new) {
+int SumGrids(GridDesc* pgrid_sum, GridDesc* pgrid_new, FILE* fp_grid_new, double factor) {
 
     int ix, iy, iz;
     GRID_FLOAT_TYPE xval, yval, zval, newval;
@@ -888,7 +934,7 @@ int SumGrids(GridDesc* pgrid_sum, GridDesc* pgrid_new, FILE* fp_grid_new) {
                         ReadAbsInterpGrid3d(fp_grid_new,
                         pgrid_new, xval, yval, zval))
                         > -LARGE_FLOAT)
-                    ((GRID_FLOAT_TYPE ***) pgrid_sum->array)[ix][iy][iz] += newval;
+                    ((GRID_FLOAT_TYPE ***) pgrid_sum->array)[ix][iy][iz] += factor * newval;
 
                 zval += pgrid_sum->dz;
             }
@@ -913,7 +959,8 @@ int SumGrids(GridDesc* pgrid_sum, GridDesc* pgrid_new, FILE* fp_grid_new) {
 int isOnGridBoundary(double xloc, double yloc, double zloc, GridDesc* pgrid,
         double tolerance_xy, double tolerance_z, int i_check_top) {
 
-    if (fabs(xloc - pgrid->origx) <= tolerance_xy)
+    if (GeometryMode == MODE_GLOBAL) {
+        if (fabs(xloc - pgrid->origx) <= tolerance_xy)
         return (10);
     if (fabs(xloc - (pgrid->origx + (double) (pgrid->numx - 1) * pgrid->dx))
             <= tolerance_xy)
@@ -923,6 +970,8 @@ int isOnGridBoundary(double xloc, double yloc, double zloc, GridDesc* pgrid,
     if (fabs(yloc - (pgrid->origy + (double) (pgrid->numy - 1) * pgrid->dy))
             <= tolerance_xy)
         return (21);
+    }
+
     if (i_check_top && fabs(zloc - pgrid->origz) <= tolerance_z)
         return (30);
     if (fabs(zloc - (pgrid->origz + (double) (pgrid->numz - 1) * pgrid->dz))
@@ -2161,7 +2210,7 @@ INLINE DOUBLE ReadAbsInterpGrid2d(FILE *fpgrid, GridDesc* pgrid, double yloc, do
 }
 
 
-/** function to find value inside a square using Lagrange interpolation***/
+/** function to find value inside a square using Lagrange interpolation */
 
 /* 	0.0 <= vvalKLM <= 1.0 */
 
@@ -2251,13 +2300,13 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
                 phypo->ix, phypo->iy, phypo->iz);
     }
     fprintf(fpio,
-            "GEOGRAPHIC  OT %4.4d %2.2d %2.2d  %2.2d %2.2d %9.6lg  Lat %lg Long %lg Depth %lg\n",
+            "GEOGRAPHIC  OT %4.4d %2.2d %2.2d  %2.2d %2.2d %f  Lat %f Long %f Depth %lg\n",
             //"GEOGRAPHIC  OT %4.4d %2.2d %2.2d  %2.2d %2.2d %lg  Lat %lg Long %lg Depth %lg\n",
             phypo->year, phypo->month, phypo->day,
             phypo->hour, phypo->min, (double) phypo->sec,
             phypo->dlat, phypo->dlong, phypo->depth);
     fprintf(fpio,
-            "QUALITY  Pmax %lg MFmin %lg MFmax %lg RMS %lg Nphs %d Gap %lg Dist %lg Mamp %5.2lg %d Mdur %5.2lg %d\n",
+            "QUALITY  Pmax %Lg MFmin %lg MFmax %lg RMS %lg Nphs %d Gap %lg Dist %lg Mamp %5.2lg %d Mdur %5.2lg %d\n",
             phypo->probmax, phypo->misfit, phypo->grid_misfit_max,
             phypo->rms, phypo->nreadings, phypo->gap,
             GeometryMode == MODE_GLOBAL ? phypo->dist * KM2DEG : phypo->dist,
@@ -2290,7 +2339,7 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
         fprintf(fpio, " Len3  %le\n", phypo->ellipsoid.len3);
 
         fprintf(fpio,
-                "STAT_GEOG  ExpectLat %lg Long %lg Depth %lg\n",
+                "STAT_GEOG  ExpectLat %f Long %f Depth %f\n",
                 phypo->expect_dlat, phypo->expect_dlong, phypo->expect.z);
 
         fprintf(fpio, "%s\n", MapProjStr[n_proj]);
@@ -2355,7 +2404,7 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
 
         /* write mechanism */
         fprintf(fpio,
-                "FOCALMECH  Hyp  %lg %lg %lg",
+                "FOCALMECH  Hyp  %f %f %f",
                 phypo->dlat, phypo->dlong, phypo->depth);
         fprintf(fpio,
                 " Mech  %lg %lg %lg",
@@ -2367,10 +2416,10 @@ int _WriteLocation(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
 
 
         /* write differential loc parameters */
-        if (nll_mode == MODE_DIFFERENTIAL) {
+        if (nll_mode == MODE_DIFFERENTIAL
+                || phypo->event_id >= 0) {    // 20110620 AJL - preserve event id if available
             fprintf(fpio,
-                    "DIFFERENTIAL  Nhyp %ld",
-                    phypo->event_id);
+                    "DIFFERENTIAL  Nhyp %ld", phypo->event_id);
             fprintf(fpio, "\n");
         }
 
@@ -2555,7 +2604,7 @@ int GetHypLoc(FILE *fpio, const char* filein, HypoDesc* phypo,
         } else if (strncmp(line, "QUALITY", 7) == 0) {
             /* QUALITY */
             if (sscanf(line,
-                    "%*s %*s %lf %*s %lf %*s %lf %*s %lf %*s %d %*s %lf %*s %lf %*s %lf %d %*s %lf %d",
+                    "%*s %*s %Lf %*s %lf %*s %lf %*s %lf %*s %d %*s %lf %*s %lf %*s %lf %d %*s %lf %d",
                     &phypo->probmax, &phypo->misfit,
                     &phypo->grid_misfit_max,
                     &phypo->rms, &phypo->nreadings, &phypo->gap,
@@ -2639,8 +2688,7 @@ int GetHypLoc(FILE *fpio, const char* filein, HypoDesc* phypo,
 
             /* DIFFERENTIAL */
             /* Nhyp n */
-            if (sscanf(line, "%*s %*s %ld", &phypo->event_id
-                    ) == EOF)
+            if (sscanf(line, "%*s %*s %ld", &phypo->event_id) == EOF)
                 goto eof_exit;
         } else if (strncmp(line, "PHASE", 5) == 0) {
 
@@ -2687,6 +2735,9 @@ int GetHypLoc(FILE *fpio, const char* filein, HypoDesc* phypo,
                 ;
             if (pstr == NULL)
                 goto eof_exit;
+        } else if (strncmp(line, "QML_", 4) == 0) {
+            /* QML_ */
+            ;
         } else {
 
             nll_putmsg(1,
@@ -2919,7 +2970,8 @@ int WriteArrival(FILE* fpio, ArrivalDesc* parr, int iWriteType) {
     } else if (PhaseFormat == FORMAT_PHASE_2) {
         // write observation part of FORMAT_PHASE_2 phase line
         istat = fprintf(fpio,
-                "%-6s %-4s %-4s %-1s %-6s %-1s %8.8ld %4.4ld %9.4lf %-3s %9.2le %9.2le %9.2le %9.2le %9.4lf",
+                // 20110107 AJL "%-6s %-4s %-4s %-1s %-6s %-1s %8.8ld %4.4ld %9.4lf %-3s %9.2le %9.2le %9.2le %9.2le %9.4lf",
+                "%-12s %-4s %-4s %-1s %-6s %-1s %8.8ld %4.4ld %9.4lf %-3s %9.2le %9.2le %9.2le %9.2le %9.4lf",
                 parr->label,
                 parr->inst,
                 parr->comp,
@@ -3298,12 +3350,11 @@ INLINE int rect2latlon(int n_proj, double xrect, double yrect, double* pdlat, do
         ytemp = yrect * map_cosang[n_proj] - xrect * map_sinang[n_proj];
         *pdlat = map_orig_lat[n_proj] + ytemp / c111;
         *pdlong = map_orig_long[n_proj] + xtemp / (c111 * cos(cRPD * *pdlat));
-	// 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
-	if (*pdlong < -180.0)
-	    *pdlong += 360.0;
-	else if (*pdlong > 180.0)
-	         *pdlong -= 360.0;
-	//
+        // 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
+        if (*pdlong < -180.0)
+            *pdlong += 360.0;
+        else if (*pdlong > 180.0)
+            *pdlong -= 360.0;
 
         return (0);
 
@@ -3326,12 +3377,11 @@ INLINE int rect2latlon(int n_proj, double xrect, double yrect, double* pdlat, do
         xlt1 = atan(MAP_TRANS_SDC_DRLT * tan(DE2RA * (*pdlat + map_orig_lat[n_proj]) / 2.0));
         xtemp = xtemp / (map_sdc_xlnkm[n_proj] * cos(xlt1));
         *pdlong = map_orig_long[n_proj] + xtemp;
-	// 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
-	if (*pdlong < -180.0)
-	    *pdlong += 360.0;
-	else if (*pdlong > 180.0)
-	         *pdlong -= 360.0;
-	//
+        // 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
+        if (*pdlong < -180.0)
+            *pdlong += 360.0;
+        else if (*pdlong > 180.0)
+            *pdlong -= 360.0;
 
         return (0);
 
@@ -3340,6 +3390,11 @@ INLINE int rect2latlon(int n_proj, double xrect, double yrect, double* pdlat, do
         xtemp = xrect * map_cosang[n_proj] + yrect * map_sinang[n_proj];
         ytemp = yrect * map_cosang[n_proj] - xrect * map_sinang[n_proj];
         ilamb(n_proj, pdlong, pdlat, xtemp * 1000.0, ytemp * 1000.0);
+        // 20121005 AJL - prevent longitude outside of -180 -> 180 deg range
+        if (*pdlong < -180.0)
+            *pdlong += 360.0;
+        else if (*pdlong > 180.0)
+            *pdlong -= 360.0;
 
         return (0);
     }
@@ -3581,6 +3636,12 @@ int ExpandWildCards(char* fileFilter, char fileList[][FILENAME_MAX], int maxNumF
         return (-1);
     } else if (n == 0) {
         nll_puterr2("ERROR: empty directory: expanding wildcard filenames in: ", fileFilter);
+        return (-1);
+    } else if (n > maxNumFiles) { // 20111011 AJL - added this block to catch excess number of wildcard files
+        sprintf(MsgStr,
+                "ERROR: too many files: expanding wildcard filenames in: %s, max number of files = %d",
+                fileFilter, maxNumFiles);
+        nll_puterr(MsgStr);
         return (-1);
     } else {
         while (--n >= 0) {
@@ -4022,11 +4083,11 @@ Vect3D CalcExpectation(GridDesc* pgrid, FILE* fpgrid) {
 
 /** function to calculate the covariance a PDF grid */
 
-Mtrx3D CalcCovariance(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
+Mtrx3D CalcCovariance_OLD(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
 
     int ix, iy, iz;
 
-    GRID_FLOAT_TYPE val;
+    double val;
     double x, y, z, xx, xy, xz, yy, yz, zz;
     double volume;
 
@@ -4064,10 +4125,14 @@ Mtrx3D CalcCovariance(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
                 zz = z * z;
 
                 if (fpgrid != NULL)
-                    val = ReadGrid3dValue(fpgrid,
-                        ix, iy, iz, pgrid);
+                    val = ReadGrid3dValue(fpgrid, ix, iy, iz, pgrid);
                 else
                     val = ((GRID_FLOAT_TYPE ***) pgrid->array)[ix][iy][iz];
+
+                if (val < 0.0) {
+                    printf("ERROR: CalcCovariance: Grid value < 0: ixyz= %d %d %d  value= %g\n", ix, iy, iz, val);
+                    continue;
+                }
 
                 cov.xx += (double) val * xx;
                 cov.xy += (double) val * xy;
@@ -4084,6 +4149,7 @@ Mtrx3D CalcCovariance(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
 
     volume = pgrid->dx * pgrid->dy * pgrid->dz;
 
+    printf("DEBUG: cov.yy = cov.yy(%g) * volume(%g) (= %g) - pexpect->y(%g) * pexpect->y (= %g)\n", cov.yy, volume, cov.yy * volume, pexpect->y, pexpect->y * pexpect->y);
     cov.xx = cov.xx * volume - pexpect->x * pexpect->x;
     cov.xy = cov.xy * volume - pexpect->x * pexpect->y;
     cov.xz = cov.xz * volume - pexpect->x * pexpect->z;
@@ -4096,330 +4162,106 @@ Mtrx3D CalcCovariance(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
     cov.zy = cov.yz;
     cov.zz = cov.zz * volume - pexpect->z * pexpect->z;
 
+    printf("DEBUG: CalcCovariance: volume= %g  cov.yy= %g\n", volume, cov.yy);
 
     return (cov);
 }
 
-/** function to calculate the expectation (mean)  of a set of samples */
+/** function to calculate the covariance a PDF grid */
 
-Vect3D CalcExpectationSamples(float* fdata, int nSamples) {
+Mtrx3D CalcCovariance(GridDesc* pgrid, Vect3D* pexpect, FILE* fpgrid) {
 
-    int nsamp, ipos;
+    int ix, iy, iz;
 
-    float x, y, z, prob;
-    Vect3D expect = {0.0, 0.0, 0.0};
+    double val;
+    double x, y, z, xx, xy, xz, yy, yz, zz;
+    double volume;
+
+    Mtrx3D cov = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 
-    ipos = 0;
-    for (nsamp = 0; nsamp < nSamples; nsamp++) {
-        x = fdata[ipos++];
-        y = fdata[ipos++];
-        z = fdata[ipos++];
-        prob = fdata[ipos++];
-        expect.x += (double) x;
-        expect.y += (double) y;
-        expect.z += (double) z;
+
+    /* cannot calculate for misfit grid */
+    if (pgrid->type == GRID_MISFIT) {
+        cov.xx = cov.xy = cov.xz =
+                cov.yx = cov.yy = cov.yz =
+                cov.zx = cov.zy = cov.zz
+                = -LARGE_DOUBLE;
+        return (cov);
     }
 
-    expect.x /= (double) nSamples;
-    expect.y /= (double) nSamples;
-    expect.z /= (double) nSamples;
 
-    return (expect);
+
+    /* calculate covariance following eq. (6-12), T & V, 1982 */
+
+
+    for (ix = 0; ix < pgrid->numx; ix++) {
+        x = pgrid->origx + (double) ix * pgrid->dx - pexpect->x;
+        xx = x * x;
+
+        for (iy = 0; iy < pgrid->numy; iy++) {
+            y = pgrid->origy + (double) iy * pgrid->dy - pexpect->y;
+            yy = y * y;
+            xy = x * y;
+
+            for (iz = 0; iz < pgrid->numz; iz++) {
+                z = pgrid->origz + (double) iz * pgrid->dz - pexpect->z;
+                xz = x * z;
+                yz = y * z;
+                zz = z * z;
+
+                if (fpgrid != NULL)
+                    val = ReadGrid3dValue(fpgrid, ix, iy, iz, pgrid);
+                else
+                    val = ((GRID_FLOAT_TYPE ***) pgrid->array)[ix][iy][iz];
+
+                if (val < 0.0) {
+                    printf("ERROR: CalcCovariance: Grid value < 0: ixyz= %d %d %d  value= %g\n", ix, iy, iz, val);
+                    continue;
+                }
+
+                cov.xx += (double) val * xx;
+                cov.xy += (double) val * xy;
+                cov.xz += (double) val * xz;
+
+                cov.yy += (double) val * yy;
+                cov.yz += (double) val * yz;
+
+                cov.zz += (double) val * zz;
+
+            }
+        }
+    }
+
+    volume = pgrid->dx * pgrid->dy * pgrid->dz;
+
+    printf("DEBUG: cov.yy = cov.yy(%g) * volume(%g) (= %g) - pexpect->y(%g) * pexpect->y (= %g)\n", cov.yy, volume, cov.yy * volume, pexpect->y, pexpect->y * pexpect->y);
+    cov.xx = cov.xx * volume;
+    cov.xy = cov.xy * volume;
+    cov.xz = cov.xz * volume;
+
+    cov.yx = cov.xy;
+    cov.yy = cov.yy * volume;
+    cov.yz = cov.yz * volume;
+
+    cov.zx = cov.xz;
+    cov.zy = cov.yz;
+    cov.zz = cov.zz * volume;
+
+    printf("DEBUG: CalcCovariance: volume= %g  cov.yy= %g\n", volume, cov.yy);
+
+    return (cov);
 }
 
 /** function to calculate the covariance of a set of samples */
 
 Mtrx3D CalcCovarianceSamples(float* fdata, int nSamples, Vect3D* pexpect) {
 
+    printf("GeometryMode %s\n", GeometryMode == MODE_GLOBAL ? "MODE_GLOBAL" : "MODE_RECT");
     if (GeometryMode == MODE_GLOBAL)
         return (CalcCovarianceSamplesGlobal(fdata, nSamples, pexpect));
     else
         return (CalcCovarianceSamplesRect(fdata, nSamples, pexpect));
-
-}
-
-/** function to calculate the covariance of a set of samples */
-
-Mtrx3D CalcCovarianceSamplesRect(float* fdata, int nSamples, Vect3D* pexpect) {
-
-    int nsamp, ipos;
-
-    float x, y, z, prob;
-    Mtrx3D cov = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-
-    /* calculate covariance following eq. (6-12), T & V, 1982 */
-
-    ipos = 0;
-    for (nsamp = 0; nsamp < nSamples; nsamp++) {
-        x = fdata[ipos++];
-        y = fdata[ipos++];
-        z = fdata[ipos++];
-        prob = fdata[ipos++];
-
-        cov.xx += (double) (x * x);
-        cov.xy += (double) (x * y);
-        cov.xz += (double) (x * z);
-
-        cov.yy += (double) (y * y);
-        cov.yz += (double) (y * z);
-
-        cov.zz += (double) (z * z);
-
-    }
-
-    cov.xx = cov.xx / (double) nSamples - pexpect->x * pexpect->x;
-    cov.xy = cov.xy / (double) nSamples - pexpect->x * pexpect->y;
-    cov.xz = cov.xz / (double) nSamples - pexpect->x * pexpect->z;
-
-    cov.yx = cov.xy;
-    cov.yy = cov.yy / (double) nSamples - pexpect->y * pexpect->y;
-    cov.yz = cov.yz / (double) nSamples - pexpect->y * pexpect->z;
-
-    cov.zx = cov.xz;
-    cov.zy = cov.yz;
-    cov.zz = cov.zz / (double) nSamples - pexpect->z * pexpect->z;
-
-
-    return (cov);
-}
-
-/** function to calculate the covariance of a set of samples in long(deg)/lat(deg)/depth(km) coordinates */
-
-Mtrx3D CalcCovarianceSamplesGlobal(float* fdata, int nSamples, Vect3D* pexpect) {
-
-    int nsamp, ipos;
-
-    float x, y, z, prob;
-    Mtrx3D cov = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-    double cos_lat = cos(pexpect->y * DE2RA);
-
-    /* calculate covariance following eq. (6-12), T & V, 1982 */
-
-    ipos = 0;
-    for (nsamp = 0; nsamp < nSamples; nsamp++) {
-        x = fdata[ipos++] * DEG2KM * cos_lat;
-        y = fdata[ipos++] * DEG2KM;
-        z = fdata[ipos++];
-        prob = fdata[ipos++];
-
-        cov.xx += (double) (x * x);
-        cov.xy += (double) (x * y);
-        cov.xz += (double) (x * z);
-
-        cov.yy += (double) (y * y);
-        cov.yz += (double) (y * z);
-
-        cov.zz += (double) (z * z);
-
-    }
-
-    cov.xx = cov.xx / (double) nSamples - pexpect->x * pexpect->x * DEG2KM * cos_lat * DEG2KM * cos_lat;
-    cov.xy = cov.xy / (double) nSamples - pexpect->x * pexpect->y * DEG2KM * cos_lat * DEG2KM;
-    cov.xz = cov.xz / (double) nSamples - pexpect->x * pexpect->z * DEG2KM * cos_lat;
-
-    cov.yx = cov.xy;
-    cov.yy = cov.yy / (double) nSamples - pexpect->y * pexpect->y * DEG2KM * DEG2KM;
-    cov.yz = cov.yz / (double) nSamples - pexpect->y * pexpect->z * DEG2KM;
-
-    cov.zx = cov.xz;
-    cov.zy = cov.yz;
-    cov.zz = cov.zz / (double) nSamples - pexpect->z * pexpect->z;
-
-
-    return (cov);
-}
-
-
-
-/** function to calculate confidence ellipsoid from covariance matrix */
-
-/* 	finds confidence ellipsoid from SVD of Cov mtrx.  See
-                Num Rec, 2nd ed, secs 2.6 & 15.6
-
-                del_chi_2 is delta Chi-square (see Num Rec, 2nd ed, fig 15.6.5)
- */
-
-
-Ellipse2D CalcHorizontalErrorEllipse(Mtrx3D *pcov, double del_chi_2) {
-
-    int ndx, iSwitched;
-    MatrixDouble A_matrix, V_matrix;
-    VectorDouble W_vector;
-    double wtemp, vtemp;
-    Ellipse2D ell;
-
-    int ierr = 0;
-
-
-    /* allocate A mtrx */
-    A_matrix = matrix_double(2, 2);
-
-    /* load A matrix in NumRec format */
-    A_matrix[0][0] = pcov->xx;
-    A_matrix[0][1] = A_matrix[1][0] = pcov->xy;
-    A_matrix[1][1] = pcov->yy;
-
-
-    /* allocate V mtrx and W vector */
-    V_matrix = matrix_double(2, 2);
-    W_vector = vector_double(2);
-
-    /* do SVD */
-    //if ((istat = nll_svdcmp0(A_matrix, 2, 2, W_vector, V_matrix)) < 0) {
-    svd_helper(A_matrix, 2, 2, W_vector, V_matrix);
-    if (W_vector[0] < SMALL_DOUBLE || W_vector[1] < SMALL_DOUBLE) {
-        nll_puterr(
-                "ERROR: invalid SVD singular value for confidence ellipsoids.");
-        ierr = 1;
-    } else {
-
-        /* sort by singular values W */
-        iSwitched = 1;
-        while (iSwitched) {
-            iSwitched = 0;
-            for (ndx = 0; ndx < 1; ndx++) {
-                if (W_vector[ndx] > W_vector[ndx + 1]) {
-                    wtemp = W_vector[ndx];
-                    W_vector[ndx] = W_vector[ndx + 1];
-                    W_vector[ndx + 1] = wtemp;
-                    vtemp = V_matrix[0][ndx];
-                    V_matrix[0][ndx] = V_matrix[0][ndx + 1];
-                    V_matrix[0][ndx + 1] = vtemp;
-                    vtemp = V_matrix[1][ndx];
-                    V_matrix[1][ndx] = V_matrix[1][ndx + 1];
-                    V_matrix[1][ndx + 1] = vtemp;
-                    iSwitched = 1;
-                }
-            }
-        }
-
-
-        /* calculate ellipsoid axes */
-        /* length: w in Num Rec, 2nd ed, fig 15.6.5 must be replaced
-                by 1/sqrt(w) since we are using SVD of Cov mtrx and not
-                SVD of A mtrx (compare eqns 2.6.1  & 15.6.10) */
-
-        ell.az1 = atan2(V_matrix[0][0], V_matrix[1][0]) / cRPD;
-        if (ell.az1 < 0.0)
-            ell.az1 += 360.0;
-        else if (ell.az1 >= 360.0)
-            ell.az1 -= 360.0;
-        if (ell.az1 >= 180.0) // force in range [0, 180)
-            ell.az1 -= 180.0;
-        ell.len1 = sqrt(del_chi_2) / sqrt(1.0 / W_vector[0]);
-        ell.len2 = sqrt(del_chi_2) / sqrt(1.0 / W_vector[1]);
-
-    }
-
-    free_matrix_double(A_matrix, 2, 2);
-    free_matrix_double(V_matrix, 2, 2);
-    free_vector_double(W_vector);
-
-    if (ierr)
-        return (EllipseNULL);
-    else
-        return (ell);
-
-}
-
-/** function to calculate confidence ellipsoid from covariance matrix */
-
-/* 	finds confidence ellipsoid from SVD of Cov mtrx.  See
-                Num Rec, 2nd ed, secs 2.6 & 15.6
-
-                del_chi_2 is delta Chi-square (see Num Rec, 2nd ed, fig 15.6.5)
- */
-
-
-Ellipsoid3D CalcErrorEllipsoid(Mtrx3D *pcov, double del_chi_2) {
-    int ndx, iSwitched;
-    MatrixDouble A_matrix, V_matrix;
-    VectorDouble W_vector;
-    double wtemp, vtemp;
-    Ellipsoid3D ell;
-
-    int ierr = 0;
-
-
-    /* allocate A mtrx */
-    A_matrix = matrix_double(3, 3);
-
-    /* load A matrix in NumRec format */
-    A_matrix[0][0] = pcov->xx;
-    A_matrix[0][1] = A_matrix[1][0] = pcov->xy;
-    A_matrix[0][2] = A_matrix[2][0] = pcov->xz;
-    A_matrix[1][1] = pcov->yy;
-    A_matrix[1][2] = A_matrix[2][1] = pcov->yz;
-    A_matrix[2][2] = pcov->zz;
-
-
-    /* allocate V mtrx and W vector */
-    V_matrix = matrix_double(3, 3);
-    W_vector = vector_double(3);
-
-    /* do SVD */
-    //if ((istat = nll_svdcmp0(A_matrix, 3, 3, W_vector, V_matrix)) < 0) {
-    svd_helper(A_matrix, 3, 3, W_vector, V_matrix);
-    if (W_vector[0] < SMALL_DOUBLE || W_vector[1] < SMALL_DOUBLE || W_vector[2] < SMALL_DOUBLE) {
-        nll_puterr(
-                "ERROR: invalid SVD singular value for confidence ellipsoids.");
-        ierr = 1;
-    } else {
-
-        /* sort by singular values W */
-        iSwitched = 1;
-        while (iSwitched) {
-            iSwitched = 0;
-            for (ndx = 0; ndx < 2; ndx++) {
-                if (W_vector[ndx] > W_vector[ndx + 1]) {
-                    wtemp = W_vector[ndx];
-                    W_vector[ndx] = W_vector[ndx + 1];
-                    W_vector[ndx + 1] = wtemp;
-                    vtemp = V_matrix[0][ndx];
-                    V_matrix[0][ndx] = V_matrix[0][ndx + 1];
-                    V_matrix[0][ndx + 1] = vtemp;
-                    vtemp = V_matrix[1][ndx];
-                    V_matrix[1][ndx] = V_matrix[1][ndx + 1];
-                    V_matrix[1][ndx + 1] = vtemp;
-                    vtemp = V_matrix[2][ndx];
-                    V_matrix[2][ndx] = V_matrix[2][ndx + 1];
-                    V_matrix[2][ndx + 1] = vtemp;
-                    iSwitched = 1;
-                }
-            }
-        }
-
-
-        /* calculate ellipsoid axes */
-        /* length: w in Num Rec, 2nd ed, fig 15.6.5 must be replaced
-                by 1/sqrt(w) since we are using SVD of Cov mtrx and not
-                SVD of A mtrx (compare eqns 2.6.1  & 15.6.10) */
-
-        ell.az1 = atan2(V_matrix[0][0], V_matrix[1][0]) / cRPD;
-        if (ell.az1 < 0.0)
-            ell.az1 += 360.0;
-        ell.dip1 = asin(V_matrix[2][0]) / cRPD;
-        ell.len1 = sqrt(del_chi_2) / sqrt(1.0 / W_vector[0]);
-        ell.az2 = atan2(V_matrix[0][1], V_matrix[1][1]) / cRPD;
-        if (ell.az2 < 0.0)
-            ell.az2 += 360.0;
-        ell.dip2 = asin(V_matrix[2][1]) / cRPD;
-        ell.len2 = sqrt(del_chi_2) / sqrt(1.0 / W_vector[1]);
-        ell.len3 = sqrt(del_chi_2) / sqrt(1.0 / W_vector[2]);
-
-    }
-
-    free_matrix_double(A_matrix, 3, 3);
-    free_matrix_double(V_matrix, 3, 3);
-    free_vector_double(W_vector);
-
-    if (ierr)
-        return (EllipsoidNULL);
-    else
-        return (ell);
 
 }
 
@@ -5040,6 +4882,201 @@ int WriteDiffArrival(FILE* fpio, HypoDesc* hypos, ArrivalDesc* parr, int iWriteT
 
 }
 
+/** function to generate take-off angles from travel time grid
+                                using a numerical gradient aglorithm */
+
+int CalcAnglesGradient(GridDesc* ptgrid, GridDesc* pagrid, int angle_mode, int grid_mode) {
+
+    int ix, iy, iz, edge_flagx = 0, edge_flagy = 0, iflag2D = 0;
+    double origx, origy, origz;
+    double dx, dy, dz, dvol;
+    double xlow = 0.0, xhigh = 0.0;
+    double azim, dip;
+    int iqual;
+
+    TakeOffAngles angles = AnglesNULL;
+
+
+    /* write message */
+    sprintf(MsgStr, "Generating take-off angle grid...");
+    nll_putmsg(1, MsgStr);
+
+
+    if (grid_mode == GRID_TIME_2D) {
+        iflag2D = 1;
+        xlow = xhigh = 0.0;
+    }
+
+    /* estimate take-off angles from numerical gradients */
+
+    origx = pagrid->origx;
+    origy = pagrid->origy;
+    origz = pagrid->origz;
+    dx = pagrid->dx;
+    dy = pagrid->dy;
+    dz = pagrid->dz;
+    dvol = dx * dy * dz;
+
+    for (ix = 0; ix < pagrid->numx; ix++) {
+        /* 2D grids, store angles in ix = 0 sheet */
+        if (ix == 1 && iflag2D)
+            edge_flagx = 1;
+        if ((ix == 0 || ix == pagrid->numx - 1)
+                && grid_mode == GRID_TIME)
+            edge_flagx = 1;
+        for (iy = 0; iy < pagrid->numy; iy++) {
+            if (iy == 0 || iy == pagrid->numy - 1)
+                edge_flagy = 1;
+            for (iz = 0; iz < pagrid->numz; iz++) {
+
+                /* no calculation for edges of grid */
+                if (edge_flagx || edge_flagy
+                        || iz == 0 || iz == pagrid->numz - 1) {
+                    ((GRID_FLOAT_TYPE ***) pagrid->array)[ix][iy][iz] = AnglesNULL.fval;
+                    continue;
+                }
+
+                if (!iflag2D) {
+                    xlow = ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix - 1][iy][iz];
+                    xhigh = ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix + 1][iy][iz];
+                }
+                angles = GetGradientAngles(
+                        ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix][iy][iz],
+                        xlow,
+                        xhigh,
+                        ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix][iy - 1][iz],
+                        ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix][iy + 1][iz],
+                        /* intentional reversal of z
+                                signs to get pos = up */
+                        ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix][iy][iz + 1],
+                        ((GRID_FLOAT_TYPE ***) ptgrid->array)[ix][iy][iz - 1],
+                        dx, dy, dz, iflag2D,
+                        &azim, &dip, &iqual);
+                if (angle_mode == ANGLE_MODE_YES) {
+                    ((GRID_FLOAT_TYPE ***) pagrid->array)[ix][iy][iz] = angles.fval;
+                } else if (angle_mode == ANGLE_MODE_INCLINATION) {
+                    ((GRID_FLOAT_TYPE ***) pagrid->array)[ix][iy][iz] = dip;
+                }
+
+            }
+            edge_flagy = 0;
+        }
+        edge_flagx = 0;
+    }
+
+
+    return (0);
+
+}
+
+/** function to generate take-off angles from time grid node values */
+
+TakeOffAngles GetGradientAngles(double vcent, double xlow, double xhigh,
+        double ylow, double yhigh, double zlow, double zhigh,
+        double dx, double dy, double dz, int iflag2D,
+        double *pazim, double *pdip, int *piqual) {
+
+    double grad_low, grad_high, gradx, grady, gradz, azim, dip;
+    int iqualx, iqualy, iqualz, iqual, iflip;
+    TakeOffAngles angles = AnglesNULL;
+
+
+
+    /* calculate gradient of travel time and quality in Z direction */
+    grad_low = (vcent - zlow) / dz;
+    grad_high = (zhigh - vcent) / dz;
+    iqualz = CalcAnglesQuality(grad_low, grad_high);
+    gradz = (grad_low + grad_high) / 2.0;
+    gradz = -gradz; /* reverse sign to get take-off angle */
+
+    /* calculate gradient of travel time and quality in Y direction */
+    grad_low = (vcent - ylow) / dy;
+    grad_high = (yhigh - vcent) / dy;
+    iqualy = CalcAnglesQuality(grad_low, grad_high);
+    grady = (grad_low + grad_high) / 2.0;
+    grady = -grady; /* reverse sign to get take-off angle */
+
+    /* thats all for 2D grids */
+    if (iflag2D) {
+        /* calculate dip angle (range of 0 (down) to 180 (up)) */
+        dip = atan2(grady, -gradz) / cRPD;
+        iflip = 0;
+        if (dip > 180.0) {
+            dip = dip - 180.0;
+            iflip = 1;
+        } else if (dip < 0.0) {
+            dip = -dip;
+            iflip = 1;
+        }
+        /* calculate azimuth polarity (1 or -1) relative to pos Y dir */
+        azim = iflip ? -1.0 : 1.0;
+        /* find combined quality - weighted average of component qual */
+        iqual = (fabs(grady) * (double) iqualy
+                + fabs(gradz) * (double) iqualz)
+                / (fabs(grady) + fabs(gradz));
+        /* set angles */
+        angles = SetTakeOffAngles(azim, dip, iqual);
+        *pazim = azim;
+        *pdip = dip;
+        *piqual = iqual;
+        return (angles);
+    }
+
+    /* calculate gradient of travel time and quality in X direction */
+    grad_low = (vcent - xlow) / dx;
+    grad_high = (xhigh - vcent) / dx;
+    iqualx = CalcAnglesQuality(grad_low, grad_high);
+    gradx = (grad_low + grad_high) / 2.0;
+    gradx = -gradx; /* reverse sign to get take-off angle */
+
+    /* find combined quality - weighted average of component qual */
+    iqual = (fabs(gradx) * (double) iqualx
+            + fabs(grady) * (double) iqualy
+            + fabs(gradz) * (double) iqualz)
+            / (fabs(gradx) + fabs(grady) + fabs(gradz));
+
+    /* calculate dip angle (range of 0 (down) to 180 (up)) */
+    dip = atan2(sqrt(gradx * gradx + grady * grady), -gradz) / cRPD;
+    /* calculate azimuth angle (0 to 360) */
+    azim = atan2(gradx, grady) / cRPD;
+    if (azim < 0.0)
+        azim += 360.0;
+    angles = SetTakeOffAngles(azim, dip, iqual);
+
+    // return double angles values
+    *pazim = azim;
+    *pdip = dip;
+    *piqual = iqual;
+
+    return (angles);
+
+}
+
+
+
+/** function to estimate quality of take-off angle determination */
+
+/* quality is:	0 if sign of A = grad_low and B = grad_high differ
+                0->10 as (2AB / (AA + BB)) -> 1;
+ */
+
+int CalcAnglesQuality(double grad_low, double grad_high) {
+
+    double ratio;
+
+    /* if both gradients are zero, return highest quality */
+    if (fabs(grad_low) + fabs(grad_high) < SMALL_DOUBLE)
+        return (10);
+
+    /* calculate quality */
+    ratio = 2.0 * grad_low * grad_high /
+            (grad_low * grad_low + grad_high * grad_high);
+    return (ratio > 0.0 ? (int) (10.01 * ratio) : 0);
+
+}
+
+
+
 
 // END - DD
 //========================================================
@@ -5051,3 +5088,4 @@ int WriteDiffArrival(FILE* fpio, HypoDesc* hypos, ArrivalDesc* parr, int iWriteT
 /* 250 Rue Albert Einstein | tel: 33 (0) 4 93 95 43 25        / */
 /* 06560 Valbonne, FRANCE  | fax: 33 (0) 4 93 65 27 17        / */
 /*------------------------------------------------------------/ */
+

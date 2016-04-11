@@ -110,8 +110,6 @@ bool MTextPlugin::print(const ClientTable& table)
 			SEISCOMP_ERROR("MTextPlugin: could not find RESPONSE_TIME_TAG");
 			continue;
 		}
-		if ( infoIt->second != "0" )
-			continue;
 
 		infoIt = info.find(Communication::CLIENTNAME_TAG);
 		if ( infoIt == info.end() ) {

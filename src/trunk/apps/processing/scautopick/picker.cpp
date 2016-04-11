@@ -1431,6 +1431,7 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 		catch ( Core::ValueException &e ) {}
 	}
 
+	amp->setUnit(ampProc->unit());
 	amp->setTimeWindow(tw);
 	if ( res.period > 0 ) amp->setPeriod(DataModel::RealQuantity(res.period));
 	if ( res.snr >= 0 ) amp->setSnr(res.snr);

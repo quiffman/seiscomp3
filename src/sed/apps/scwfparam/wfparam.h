@@ -156,6 +156,7 @@ class WFParam : public Application {
 
 			std::string eventParameterFile;
 
+			bool        enableShortEventID;
 			bool        enableShakeMapXMLOutput;
 			std::string shakeMapOutputScript;
 			std::string shakeMapOutputPath;

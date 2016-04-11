@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <seiscomp>
+	<plugin name="MLh">
+		<extends>global</extends>
+		<description>
+		The MLh plugin (previously MLsed) is designed to compute amplitudes
+		and magnitudes according to the Swiss Seismological Service (SED)
+		standards.
+		</description>
+	</plugin>
 	<binding name="MLh" module="global">
 		<description>
 		The MLh plugin (previously MLsed) is designed to compute amplitudes

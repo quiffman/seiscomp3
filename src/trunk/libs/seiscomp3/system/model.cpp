@@ -2287,8 +2287,12 @@ bool Model::writeConfig(Module *mod, const std::string &filename, int stage) {
 	}
 
 	// Nothing written, remove the file
-	if ( symbols.empty() )
-		fs::remove(filename);
+	if ( symbols.empty() ) {
+		try {
+			fs::remove(SC_FS_PATH(filename));
+		}
+		catch ( ... ) {}
+	}
 
 	return true;
 }

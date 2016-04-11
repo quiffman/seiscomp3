@@ -133,7 +133,7 @@ class SC_SYSTEM_CORE_API LocatorInterface : public Core::BaseObject {
 		//! Fixes the depth in km:
 		void setFixedDepth(double depth, bool use=true);
 		void useFixedDepth(bool use=true);
-		bool usingFixedDepth() const { return _fixDepth; }
+		bool usingFixedDepth() const { return _usingFixedDepth; }
 		void releaseDepth();
 
 		//! Sets the distance cut-off in km
@@ -160,7 +160,7 @@ class SC_SYSTEM_CORE_API LocatorInterface : public Core::BaseObject {
 	protected:
 		std::string               _name;
 		SensorLocationDelegatePtr _sensorLocationDelegate;
-		bool                      _fixDepth;
+		bool                      _usingFixedDepth;
 		double                    _fixedDepth;
 		bool                      _enableDistanceCutOff;
 		double                    _distanceCutOff;

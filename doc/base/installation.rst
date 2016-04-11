@@ -8,6 +8,7 @@ SeisComP3 is distributed in the form of tar files:
 * Maps
 * Station configuration files (optional)
 
+Download these from http://www.seiscomp3.org/ .
 This section describes the installation of the binary packages of SeisComP3 on
 an openSUSE 11.1 64 bit system with KDE desktop profile.
 
@@ -15,19 +16,19 @@ Requirements
 ============
 
 The hardware requirements for a seismic system depend on the size of the
-operated station network.
+station network to be operated.
 
 Minimal requirements are:
 
-+-----+----------------------------------------------------------------+
-| CPU | 1                                                              |
-+-----+----------------------------------------------------------------+
-| RAM | 2 GB                                                           |
-+-----+----------------------------------------------------------------+
-| HDD | 20 GB                                                          |
-+-----+----------------------------------------------------------------+
-| OS  | SUSE 10.2/3 32/64bit, SUSE 11 32/64bit, (K)Ubuntu 7/8 32/64bit |
-+-----+----------------------------------------------------------------+
++-----+----------------------------------------------------------------------------------------+
+| CPU | 1                                                                                      |
++-----+----------------------------------------------------------------------------------------+
+| RAM | 2 GB                                                                                   |
++-----+----------------------------------------------------------------------------------------+
+| HDD | 20 GB                                                                                  |
++-----+----------------------------------------------------------------------------------------+
+| OS  | SUSE 10.2/3 32/64bit, SUSE 11 32/64bit, (K)Ubuntu 7/8 32/64bit, Debian 5.0, CentOS 5.3 |
++-----+----------------------------------------------------------------------------------------+
 
 In case large networks (>100 stations) are operated, a distributed system is
 recommended. Normally a SeisComP3 system is separated in several subsystems.
@@ -76,9 +77,9 @@ The next steps describe the installation of SeisComP3 with the prepared
 tar.gz files.
 
 * Log in as user (e.g. sysop)
-* Copy one of the :file:`seiscomp3-zurich-[version]-[OS]-[arch].tar.gz` files to
-  your home directory. Take care which is the right package for your system also
-  for 32 and 64bit.
+* Copy one of the :file:`seiscomp3-seattle-[version]-[OS]-[arch].tar.gz` files to
+  your home directory. Take care which is the right package (32 or 64-bit) for
+  your operating system.
 
 * Go to home directory
      
@@ -90,13 +91,19 @@ tar.gz files.
    
   .. code-block:: sh
 
-     user@host:~$ tar xzf seiscomp3-zurich-[version]-[OS]-[arch].tar.gz
+     user@host:~$ tar xzf seiscomp3-seattle-[version]-[OS]-[arch].tar.gz
 
-* Untar the SeisComP3 map package
+* Untar the SeisComP3 map package into seiscomp3/share/maps
 
   .. code-block:: sh
 
      user@host:~$ tar xzf seiscomp3-maps.tar.gz
+
+* If desired, untar the documentation into seiscomp3/share/doc
+
+  .. code-block:: sh
+
+     user@host:~$ tar xzf seiscomp3-seattle-[version]-doc.tar.gz
 
 Now everything is installed and the system can be configured. The :ref:`next chapter<getting-started>`
 chapter explains the first steps.

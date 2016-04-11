@@ -26,11 +26,11 @@
 			</parameter>
 			<parameter name="exportHosts" type="string">
 				<description>
-	                        A list of names of recipients. These are used in hosts.$name directives
+				A list of names of recipients. These are used in hosts.$name directives
 				(see below) to define addresses, filter criteria, etc.
 				applicable to each recipient.
-                                </description>
-                        </parameter>
+				</description>
+			</parameter>
 
 			<parameter name="importHosts" type="string">
 				<description>
@@ -60,10 +60,10 @@
 						Number of minimum arrivals.
 						</description>
 					</parameter>
-					<parameter name="agencyid" type="list:string">
+					<parameter name="agencyID" type="list:string">
 						<description>
-						White list of AgencyIDs (the
-agency identifier which appears in the objects sent over the export-import link).
+						White list of AgencyIDs (the agency identifier which
+						appears in the objects sent over the export-import link).
 						</description>
 					</parameter>
 				</struct>
@@ -75,22 +75,22 @@ agency identifier which appears in the objects sent over the export-import link)
 					</description>
 					<parameter name="address" type="string">
 						<description>
-						Address of a sink, as a host name
-with an optional port number e.g. 'address = 192.168.1.1' or 'address = somewhere.com:4808'
+						Address of a sink, as a host name with an optional port
+						number e.g. 'address = 192.168.1.1' or
+						'address = somewhere.com:4803'
 						</description>
 					</parameter>
 					<parameter name="criteria" type="string">
 						<description>
 						Defining filter criteria name for sink, e.g. criteria = world-xxl.
-						The criteria must be defined in
-the criteria.* configuration lines.
+						The criteria must be defined in the criteria.* configuration lines.
 						</description>
 					</parameter>
 					<parameter name="filter" type="boolean" default="true">
 						<description>
-						Enables/disables filtering
-based on defined criteria. If set to false, all events will pass, even if one
-or more criteria are defined.
+						Enables/disables filtering based on defined criteria.
+						If set to false, all events will pass, even if one
+						or more criteria are defined.
 						</description>
 					</parameter>
 					<parameter name="conversion" type="string">
@@ -108,9 +108,9 @@ or more criteria are defined.
 						Defining routing tables in the meaning of mapping objects to message
 						groups. E.g. Pick:NULL, StationAmplitude:NULL, Origin:LOCATION,
 						StationMagnitude: MAGNITUDE, NetworkMagnitude:MAGNITUDE,
-						MagnitudeReference:MAGNITUDE,
-OriginReference:EVENT, Event:EVENT. Specifying NULL for the message group
-causes messages to be [thrown away/dropped/discarded].
+						MagnitudeReference:MAGNITUDE, OriginReference:EVENT,
+						Event:EVENT. Specifying NULL for the message group causes
+						messages to be thrown away/dropped/discarded.
 						</description>
 					</parameter>
 				</struct>

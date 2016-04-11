@@ -1,7 +1,7 @@
 import os, time
 
 '''
-Plugin handler for the Earthworm export plugin.
+Plugin handler for the Scream plugin.
 '''
 class SeedlinkPluginHandler:
   # Create defaults
@@ -13,9 +13,15 @@ class SeedlinkPluginHandler:
 
   def push(self, seedlink):
     # Check and set defaults
-    host = seedlink._get('sources.scream.address')
+    try: host = seedlink.param('sources.scream.address')
+    except:
+      host = "127.0.0.1"
+      seedlink.setParam('sources.scream.address',host)
+
     try: port = int(seedlink.param('sources.scream.port'))
-    except: port = 1567
+    except:
+      port = 1567
+      seedlink.setParam('sources.scream.port',str(port))
 
     try:
       if seedlink.param('sources.scream.tcp').lower() in ("yes","true","1"):

@@ -73,7 +73,7 @@ T* CriterionFactory<T>::createExpression(const std::string& name)
 		return NULL;
 	}
 
-	if (!configGetAgencyID("criteria." + name, "agencyid", criterion))
+	if (!configGetAgencyID("criteria." + name, "agencyID", criterion))
 	{
 		delete criterion;
 		return NULL;

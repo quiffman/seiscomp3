@@ -27,6 +27,30 @@ namespace Logging {
 #define STDERR_FILENO 2
 #endif
 
+void RegisterVA(PublishLoc *loc, Channel *channel, const char *format, va_list args ) {
+	static boost::mutex registrationLock;
+	boost::mutex::scoped_lock lock(registrationLock);
+
+	loc->channel = channel;
+
+	Publisher *pub = new Publisher(loc);
+
+	loc->pub = pub;
+	loc->publish = Publisher::Publish;
+	loc->publishVA = Publisher::PublishVA;
+
+	if ( pub->enabled() ) {
+		loc->enable();
+
+		// pass through to the publication function since it is active at
+		// birth.
+		Publisher::PublishVA(loc, channel, format, args);
+	}
+	else
+		loc->disable();
+}
+
+
 void Register(PublishLoc *loc, Channel *channel, const char *format, ... ) {
 	static boost::mutex registrationLock;
 	boost::mutex::scoped_lock lock(registrationLock);
@@ -37,6 +61,7 @@ void Register(PublishLoc *loc, Channel *channel, const char *format, ... ) {
 
 	loc->pub = pub;
 	loc->publish = Publisher::Publish;
+	loc->publishVA = Publisher::PublishVA;
 
 	if ( pub->enabled() ) {
 		loc->enable();

@@ -13,7 +13,7 @@
 
 /** otime limit class */
 
-OtimeLimit* new_OtimeLimit(int data_id, double time, double otime, int polarity, double dist_range) {
+OtimeLimit* new_OtimeLimit(int data_id, double time, double otime, int polarity, double dist_range, double time_range) {
 
 	OtimeLimit* otime_limit = calloc(1, sizeof(OtimeLimit));
 
@@ -23,6 +23,7 @@ OtimeLimit* new_OtimeLimit(int data_id, double time, double otime, int polarity,
 	otime_limit->polarity = polarity;
 	//otime_limit->pair = (OtimeLimit*) NULL;
 	otime_limit->dist_range = dist_range;
+	otime_limit->time_range = time_range;
 
 	return(otime_limit);
 

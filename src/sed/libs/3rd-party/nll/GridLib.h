@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2010 Anthony Lomax <anthony@alomax.net, http://www.alomax.net>
+ * Copyright (C) 1999-2011 Anthony Lomax <anthony@alomax.net, http://www.alomax.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -35,8 +35,8 @@ tel: +33(0)493752502  e-mail: anthony@alomax.net  web: http://www.alomax.net
 
 
 #define PACKAGE  "NonLinLoc"
-#define PVER  "5.11.7"
-#define PDATE "29Nov2010"
+#define PVER  "6.02.08"
+#define PDATE "27Mar2013"
 /*#define PCOPYRIGHT "\nCopyright (C) 1999-2010 Anthony Lomax\n"*/
 #define PCOPYRIGHT "\0"
 
@@ -64,14 +64,15 @@ tel: +33(0)493752502  e-mail: anthony@alomax.net  web: http://www.alomax.net
 #define EXTERN_TXT
 #endif
 
-#include "geometry.h"
+#include "geometry/geometry.h"
 #include "alomax_matrix/alomax_matrix.h"
 #include "alomax_matrix/alomax_matrix_svd.h"
+#include "matrix_statistics/matrix_statistics.h"
 #include "util.h"
 #include "geo.h"
-#include "ran1.h"
+#include "ran1/ran1.h"
 #include "map_project.h"
-#include "octtree.h"
+#include "octtree/octtree.h"
 
 // following inline probably does nothing - functions body must be defined in header file
 #ifndef INLINE
@@ -120,7 +121,6 @@ tel: +33(0)493752502  e-mail: anthony@alomax.net  web: http://www.alomax.net
 #undef FILENAME_MAX 	// FILENAME_MAX may be too small: was 14 on ETH HP!
 #define FILENAME_MAX 1024
 //#endif
-#define FILENAME_MAX_SMALL (FILENAME_MAX / 4)
 
 
 
@@ -199,6 +199,10 @@ EXTERN_TXT int nll_mode;
 
 #define GRID_COULOMB		5000		/* Coulomb */
 
+#define ANGLE_MODE_NO	0
+#define ANGLE_MODE_YES	1
+#define ANGLE_MODE_INCLINATION	2
+#define ANGLE_MODE_UNDEF	-1
 
 /* error codes (-55000) */
 #define OBS_FILE_SKIP_INPUT_LINE 		-55011
@@ -254,8 +258,9 @@ typedef struct {
 GridDesc;
 
 
-#define X_MAX_NUM_STATIONS	500
-#define X_MAX_NUM_STATIONS_DIFF	40000
+ // 20101209 AJL#define X_MAX_NUM_STATIONS	500
+#define X_MAX_NUM_STATIONS	5000
+#define X_MAX_NUM_STATIONS_DIFF	100000
 #define MAX_NUM_ARRIVALS_STA	2
 #define X_MAX_NUM_ARRIVALS 	MAX_NUM_ARRIVALS_STA*X_MAX_NUM_STATIONS
 #define ARRIVAL_LABEL_LEN	64  // 20100409 AJL changed from 7 to 64, also changed code in GridLib.c->FindSource()
@@ -293,7 +298,7 @@ SourceDesc;
 /* station */
 
 typedef struct {
-    char label[MAXLINE]; /* char label */
+    char label[ARRIVAL_LABEL_LEN]; /* char label */
     double x, y, z; /* loc (km) */
     PhaseDesc phs[MAX_NUM_ARRIVALS_STA];
     double prob_active; /* probability station is active */
@@ -398,7 +403,7 @@ typedef struct {
     double amp_mag; /* amplitude magnitude */
     double dur_mag; /* duration magnitude */
 
-    /* staistical residuals */
+    /* statistical residuals */
     double pdf_residual_sum; /* residual (PDF weighted residual) */
     double pdf_weight_sum; /* cumulative PDF weight */
 
@@ -434,25 +439,6 @@ typedef struct {
 }
 ArrivalDesc;
 
-/* 2D ellipse */
-
-typedef struct {
-    double az1, len1;   // semi-minor axis km
-    double len2;   // semi-major axis km
-
-} Ellipse2D;
-#define DELTA_CHI_SQR_68_2 2.30    // value for 68% conf (see Num Rec, 2nd ed, sec 15.6, table)
-
-/* 3D ellipsoid */
-
-typedef struct {
-    double az1, dip1, len1;   // semi-minor axis km
-    double az2, dip2, len2;   // semi-intermediate axis km
-    double len3;   // semi-major axis km
-
-} Ellipsoid3D;
-#define DELTA_CHI_SQR_68_3 3.53    // value for 68% conf (see Num Rec, 2nd ed, sec 15.6, table)
-
 
 /* focal mechanism (taken from FPFIT file fpfit.doc) */
 
@@ -483,8 +469,8 @@ typedef struct {
 
 } FocalMech;
 
-/* hypocenter 
- * 
+/* hypocenter
+ *
  * QML indicates fields added for compatibility with QuakeML OriginQuality attributes (AJL 201005)
 
  */
@@ -531,8 +517,8 @@ typedef struct {
     /* SH 07232004 added */
     double mag_err; /* error in magnitude */
 
-    double probmax; /* probability density at hypo
-							(maximum in grid) */
+    long double probmax; /* probability density at hypo (maximum in grid) */ // 20130314 C Satriano, AJL - changed to long double
+
     double misfit; /* misfitat hypo (minimum in grid) */
     double grid_misfit_max; /* max misfit in loc grid */
 
@@ -678,12 +664,6 @@ EXTERN_TXT TakeOffAngles AnglesNULL;
 EXTERN_TXT double Quality2Error[MAX_NUM_QUALITY_LEVELS];
 EXTERN_TXT int NumQuality2ErrorLevels;
 
-/* ellipsoid */
-EXTERN_TXT Ellipsoid3D EllipsoidNULL;
-
-/* ellipse */
-EXTERN_TXT Ellipse2D EllipseNULL;
-
 /* model coordinates */
 #define COORDS_RECT	0
 #define COORDS_LATLON	1
@@ -714,6 +694,7 @@ int get_path_method(char*);
 int GetNextSource(char*);
 int GetSource(char*, SourceDesc*, int);
 SourceDesc* FindSource(char* label);
+char* projection_str2transform_str(char* trans_str, char* proj_str);
 int get_transform(int, char*);
 
 void get_velfile(char*);
@@ -735,7 +716,7 @@ void*** CreateGridArray(GridDesc*);
 void DestroyGridArray(GridDesc*);
 void DuplicateGrid(GridDesc*, GridDesc*, char *);
 int CheckGridArray(GridDesc*, double, double, double, double);
-int SumGrids(GridDesc*, GridDesc*, FILE*);
+int SumGrids(GridDesc* pgrid_sum, GridDesc* pgrid_new, FILE* fp_grid_new, double factor);
 int WriteGrid3dBuf(GridDesc*, SourceDesc*, char*, char*);
 int WriteGrid3dHdr(GridDesc*, SourceDesc*, char*, char*);
 int ReadGrid3dBuf(GridDesc*, FILE*);
@@ -772,12 +753,7 @@ void TestGaussDev();
 int GenTraditionStats(GridDesc*, Vect3D*, Mtrx3D*, FILE*);
 Vect3D CalcExpectation(GridDesc*, FILE*);
 Mtrx3D CalcCovariance(GridDesc*, Vect3D*, FILE*);
-Vect3D CalcExpectationSamples(float*, int);
 Mtrx3D CalcCovarianceSamples(float*, int, Vect3D*);
-Mtrx3D CalcCovarianceSamplesRect(float* fdata, int nSamples, Vect3D* pexpect);
-Mtrx3D CalcCovarianceSamplesGlobal(float* fdata, int nSamples, Vect3D* pexpect);
-Ellipsoid3D CalcErrorEllipsoid(Mtrx3D *, double);
-Ellipse2D CalcHorizontalErrorEllipse(Mtrx3D *pcov, double del_chi_2);
 
 /* hypocenter functions */
 int WriteLocation(FILE*, HypoDesc*, ArrivalDesc*, int, char*,
@@ -786,8 +762,7 @@ int WritePhases(FILE *fpio, HypoDesc* phypo, ArrivalDesc* parrivals,
         int narrivals, char* filename,
         int iWriteArrivals, int iWriteEndLoc, int iWriteMinimal,
         GridDesc* pgrid, int n_proj, int io_arrival_mode);
-int GetHypLoc(FILE*, const char*, HypoDesc*, ArrivalDesc*, int*, int,
-        GridDesc*, int);
+int GetHypLoc(FILE*, const char*, HypoDesc*, ArrivalDesc*, int*, int, GridDesc*, int);
 int ReadArrival(char*, ArrivalDesc*, int);
 int WriteArrival(FILE*, ArrivalDesc*, int);
 int WriteArrivalHypo(FILE*, ArrivalDesc*, int);
@@ -851,6 +826,12 @@ void SetAnglesFloat(TakeOffAngles*, float);
 int GetTakeOffAngles(TakeOffAngles *, double *, double *, int *);
 int ReadTakeOffAnglesFile(char *, double, double, double,
         double *, double *, int *, double, int);
+int CalcAnglesGradient(GridDesc* ptgrid, GridDesc* pagrid, int angle_mode, int grid_mode);
+TakeOffAngles GetGradientAngles(double vcent, double xlow, double xhigh,
+        double ylow, double yhigh, double zlow, double zhigh,
+        double dx, double dy, double dz, int iflag2D,
+        double *pazim, double *pdip, int *piqual);
+int CalcAnglesQuality(double grad_low, double grad_high);
 
 int SetModelCoordsMode(int);
 

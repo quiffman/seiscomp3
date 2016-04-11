@@ -162,6 +162,8 @@ def stop_kernel_modules():
 # Commandline action handler
 # ------------------------------------------------------------------------------
 def on_setup(args, flags):
+  import seiscomp3.Setup
+
   params = {}
 
   if "stdin" in flags:
@@ -215,6 +217,8 @@ def on_setup_help(args):
 
 
 def on_shell(args, flags):
+  import seiscomp3.Shell
+
   shell = seiscomp3.Shell.CLI()
   try: shell.run(env)
   except Exception, e:
@@ -473,6 +477,7 @@ def on_print(args, flags):
     print "export PATH=%s:$PATH" % BIN_PATH
     print "export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH" % LD_LIBRARY_PATH
     print "export PYTHONPATH=%s:$PYTHONPATH" % PYTHONPATH
+    print "export MANPATH=%s:$MANPATH" % MANPATH
   else:
     error("wrong argument: {crontab|env} expected")
     return 1
@@ -669,7 +674,7 @@ def on_alias(args, flags):
     # copy defaults from etc/defaults/mod1.cfg to etc/defaults/mod2.cfg
     default_cfg1 = os.path.join("etc", "defaults", args[1] + ".cfg")
     default_cfg2 = os.path.join("etc", "defaults", args[2] + ".cfg")
-    if os.path.exists(default_cfg1):
+    if os.path.exists(default_cfg2):
       print "Copy default configuration: %s -> %s" % (default_cfg2, default_cfg1)
       shutil.copyfile(os.path.join(SEISCOMP_ROOT, default_cfg2), os.path.join(SEISCOMP_ROOT, default_cfg1))
     else:
@@ -893,6 +898,7 @@ ALIAS_FILE = os.path.join(DESC_PATH, "aliases")
 BIN_PATH = os.path.join(SEISCOMP_ROOT, "bin")
 SBIN_PATH = os.path.join(SEISCOMP_ROOT, "sbin")
 PYTHONPATH = os.path.join(SEISCOMP_ROOT, "lib", "python")
+MANPATH = os.path.join(SEISCOMP_ROOT, "share", "man")
 LD_LIBRARY_PATH = os.path.join(SEISCOMP_ROOT, "lib")
 
 # Run another process with proper LD_LIBRARY_PATH set otherwise the dynamic
@@ -914,6 +920,8 @@ if not isWrapped:
   except: os.environ["LD_LIBRARY_PATH"] = LD_LIBRARY_PATH
   try: os.environ["PYTHONPATH"] = PYTHONPATH + ":" + os.environ["PYTHONPATH"]
   except: os.environ["PYTHONPATH"] = PYTHONPATH
+  try: os.environ["MANPATH"] = MANPATH + ":" + os.environ["MANPATH"]
+  except: os.environ["MANPATH"] = MANPATH
 
   os.environ["SEISCOMP_WRAP"] = "TRUE"
 
@@ -926,8 +934,6 @@ sys.path.insert(0, PYTHONPATH)
 
 import seiscomp3.Config
 import seiscomp3.Kernel
-import seiscomp3.Setup
-import seiscomp3.Shell
 
 # Create environment which supports queries for various SeisComP
 # directoris and sets PATH, LD_LIBRARY_PATH and PYTHONPATH

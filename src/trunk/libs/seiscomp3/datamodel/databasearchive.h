@@ -487,6 +487,8 @@ class SC_SYSTEM_CORE_API DatabaseArchive : protected Seiscomp::Core::Archive,
 		template <typename T>
 		std::string toString(const T& value) { return Core::toString(value); }
 
+		std::string toString(const std::string &value);
+		std::string toString(const char *value);
 		std::string toString(const Core::Time& value);
 
 		Object* queryObject(const Seiscomp::Core::RTTI& classType,

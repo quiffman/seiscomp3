@@ -59,7 +59,7 @@ copyright = u'2013, GFZ Potsdam, gempa GmbH'
 # built documents.
 #
 # The short X.Y version.
-version = '2013.149'
+version = '2013.200'
 # The full version, including alpha/beta/rc tags.
 release = 'Seattle'
 
@@ -216,45 +216,6 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_domain_indices = True
 
-
-# -- Options for manual page output --------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ('trunk/apps/tools/imex/scimex', 'scimex', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/tools/import/scimport', 'scimport', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/voicealert/scvoice', 'scvoice', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/evtlog/scevtlog', 'scevtlog', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/evtls/scevtls', 'scevtls', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/archivetool/scart', 'scart', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/proclatency/scproclat', 'scproclat', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/bulletin/scbulletin', 'scbulletin', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/python/evtstreams/scevtstreams', 'scevtstreams', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/processing/mag/scmag', 'scmag', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/processing/amp/scamp', 'scamp', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/processing/autopick/scautopick', 'scautopick', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/processing/autoloc/scautoloc', 'scautoloc', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('trunk/apps/processing/event/scevent', 'scevent', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scrttv/scrttv', 'scrttv', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scolv/scolv', 'scolv', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scmm/scmm', 'scmm', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scqcv/scqcv', 'scqcv', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scesv/scesv', 'scesv', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('gui/apps/scmv/scmv', 'scmv', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('sed/plugins/magnitudes/MLsed/mlsed', 'mlsed', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('qc/apps/processing/qc/scqc', 'scqc', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('acquisition/seedlink/apps/seedlink/seedlink', 'seedlink', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('acquisition/arclink/lib/arclink_fetch', 'arclink_fetch', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('acquisition/arclink/lib/arclinktool', 'arclinktool', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('acquisition/arclink/apps/arclink/arclink', 'arclink', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/tools/zip/sczip', 'sczip', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/tools/dispatch/scdispatch', 'scdispatch', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/tools/monitor/scm', 'scm', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/tools/dbtool/scdb', 'scdb', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/tools/xmldump/scxmldump', 'scxmldump', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1),
-    ('core/apps/messaging/master/scmaster', 'scmaster', u'SeisComP3 Documentation', [u'GFZ Potsdam'], 1)
-]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}

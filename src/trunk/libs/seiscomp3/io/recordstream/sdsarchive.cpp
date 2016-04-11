@@ -25,6 +25,26 @@ using namespace Seiscomp::IO;
 using namespace Seiscomp::Core;
 using namespace std;
 
+
+namespace {
+
+Time getStartTime(const string &file) {
+	MSRecord *prec = NULL;
+	MSFileParam *pfp = NULL;
+
+	int retcode = ms_readmsr_r(&pfp,&prec,const_cast<char*>(file.c_str()),0,NULL,NULL,1,0,0);
+	if ( retcode == MS_NOERROR ) {
+		Time start((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
+		ms_readmsr_r(&pfp,&prec,NULL,-1,NULL,NULL,0,0,0);
+		return start;
+	}
+
+	ms_readmsr_r(&pfp,&prec,NULL,-1,NULL,NULL,0,0,0);
+	return Time();
+}
+
+}
+
 IMPLEMENT_SC_CLASS_DERIVED(SDSArchive,
                            Seiscomp::IO::RecordStream,
                            "sdsarchive");
@@ -150,14 +170,27 @@ void SDSArchive::setFilenames() {
 	Time etime = (_curidx->endTime() == Time())?_etime:_curidx->endTime();
 	int sdoy = getDoy(stime);
 	int edoy = getDoy(etime);
-	int syear, eyear, tmpdoy;
+	int syear, eyear, tmpdoy, tmpyear;
+
+	bool first = true;
 
 	stime.get(&syear);
 	etime.get(&eyear);
 	for ( int year = syear; year <= eyear; ++year ) {
 		tmpdoy = (year == eyear)?edoy:getDoy(Time(year,12,31,23,59,59));
-		for ( int doy = sdoy; doy <= tmpdoy; ++doy )
-			_fnames.push(SDSfilename(doy,year));
+		for ( int doy = sdoy; doy <= tmpdoy; ++doy ) {
+			string file = SDSfilename(doy,year);
+			if ( first ) {
+				if ( getStartTime(file) > stime ) {
+					Time tmptime = stime - TimeSpan(86400,0);
+					tmptime.get2(&tmpyear, &tmpdoy);
+					_fnames.push(SDSfilename(tmpdoy+1, tmpyear));
+				}
+			}
+
+			_fnames.push(file);
+			first = false;
+		}
 		sdoy = 1;
 	}
 }
@@ -208,12 +241,12 @@ bool SDSArchive::setStart(const string &fname) {
 				break;
 			}
 
-			if ( stime > recetime ) {
+			if ( recetime < stime ) {
 				start = half;
 				if ((end - start) == 1)
 					++half;
 			}
-			else if ( stime < recstime )
+			else if ( recstime > stime )
 				end = half;
 			else if ( recstime <= stime && stime <= recetime ) {
 				if (stime == recetime)
@@ -222,31 +255,31 @@ bool SDSArchive::setStart(const string &fname) {
 			}
 		}
 
-		if ( (half == 1) && (stime < recstime) )
+		if ( (half == 1) && (recstime > stime) )
 			half = 0;
 		offset = half*reclen;
 	}
 #else
-    while((retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0)) == MS_NOERROR) {
-        samprate = prec->samprate;
-        recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
-	
-        if (recstime > stime ) 
-            break;
-        else {
-            if (samprate > 0.) {
-                recetime = recstime + Time(prec->samplecnt / samprate);
-                if (recetime > stime)
-                    break;
-                else 
-                    offset += prec->reclen;
-            } else {
-                SEISCOMP_WARNING("sdsarchive: [%s@%ld] Wrong sampling frequency %.2f!", fname.c_str(), offset, samprate);
-                offset += prec->reclen;
-                result = false;
-            }
-        }
-    }
+	while((retcode = ms_readmsr_r(&pfp,&prec,const_cast<char *>(fname.c_str()),0,NULL,NULL,1,0,0)) == MS_NOERROR) {
+		samprate = prec->samprate;
+		recstime = Time((hptime_t)prec->starttime/HPTMODULUS,(hptime_t)prec->starttime%HPTMODULUS);
+
+		if (recstime > stime )
+			break;
+		else {
+			if (samprate > 0.) {
+				recetime = recstime + Time(prec->samplecnt / samprate);
+				if (recetime > stime)
+					break;
+				else
+					offset += prec->reclen;
+			} else {
+				SEISCOMP_WARNING("sdsarchive: [%s@%ld] Wrong sampling frequency %.2f!", fname.c_str(), offset, samprate);
+				offset += prec->reclen;
+				result = false;
+			}
+		}
+	}
 #endif
 	if (retcode != MS_ENDOFFILE && retcode != MS_NOERROR) {
 		SEISCOMP_ERROR("sdsarchive: Error reading input file %s: %s", fname.c_str(),ms_errorstr(retcode));
@@ -260,39 +293,42 @@ bool SDSArchive::setStart(const string &fname) {
 	if ( offset == size )
 		_recstream->stream().clear(ios::eofbit);
 
-    return result;
+	return result;
 }
 
 bool SDSArchive::isEnd() {
-    if (!_fnames.empty())
+	if (!_fnames.empty())
+		return false;
+
+	istream &istr = _recstream->stream();
+	streampos strpos = istr.tellg();
+	char buffer[sizeof(struct fsdh_s)];
+	struct fsdh_s *fsdh = (struct fsdh_s *)buffer;
+	Time rectime;
+	int year, month, day;
+	Time etime = (_curidx->endTime() == Time())?_etime:_curidx->endTime();
+
+	istr.read(buffer,sizeof(struct fsdh_s));
+	istr.seekg(strpos);
+
+	/* Check to see if byte swapping is needed (bogus year makes good test) */
+	if ((fsdh->start_time.year < 1900) || (fsdh->start_time.year > 2050)) {
+		ms_gswap2(&fsdh->start_time.year);
+		ms_gswap2(&fsdh->start_time.day);
+		ms_gswap2(&fsdh->start_time.fract);
+	}
+
+	rectime = Time::FromYearDay(fsdh->start_time.year,fsdh->start_time.day);
+	rectime.get(&year,&month,&day);
+	rectime.set(year,month,day,(int)fsdh->start_time.hour,(int)fsdh->start_time.min,
+	            (int)fsdh->start_time.sec,(int)fsdh->start_time.fract);
+
+	if (rectime > etime) {
+		istr.clear(ios::eofbit);
+		return true;
+	}
+
 	return false;
-
-    istream &istr = _recstream->stream();
-    streampos strpos = istr.tellg();
-    char buffer[sizeof(struct fsdh_s)];
-    struct fsdh_s *fsdh = (struct fsdh_s *)buffer;
-    Time rectime;
-    int year, month, day;
-    Time etime = (_curidx->endTime() == Time())?_etime:_curidx->endTime();
-    
-    istr.read(buffer,sizeof(struct fsdh_s));
-    istr.seekg(strpos);
-    /* Check to see if byte swapping is needed (bogus year makes good test) */
-    if ((fsdh->start_time.year < 1900) || (fsdh->start_time.year > 2050)) {
-	ms_gswap2(&fsdh->start_time.year);
-	ms_gswap2(&fsdh->start_time.day);
-	ms_gswap2(&fsdh->start_time.fract);
-    }
-    rectime = Time::FromYearDay(fsdh->start_time.year,fsdh->start_time.day);
-    rectime.get(&year,&month,&day);
-    rectime.set(year,month,day,(int)fsdh->start_time.hour,(int)fsdh->start_time.min,
-		(int)fsdh->start_time.sec,(int)fsdh->start_time.fract);    
-
-    if (rectime > etime) {
-	istr.clear(ios::eofbit);
-	return true;
-    }
-    return false;
 }
 
 istream& SDSArchive::stream() throw(ArchiveException) {  

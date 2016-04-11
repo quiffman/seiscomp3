@@ -26,10 +26,12 @@ namespace Logging {
 class SC_SYSTEM_CORE_API SyslogOutput : public Output {
 	public:
 		SyslogOutput();
-		SyslogOutput(const char* ident);
+		SyslogOutput(const char *ident, const char *facility = NULL);
 		~SyslogOutput();
 
-		bool open(const char* ident);
+		int facility() const { return _facility; }
+
+		bool open(const char *ident, const char *facility = NULL);
 		bool isOpen() const;
 		void close();
 
@@ -42,6 +44,7 @@ class SC_SYSTEM_CORE_API SyslogOutput : public Output {
 
 	private:
 		bool _openFlag;
+		int  _facility;
 };
 
 

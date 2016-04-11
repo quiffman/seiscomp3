@@ -147,7 +147,7 @@ class InventoryManager : public Client::Application,
 
 			if ( _operation.empty() ) {
 				cerr << "No operation given." << endl;
-				cerr << "Usage: " << name() << " [sync|merge|apply|ls|keys] [opts]" << endl;
+				cerr << "Usage: " << name() << " [sync|merge|apply|ls|keys|check] [opts]" << endl;
 				return false;
 			}
 

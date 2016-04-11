@@ -36,6 +36,10 @@
 						<option value="sc3ml"/>
 					</param>
 					<param name="formatted" style="query" type="xsd:boolean" default="false"/>
+					<param name="nodata" style="query" type="xsd:int" default="204">
+						<option value="204"/>
+						<option value="404"/>
+					</param>
 				</request>
 				<response status="200">
 					<representation mediaType="application/xml"/>

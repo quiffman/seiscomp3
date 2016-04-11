@@ -213,7 +213,7 @@ class _Blockette10(object):
         self.__end_time = _mkseedtime(10, 6, end_time)
         self.__vol_time = _mkseedtime(10, 7, vol_time)
         self.__organization = _mkseedstring(10, 8, organization, 1, 80, "UNLPS_")
-        self.__label = _mkseedstring(10, 9, label, 1, 80, "UNLPS_")
+        self.__label = _mkseedstring(10, 9, label, 0, 80, "UNLPS_")
         self.__len = 13 + len(self.__start_time) + len(self.__end_time) + \
             len(self.__vol_time) + len(self.__organization) + \
             len(self.__label)
@@ -858,7 +858,7 @@ class _Blockette74(object):
             self.__end_recno, self.__net_code)
 
         if len(blk) != self.__len:
-            raise SEEDError, "blockette 70 has invalid length: %d instead of %d" % (len(blk), self.__len)
+            raise SEEDError, "blockette 74 has invalid length: %d instead of %d" % (len(blk), self.__len)
         
         f.write_blk(blk)
 
@@ -1803,6 +1803,10 @@ class _Channel(object):
         sample_rate = float(strmcfg.sampleRateNumerator) / \
             float(strmcfg.sampleRateDenominator)
         
+        clock_drift = 0
+        if digi.maxClockDrift is not None:
+            clock_drift = digi.maxClockDrift / sample_rate
+
         self.__chan_blk = _Blockette52(loc_id = loccfg.code,
             chan_id = strmcfg.code,
             instr_id = gen_dict.lookup_sensor(strmcfg.sensor),
@@ -1818,7 +1822,7 @@ class _Channel(object):
             data_format = format_dict.lookup(strmcfg.format),
             record_length = 12,
             sample_rate = sample_rate,
-            clock_drift = digi.maxClockDrift / sample_rate,
+            clock_drift = clock_drift,
             flags = strmcfg.flags,
             start_date = strmcfg.start,
             end_date = strmcfg.end)

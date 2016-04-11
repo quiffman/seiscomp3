@@ -222,19 +222,14 @@ struct RTMagnitudeConnector : IO::XML::MemberHandler {
 	         bool opt, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
 		EventParameters *ep = EventParameters::Cast(object);
 		if ( ep == NULL ) return false;
-		Event *event;
 		Origin *origin;
-		for ( size_t ei = 0; ei < ep->eventCount(); ++ei ) {
-			event = ep->event(ei);
-			for ( size_t oi = 0; oi < event->originReferenceCount(); ++oi ) {
-				origin = findOrigin(ep, event->originReference(oi)->originID());
-				if ( origin == NULL ) continue;
-				for ( size_t mi = 0; mi < origin->magnitudeCount(); ++mi ) {
-					output->handle(origin->magnitude(mi), tag, ns);
-				}
-				for ( size_t si = 0; si < origin->stationMagnitudeCount(); ++si ) {
-					output->handle(origin->stationMagnitude(si), "stationMagnitude", "");
-				}
+		for ( size_t oi = 0; oi < ep->originCount(); ++oi ) {
+			origin = ep->origin(oi);
+			for ( size_t mi = 0; mi < origin->magnitudeCount(); ++mi ) {
+				output->handle(origin->magnitude(mi), tag, ns);
+			}
+			for ( size_t si = 0; si < origin->stationMagnitudeCount(); ++si ) {
+				output->handle(origin->stationMagnitude(si), "stationMagnitude", "");
 			}
 		}
 		return true;
@@ -416,11 +411,26 @@ struct CommentHandler : TypedClassHandler<Comment> {
 	}
 };
 
+struct ResourceURIHandler : IO::XML::MemberHandler {
+	bool put(Core::BaseObject *object, const char *tag, const char *ns,
+	         bool opt, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
+		WaveformStreamID *wfsID = WaveformStreamID::Cast(object);
+		if ( wfsID == NULL || wfsID->resourceURI().empty() ) return false;
+		std::string uri = wfsID->resourceURI();
+		__resRef.to(uri);
+		output->put(uri.c_str());
+		return true;
+	}
+	std::string value(Core::BaseObject *obj) { return ""; }
+	bool get(Core::BaseObject *object, void *node, IO::XML::NodeHandler *h) { return false; }
+};
+
 struct WaveformStreamIDHandler : TypedClassHandler<WaveformStreamID> {
 	WaveformStreamIDHandler() {
 		addList("networkCode, stationCode", Mandatory, Attribute);
-		addList("channelCode, locationCode", Optional, Attribute);
-		add("resourceURI", &__resRef);
+		addList("locationCode, channelCode", Optional, Attribute);
+		// QuakeML definces resource URI as CDATA of WaveformStreamID
+		addChild("resourceURI", "", new ResourceURIHandler());
 	}
 };
 
@@ -454,16 +464,22 @@ struct OriginDepthHandler : IO::XML::MemberHandler {
 	         bool opt, IO::XML::OutputHandler *output, IO::XML::NodeHandler *h) {
 		Origin *o = Origin::Cast(object);
 		if ( o == NULL ) return false;
-		RealQuantity& depth = o->depth();
-		depth.setValue(depth.value() * 1000);
-		try { depth.setUncertainty(depth.uncertainty() * 1000); }
-		catch ( Core::ValueException ) {}
-		try { depth.setUpperUncertainty(depth.upperUncertainty() * 1000); }
-		catch ( Core::ValueException ) {}
-		try { depth.setLowerUncertainty(depth.lowerUncertainty() * 1000); }
-		catch ( Core::ValueException ) {}
-		output->handle(&depth, tag, ns, &__realQuantityHandler);
-		return true;
+		try {
+			RealQuantity& depth = o->depth();
+			depth.setValue(depth.value() * 1000);
+			try { depth.setUncertainty(depth.uncertainty() * 1000); }
+			catch ( Core::ValueException ) {}
+			try { depth.setUpperUncertainty(depth.upperUncertainty() * 1000); }
+			catch ( Core::ValueException ) {}
+			try { depth.setLowerUncertainty(depth.lowerUncertainty() * 1000); }
+			catch ( Core::ValueException ) {}
+			output->handle(&depth, tag, ns, &__realQuantityHandler);
+
+			return true;
+		}
+		catch ( Core::ValueException ) {
+			return false;
+		}
 	}
 	std::string value(Core::BaseObject *obj) { return ""; }
 	bool get(Core::BaseObject *object, void *node, IO::XML::NodeHandler *h) { return false; }
@@ -472,14 +488,14 @@ struct OriginDepthHandler : IO::XML::MemberHandler {
 struct ArrivalHandler : TypedClassHandler<Arrival> {
 	ArrivalHandler() {
 		addEmptyPID();
-		// NA: comment, timeWeight, horizontalSlownessWeight
+		// NA: comment, backazimuthWeight, horizontalSlownessWeight
 		addList("timeCorrection, azimuth, distance, timeResidual, "
 		        "horizontalSlownessResidual, backazimuthResidual, "
 		        "creationInfo");
 		add("pickID", &__resRefMan, Mandatory);
 		add("phase", NULL, Mandatory);
 		add("takeOffAngle", "takeoffAngle");
-		add("weight", "backazimuthWeight"); // TODO: Is this mapping correct?
+		add("weight", "timeWeight");
 		add("earthModelID", &__resRef);
 	}
 };
@@ -533,7 +549,7 @@ struct StationMagnitudeHandler : TypedClassHandler<StationMagnitude> {
 		addPID();
 		addList("comment, waveformID, creationInfo");
 		add("magnitude", "mag", NULL, Mandatory);
-		add("originID", &__resRefMan, Mandatory);
+		add("originID", &__resRef);//, Mandatory);
 		add("type", &__maxLen32);
 		add("amplitudeID", &__resRef);
 		add("methodID", &__resRef);
@@ -570,9 +586,10 @@ struct TimeWindowHandler : TypedClassHandler<TimeWindow> {
 struct AmplitudeHandler : TypedClassHandler<Amplitude> {
 	AmplitudeHandler() {
 		addPID();
-		// NA: genericAmplitude, category, unit, evaluationStatus
+		// NA: category, unit, evaluationStatus
 		addList("comment, period, snr, timeWindow, waveformID, "
 		        "scalingTime, evaluationMode, creationInfo");
+		add("amplitude", "genericAmplitude");
 		add("type", &__maxLen32);
 		add("methodID", &__resRef);
 		add("pickID", &__resRef);
@@ -687,10 +704,9 @@ struct EventHandler : TypedClassHandler<Event> {
 struct RTEventHandler : TypedClassHandler<Event> {
 	RTEventHandler() {
 		addPID();
-		addList("description, comment, typeCertainty, creationInfo");
-		add("originReference", &__resRef);
+		addList("description, comment, typeCertainty, creationInfo, "
+		        "originReference, focalMechanismReference");
 		addChild("magnitudeReference", "", new RTMagnitudeReferenceConnector());
-		add("focalMechanismReference", &__resRef);
 		add("preferredOriginID", &__resRef);
 		add("preferredMagnitudeID", &__resRef);
 		add("preferredFocalMechanismID", &__resRef);
@@ -703,6 +719,18 @@ struct EventParametersHandler : TypedClassHandler<EventParameters> {
 		addPID();
 		// NA: comment, description, creationInfo
 		add("event");
+	}
+};
+
+struct RTOriginReferenceHandler : TypedClassHandler<OriginReference> {
+	RTOriginReferenceHandler() {
+		add("originID", &__resRef, Mandatory, CDATA);
+	}
+};
+
+struct RTFocalMechanismReferenceHandler : TypedClassHandler<FocalMechanismReference> {
+	RTFocalMechanismReferenceHandler() {
+		add("focalMechanismID", &__resRef, Mandatory, CDATA);
 	}
 };
 
@@ -844,10 +872,14 @@ RTTypeMap::RTTypeMap() : TypeMapCommon() {
 	static RTQuakeMLHandler rtQuakeMLHandler;
 	static RTEventHandler rtEventHandler;
 	static RTReadingHandler rtReadingHandler;
+	static RTOriginReferenceHandler rtOriginReferenceHandler;
+	static RTFocalMechanismReferenceHandler rtFocalMechanismReferenceHandler;
 	static RTPickReferenceHandler rtPickReferenceHandler;
 	static RTAmplitudeReferenceHandler rtAmplitudeReferenceHandler;
 	registerMapping<EventParameters>("quakeml", NS_QML_RT, &rtQuakeMLHandler);
 	registerMapping("event", "", "Event", &rtEventHandler);
+	registerMapping("originReference", "", "OriginReference", &rtOriginReferenceHandler);
+	registerMapping("focalMechanismReferece", "", "FocalMechanismReference", &rtFocalMechanismReferenceHandler);
 	registerMapping("reading", "", "Reading", &rtReadingHandler);
 	registerMapping("pickReference", "", "PickReference", &rtPickReferenceHandler);
 	registerMapping("amplitudeReference", "", "AmplitudeReference", &rtAmplitudeReferenceHandler);

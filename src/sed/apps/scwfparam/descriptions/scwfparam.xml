@@ -295,7 +295,7 @@
 					</parameter>
 				</group>
 				<group name="output">
-					<parameter name="messaging" type="bool" default="false">
+					<parameter name="messaging" type="boolean" default="false">
 						<description>
 						Enables messaging output which creates objects of the
 						StrongMotionParameters data model extension (defined by SED) and
@@ -304,6 +304,14 @@
 						schema must be applied.
 						The default message group is AMPLITUDE. To change this group redefine
 						connection.primaryGroup.
+						</description>
+					</parameter>
+					<parameter name="shortEventID" type="boolean" default="false">
+						<description>
+						Uses short event ids when an event output directory needs to be
+						created. The default pattern is [eventtime]_[mag]_[lat]_[lon]_[updatetime].
+						The short format just contains the first part, namely [eventtime] in
+						the format YEARmmddHHMMSS.
 						</description>
 					</parameter>
 					<group name="waveforms">

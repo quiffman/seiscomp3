@@ -14,10 +14,8 @@
 
 import time, sys, os, time
 import seiscomp3.Client
-from scbulletin import Bulletin, stationCount
+from seiscomp3.scbulletin import Bulletin, stationCount
 
-# FIXME never cleaned up, but that shouldn't be a big problem
-procAlertEventIDs = {}
 
 class ProcAlert(seiscomp3.Client.Application):
     def __init__(self, argc, argv):
@@ -116,57 +114,33 @@ class ProcAlert(seiscomp3.Client.Application):
                     self.query().loadArrivals(org)
                 if org.stationMagnitudeCount() == 0:
                     self.query().loadStationMagnitudes(org)
-                if org.networkMagnitudeCount() == 0:
-                    self.query().loadNetworkMagnitudes(org)
+                if org.magnitudeCount() == 0:
+                    self.query().loadMagnitudes(org)
 
                 if not self.originMeetsCriteria(org, evt):
                     seiscomp3.Logging.warning("Origin %s not published" % orid)
                     return
 
                 txt = self.bulletin.printEvent(evt)
-        
+
                 for line in txt.split("\n"):
                     line = line.rstrip()
                     seiscomp3.Logging.info(line)
                 seiscomp3.Logging.info("")
 
                 if not self.commandline().hasOption("test"):
-                    evid = evt.publicID()
-                    if evid[:5] != "gfz20": # new-style event id?
-                        evid = self._oldID(evt)
-                    self.send_procalert(txt, evid)
+                    self.send_procalert(txt, evt.publicID())
 
                 return
 
         except:
-            seiscomp3.Logging.warning("caught unexpected error %s" % sys.exc_info())
-
-
-    def _oldID(self, evt):
-
-        evid = evt.publicID()
-
-        if evid not in procAlertEventIDs:
-            if evid[:2] == "ev" and evid[2].isdigit() and evid[3].isdigit():
-                n = evid.find("#")
-                if n == -1:
-                    procAlertEventIDs[evid] = evid
-                else:
-                    procAlertEventIDs[evid] = evid[:n]
-            else:
-                try:
-                    t = evt.created()
-                except:
-                    t = seiscomp3.Core.Time.GMT()
-                procAlertEventIDs[evid] = "ev%s" % t.toString("%y%m%d%H%M%S")
-
-        return procAlertEventIDs[evid]
+            print >> sys.stderr, sys.exc_info()
 
 
     def hasValidNetworkMagnitude(self, org, evt):
-        nmag = org.networkMagnitudeCount()
+        nmag = org.magnitudeCount()
         for imag in xrange(nmag):
-            mag = org.networkMagnitude(imag)
+            mag = org.magnitude(imag)
             if mag.publicID() == evt.preferredMagnitudeID():
                 return True
         return False
@@ -174,15 +148,12 @@ class ProcAlert(seiscomp3.Client.Application):
 
     def send_procalert(self, txt, evid):
         if self.procAlertScript:
-            if evid[:5] == "gfz20":
-                tmp = "/tmp/yyy%s" % evid[3:]
-            else:
-                tmp = "/tmp/yy%s"  % evid[2:]
+            tmp = "/tmp/yyy%s" % evid.replace("/","_").replace(":","-")
             f = file(tmp, "w")
             f.write("%s" % txt)
             f.close()
         
-            os.system(self.procAlertScript + " " + tmp + " " + tmp[6:])
+            os.system(self.procAlertScript + " " + tmp + " " + evid)
 
 
     def coordinates(self, org):
@@ -207,9 +178,15 @@ class ProcAlert(seiscomp3.Client.Application):
             seiscomp3.Logging.error("origin too old - ignored")
             publish = False
 
-        if org.status() in [ seiscomp3.DataModel.MANUAL_ORIGIN, seiscomp3.DataModel.CONFIRMED ]:
-        #if org.status() in [ seiscomp3.DataModel.CONFIRMED ]:
-            publish = True
+        try:
+            if org.evaluationMode() == seiscomp3.DataModel.MANUAL:
+                publish = True
+        except: pass
+
+        try:
+            if org.evaluationStatus() == seiscomp3.DataModel.CONFIRMED:
+                publish = True
+        except: pass
 
         if not self.hasValidNetworkMagnitude(org, evt):
             seiscomp3.Logging.error("no network magnitude - ignored")

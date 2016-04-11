@@ -222,7 +222,9 @@ class Bulletin(object):
 
         netmag = {}
         nmag = org.magnitudeCount()
-        txt += "%d Network magnitudes:\n" % nmag
+        tmptxt = txt
+        txt = ""
+        foundPrefMag = False
         for i in xrange(nmag):
             mag = org.magnitude(i)
             val = mag.magnitude().value()
@@ -248,6 +250,7 @@ class Bulletin(object):
                     sys.stderr.write("_printOriginAutoloc3: caught unknown exception, type='%s', text='%s'\n" % (type(e),str(e)))
             if mag.publicID() == preferredMagnitudeID:
                     preferredMarker = "preferred"
+                    foundPrefMag = True
             else:   preferredMarker = "         "
             if extra:
                 try: agencyID = mag.creationInfo().agencyID()
@@ -256,6 +259,38 @@ class Bulletin(object):
                 agencyID = ""
             txt += "    %-8s %5.2f %8s %3d %s  %s\n" % \
                     (typ, val, err, mag.stationCount(), preferredMarker, agencyID)
+
+        if not foundPrefMag and preferredMagnitudeID != "":
+            mag = seiscomp3.DataModel.Magnitude.Find(evt.preferredMagnitudeID())
+            if mag is None and self._dbq:
+                o = self._dbq.loadObject(seiscomp3.DataModel.Magnitude.TypeInfo(), evt.preferredMagnitudeID())
+                mag = seiscomp3.DataModel.Magnitude.Cast(o)
+
+            if mag:
+                val = mag.magnitude().value()
+                typ = mag.type()
+                netmag[typ] = mag
+                err = ""
+
+                try:
+                    m = mag.magnitude()
+                    try: err = "+/- %.2f" % (0.5*(m.lowerUncertainty()+m.upperUncertainty()))
+                    except: err = "+/- %.2f" % m.uncertainty()
+                except seiscomp3.Core.ValueException:
+                    pass # just don't print any error, that's it
+                except Exception, e:
+                    sys.stderr.write("_printOriginAutoloc3: caught unknown exception, type='%s', text='%s'\n" % (type(e),str(e)))
+                preferredMarker = "preferred"
+                if extra:
+                    try: agencyID = mag.creationInfo().agencyID()
+                    except: pass
+                else:
+                    agencyID = ""
+                txt += "    %-8s %5.2f %8s %3d %s  %s\n" % \
+                        (typ, val, err, mag.stationCount(), preferredMarker, agencyID)
+                nmag = nmag + 1
+
+        txt = tmptxt + "%d Network magnitudes:\n" % nmag + txt
 
         if not self._long:
             return txt
@@ -401,6 +436,7 @@ class Bulletin(object):
         tmp["mtyp"] = "M"
         tmp["mval"] = 0.
 
+        foundMag = False
         nmag = org.magnitudeCount()
         for i in xrange( org.magnitudeCount() ):
             mag = org.magnitude(i)
@@ -408,7 +444,18 @@ class Bulletin(object):
                 if mag.type() in ["mb","mB","Mwp","ML","MLv", "Mjma"]:
                     tmp["mtyp"] = mag.type()
                 tmp["mval"] = mag.magnitude().value()
+                foundMag = True
                 break;
+
+        if not foundMag and evt.preferredMagnitudeID() != "":
+            mag = seiscomp3.DataModel.Magnitude.Find(evt.preferredMagnitudeID())
+            if mag is None and self._dbq:
+                o = self._dbq.loadObject(seiscomp3.DataModel.Magnitude.TypeInfo(), evt.preferredMagnitudeID())
+                mag = seiscomp3.DataModel.Magnitude.Cast(o)
+
+            if mag :
+                tmp["mtyp"] = mag.type()
+                tmp["mval"] = mag.magnitude().value()
 
 # changed to properly report location method. (Marco Olivieri 21/06/2010)     
 #        txt += """

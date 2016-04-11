@@ -36,6 +36,10 @@
 				<option value="B"/>
 				<option value="M"/>
 			</param>
+			<param name="nodata" style="query" type="xsd:int" default="204">
+				<option value="204"/>
+				<option value="404"/>
+			</param>
 		</request>
 		<response status="200">
 			<representation mediaType="application/vnd.fdsn.mseed"/>

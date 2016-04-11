@@ -87,11 +87,11 @@ It is divided into 4 areas:
 - green: title and description of current panel
 - blue: the content and interactive screen of the current panel
 
-The main menu contains two entries: :guilabel:`&File` and :guilabel:`&Edit`.
+The main menu contains two entries: :guilabel:`File` and :guilabel:`Edit`.
 
-The file menu allows to run the setup wizard (:guilabel:`&Wizard`), to reload
-the configuration (:guilabel:`&Reload`), to save the
-configuration (:guilabel:`&Save`) and to close the configuration (:guilabel:`&Quit`).
+The file menu allows to run the setup wizard (:guilabel:`Wizard`), to reload
+the configuration (:guilabel:`Reload`), to save the
+configuration (:guilabel:`Save`) and to close the configuration (:guilabel:`Quit`).
 
 The edit menu allows to switch the current configuration mode. Pressing the
 switch button in the upper left corner (red box) is a shortcut for this operation.

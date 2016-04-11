@@ -22,8 +22,18 @@ class SeedlinkPluginHandler:
     try: max_latency = int(seedlink.param('sources.nmxp.max_latency'))
     except: seedlink.setParam('sources.nmxp.max_latency', max_latency)
 
+    short_term_completion = -1
+    try: short_term_completion = int(seedlink.param('sources.nmxp.short_term_completion'))
+    except: seedlink.setParam('sources.nmxp.short_term_completion', short_term_completion)
+
     try: seedlink.param('sources.nmxp.proc')
     except: seedlink.setParam('sources.nmxp.proc', 'nmxp_bb40_sm100')
+
+    additional_options = ""
+    try: additional_options = " " + seedlink.param('sources.nmxp.additional_options')
+    except: pass
+
+    seedlink.setParam('sources.nmxp.additional_options', additional_options)
 
     # Key is address (one instance per address)
     return address + ":" + str(port)

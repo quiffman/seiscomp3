@@ -239,8 +239,11 @@ bool EventInformation::addJournalEntry(DataModel::JournalEntry *e) {
 	journal.push_back(e);
 
 	// Update constraints
-	if ( e->action() == "EvPrefMagType" )
+	if ( e->action() == "EvPrefMagType" ) {
 		constraints.preferredMagnitudeType = e->parameters();
+		if ( !constraints.preferredMagnitudeType.empty() )
+			constraints.fixMw = false;
+	}
 	else if ( e->action() == "EvPrefOrgID" ) {
 		constraints.preferredOriginID = e->parameters();
 		constraints.preferredOriginEvaluationMode = Core::None;
@@ -286,6 +289,15 @@ bool EventInformation::addJournalEntry(DataModel::JournalEntry *e) {
 	else if ( e->action() == "EvPrefFocAutomatic" ) {
 		constraints.preferredFocalMechanismEvaluationMode = Core::None;
 		constraints.preferredFocalMechanismID = "";
+	}
+	else if ( e->action() == "EvPrefMw" ) {
+		if ( e->parameters() == "true" ) {
+			constraints.fixMw = true;
+			constraints.preferredMagnitudeType = "";
+		}
+		else if ( e->parameters() == "false" )
+			constraints.fixMw = false;
+		// Else keep the last state
 	}
 
 	return true;

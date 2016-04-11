@@ -36,10 +36,6 @@ class Nucleator
 	public:
 		Nucleator() {
 			_stations = 0;
-
-			// TODO: Make this configurable
-//			_config_maxDistanceXXL = 15; // distance in degrees
-//			_config_minPickCountXXL = 4;
 		}
 
 		virtual ~Nucleator() {
@@ -63,7 +59,7 @@ class Nucleator
 
 	protected:
 		const StationDB *_stations;
-		double _config_maxDistanceXXL;
+//		double _config_maxDistanceXXL;
 
 		set<string> _configuredStations;
 

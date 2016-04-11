@@ -87,7 +87,7 @@ CREATE TABLE PublicObject (
 	  ON DELETE CASCADE
 );
 
-INSERT INTO Meta(name,value) VALUES ('Schema-Version', '0.6');
+INSERT INTO Meta(name,value) VALUES ('Schema-Version', '0.7');
 INSERT INTO Meta(name,value) VALUES ('Creation-Time', CURRENT_TIMESTAMP);
 
 INSERT INTO Object(_oid) VALUES (DEFAULT);
@@ -583,6 +583,7 @@ CREATE TABLE Amplitude (
 	m_period_confidenceLevel DOUBLE PRECISION,
 	m_period_used BOOLEAN NOT NULL DEFAULT '0',
 	m_snr DOUBLE PRECISION,
+	m_unit VARCHAR(255),
 	m_pickID VARCHAR(255),
 	m_waveformID_networkCode VARCHAR(8),
 	m_waveformID_stationCode VARCHAR(8),

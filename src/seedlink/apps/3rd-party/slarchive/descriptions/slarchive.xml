@@ -23,6 +23,12 @@
 				directory ($SEISCOMP_ROOT).
 				</description>
 			</parameter>
+			<parameter name="buffer" type="int" default="1000">
+				<description>
+				Number of records (512 byte units) to buffer before flushing to
+				disk.
+				</description>
+			</parameter>
 			<parameter name="delay" type="int" default="30">
 				<description>
 				The network reconnect delay (in seconds) for the connection

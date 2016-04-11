@@ -8,6 +8,7 @@ class Module(seiscomp3.Kernel.Module):
     self.config_dir = os.path.join(self.env.SEISCOMP_ROOT, "var", "lib", self.name)
     self.host = "127.0.0.1"
     self.port = 18000
+    self.buffer = 1000
 
 
   def _readConfig(self):
@@ -26,6 +27,9 @@ class Module(seiscomp3.Kernel.Module):
     try: self.port = int(self.params['port'])
     except: self.params['port'] = self.port
 
+    try: self.buffer = self.params['buffer']
+    except: self.params['buffer'] = self.buffer
+
     try:
       self.archive_dir = self.params['archive']
       if not os.path.isabs(self.archive_dir):
@@ -34,10 +38,11 @@ class Module(seiscomp3.Kernel.Module):
     self.params['archive'] = self.archive_dir
 
     self.params['slarchive._config_dir'] = self.config_dir
+    return cfg
 
 
   def _run(self):
-    self._readConfig()
+    cfg = self._readConfig()
 
     mymodname = self.name + "_" + self.host + "_" + str(self.port)
 
@@ -54,6 +59,8 @@ class Module(seiscomp3.Kernel.Module):
     params = self.env.lockFile(self.name)
     params += " " + self.name + ' -b -x "' + os.path.join(run_dir, mymodname + ".seq") + ':1000000"'
     params += ' -SDS "%s"' % self.archive_dir
+    try: params += ' -B %d' % cfg.getInt('buffer')
+    except: pass
     try: params += ' -nt %d' % cfg.getInt('networkTimeout')
     except: params += ' -nt 900'
     try: params += ' -nd %d' % cfg.getInt('delay')
@@ -123,7 +130,7 @@ class Module(seiscomp3.Kernel.Module):
     files = glob.glob(os.path.join(bindings_dir, "station_*"))
     for f in files:
       try:
-        (path, net, sta) = f.split('_')
+        (path, net, sta) = f.split('_')[-3:]
         if not path.endswith("station"):
           print "invalid path", f
 

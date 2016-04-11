@@ -72,17 +72,18 @@
 		#define SC_FS_FILE_NAME(PATH) PATH.leaf()
 		#define SC_FS_EXT_NAME(PATH) boost::filesystem::extension(PATH)
 		#define SC_FS_STEM_NAME(PATH) boost::filesystem::basename(PATH)
+		#define SC_FS_HAS_PARENT_PATH(PATH) PATH.has_branch_path()
+		#define SC_FS_PARENT_PATH(PATH) PATH.branch_path()
 	#else
 		#define SC_FS_FILE_NAME(PATH) PATH.filename()
 		#define SC_FS_EXT_NAME(PATH) PATH.extension()
 		#define SC_FS_STEM_NAME(PATH) PATH.stem()
+		#define SC_FS_HAS_PARENT_PATH(PATH) PATH.has_parent_path()
+		#define SC_FS_PARENT_PATH(PATH) PATH.parent_path()
 	#endif
 	#define SC_FS_FILE_PATH(PATH) FS_PATH(FS_FILE_NAME(PATH))
 	#define SC_FS_EXT_PATH(PATH) FS_PATH(FS_EXT_NAME(PATH))
 	#define SC_FS_STEM_PATH(PATH) FS_PATH(FS_STEM_NAME(PATH))
-
-	#define SC_FS_HAS_PARENT_PATH(PATH) PATH.has_branch_path()
-	#define SC_FS_PARENT_PATH(PATH) PATH.branch_path()
 
 	// directory entry
 	#if BOOST_VERSION <= 103301

@@ -1604,7 +1604,7 @@ bool Inventory::removeNetwork(const NetworkIndex& i) {
 void Inventory::serialize(Archive& ar) {
 	// Do not read/write if the archive's version is higher than
 	// currently supported
-	if ( ar.isHigherVersion<0,6>() ) {
+	if ( ar.isHigherVersion<0,7>() ) {
 		SEISCOMP_ERROR("Archive version %d.%d too high: Inventory skipped",
 		               ar.versionMajor(), ar.versionMinor());
 		ar.setValidity(false);

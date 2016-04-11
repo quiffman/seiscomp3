@@ -233,9 +233,14 @@ Autoloc::Origin *Seiscomp::Applications::Autoloc::App::convertFromSC3(const Seis
 		const ::Autoloc::Pick *pick = ::Autoloc::Autoloc3::pick(pickID);
 		if ( ! pick ) {
 			// XXX FIXME: This may also happen after Autoloc cleaned up older picks, so the pick isn't available any more!
-			SEISCOMP_ERROR_S("Pick " + pickID + " not found - cannot convert origin");
-			delete origin;
-			return NULL;
+			SEISCOMP_ERROR_S("Pick " + pickID + " not found in internal pick pool - SKIPPING this pick");
+			if (Seiscomp::DataModel::PublicObject::Find(pickID))
+				SEISCOMP_ERROR("HOWEVER, this pick is present in pool of public objects");
+			// This actually IS an error but we try to work around
+			// it instead of giving up in this origin completely.
+			continue;
+//			delete origin;
+//			return NULL;
 		}
 
 		::Autoloc::Arrival arr(pick /* , const std::string &phase="P", double residual=0 */ );

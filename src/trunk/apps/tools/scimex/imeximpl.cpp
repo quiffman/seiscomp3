@@ -270,36 +270,38 @@ bool ImExImpl::init()
 	catch ( Config::Exception& ) {}
 
 	// Get criteria
-	std::string criteriaStr;
 	try {
-		criteriaStr = _imex->configGetString("hosts." + _sinkName + ".criteria");
+		std::string criteriaStr = _imex->configGetString("hosts." + _sinkName + ".criteria");
+
+		Utils::LeTokenizer tokenizer(criteriaStr);
+		if( !tokenizer.tokenize() ) {
+			SEISCOMP_ERROR("%s", tokenizer.what().c_str());
+			return false;
+		}
+		Utils::LeParserTypes::Tokens tokens = tokenizer.tokens();
+
+		SEISCOMP_DEBUG("= Parsed criterion for sink: %s =", _sinkName.c_str());
+		for ( size_t i = 0; i < tokens.size(); ++i )
+			SEISCOMP_DEBUG("%s", tokens[i].c_str());
+
+		CriterionFactory<CriterionInterface> factory(_sinkName, _imex);
+		Utils::LeParser<CriterionInterface> parser(tokens, &factory);
+		_criterion = boost::shared_ptr<CriterionInterface>(parser.parse());
+		if ( !_criterion.get() ) {
+			SEISCOMP_ERROR("%s", parser.what());
+			return false;
+		}
+
+		if ( parser.error() )
+			SEISCOMP_ERROR("%s", parser.what());
 	}
 	catch ( Config::Exception& e ) {
-		SEISCOMP_DEBUG("(%s) %s ", e.what(), _sinkName.c_str());
-		return false;
+		if ( _filter ) {
+			SEISCOMP_DEBUG("(%s) %s ", e.what(), _sinkName.c_str());
+			return false;
+		}
+		_criterion.reset();
 	}
-
-	Utils::LeTokenizer tokenizer(criteriaStr);
-	if( !tokenizer.tokenize() ) {
-		SEISCOMP_ERROR("%s", tokenizer.what().c_str());
-		return false;
-	}
-	Utils::LeParserTypes::Tokens tokens = tokenizer.tokens();
-
-	SEISCOMP_DEBUG("= Parsed criterion for sink: %s =", _sinkName.c_str());
-	for ( size_t i = 0; i < tokens.size(); ++i )
-		SEISCOMP_DEBUG("%s", tokens[i].c_str());
-
-	CriterionFactory<CriterionInterface> factory(_sinkName, _imex);
-	Utils::LeParser<CriterionInterface> parser(tokens, &factory);
-	_criterion = boost::shared_ptr<CriterionInterface>(parser.parse());
-	if ( !_criterion.get() ) {
-		SEISCOMP_ERROR("%s", parser.what());
-		return false;
-	}
-
-	if ( parser.error() )
-		SEISCOMP_ERROR("%s", parser.what());
 
 	if ( _imex->mode() == ImEx::EXPORT ) {
 		isOriginEligibleImpl = &ImExImpl::isOriginEligibleExport;
@@ -844,7 +846,7 @@ void ImExImpl::readSinkMessages()
 {
 	while ( !_imex->isExitRequested() ) {
 		Communication::NetworkMessagePtr networkMsgPtr;
-		while ((networkMsgPtr = _sink->receive(false)) != NULL);
+		while ( _sink->isConnected() && (networkMsgPtr = _sink->receive(false)) != NULL );
 		Core::sleep(1);
 	}
 }

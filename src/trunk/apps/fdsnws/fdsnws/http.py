@@ -36,11 +36,15 @@ Service Version:
 %s
 """
 
+		# rewrite response code if requested an no data was found
+		if ro is not None and code == http.NO_CONTENT:
+			code = ro.noData
+
 		request.setHeader("Content-Type", "text/plain")
 		request.setResponseCode(code)
 
 		codeStr = http.RESPONSES[code]
-		Logging.warning("Responding with error: %i (%s)" % (code, codeStr))
+		Logging.warning("responding with error: %i (%s)" % (code, codeStr))
 		date = Core.Time.GMT().toString("%FT%T.%f")
 		response = resp % (code, codeStr, msg, request.uri, date, VERSION)
 		utils.accessLog(request, ro, code, len(response), msg)
@@ -50,7 +54,7 @@ Service Version:
 	#---------------------------------------------------------------------------
 	@staticmethod
 	def renderNotFound(request):
-		msg = "The requested resource does not exist on this server"
+		msg = "The requested resource does not exist on this server."
 		return HTTP.renderErrorPage(request, http.NOT_FOUND, msg)
 
 	#---------------------------------------------------------------------------
@@ -63,8 +67,8 @@ Service Version:
 
 		msg = "The result set of your request exceeds the configured maximum " \
 		      "number of objects (%i). Refine your request parameters." % maxObj
-		writeTS(req, HTTP.renderErrorPage(req, http.REQUEST_ENTITY_TOO_LARGE,
-			                                  msg))
+		utils.writeTS(req, HTTP.renderErrorPage(
+		              req, http.REQUEST_ENTITY_TOO_LARGE, msg))
 		return False
 
 

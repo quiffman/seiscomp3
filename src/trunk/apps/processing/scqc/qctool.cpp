@@ -267,8 +267,26 @@ bool QcTool::init() {
 						params.getString(loc, "detecLocid");
 						params.getString(cha, "detecStream");
 
-						if ( !cha.empty() )
-							addStream(net, sta, loc, cha+'Z');
+						if ( !cha.empty() ) {
+							bool isFixedChannel = cha.size() > 2;
+
+							if ( !isFixedChannel ) {
+								DataModel::SensorLocation *sloc =
+									Client::Inventory::Instance()->getSensorLocation(net, sta, loc, Core::Time::GMT());
+
+								if ( sloc != NULL ) {
+									DataModel::Stream *stream = DataModel::getVerticalComponent(sloc, cha.c_str(), Core::Time::GMT());
+									if ( stream != NULL )
+										addStream(net, sta, loc, stream->code());
+									else
+										addStream(net, sta, loc, cha+'Z');
+								}
+								else
+									addStream(net, sta, loc, cha+'Z');
+							}
+							else
+								addStream(net, sta, loc, cha);
+						}
 					}
 				}
 			}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <seiscomp>
 	<module name="arclinkproxy" category="Acquisition" standalone="true">
-		<description>SeedLink client for data stream archiving</description>
+		<description>Proxy ArcLink server</description>
 		<configuration>
 			<parameter name="arclinkAddress" type="string" default="webdc.eu:18001">
 				<description>

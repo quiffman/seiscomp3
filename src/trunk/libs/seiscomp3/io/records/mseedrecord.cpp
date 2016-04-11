@@ -29,10 +29,10 @@ struct MSEEDLogger {
 	}
 
 	static void print(char *msg) {
-		SEISCOMP_DEBUG("%s", msg);
+		//SEISCOMP_DEBUG("%s", msg);
 	}
 	static void diag(char *msg) {
-		SEISCOMP_DEBUG("%s", msg);
+		//SEISCOMP_DEBUG("%s", msg);
 	}
 };
 
@@ -110,7 +110,7 @@ MSeedRecord::MSeedRecord(MSRecord *rec, Array::DataType dt, Hint h)
 	if (rec->Blkt1001)
 		_nframes = rec->Blkt1001->framecnt;
 	_leap = 0;
-	if (rec->fsdh->start_time.sec > 59) 
+	if (rec->fsdh->start_time.sec > 59)
 		_leap = rec->fsdh->start_time.sec-59;
 	hptime_t hptime = msr_endtime(rec);
 	_etime = Seiscomp::Core::Time((hptime_t)hptime/HPTMODULUS,(hptime_t)hptime%HPTMODULUS);
@@ -152,7 +152,7 @@ MSeedRecord::MSeedRecord(const Record &rec, int reclen)
    _encodingFlag(false)
 {
     _reclen = reclen;
-    _data = rec.data()?rec.data()->clone():NULL;    
+    _data = rec.data()?rec.data()->clone():NULL;
 }
 
 MSeedRecord::~MSeedRecord() {}
@@ -555,12 +555,10 @@ void MSeedRecord::write(std::ostream& out) throw(Core::StreamException) {
 	/* Pack the record(s) */
 	CharArray packed;
 	int64_t psamples;
-	int precords = msr_pack(pmsr, &_Record_Handler, &packed, &psamples, 1, 0);
+	msr_pack(pmsr, &_Record_Handler, &packed, &psamples, 1, 0);
 	pmsr->datasamples = 0;
 	msr_free(&pmsr);
 
 	out.write(packed.typedData(), packed.size());
-	SEISCOMP_DEBUG("Packed %ld samples into %d records",
-	               (long int)psamples,precords);
 }
 

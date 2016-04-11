@@ -227,7 +227,7 @@ bool SaulArchive::setSource(std::string source) {
 						for ( int i = depthFrom; i <= depthTo; i += depthSpacing )
 							depths.insert(i);
 					}
-					
+
 				}
 				else if ( line == "distance" ) {
 					ss >> distanceFrom >> distanceTo >> distanceSpacing;
@@ -390,8 +390,8 @@ Core::GreensFunction* SaulArchive::get() {
 		DoubleList::iterator lbdep = mit->second.depths.lower_bound(req.depth);
 		DoubleList::iterator ubdep = lbdep--;
 
-		double dist1, dist2, dist, distError;
-		double dep1, dep2, dep, depError;
+		double dist1, dist2, dist;
+		double dep1, dep2, dep;
 
 		// Distance is lower than the first stored value
 		if ( ubdist == mit->second.distances.begin() ) {
@@ -470,20 +470,16 @@ Core::GreensFunction* SaulArchive::get() {
 
 		if ( fabs(distKm - dist1) < fabs(distKm - dist2) ) {
 			dist = dist1;
-			distError = dist1 - distKm;
 		}
 		else {
 			dist = dist2;
-			distError = dist2 - distKm;
 		}
 
 		if ( fabs(iDepth - dep1) < fabs(iDepth - dep2) ) {
 			dep = dep1;
-			depError = dep1 - iDepth;
 		}
 		else {
 			dep = dep2;
-			depError = dep2 - iDepth;
 		}
 
 		/*

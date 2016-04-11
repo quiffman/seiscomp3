@@ -102,6 +102,7 @@ class InventoryPanel : public ConfiguratorPanel {
 		void switchToDetailedView();
 		void refresh();
 		void deleteFiles();
+		void inspectFile();
 
 		void import();
 		void testSync();

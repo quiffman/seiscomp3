@@ -37,9 +37,8 @@ class SeedlinkPluginHandler:
     print "      + change station id from %s to %s" % (seedlink.param('seedlink.station.id'), unit)
     seedlink.setParam('seedlink.station.id', unit)
 
-    proc = "reftek"
-    try: port = int(seedlink.param('sources.reftek.proc'))
-    except: seedlink.setParam('sources.reftek.proc', proc)
+    try: proc = seedlink.param('sources.reftek.proc')
+    except: seedlink.setParam('sources.reftek.proc', 'reftek')
 
     log_soh = "true"
     try:

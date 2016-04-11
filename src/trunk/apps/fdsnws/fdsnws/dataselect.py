@@ -95,7 +95,7 @@ class _DataSelectRequestOptions(RequestOptions):
 		if self.PLongestOnly in self._args:
 			self.longestonly = self.parseBoolean(self.PLongestOnly)
 
-		# channel filter (optional)
+		self.parseNoData()
 		self.parseChannel()
 		self.parseTime()
 
@@ -191,7 +191,8 @@ class _DataSelectRequestOptions(RequestOptions):
 					if ro.time.end.fromString(toks[5], fmt): break
 
 			Logging.debug("ro: %s.%s.%s.%s %s" % (ro.channel.net,
-			              ro.channel.sta, ro.channel.loc, ro.channel.cha, ro.time.start.iso()))
+			              ro.channel.sta, ro.channel.loc, ro.channel.cha,
+			              ro.time.start.iso()))
 			self.streams.append(ro)
 
 		if len(self.streams) == 0:
@@ -331,7 +332,7 @@ class FDSNDataSelect(resource.Resource):
 			for net in utils.networkIter(inv, s):
 				if ro.userName is None and net.restricted():
 					continue
-				for sta in utils.stationIter(net, s, True, False, False):
+				for sta in utils.stationIter(net, s):
 					if ro.userName is None and sta.restricted():
 						continue
 					for loc in utils.locationIter(sta, s):
@@ -354,7 +355,7 @@ class FDSNDataSelect(resource.Resource):
 								diffSec = (s.time.end - s.time.start).length()
 								samples += int(diffSec * n / d)
 								if samples > maxSamples:
-									msg = "maximum number of %sM samples " \
+									msg = "Maximum number of %sM samples " \
 									      "exceeded" % str(app._samplesM)
 									return HTTP.renderErrorPage(req,
 									       http.REQUEST_ENTITY_TOO_LARGE, msg,

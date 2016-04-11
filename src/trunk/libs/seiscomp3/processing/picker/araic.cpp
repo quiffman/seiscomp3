@@ -14,6 +14,9 @@
 
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/processing/picker/araic.h>
+#include <seiscomp3/io/records/sacrecord.h>
+
+#include <fstream>
 
 
 using namespace std;
@@ -114,37 +117,11 @@ maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 }
 
 
-template<typename TYPE>
-bool repick(int n, const TYPE *data, int iofs, int &kmin, double &snr, WaveformProcessor::Filter *f)
-{
-	if (n<=0) return false;
-
-	double average = 0;
-	int n2 = (n-iofs)/2; // use only first half of seismogram
-	// FIXME somewhat hackish but better than nothing
-	for (int i=0; i<n2; i++)
-		average += data[iofs+i];
-	average /= n2;
-
-	vector<TYPE> tmp(n);
-	for ( int i = 0; i < n; ++i ) tmp[i] = data[i]-average;
-
-	if ( f != NULL ) f->apply(tmp);
-
-	kmin = -1;
-	snr = -1;
-	maeda_aic_const(n-iofs, &tmp[iofs], kmin, snr);
-	kmin += iofs;
-
-	return true;
-}
-
-
 }
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ARAICPicker::ARAICPicker() {}
+ARAICPicker::ARAICPicker() : _dumpTraces(false) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -152,7 +129,7 @@ ARAICPicker::ARAICPicker() {}
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ARAICPicker::ARAICPicker(const Core::Time& trigger)
- : Picker(trigger) {
+ : Picker(trigger), _dumpTraces(false) {
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -173,6 +150,7 @@ bool ARAICPicker::setup(const Settings &settings) {
 	settings.getValue(_config.signalBegin, "picker.AIC.signalBegin");
 	settings.getValue(_config.signalEnd, "picker.AIC.signalEnd");
 	settings.getValue(_config.snrMin, "picker.AIC.minSNR");
+	settings.getValue(_dumpTraces, "picker.AIC.dump");
 
 	settings.getValue(_filter, "picker.AIC.filter");
 
@@ -214,8 +192,50 @@ bool ARAICPicker::calculatePick(int n, const double *data,
 		filter->setSamplingFrequency(_stream.fsamp);
 	}
 
-	if ( !repick(signalEndIdx, data, signalStartIdx, triggerIdx, snr, filter.get()) )
-		return false;
+	if ( signalEndIdx <= 0 ) return false;
+
+	double average = 0;
+	int n2 = (signalEndIdx-signalStartIdx)/2; // use only first half of seismogram
+	// FIXME somewhat hackish but better than nothing
+	for ( int i = 0; i < n2; ++i )
+		average += data[signalStartIdx+i];
+	average /= n2;
+
+	vector<double> tmp(signalEndIdx);
+	for ( int i = 0; i < signalEndIdx; ++i ) tmp[i] = data[i]-average;
+
+	if ( _dumpTraces ) {
+		IO::SACRecord sac(*_stream.lastRecord);
+		sac.setStartTime(dataTimeWindow().startTime() + Core::TimeSpan(signalStartIdx/_stream.fsamp));
+		sac.setData(tmp.size()-signalStartIdx, &tmp[signalStartIdx], Array::DOUBLE);
+		sac.setChannelCode("AIC");
+
+		std::ofstream ofs;
+		ofs.open((_stream.lastRecord->streamID() + _trigger.iso() + ".sac").c_str());
+		sac.write(ofs);
+		ofs.close();
+	}
+
+	if ( filter ) {
+		filter->apply(tmp);
+
+		if ( _dumpTraces ) {
+			IO::SACRecord sac(*_stream.lastRecord);
+			sac.setStartTime(dataTimeWindow().startTime() + Core::TimeSpan(signalStartIdx/_stream.fsamp));
+			sac.setChannelCode("AIF");
+			sac.setData(tmp.size()-signalStartIdx, &tmp[signalStartIdx], Array::DOUBLE);
+
+			std::ofstream ofs;
+			ofs.open((_stream.lastRecord->streamID() + _trigger.iso() + "-filter.sac").c_str());
+			sac.write(ofs);
+			ofs.close();
+		}
+	}
+
+	triggerIdx = -1;
+	snr = -1;
+	maeda_aic_const(signalEndIdx-signalStartIdx, &tmp[signalStartIdx], triggerIdx, snr);
+	triggerIdx += signalStartIdx;
 
 	return true;
 }

@@ -53,24 +53,24 @@ of SeisComP3 are:
 +---------+--------------------------------+-----------------------------------------------------+
 | Version | Time                           |                                                     |
 +=========+================================+=====================================================+
-| 1.0     | Feb. 2001                      | SeedLink 2.0 (plugin interface) Plugins for         |
+| 1.0     | February 2001                  | SeedLink 2.0 (plugin interface) Plugins for         |
 |         |                                | EarthData PS2400 and Lennartz M24                   |
 +---------+--------------------------------+-----------------------------------------------------+
-| 1.1     | Aug. 2001                      | SeedLink 2.1 (streams.xml, improved buffer          |
-|         |                                | structure)[[br]] make conf/make key scripts LISS    |
+| 1.1     | August 2001                    | SeedLink 2.1 (streams.xml, improved buffer          |
+|         |                                | structure); make conf/make key scripts LISS         |
 |         |                                | plugin, SeedLink-Antelope connectivity              |
 +---------+--------------------------------+-----------------------------------------------------+
-| 1.1.5   | Jan. 2002                      | SeedLink 2.5 (multi-station mode)                   |
+| 1.1.5   | January 2002                   | SeedLink 2.5 (multi-station mode)                   |
 +---------+--------------------------------+-----------------------------------------------------+
-| 1.16    | Mar. 2002                      | GIF live seismograms                                |
+| 1.16    | March 2002                     | GIF live seismograms                                |
 +---------+--------------------------------+-----------------------------------------------------+
-| 2.0     | Oct. 2003                      | SeedLink 3.0 (INFO request, time window extraction) |
+| 2.0     | October 2003                   | SeedLink 3.0 (INFO request, time window extraction) |
 |         |                                | libslink, chain plugin, Comserv-independence        |
 +---------+--------------------------------+-----------------------------------------------------+
-| 2.1     | Jun. 2004                      | Python add-on package (SeisPy) incl. AutoLoc2 chain |
+| 2.1     | June 2004                      | Python add-on package (SeisPy) incl. AutoLoc2 chain |
 |         |                                | plugin extension interface, triggered streams       |
 +---------+--------------------------------+-----------------------------------------------------+
-| 2.5     | Mar. 2006                      | Integration of add-on packages, modular config      |
+| 2.5     | March 2006                     | Integration of add-on packages, modular config      |
 |         |                                | script                                              |
 +---------+--------------------------------+-----------------------------------------------------+
 | 3.0     | alpha May 2007                 | new architecture, new magnitude types, GUI          |

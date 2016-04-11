@@ -15,7 +15,7 @@
 extern "C" {
 
 #include "GridLib.h"
-#include "ran1.h"
+#include "ran1/ran1.h"
 #include "velmod.h"
 #include "GridMemLib.h"
 #include "calc_crust_corr.h"
@@ -760,7 +760,7 @@ Origin* NLLocator::locate(PickList &pickList) throw(Core::GeneralException) {
 	if ( globalMode )
 		params.push_back("TRANS GLOBAL");
 
-	if ( _fixDepth ) {
+	if ( _usingFixedDepth ) {
 		bool foundLocGrid = false;
 
 		for ( TextLines::iterator it = params.begin(); it != params.end(); ++it ) {
@@ -841,7 +841,7 @@ Origin* NLLocator::locate(PickList &pickList) throw(Core::GeneralException) {
 	for ( ; locNode != NULL; locNode = getLocationFromLocList(loc_list_head, ++id) ) {
 		SEISCOMP_DEBUG("Processing node");
 
-		validOrigin = NLL2SC3(origin, _lastWarning, locNode, usedPicks, _fixDepth);
+		validOrigin = NLL2SC3(origin, _lastWarning, locNode, usedPicks, _usingFixedDepth);
 
 		if ( validOrigin ) {
 			bool rejectedLocation = false;
@@ -896,7 +896,7 @@ Origin* NLLocator::locate(PickList &pickList) throw(Core::GeneralException) {
 					std::string publicID = origin->publicID();
 					delete origin;
 					origin = Origin::Create(publicID);
-					validOrigin = NLL2SC3(origin, _lastWarning, locNode, usedPicks, _fixDepth);
+					validOrigin = NLL2SC3(origin, _lastWarning, locNode, usedPicks, _usingFixedDepth);
 				}
 				else {
 					delete origin;
@@ -1332,6 +1332,10 @@ bool NLLocator::NLL2SC3(Origin *origin, string &locComment, const void *vnode,
 		Math::Geo::delazi(phypo->dlat, phypo->dlong,
 		                  sloc->latitude(), sloc->longitude(),
 		                  &dist, &az, &baz);
+
+		std::cout << "delazi: " << origin->latitude() << "," << origin->longitude()
+		          << " - " << sloc->latitude() << "," << sloc->longitude()
+		          << " = " << az << std::endl;
 
 		DataModel::ArrivalPtr arr = new DataModel::Arrival;
 		arr->setPickID(pick->publicID());

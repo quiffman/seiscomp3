@@ -65,7 +65,7 @@ class App : public Client::Application,
 		void updateObject(const std::string& parentID, DataModel::Object *o);
 
 		virtual bool _report(const ::Autoloc::Origin *origin);
-		bool runFromPickFile();
+//		bool runFromPickFile();
 		bool runFromXMLFile(const char *fname);
 
 

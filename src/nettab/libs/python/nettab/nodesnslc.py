@@ -78,7 +78,7 @@ class StationGroup(nslc,sc3):
 
 	def conflict(self, another):
 		if self.code != another.code:
-			return False		
+			return False
 		
 		if self.end:
 			if self.end <= another.start:
@@ -92,7 +92,7 @@ class StationGroup(nslc,sc3):
 		return True
 
 	def Sr(self, sr):
-	        self.srdata.append((sr.ncode, sr.scode, sr.start, sr.end))
+		self.srdata.append((sr.ncode, sr.scode, sr.start, sr.end))
 
 	def sc3Resolv(self, inventory):
 		for (ncode, scode, start, end) in self.srdata:
@@ -143,7 +143,7 @@ class Network(nslc, sc3):
 
 	def conflict(self, another):
 		if self.code != another.code:
-			return False		
+			return False
 		
 		if self.end:
 			if self.end <= another.start:

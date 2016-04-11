@@ -258,7 +258,7 @@ Core::GreensFunction* ArclinkArchive::get() {
 
 	if ( _buffer.in_avail() <= 0 ) return NULL;
 
-	Core::GreensFunction *gf;
+	Core::GreensFunction *gf = NULL;
 	try {
 		_archive >> gf;
 	}

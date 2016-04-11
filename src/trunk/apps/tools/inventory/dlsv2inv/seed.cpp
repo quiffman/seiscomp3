@@ -4,12 +4,14 @@ Purpose:    parsing seed files to file SeisComp database
 
 Language:   C++, ANSI standard.
 
-Author:     Peter de Boer
+Author:     Peter de Boer, Andres Heinloo, Jan Becker
 
-Revision:   0.1 initial  10-01-2008
+Revision:   17-07-2013
 
 ==============================================================================*/
 #include "seed.h"
+#include <assert.h>
+
 using namespace std;
 
 /****************************************************************************************************************************
@@ -109,6 +111,19 @@ string FromJulianDay(string date)
 	return jd.str();
 }
 
+
+inline string substr(const string &str, size_t pos = 0, size_t len = string::npos)
+{
+	/*
+	if ( pos >= str.size() ) {
+		cerr << "substr(\"" << str << "\", " << pos << ", " << len << ") failed" << endl;
+		assert(false);
+	}
+	*/
+	return str.substr(pos, len);
+}
+
+
 /****************************************************************************************************************************
 * Function:     SetRemains												    *
 * Parameters:   record	- remains of the record that has been processed							    *
@@ -129,7 +144,7 @@ void Control::SetRemains(const string& record)
 ****************************************************************************************************************************/
 void Control::SetRemains(const string& record, int size)
 {
-	remains_of_record = record.substr(0, (bytes_left+size));
+	remains_of_record = substr(record, 0, (bytes_left+size));
 }
 
 /****************************************************************************************************************************
@@ -204,8 +219,8 @@ void VolumeIndexControl::ParseVolumeRecord(string record)
 		try
 		{
 			// get blockette number and size
-			blockette = FromString<int>(record.substr(0,3).c_str());
-			size = FromString<int>(record.substr(3, 4).c_str());
+			blockette = FromString<int>(substr(record, 0,3).c_str());
+			size = FromString<int>(substr(record, 3, 4).c_str());
 
 			if ( blockette == 0 ) break;
 
@@ -215,19 +230,19 @@ void VolumeIndexControl::ParseVolumeRecord(string record)
 				switch(blockette)
 				{
 					case(5):
-						fvi.push_back(FieldVolumeIdentifier(record.substr(7, size)));
+						fvi.push_back(FieldVolumeIdentifier(substr(record, 7, size)));
 						break;
 					case(8):
-						tvi.push_back(TelemetryVolumeIdentifier(record.substr(7, size)));
+						tvi.push_back(TelemetryVolumeIdentifier(substr(record, 7, size)));
 						break;
 					case(10):
-						vi.push_back(VolumeIdentifier(record.substr(7, size)));
+						vi.push_back(VolumeIdentifier(substr(record, 7, size)));
 						break;
 					case(11):
-						vshi.push_back(VolumeStationHeaderIndex(record.substr(7, size)));
+						vshi.push_back(VolumeStationHeaderIndex(substr(record, 7, size)));
 						break;
 					case(12):
-						vtsi.push_back(VolumeTimeSpanIndex(record.substr(7, size)));
+						vtsi.push_back(VolumeTimeSpanIndex(substr(record, 7, size)));
 						break;
 					default:
 						proceed = false;
@@ -244,9 +259,9 @@ void VolumeIndexControl::ParseVolumeRecord(string record)
 					// check if character on position is an ~,
 					// if so than take substring with size+1
 					if(record[size] == '~')
-						record = record.substr(++size);
+						record = substr(record, ++size);
 					else
-						record = record.substr(size);
+						record = substr(record, size);
 				}
 			}
 			else
@@ -296,8 +311,8 @@ void VolumeIndexControl::EmptyVectors()
 ****************************************************************************************************************************/
 FieldVolumeIdentifier::FieldVolumeIdentifier(string record)
 {
-	version_of_format = FromString<float>(record.substr(0, 4));
-	logical_record_length = FromString<int>(record.substr(4, 2));
+	version_of_format = FromString<float>(substr(record, 0, 4));
+	logical_record_length = FromString<int>(substr(record, 4, 2));
 	int pos1=6, pos2;
 	beginning_of_volume = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 }
@@ -309,11 +324,11 @@ FieldVolumeIdentifier::FieldVolumeIdentifier(string record)
 ****************************************************************************************************************************/
 TelemetryVolumeIdentifier::TelemetryVolumeIdentifier(string record)
 {
-	version_of_format = FromString<float>(record.substr(0, 4));
-	logical_record_length = FromString<int>(record.substr(4, 2));
-	station_identifier = record.substr(6, 5);
-	location_identifier = record.substr(11, 2);
-	channel_identifier = record.substr(13, 3);
+	version_of_format = FromString<float>(substr(record, 0, 4));
+	logical_record_length = FromString<int>(substr(record, 4, 2));
+	station_identifier = substr(record, 6, 5);
+	location_identifier = substr(record, 11, 2);
+	channel_identifier = substr(record, 13, 3);
 	int pos1=16, pos2;
 	beginning_of_volume = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
@@ -322,7 +337,7 @@ TelemetryVolumeIdentifier::TelemetryVolumeIdentifier(string record)
 	station_information_effective_date = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	channel_information_effective_date = SplitString(record, SEED_SEPARATOR, pos1, pos2);
-	network_code = record.substr(++pos2, 2);
+	network_code = substr(record, ++pos2, 2);
 }
 
 /****************************************************************************************************************************
@@ -332,8 +347,8 @@ TelemetryVolumeIdentifier::TelemetryVolumeIdentifier(string record)
 ****************************************************************************************************************************/
 VolumeIdentifier::VolumeIdentifier(string record)
 {
-	version_of_format = FromString<float>(record.substr(0, 4));
-	logical_record_length = FromString<int>(record.substr(4, 2));
+	version_of_format = FromString<float>(substr(record, 0, 4));
+	logical_record_length = FromString<int>(substr(record, 4, 2));
 	int pos1=6, pos2;
 	beginning_time = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
@@ -353,10 +368,10 @@ VolumeIdentifier::VolumeIdentifier(string record)
 ****************************************************************************************************************************/
 VolumeStationHeaderIndex::VolumeStationHeaderIndex(string record)
 {
-	number_of_stations = FromString<int>(record.substr(0, 3));
+	number_of_stations = FromString<int>(substr(record, 0, 3));
 	int pos1=3, pos2=8;
 	for ( int i = 0; i < number_of_stations; ++i ) {
-		station_info[record.substr(pos1, 5)] = FromString<int>(record.substr(pos2, 6));
+		station_info[substr(record, pos1, 5)] = FromString<int>(substr(record, pos2, 6));
 		pos1 += 11;
  		pos2 += 11;
 	}
@@ -369,14 +384,14 @@ VolumeStationHeaderIndex::VolumeStationHeaderIndex(string record)
 ****************************************************************************************************************************/
 VolumeTimeSpanIndex::VolumeTimeSpanIndex(string record)
 {
-	number_of_spans = FromString<int>(record.substr(0, 4));
+	number_of_spans = FromString<int>(substr(record, 0, 4));
 	if ( number_of_spans == 0 ) return;
 	int pos1=4, pos2;
 	TimeSpan ts;
  	ts.beginning_of_span = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	ts.end_of_span = SplitString(record, SEED_SEPARATOR, pos1, pos2);
-	ts.sequence_number = FromString<int>(record.substr(++pos2, 6));
+	ts.sequence_number = FromString<int>(substr(record, ++pos2, 6));
 	timespans.push_back(ts);
 }
 
@@ -401,52 +416,52 @@ void AbbreviationDictionaryControl::ParseVolumeRecord(string record)
 
 	do {
 		try {
-			blockette = FromString<int>(record.substr(0,3).c_str());
-			size = FromString<int>(record.substr(3, 4).c_str());
+			blockette = FromString<int>(substr(record, 0,3).c_str());
+			size = FromString<int>(substr(record, 3, 4).c_str());
 
 			if ( SetBytesLeft(size, record) ) {
 				switch ( blockette ) {
 					case(30):
-						dfd.push_back(DataFormatDictionary(record.substr(7, size)));
+						dfd.push_back(DataFormatDictionary(substr(record, 7, size)));
 						break;
 					case(31):
-						cd.push_back(CommentDescription(record.substr(7, size)));
+						cd.push_back(CommentDescription(substr(record, 7, size)));
 						break;
 					case(32):
-						csd.push_back(CitedSourceDictionary(record.substr(7, size)));
+						csd.push_back(CitedSourceDictionary(substr(record, 7, size)));
 						break;
 					case(33):
-						ga.push_back(GenericAbbreviation(record.substr(7, size)));
+						ga.push_back(GenericAbbreviation(substr(record, 7, size)));
 						break;
 					case(34):
-						ua.push_back(UnitsAbbreviations(record.substr(7, size)));
+						ua.push_back(UnitsAbbreviations(substr(record, 7, size)));
 						break;
 					case(35):
-						bc.push_back(BeamConfiguration(record.substr(7, size)));
+						bc.push_back(BeamConfiguration(substr(record, 7, size)));
 						break;
 					case(41):
-						fird.push_back(FIRDictionary(record.substr(7, size)));
+						fird.push_back(FIRDictionary(substr(record, 7, size)));
 						break;
 					case(42):
-						rpd.push_back(ResponsePolynomialDictionary(record.substr(7, size)));
+						rpd.push_back(ResponsePolynomialDictionary(substr(record, 7, size)));
 						break;
 					case(43):
-						rpzd.push_back(ResponsePolesZerosDictionary(record.substr(7, size)));
+						rpzd.push_back(ResponsePolesZerosDictionary(substr(record, 7, size)));
 						break;
 					case(44):
-						rcd.push_back(ResponseCoefficientsDictionary(record.substr(7, size)));
+						rcd.push_back(ResponseCoefficientsDictionary(substr(record, 7, size)));
 						break;
 					case(45):
-						rld.push_back(ResponseListDictionary(record.substr(7, size)));
+						rld.push_back(ResponseListDictionary(substr(record, 7, size)));
 						break;
 					case(46):
-						grd.push_back(GenericResponseDictionary(record.substr(7, size)));
+						grd.push_back(GenericResponseDictionary(substr(record, 7, size)));
 						break;
 					case(47):
-						dd.push_back(DecimationDictionary(record.substr(7, size)));
+						dd.push_back(DecimationDictionary(substr(record, 7, size)));
 						break;
 					case(48):
-						csgd.push_back(ChannelSensitivityGainDictionary(record.substr(7, size)));
+						csgd.push_back(ChannelSensitivityGainDictionary(substr(record, 7, size)));
 						break;
 					default:
 						proceed = false;
@@ -460,9 +475,9 @@ void AbbreviationDictionaryControl::ParseVolumeRecord(string record)
 					// check if character on position is an ~,
 					// if so than take substring with size+1
 					if ( record[size] == '~' )
-						record = record.substr(++size);
+						record = substr(record, ++size);
 					else
-						record = record.substr(size);
+						record = substr(record, size);
 					position += size;
 				}
 			}
@@ -532,11 +547,11 @@ DataFormatDictionary::DataFormatDictionary(string record) {
 	int pos1=0, pos2;
 	short_descriptive_name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	data_format_identifier_code = FromString<int>(record.substr(pos1, 4));
+	data_format_identifier_code = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
-	data_family_type = FromString<int>(record.substr(pos1, 3));
+	data_family_type = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_decoder_keys = FromString<int>(record.substr(pos1, 2));
+	number_of_decoder_keys = FromString<int>(substr(record, pos1, 2));
 	pos1 += 2;
 	for ( int i = 0; i < number_of_decoder_keys; ++i ) {
 		decoder_keys.push_back(SplitString(record, SEED_SEPARATOR, pos1, pos2));
@@ -550,11 +565,11 @@ DataFormatDictionary::DataFormatDictionary(string record) {
 * Description:  initialize the CommentDescription									    *
 ****************************************************************************************************************************/
 CommentDescription::CommentDescription(string record) {
-	comment_code_key = FromString<int>(record.substr(0, 4));
+	comment_code_key = FromString<int>(substr(record, 0, 4));
 	comment_class_code = record[4];
 	int pos1=5, pos2;
 	description_of_comment = SplitString(record, SEED_SEPARATOR, pos1, pos2);
-	units = FromString<int>(record.substr(++pos2, 3));
+	units = FromString<int>(substr(record, ++pos2, 3));
 }
 
 /****************************************************************************************************************************
@@ -563,7 +578,7 @@ CommentDescription::CommentDescription(string record) {
 * Description:  initialize the CitedSourceDictionary									    *
 ****************************************************************************************************************************/
 CitedSourceDictionary::CitedSourceDictionary(string record) {
-	source_lookup_code = FromString<int>(record.substr(0, 2));
+	source_lookup_code = FromString<int>(substr(record, 0, 2));
 	int pos1=2, pos2;
 	name_of_publication = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	date_published = SplitString(record, SEED_SEPARATOR, pos1, pos2);
@@ -576,7 +591,7 @@ CitedSourceDictionary::CitedSourceDictionary(string record) {
 * Description:  initialize the GenericAbbreviation									    *
 ****************************************************************************************************************************/
 GenericAbbreviation::GenericAbbreviation(string record) {
-	lookup_code = FromString<int>(record.substr(0, 3));
+	lookup_code = FromString<int>(substr(record, 0, 3));
 	int pos1=3, pos2;
 	description = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 }
@@ -587,7 +602,7 @@ GenericAbbreviation::GenericAbbreviation(string record) {
 * Description:  initialize the UnitsAbbrevations									    *
 ****************************************************************************************************************************/
 UnitsAbbreviations::UnitsAbbreviations(string record) {
-	lookup_code = FromString<int>(record.substr(0, 3));
+	lookup_code = FromString<int>(substr(record, 0, 3));
 	int pos1=3, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	description = SplitString(record, SEED_SEPARATOR, pos1, pos2);
@@ -599,20 +614,20 @@ UnitsAbbreviations::UnitsAbbreviations(string record) {
 * Description:  initialize the BeamConfiguration									    *
 ****************************************************************************************************************************/
 BeamConfiguration::BeamConfiguration(string record) {
-	lookup_code = FromString<int>(record.substr(0, 3));
-	number_of_components = FromString<int>(record.substr(3, 4));
+	lookup_code = FromString<int>(substr(record, 0, 3));
+	number_of_components = FromString<int>(substr(record, 3, 4));
 	int pos1=7;
 	Component comp;
 	for ( int i = 0; i < number_of_components; ++i ) {
-		comp.station = record.substr(pos1, 5);
+		comp.station = substr(record, pos1, 5);
 		pos1 += 5;
-		comp.location = record.substr(pos1, 2);
+		comp.location = substr(record, pos1, 2);
 		pos1 += 2;
-		comp.channel = record.substr(pos1, 3);
+		comp.channel = substr(record, pos1, 3);
 		pos1 += 3;
-		comp.subchannel = FromString<int>(record.substr(pos1, 4));
+		comp.subchannel = FromString<int>(substr(record, pos1, 4));
 		pos1 += 4;
-		comp.component_weight = FromString<int>(record.substr(pos1, 5));
+		comp.component_weight = FromString<int>(substr(record, pos1, 5));
 		pos1 += 5;
 		components.push_back(comp);
  	}
@@ -624,19 +639,19 @@ BeamConfiguration::BeamConfiguration(string record) {
 * Description:  initialize the FIRDictionary										    *
 ****************************************************************************************************************************/
 FIRDictionary::FIRDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	symmetry_code = record[pos1++];
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_factors = FromString<int>(record.substr(pos1, 4));
+	number_of_factors = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	for ( int i = 0; i < number_of_factors; ++i ) {
-		coefficients.push_back(FromString<double>(record.substr(pos1, 14)));
+		coefficients.push_back(FromString<double>(substr(record, pos1, 14)));
 		pos1 += 14;
 	}
 }
@@ -647,34 +662,34 @@ FIRDictionary::FIRDictionary(string record) {
 * Description:  initialize the ResponsePolynomialDictionary								    *
 ****************************************************************************************************************************/
 ResponsePolynomialDictionary::ResponsePolynomialDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	transfer_function_type  = record[pos1++];
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
 	polynomial_approximation_type  = record[pos1++];
 	valid_frequency_units  = record[pos1++];
-	lower_valid_frequency_bound = FromString<double>(record.substr(pos1, 12));
+	lower_valid_frequency_bound = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	upper_valid_frequency_bound = FromString<double>(record.substr(pos1, 12));
+	upper_valid_frequency_bound = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	lower_bound_of_approximation = FromString<double>(record.substr(pos1, 12));
+	lower_bound_of_approximation = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	upper_bound_of_approximation = FromString<double>(record.substr(pos1, 12));
+	upper_bound_of_approximation = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	maximum_absolute_error = FromString<double>(record.substr(pos1, 12));
+	maximum_absolute_error = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	number_of_pcoeff = FromString<int>(record.substr(pos1, 4));
+	number_of_pcoeff = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	Coefficient pc;
 	for ( int i = 0; i < number_of_pcoeff; ++i ) {
-		pc.coefficient = FromString<double>(record.substr(pos1, 12));
+		pc.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		pc.error = FromString<double>(record.substr(pos1, 12));
+		pc.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		polynomial_coefficients.push_back(pc);
 	}
@@ -686,44 +701,44 @@ ResponsePolynomialDictionary::ResponsePolynomialDictionary(string record) {
 * Description:  initialize the ResponsePolesZerosDictionary								    *
 ****************************************************************************************************************************/
 ResponsePolesZerosDictionary::ResponsePolesZerosDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	response_type  = record[pos1++];
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	ao_normalization_factor = FromString<double>(record.substr(pos1, 12));
+	ao_normalization_factor = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	normalization_frequency = FromString<double>(record.substr(pos1, 12));
+	normalization_frequency = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	number_of_zeros = FromString<int>(record.substr(pos1, 3));
+	number_of_zeros = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
 	Zeros cz;
 	for ( int i = 0; i < number_of_zeros; ++i ) {
-		cz.real_zero = FromString<double>(record.substr(pos1, 12));
+		cz.real_zero = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.imaginary_zero = FromString<double>(record.substr(pos1, 12));
+		cz.imaginary_zero = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.real_zero_error = FromString<double>(record.substr(pos1, 12));
+		cz.real_zero_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.imaginary_zero_error = FromString<double>(record.substr(pos1, 12));
+		cz.imaginary_zero_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		complex_zeros.push_back(cz);
 	}
-	number_of_poles = FromString<int>(record.substr(pos1, 3));
+	number_of_poles = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
 	Poles cp;
 	for ( int i = 0; i < number_of_poles; ++i ) {
-		cp.real_pole = FromString<double>(record.substr(pos1, 12));
+		cp.real_pole = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.imaginary_pole = FromString<double>(record.substr(pos1, 12));
+		cp.imaginary_pole = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.real_pole_error = FromString<double>(record.substr(pos1, 12));
+		cp.real_pole_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.imaginary_pole_error = FromString<double>(record.substr(pos1, 12));
+		cp.imaginary_pole_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		complex_poles.push_back(cp);
 	}
@@ -735,31 +750,31 @@ ResponsePolesZerosDictionary::ResponsePolesZerosDictionary(string record) {
 * Description:  initialize the ResponseCoefficientsDictionary								    *
 ****************************************************************************************************************************/
 ResponseCoefficientsDictionary::ResponseCoefficientsDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	response_type  = record[pos1++];
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_numerators = FromString<int>(record.substr(pos1, 4));
+	number_of_numerators = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	Coefficient coeff;
 	for ( int i = 0; i < number_of_numerators; ++i ) {
-		coeff.coefficient = FromString<double>(record.substr(pos1, 12));
+		coeff.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		coeff.error = FromString<double>(record.substr(pos1, 12));
+		coeff.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		numerators.push_back(coeff);
 	}
-	number_of_denominators = FromString<int>(record.substr(pos1, 4));
+	number_of_denominators = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	for ( int i = 0; i < number_of_denominators; ++i ) {
-		coeff.coefficient = FromString<double>(record.substr(pos1, 12));
+		coeff.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		coeff.error = FromString<double>(record.substr(pos1, 12));
+		coeff.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		denominators.push_back(coeff);
 	}
@@ -771,27 +786,27 @@ ResponseCoefficientsDictionary::ResponseCoefficientsDictionary(string record) {
 * Description:  initialize the ResponseListDictionary									    *
 ****************************************************************************************************************************/
 ResponseListDictionary::ResponseListDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_responses = FromString<int>(record.substr(pos1, 4));
+	number_of_responses = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	ListedResponses lr;
 	for ( int i = 0; i < number_of_responses; ++i ) {
-		lr.frequency = FromString<double>(record.substr(pos1, 12));
+		lr.frequency = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.amplitude= FromString<double>(record.substr(pos1, 12));
+		lr.amplitude= FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.amplitude_error = FromString<double>(record.substr(pos1, 12));
+		lr.amplitude_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.phase_angle = FromString<double>(record.substr(pos1, 12));
+		lr.phase_angle = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.phase_error = FromString<double>(record.substr(pos1, 12));
+		lr.phase_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		responses_listed.push_back(lr);
 	}
@@ -803,22 +818,22 @@ ResponseListDictionary::ResponseListDictionary(string record) {
 * Description:  initialize the GenericResponseDictionary								    *
 ****************************************************************************************************************************/
 GenericResponseDictionary::GenericResponseDictionary(string record) {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_corners = FromString<int>(record.substr(pos1, 4));
+	number_of_corners = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	CornerList cl;
 	for(int i=0; i<number_of_corners; i++)
 	{
-		cl.frequency = FromString<double>(record.substr(pos1, 12));
+		cl.frequency = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cl.slope = FromString<double>(record.substr(pos1, 12));
+		cl.slope = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		corners_listed.push_back(cl);
 	}
@@ -831,19 +846,19 @@ GenericResponseDictionary::GenericResponseDictionary(string record) {
 ****************************************************************************************************************************/
 DecimationDictionary::DecimationDictionary(string record)
 {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	input_sample_rate = FromString<double>(record.substr(pos1, 10));
+	input_sample_rate = FromString<double>(substr(record, pos1, 10));
 	pos1 += 10;
-	decimation_factor = FromString<int>(record.substr(pos1, 5));
+	decimation_factor = FromString<int>(substr(record, pos1, 5));
 	pos1 += 5;
-	decimation_offset = FromString<int>(record.substr(pos1, 5));
+	decimation_offset = FromString<int>(substr(record, pos1, 5));
 	pos1 += 5;
-	estimated_delay = FromString<double>(record.substr(pos1, 11));
+	estimated_delay = FromString<double>(substr(record, pos1, 11));
 	pos1 += 11;
-	correction_applied = FromString<double>(record.substr(pos1, 11));
+	correction_applied = FromString<double>(substr(record, pos1, 11));
 	pos1 += 11;
 }
 
@@ -854,22 +869,22 @@ DecimationDictionary::DecimationDictionary(string record)
 ****************************************************************************************************************************/
 ChannelSensitivityGainDictionary::ChannelSensitivityGainDictionary(string record)
 {
-	lookup_key = FromString<int>(record.substr(0, 4));
+	lookup_key = FromString<int>(substr(record, 0, 4));
 	int pos1=4, pos2;
 	name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	sensitivity_gain = FromString<double>(record.substr(pos1, 12));
+	sensitivity_gain = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	frequency = FromString<double>(record.substr(pos1, 12));
+	frequency = FromString<double>(substr(record, pos1, 12));
 	pos1 += 12;
-	number_of_history_values = FromString<int>(record.substr(pos1, 2));
+	number_of_history_values = FromString<int>(substr(record, pos1, 2));
 	pos1 += 2;
 	HistoryValues hv;
 	for(int i=0; i<number_of_history_values; i++)
 	{
-		hv.sensitivity_for_calibration = FromString<double>(record.substr(pos1, 12));
+		hv.sensitivity_for_calibration = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		hv.frequency_of_calibration_sensitivity = FromString<double>(record.substr(pos1, 12));
+		hv.frequency_of_calibration_sensitivity = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		hv.time_of_calibration = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 		pos1 = ++pos2;
@@ -888,7 +903,6 @@ void StationControl::ParseVolumeRecord(string record)
 	unsigned int blockette, size, position = 0;
 	bool proceed = true;
 
-	log = new Logging();
 	SetBytes(record.size());
 	if(!GetRemains().empty())
 	{
@@ -905,7 +919,7 @@ void StationControl::ParseVolumeRecord(string record)
 			blockette = 0;
 			while(blockette < 50 || blockette > 62)
 			{
-				blockette = FromString<int>(record.substr(begin++, 3).c_str());
+				blockette = FromString<int>(substr(record, begin++, 3).c_str());
 				if ( begin >= (int)record.size() ) {
 					SetBytes(0);
 					SetRemains("");
@@ -927,58 +941,58 @@ void StationControl::ParseVolumeRecord(string record)
 				}
 			}
 
-			size = FromString<int>(record.substr(begin, 4).c_str());
+			size = FromString<int>(substr(record, begin, 4).c_str());
 
 			if ( SetBytesLeft(size, record) ) {
 				begin += 4;
 
 				if ( blockette > 50 && eos == -1 )
-					log->write("received blockette " + ToString(blockette) + ", but no station info available");
+					log.write("received blockette " + ToString(blockette) + ", but no station info available");
 				else if ( blockette > 52 && eoc == -1 )
-					log->write("received blockette " + ToString(blockette) + ", but no channel info available");
+					log.write("received blockette " + ToString(blockette) + ", but no channel info available");
 				else if ( blockette > 52 && si[eos].ci.empty() )
-					log->write("ignoring channel blockette " + ToString(blockette) + ", station has no channels");
+					log.write("ignoring channel blockette " + ToString(blockette) + ", station has no channels");
 				else {
 					switch ( blockette ) {
 						case(50):
-							si.push_back(StationIdentifier(record.substr(begin, size)));
+							si.push_back(StationIdentifier(substr(record, begin, size)));
 							break;
 						case(51):
-							si[eos].sc.push_back(Comment(record.substr(begin, size)));
+							si[eos].sc.push_back(Comment(substr(record, begin, size)));
 							break;
 						case(52):
-							eos = AddChannelToStation(ChannelIdentifier(record.substr(begin, size)));
-	//						si[eos].ci.push_back(ChannelIdentifier(record.substr(begin, size)));
+							eos = AddChannelToStation(ChannelIdentifier(substr(record, begin, size)));
+	//						si[eos].ci.push_back(ChannelIdentifier(substr(record, begin, size)));
 							break;
 						case(53):
-							si[eos].ci[eoc].rpz.push_back(ResponsePolesZeros(record.substr(begin, size)));
+							si[eos].ci[eoc].rpz.push_back(ResponsePolesZeros(substr(record, begin, size)));
 							break;
 						case(54):
-							si[eos].ci[eoc].rc.push_back(ResponseCoefficients(record.substr(begin, size)));
+							si[eos].ci[eoc].rc.push_back(ResponseCoefficients(substr(record, begin, size)));
 							break;
 						case(55):
-							si[eos].ci[eoc].rl.push_back(ResponseList(record.substr(begin, size)));
+							si[eos].ci[eoc].rl.push_back(ResponseList(substr(record, begin, size)));
 							break;
 						case(56):
-							si[eos].ci[eoc].gr.push_back(GenericResponse(record.substr(begin, size)));
+							si[eos].ci[eoc].gr.push_back(GenericResponse(substr(record, begin, size)));
 							break;
 						case(57):
-							si[eos].ci[eoc].dec.push_back(Decimation(record.substr(begin, size)));
+							si[eos].ci[eoc].dec.push_back(Decimation(substr(record, begin, size)));
 							break;
 						case(58):
-							si[eos].ci[eoc].csg.push_back(ChannelSensitivityGain(record.substr(begin, size)));
+							si[eos].ci[eoc].csg.push_back(ChannelSensitivityGain(substr(record, begin, size)));
 							break;
 						case(59):
-							si[eos].ci[eoc].cc.push_back(Comment(record.substr(begin, size)));
+							si[eos].ci[eoc].cc.push_back(Comment(substr(record, begin, size)));
 							break;
 						case(60):
-							si[eos].ci[eoc].rr.push_back(ResponseReference(record.substr(begin, size)));
+							si[eos].ci[eoc].rr.push_back(ResponseReference(substr(record, begin, size)));
 							break;
 						case(61):
-							si[eos].ci[eoc].firr.push_back(FIRResponse(record.substr(begin, size)));
+							si[eos].ci[eoc].firr.push_back(FIRResponse(substr(record, begin, size)));
 							break;
 						case(62):
-							si[eos].ci[eoc].rp.push_back(ResponsePolynomial(record.substr(begin, size)));
+							si[eos].ci[eoc].rp.push_back(ResponsePolynomial(substr(record, begin, size)));
 							break;
 						default:
 							proceed = false;
@@ -1000,9 +1014,9 @@ void StationControl::ParseVolumeRecord(string record)
 						size += (begin-7);
 					}
 					if(record[size] == '~')
-						record = record.substr(++size);
+						record = substr(record, ++size);
 					else
-						record = record.substr(size);
+						record = substr(record, size);
 					position += size;
 				}
 			}
@@ -1014,11 +1028,11 @@ void StationControl::ParseVolumeRecord(string record)
 		}
 		catch(BadConversion &o)
 		{
-			log->write(o.what());
+			log.write(o.what());
 			proceed = false;
 		}
 		catch ( std::out_of_range &o ) {
-			log->write(string("StationControl blockette: ") + o.what());
+			log.write(string("StationControl blockette: ") + o.what());
 			SetBytes(0);
 			SetRemains("");
 			proceed = false;
@@ -1073,20 +1087,20 @@ void StationControl::EmptyVectors()
 ****************************************************************************************************************************/
 StationIdentifier::StationIdentifier(string record)
 {
-	station_call_letters = record.substr(0, 5);
-	latitude = FromString<double>(record.substr(5, 10));
-	longitude = FromString<double>(record.substr(15, 11));
-	elevation = FromString<double>(record.substr(26, 7));
-	number_of_channels = FromString<int>(record.substr(33, 4));
-	number_of_station_comments = FromString<int>(record.substr(37, 3));
+	station_call_letters = substr(record, 0, 5);
+	latitude = FromString<double>(substr(record, 5, 10));
+	longitude = FromString<double>(substr(record, 15, 11));
+	elevation = FromString<double>(substr(record, 26, 7));
+	number_of_channels = FromString<int>(substr(record, 33, 4));
+	number_of_station_comments = FromString<int>(substr(record, 37, 3));
 	int pos1=40, pos2;
 	site_name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	network_identifier_code = FromString<int>(record.substr(pos1, 3));
+	network_identifier_code = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	word_order = FromString<int>(record.substr(pos1, 4));
+	word_order = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
-	short_order = FromString<int>(record.substr(pos1, 2));
+	short_order = FromString<int>(substr(record, pos1, 2));
 	pos1 += 2;
 	start_date = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 //	if(start_date != "")
@@ -1097,7 +1111,7 @@ StationIdentifier::StationIdentifier(string record)
 //		end_date = FromJulianDay(end_date);
 	pos1 = ++pos2;
 	update_flag = record[pos1++];
-	network_code = record.substr(pos1, 2);
+	network_code = substr(record, pos1, 2);
 	pos1 = 0;
 	city = SplitString(site_name, ',', pos1, pos2);
 	if(pos2 < (int)site_name.size())
@@ -1143,9 +1157,9 @@ Comment::Comment(string record)
 	pos1 = ++pos2;
 	end_effective_time = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	comment_code_key = FromString<int>(record.substr(pos1, 4));
+	comment_code_key = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
-	comment_level = FromString<int>(record.substr(pos1, 6));
+	comment_level = FromString<int>(substr(record, pos1, 6));
 }
 
 /****************************************************************************************************************************
@@ -1155,38 +1169,38 @@ Comment::Comment(string record)
 ****************************************************************************************************************************/
 ChannelIdentifier::ChannelIdentifier(string record)
 {
-	location = record.substr(0, 2);
-	channel = record.substr(2, 3);
-	subchannel = FromString<int>(record.substr(5, 4));
-	instrument = FromString<int>(record.substr(9, 3));
+	location = substr(record, 0, 2);
+	channel = substr(record, 2, 3);
+	subchannel = FromString<int>(substr(record, 5, 4));
+	instrument = FromString<int>(substr(record, 9, 3));
 	int pos1=12, pos2;
 	optional_comment = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
-	units_of_signal_response = FromString<int>(record.substr(pos1, 3));
+	units_of_signal_response = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	units_of_calibration_input = FromString<int>(record.substr(pos1, 3));
+	units_of_calibration_input = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	latitude = FromString<double>(record.substr(pos1, 10));
+	latitude = FromString<double>(substr(record, pos1, 10));
 	pos1 += 10;
-	longitude = FromString<double>(record.substr(pos1, 11));
+	longitude = FromString<double>(substr(record, pos1, 11));
 	pos1 += 11;
-	elevation = FromString<double>(record.substr(pos1, 7));
+	elevation = FromString<double>(substr(record, pos1, 7));
 	pos1 += 7;
-	local_depth = FromString<double>(record.substr(pos1, 5));
+	local_depth = FromString<double>(substr(record, pos1, 5));
 	pos1 += 5;
-	azimuth = FromString<double>(record.substr(pos1, 5));
+	azimuth = FromString<double>(substr(record, pos1, 5));
 	pos1 += 5;
-	dip = FromString<double>(record.substr(pos1, 5));
+	dip = FromString<double>(substr(record, pos1, 5));
 	pos1 += 5;
-	data_format_identifier_code = FromString<int>(record.substr(pos1, 4));
+	data_format_identifier_code = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
-	data_record_length = FromString<int>(record.substr(pos1, 2));
+	data_record_length = FromString<int>(substr(record, pos1, 2));
 	pos1 += 2;
-	sample_rate = FromString<double>(record.substr(pos1, 10));
+	sample_rate = FromString<double>(substr(record, pos1, 10));
 	pos1 += 10;
-	max_clock_drift = FromString<double>(record.substr(pos1, 10));
+	max_clock_drift = FromString<double>(substr(record, pos1, 10));
 	pos1 += 10;
-	number_of_comments = FromString<int>(record.substr(pos1, 4));
+	number_of_comments = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 	flags = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
@@ -1239,38 +1253,38 @@ void ChannelIdentifier::EmptyVectors()
 ResponsePolesZeros::ResponsePolesZeros(string record)
 {
 	transfer_function_type  = record[0];
-	stage_sequence_number = FromString<int>(record.substr(1, 2));
-	signal_in_units = FromString<int>(record.substr(3, 3));
-	signal_out_units = FromString<int>(record.substr(6, 3));
-	ao_normalization_factor = FromString<double>(record.substr(9, 12));
-	normalization_frequency = FromString<double>(record.substr(21, 12));
-	number_of_zeros = FromString<int>(record.substr(33, 3));
+	stage_sequence_number = FromString<int>(substr(record, 1, 2));
+	signal_in_units = FromString<int>(substr(record, 3, 3));
+	signal_out_units = FromString<int>(substr(record, 6, 3));
+	ao_normalization_factor = FromString<double>(substr(record, 9, 12));
+	normalization_frequency = FromString<double>(substr(record, 21, 12));
+	number_of_zeros = FromString<int>(substr(record, 33, 3));
 	int pos1 = 36;
 	Zeros cz;
 	for(int i=0; i<number_of_zeros; i++)
 	{
-		cz.real_zero = FromString<double>(record.substr(pos1, 12));
+		cz.real_zero = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.imaginary_zero = FromString<double>(record.substr(pos1, 12));
+		cz.imaginary_zero = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.real_zero_error = FromString<double>(record.substr(pos1, 12));
+		cz.real_zero_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cz.imaginary_zero_error = FromString<double>(record.substr(pos1, 12));
+		cz.imaginary_zero_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		complex_zeros.push_back(cz);
 	}
-	number_of_poles = FromString<int>(record.substr(pos1, 3));
+	number_of_poles = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
 	Poles cp;
 	for(int i=0; i<number_of_poles; i++)
 	{
-		cp.real_pole = FromString<double>(record.substr(pos1, 12));
+		cp.real_pole = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.imaginary_pole = FromString<double>(record.substr(pos1, 12));
+		cp.imaginary_pole = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.real_pole_error = FromString<double>(record.substr(pos1, 12));
+		cp.real_pole_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cp.imaginary_pole_error = FromString<double>(record.substr(pos1, 12));
+		cp.imaginary_pole_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		complex_poles.push_back(cp);
 	}
@@ -1330,27 +1344,45 @@ string ResponsePolesZeros::GetComplexPoles()
 ResponseCoefficients::ResponseCoefficients(string record)
 {
 	response_type  = record[0];
-	stage_sequence_number = FromString<int>(record.substr(1, 2));
-	signal_in_units = FromString<int>(record.substr(3, 3));
-	signal_out_units = FromString<int>(record.substr(6, 3));
-	number_of_numerators = FromString<int>(record.substr(9, 4));
+	stage_sequence_number = FromString<int>(substr(record, 1, 2));
+	signal_in_units = FromString<int>(substr(record, 3, 3));
+	signal_out_units = FromString<int>(substr(record, 6, 3));
+	number_of_numerators = FromString<int>(substr(record, 9, 4));
 	int pos1 = 13;
 	Coefficient coeff;
+
+	int nn = (record.size()-pos1) / 24;
+	if ( number_of_numerators > nn ) {
+		cerr << "Invalid number of numerators (" << number_of_numerators
+		     << ") with respect to blockette size in Coefficient Response, clip to "
+		     << nn << endl;
+		number_of_numerators = nn;
+	}
+
 	for(int i=0; i<number_of_numerators; i++)
 	{
-		coeff.coefficient = FromString<double>(record.substr(pos1, 12));
+		coeff.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		coeff.error = FromString<double>(record.substr(pos1, 12));
+		coeff.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		numerators.push_back(coeff);
 	}
-	number_of_denominators = FromString<int>(record.substr(pos1, 4));
+	number_of_denominators = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
+
+	int nd = (record.size()-pos1) / 24;
+	if ( number_of_denominators > nd ) {
+		cerr << "Invalid number of denominators (" << number_of_denominators
+		     << ") with respect to blockette size in Coefficient Response, clip to "
+		     << nd << endl;
+		number_of_denominators = nd;
+	}
+
 	for(int i=0; i<number_of_denominators; i++)
 	{
-		coeff.coefficient = FromString<double>(record.substr(pos1, 12));
+		coeff.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		coeff.error = FromString<double>(record.substr(pos1, 12));
+		coeff.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		denominators.push_back(coeff);
 	}
@@ -1397,23 +1429,23 @@ string ResponseCoefficients::GetDenominators()
 ****************************************************************************************************************************/
 ResponseList::ResponseList(string record)
 {
-	stage_sequence_number = FromString<int>(record.substr(0, 2));
-	signal_in_units = FromString<int>(record.substr(2, 3));
-	signal_out_units = FromString<int>(record.substr(5, 3));
-	number_of_responses = FromString<int>(record.substr(8, 4));
+	stage_sequence_number = FromString<int>(substr(record, 0, 2));
+	signal_in_units = FromString<int>(substr(record, 2, 3));
+	signal_out_units = FromString<int>(substr(record, 5, 3));
+	number_of_responses = FromString<int>(substr(record, 8, 4));
 	int pos1 = 12;
 	ListedResponses lr;
 	for(int i=0; i<number_of_responses; i++)
 	{
-		lr.frequency = FromString<double>(record.substr(pos1, 12));
+		lr.frequency = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.amplitude= FromString<double>(record.substr(pos1, 12));
+		lr.amplitude= FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.amplitude_error = FromString<double>(record.substr(pos1, 12));
+		lr.amplitude_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.phase_angle = FromString<double>(record.substr(pos1, 12));
+		lr.phase_angle = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		lr.phase_error = FromString<double>(record.substr(pos1, 12));
+		lr.phase_error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		responses_listed.push_back(lr);
 	}
@@ -1426,17 +1458,17 @@ ResponseList::ResponseList(string record)
 ****************************************************************************************************************************/
 GenericResponse::GenericResponse(string record)
 {
-	stage_sequence_number = FromString<int>(record.substr(0, 2));
-	signal_in_units = FromString<int>(record.substr(2, 3));
-	signal_out_units = FromString<int>(record.substr(5, 3));
-	number_of_corners = FromString<int>(record.substr(8, 4));
+	stage_sequence_number = FromString<int>(substr(record, 0, 2));
+	signal_in_units = FromString<int>(substr(record, 2, 3));
+	signal_out_units = FromString<int>(substr(record, 5, 3));
+	number_of_corners = FromString<int>(substr(record, 8, 4));
 	int pos1 = 12;
 	CornerList cl;
 	for(int i=0; i<number_of_corners; i++)
 	{
-		cl.frequency = FromString<double>(record.substr(pos1, 12));
+		cl.frequency = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		cl.slope = FromString<double>(record.substr(pos1, 12));
+		cl.slope = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		corners_listed.push_back(cl);
 	}
@@ -1449,12 +1481,12 @@ GenericResponse::GenericResponse(string record)
 ****************************************************************************************************************************/
 Decimation::Decimation(string record)
 {
-	stage_sequence_number = FromString<int>(record.substr(0, 2));
-	input_sample_rate = FromString<double>(record.substr(2, 10));
-	factor = FromString<int>(record.substr(12, 5));
-	offset = FromString<int>(record.substr(17, 5));
-	estimated_delay = FromString<double>(record.substr(22, 11));
-	correction_applied = FromString<double>(record.substr(33, 11));
+	stage_sequence_number = FromString<int>(substr(record, 0, 2));
+	input_sample_rate = FromString<double>(substr(record, 2, 10));
+	factor = FromString<int>(substr(record, 12, 5));
+	offset = FromString<int>(substr(record, 17, 5));
+	estimated_delay = FromString<double>(substr(record, 22, 11));
+	correction_applied = FromString<double>(substr(record, 33, 11));
 }
 
 /****************************************************************************************************************************
@@ -1464,17 +1496,17 @@ Decimation::Decimation(string record)
 ****************************************************************************************************************************/
 ChannelSensitivityGain::ChannelSensitivityGain(string record)
 {
-	stage_sequence_number = FromString<int>(record.substr(0, 2));
-	sensitivity_gain = FromString<double>(record.substr(2, 12));
-	frequency = FromString<double>(record.substr(14, 12));
-	number_of_history_values = FromString<int>(record.substr(26, 2));
+	stage_sequence_number = FromString<int>(substr(record, 0, 2));
+	sensitivity_gain = FromString<double>(substr(record, 2, 12));
+	frequency = FromString<double>(substr(record, 14, 12));
+	number_of_history_values = FromString<int>(substr(record, 26, 2));
 	int pos1 = 28, pos2;
 	HistoryValues hv;
 	for(int i=0; i<number_of_history_values; i++)
 	{
-		hv.sensitivity_for_calibration = FromString<double>(record.substr(pos1, 12));
+		hv.sensitivity_for_calibration = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		hv.frequency_of_calibration_sensitivity = FromString<double>(record.substr(pos1, 12));
+		hv.frequency_of_calibration_sensitivity = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		hv.time_of_calibration = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 		pos1 = ++pos2;
@@ -1489,18 +1521,18 @@ ChannelSensitivityGain::ChannelSensitivityGain(string record)
 ****************************************************************************************************************************/
 ResponseReference::ResponseReference(string record)
 {
-	number_of_stages = FromString<int>(record.substr(0,2));
+	number_of_stages = FromString<int>(substr(record, 0,2));
 	int pos=2;
 	for(int i=0; i < number_of_stages; i++)
 	{
-		stage_sequence_number.push_back(FromString<int>(record.substr(pos, 2)));
+		stage_sequence_number.push_back(FromString<int>(substr(record, pos, 2)));
 		pos += 2;
 	}
-	number_of_responses = FromString<int>(record.substr(pos,2));
+	number_of_responses = FromString<int>(substr(record, pos,2));
 	pos += 2;
 	for(int i=0; i < number_of_responses; i++)
 	{
-		response_lookup_key.push_back(FromString<int>(record.substr(pos, 4)));
+		response_lookup_key.push_back(FromString<int>(substr(record, pos, 4)));
 		pos += 4;
 	}
 }
@@ -1512,19 +1544,18 @@ ResponseReference::ResponseReference(string record)
 ****************************************************************************************************************************/
 FIRResponse::FIRResponse(string record)
 {
-	stage_sequence_number = FromString<int>(record.substr(0, 2));
+	stage_sequence_number = FromString<int>(substr(record, 0, 2));
 	int pos1=2, pos2;
 	response_name = SplitString(record, SEED_SEPARATOR, pos1, pos2);
 	pos1 = ++pos2;
 	symmetry_code = record[pos1++];
-	signal_in_units = FromString<int>(record.substr(pos1, 3));
+	signal_in_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	signal_out_units = FromString<int>(record.substr(pos1, 3));
+	signal_out_units = FromString<int>(substr(record, pos1, 3));
 	pos1 += 3;
-	number_of_coefficients = FromString<int>(record.substr(pos1, 4));
+	number_of_coefficients = FromString<int>(substr(record, pos1, 4));
 	pos1 += 4;
 
-	/*
 	int nc = (record.size()-pos1) / 14;
 	if ( number_of_coefficients > nc ) {
 		cerr << "Invalid number coefficents (" << number_of_coefficients
@@ -1532,11 +1563,10 @@ FIRResponse::FIRResponse(string record)
 		     << nc << endl;
 		number_of_coefficients = nc;
 	}
-	*/
 
 	for(int i=0; i < number_of_coefficients; i++)
 	{
-		coefficients.push_back(FromString<double>(record.substr(pos1, 14)));
+		coefficients.push_back(FromString<double>(substr(record, pos1, 14)));
 		pos1 += 14;
 	}
 }
@@ -1560,24 +1590,24 @@ string FIRResponse::GetCoefficients()
 ResponsePolynomial::ResponsePolynomial(string record)
 {
 	transfer_function_type  = record[0];
-	stage_sequence_number = FromString<int>(record.substr(1, 2));
-	signal_in_units = FromString<int>(record.substr(3, 3));
-	signal_out_units = FromString<int>(record.substr(6, 3));
+	stage_sequence_number = FromString<int>(substr(record, 1, 2));
+	signal_in_units = FromString<int>(substr(record, 3, 3));
+	signal_out_units = FromString<int>(substr(record, 6, 3));
 	polynomial_approximation_type  = record[9];
 	valid_frequency_units  = record[10];
-	lower_valid_frequency_bound = FromString<double>(record.substr(11, 12));
-	upper_valid_frequency_bound = FromString<double>(record.substr(23, 12));
-	lower_bound_of_approximation = FromString<double>(record.substr(35, 12));
-	upper_bound_of_approximation = FromString<double>(record.substr(47, 12));
-	maximum_absolute_error = FromString<double>(record.substr(59, 12));
-	number_of_pcoeff = FromString<int>(record.substr(71, 3));
+	lower_valid_frequency_bound = FromString<double>(substr(record, 11, 12));
+	upper_valid_frequency_bound = FromString<double>(substr(record, 23, 12));
+	lower_bound_of_approximation = FromString<double>(substr(record, 35, 12));
+	upper_bound_of_approximation = FromString<double>(substr(record, 47, 12));
+	maximum_absolute_error = FromString<double>(substr(record, 59, 12));
+	number_of_pcoeff = FromString<int>(substr(record, 71, 3));
 	int pos1 = 74;
 	Coefficient pc;
 	for(int i=0; i<number_of_pcoeff; i++)
 	{
-		pc.coefficient = FromString<double>(record.substr(pos1, 12));
+		pc.coefficient = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
-		pc.error = FromString<double>(record.substr(pos1, 12));
+		pc.error = FromString<double>(substr(record, pos1, 12));
 		pos1 += 12;
 		polynomial_coefficients.push_back(pc);
 	}

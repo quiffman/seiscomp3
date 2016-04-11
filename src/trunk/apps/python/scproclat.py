@@ -12,7 +12,7 @@
 #    SeisComP Public License for more details.                             #
 ############################################################################
 
-import time, sys, os
+import time, sys, os, traceback
 import seiscomp3.Client, seiscomp3.Utils, seiscomp3.System
 
 
@@ -32,6 +32,7 @@ def timeToString(t):
 
 
 def timeSpanToString(ts):
+  neg = ts.seconds() < 0 or ts.microseconds() < 0
   secs = abs(ts.seconds())
   days = secs / 86400
   daySecs = secs % 86400
@@ -39,9 +40,9 @@ def timeSpanToString(ts):
   hourSecs = daySecs % 3600
   mins = hourSecs / 60
   secs = hourSecs % 60
-  usecs = ts.microseconds()
+  usecs = abs(ts.microseconds())
 
-  if ts.seconds() < 0:
+  if neg:
     return "-%.2d:%.2d:%.2d:%.2d.%06d" % (days, hours, mins, secs, usecs)
   else:
     return "%.2d:%.2d:%.2d:%.2d.%06d" % (days, hours, mins, secs, usecs)
@@ -68,6 +69,7 @@ class ProcLatency(seiscomp3.Client.Application):
     self._directory = ""
     self._nowDirectory = ""
     self._triggeredDirectory = ""
+    self._logCreated = False
 
 
   def createCommandLineDescription(self):
@@ -82,6 +84,9 @@ class ProcLatency(seiscomp3.Client.Application):
     if not seiscomp3.Client.Application.initConfiguration(self): return False
 
     try: self._directory = self.configGetString("directory")
+    except: pass
+
+    try: self._logCreated = self.configGetBool("logMsgLatency")
     except: pass
 
     return True
@@ -109,20 +114,14 @@ class ProcLatency(seiscomp3.Client.Application):
     try:
       self.logObject(parentID, obj, False)
     except:
-      cla, exc, trbk = sys.exc_info()
-      print cla.__name__
-      print exc.__dict__["args"]
-      print traceback.format_tb(trbk, 5)
+      print >> sys.stderr, traceback.format_exc()
 
 
   def updateObject(self, parentID, obj):
     try:
       self.logObject("", obj, True)
     except:
-      cla, exc, trbk = sys.exc_info()
-      print cla.__name__
-      print exc.__dict__["args"]
-      print traceback.format_tb(trbk, 5)
+      print >> sys.stderr, traceback.format_exc()
 
 
   def logObject(self, parentID, obj, update):
@@ -136,13 +135,23 @@ class ProcLatency(seiscomp3.Client.Application):
         phase = pick.phaseHint().code()
       except: pass
 
-      self.logStation(now, pick.time().value(), pick.publicID() + ";P;" + phase, pick.waveformID(), update)
+      created = None
+      if self._logCreated:
+        try: created = pick.creationInfo().creationTime()
+        except: pass
+
+      self.logStation(now, created, pick.time().value(), pick.publicID() + ";P;" + phase, pick.waveformID(), update)
       return
 
     amp = seiscomp3.DataModel.Amplitude.Cast(obj)
     if amp:
+      created = None
+      if self._logCreated:
+        try: created = amp.creationInfo().creationTime()
+        except: pass
+
       try:
-        self.logStation(now, amp.timeWindow().reference(), amp.publicID() + ";A;" + amp.type() + ";" + "%.2f" % amp.amplitude().value(), amp.waveformID(), update)
+        self.logStation(now, created, amp.timeWindow().reference(), amp.publicID() + ";A;" + amp.type() + ";" + "%.2f" % amp.amplitude().value(), amp.waveformID(), update)
       except: pass
       return
 
@@ -179,7 +188,7 @@ class ProcLatency(seiscomp3.Client.Application):
       return
 
 
-  def logStation(self, received, triggered, text, waveformID, update):
+  def logStation(self, received, created, triggered, text, waveformID, update):
     streamID = waveformID.networkCode() + "." + waveformID.stationCode() + "." + waveformID.locationCode() + "." + waveformID.channelCode()
 
     aNow = received.get()
@@ -189,6 +198,10 @@ class ProcLatency(seiscomp3.Client.Application):
     triggeredDirectory = self._directory + "/".join(["%.2d" % i for i in aTriggered[1:4]]) + "/"
 
     logEntry = timeSpanToString(received - triggered) + ";"
+    if created is not None:
+      logEntry = logEntry + timeSpanToString(received - created) + ";"
+    else:
+      logEntry = logEntry + ";"
 
     if update:
       logEntry = logEntry + "U"

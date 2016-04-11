@@ -24,22 +24,22 @@ Data select
 URL
 ^^^
 
-* http://localhost:8080/fdsnws/1/dataselect/query
-* http://localhost:8080/fdsnws/1/dataselect/queryauth
-* http://localhost:8080/fdsnws/1/dataselect/version
-* http://localhost:8080/fdsnws/1/dataselect/application.wadl
+* http://localhost:8080/fdsnws/dataselect/1/query
+* http://localhost:8080/fdsnws/dataselect/1/queryauth
+* http://localhost:8080/fdsnws/dataselect/1/version
+* http://localhost:8080/fdsnws/dataselect/1/application.wadl
 
 Example
 ^^^^^^^
 
-http://localhost:8080/fdsnws/1/dataselect/query?net=GE&sta=BKNI&cha=BH?&start=2013-04-11T00:00:00&end=2013-04-11T12:00:00
+http://localhost:8080/fdsnws/dataselect/1/query?net=GE&sta=BKNI&cha=BH?&start=2013-04-11T00:00:00&end=2013-04-11T12:00:00
 
 To summit POST request the command line tool ``wget`` in combination with the
 parameter ``post-data`` or ``post-file`` may be used.
 
 .. code-block:: sh
 
-   sysop@host:~$ wget --post-file=request.txt "http://localhost:8080/fdsnws/1/dataselect/query" -O output.mseed
+   sysop@host:~$ wget --post-file=request.txt "http://localhost:8080/fdsnws/dataselect/1/query" -O output.mseed
 
 Feature Notes
 ^^^^^^^^^^^^^
@@ -49,6 +49,10 @@ Feature Notes
 * ``longestonly`` parameter is not implemented
 * access to restricted networks and stations is only granted through the
   ``queryauth`` method
+* additional request parameters:
+
+  * ``nodata: [204, 404]``, default: ``204``, HTTP-GET only, defines the HTTP
+    error code the server should respond with if no data was found
 
 Station
 -------
@@ -61,14 +65,14 @@ Station
 URL
 ^^^
 
-* http://localhost:8080/fdsnws/1/station/query
-* http://localhost:8080/fdsnws/1/station/version
-* http://localhost:8080/fdsnws/1/station/application.wadl
+* http://localhost:8080/fdsnws/station/1/query
+* http://localhost:8080/fdsnws/station/1/version
+* http://localhost:8080/fdsnws/station/1/application.wadl
 
 Example
 ^^^^^^^
 
-* http://localhost:8080/fdsnws/1/station/query?net=GE&level=sta
+* http://localhost:8080/fdsnws/station/1/query?net=GE&level=sta
 
 Feature Notes
 ^^^^^^^^^^^^^
@@ -77,13 +81,15 @@ Feature Notes
   in SeisComP is tracked on the object level. If a child of an object is updated
   the update time is not propagated to all parents. In order to check if a
   station was updated all children must be evaluated recursively. This operation
-  would be much to expensive.
+  would be much too expensive.
 * to enable FDSNXML or StationXML support the plugins ``fdsnxml`` resp.
   ``staxml`` have to be loaded
 * additional request parameters:
 
   * ``format: [fdsnxml, stationxml, sc3ml]``, default: ``fdsnxml``
   * ``formatted``: boolean, default: ``false``
+  * ``nodata: [204, 404]``, default: ``204``, defines the HTTP error code the
+    server should respond with if no data was found
 
 Event
 -----
@@ -96,21 +102,21 @@ Event
 URL
 ^^^
 
-* http://localhost:8080/fdsnws/1/event/query
-* http://localhost:8080/fdsnws/1/event/catalogs
-* http://localhost:8080/fdsnws/1/event/contributors
-* http://localhost:8080/fdsnws/1/event/version
-* http://localhost:8080/fdsnws/1/event/application.wadl
+* http://localhost:8080/fdsnws/event/1/query
+* http://localhost:8080/fdsnws/event/1/catalogs
+* http://localhost:8080/fdsnws/event/1/contributors
+* http://localhost:8080/fdsnws/event/1/version
+* http://localhost:8080/fdsnws/event/1/application.wadl
 
 Example
 ^^^^^^^
 
-* http://localhost:8080/fdsnws/1/event/query?start=2013-04-18&lat=55&lon=11&maxradius=10
+* http://localhost:8080/fdsnws/event/1/query?start=2013-04-18&lat=55&lon=11&maxradius=10
 
 Feature Notes
 ^^^^^^^^^^^^^
 
-* ``catalog`` request parameter not implemented (information not available in
+* ``catalog`` request parameter is not implemented (information not available in
   SeisComP)
 * ``contributor`` request parameter is mapped to the ``agencyID``, the file
   ``@DATADIR@/share/fdsn/contributors.xml`` has to be filled manually with all
@@ -119,7 +125,11 @@ Feature Notes
 
   * ``format: [qml, qml-rt, sc3ml, csv]``, default: ``qml``
   * ``includecomments``: boolean, default: ``true``
+  * ``includepicks``: boolean, default: ``false``, works only in combination
+    with ``includearrivals`` set to ``true``
   * ``formatted``: boolean, default: ``false``
+  * ``nodata: [204, 404]``, default: ``204``, defines the HTTP error code the
+    server should respond with if no data was found
 
 
 .. _sec-port:
@@ -172,7 +182,7 @@ line in the ``~/seiscomp3/etc/init/fdsnws.py`` have to be commented in.
 Firewall
 ^^^^^^^^
 
-All major Linux distributions ship with there own firewall implementations which
+All major Linux distributions ship with their own firewall implementations which
 are front-ends for the ``iptables`` kernel functions. The following line
 temporary adds a firewall rule which redirects all incoming traffic on port 8080
 to port 80.
@@ -182,6 +192,6 @@ to port 80.
    sysop@host:~$ sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to 8080
 
 Please refer to the documentation of your particular firewall solution on how to
-setup this rule permanently.
+set up this rule permanently.
 
 

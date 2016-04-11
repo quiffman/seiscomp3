@@ -1174,20 +1174,50 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 		SEISCOMP_DEBUG("...set event preferred focal mechanism");
 
 		if ( entry->parameters().empty() ) {
-			response = createEntry(entry->objectID(), entry->action() + "Failed", ":empty parameter:");
+			info->event->setPreferredFocalMechanismID("");
+			response = createEntry(entry->objectID(), entry->action() + "OK", ":unset:");
 		}
 		else {
-			if ( !entry->parameters().empty() ) {
-				info->event->setPreferredFocalMechanismID(entry->parameters());
-				response = createEntry(entry->objectID(), entry->action() + "OK", entry->parameters());
+			if ( info->event->focalMechanismReference(info->constraints.preferredFocalMechanismID) == NULL ) {
+				response = createEntry(entry->objectID(), entry->action() + "Failed", ":unreferenced:");
 			}
 			else {
-				info->event->setPreferredFocalMechanismID("");
-				response = createEntry(entry->objectID(), entry->action() + "OK", ":unset:");
+				FocalMechanismPtr fm = _cache.get<FocalMechanism>(info->constraints.preferredFocalMechanismID);
+				if ( fm ) {
+					if ( !fm->momentTensorCount() && query() ) {
+						SEISCOMP_DEBUG("... loading moment tensors for focal mechanism %s", fm->publicID().c_str());
+						query()->loadMomentTensors(fm.get());
+					}
+
+					response = createEntry(entry->objectID(), entry->action() + "OK", info->constraints.preferredFocalMechanismID);
+					Notifier::Enable();
+					choosePreferred(info.get(), fm.get());
+					Notifier::Disable();
+				}
+				else {
+					response = createEntry(entry->objectID(), entry->action() + "Failed", ":not available:");
+				}
 			}
-			Notifier::Enable();
-			updateEvent(info->event.get());
-			Notifier::Disable();
+		}
+		Notifier::Enable();
+		updateEvent(info->event.get());
+		Notifier::Disable();
+	}
+	else if ( entry->action() == "EvPrefMw" ) {
+		SEISCOMP_DEBUG("...set Mw from focal mechanism as preferred magnitude");
+		if ( entry->parameters().empty() ) {
+			response = createEntry(entry->objectID(), entry->action() + "Failed", ":empty parameter (true or false expected):");
+		}
+		else {
+			if ( entry->parameters() == "true" || entry->parameters() == "false" ) {
+				response = createEntry(entry->objectID(), entry->action() + "OK", entry->parameters());
+
+				Notifier::Enable();
+				choosePreferred(info.get(), info->preferredOrigin.get(), NULL);
+				Notifier::Disable();
+			}
+			else
+				response = createEntry(entry->objectID(), entry->action() + "Failed", ":true or false expected:");
 		}
 	}
 	// Merge event in  parameters into event in objectID. The source
@@ -1980,11 +2010,21 @@ EventInformationPtr EventTool::createEvent(Origin *origin) {
 	                                 _config.eventIDPattern);
 
 	if ( eventID.empty() ) {
-		SEISCOMP_ERROR("Unable to allocate a new eventID, skipping origin %s", origin->publicID().c_str());
+		SEISCOMP_ERROR("Unable to allocate a new eventID, skipping origin %s\n"
+		               "Hint: increase event slots with eventIDPattern parameter",
+		               origin->publicID().c_str());
 		SEISCOMP_LOG(_infoChannel, "Event created failed: unable to allocate a new EventID");
 		return NULL;
 	}
 	else {
+		if ( Event::Find(eventID) != NULL ) {
+			SEISCOMP_ERROR("Unable to allocate a new eventID, skipping origin %s\n"
+			               "Hint: increase event slots with eventIDPattern parameter",
+			               origin->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "Event created failed: unable to allocate a new EventID");
+			return NULL;
+		}
+
 		Time now = Time::GMT();
 		logObject(_outputEvent, now);
 
@@ -2260,6 +2300,7 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
                                 DataModel::Magnitude *triggeredMag,
                                 bool realOriginUpdate) {
 	Magnitude *mag = NULL;
+	MagnitudePtr momentMag;
 
 	SEISCOMP_DEBUG("%s: [choose preferred origin/magnitude(%s)]",
 	               info->event->publicID().c_str(),
@@ -2274,8 +2315,26 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 		return;
 	}
 
+	if ( info->constraints.fixMw && info->preferredFocalMechanism ) {
+		for ( size_t i = 0; i < info->preferredFocalMechanism->momentTensorCount(); ++i ) {
+			MomentTensor *mt = info->preferredFocalMechanism->momentTensor(i);
+			momentMag = _cache.get<Magnitude>(mt->momentMagnitudeID());
+			if ( momentMag == NULL ) {
+				SEISCOMP_WARNING("Moment magnitude with id '%s' not found",
+				                 mt->momentMagnitudeID().c_str());
+				continue;
+			}
+
+			mag = momentMag.get();
+			SEISCOMP_DEBUG("... found preferred Mw %s", mag->publicID().c_str());
+
+			// Just take the first moment tensor object
+			break;
+		}
+	}
+
 	// Special magnitude type requested?
-	if ( !info->constraints.preferredMagnitudeType.empty() ) {
+	if ( mag == NULL && !info->constraints.preferredMagnitudeType.empty() ) {
 		SEISCOMP_DEBUG("... requested preferred magnitude type is %s",
 		               info->constraints.preferredMagnitudeType.c_str());
 		for ( size_t i = 0; i < origin->magnitudeCount(); ++i ) {
@@ -3208,6 +3267,11 @@ void EventTool::choosePreferred(EventInformation *info, DataModel::FocalMechanis
 	}
 
 	if ( update ) {
+		// Update preferred magnitude based on new focal mechanism if
+		// Mw is fixed
+		if ( info->constraints.fixMw )
+			choosePreferred(info, info->preferredOrigin.get(), NULL);
+
 		if ( !info->created )
 			updateEvent(info->event.get());
 		else {

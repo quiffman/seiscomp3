@@ -5,7 +5,9 @@
 
 KEEP=30
 
-find $pkgroot/var/lib/seedlink/backup -type f -mtime +$$KEEP -exec rm -f '{}' \;
+mkdir -p "$pkgroot/var/lib/seedlink/backup"
 
-cd $pkgroot/var/run/seedlink
-tar cf - *.seq *.state | gzip >$pkgroot/var/lib/seedlink/backup/seq-`date +'%Y%m%d'`.tgz
+find "$pkgroot/var/lib/seedlink/backup" -type f -mtime +$$KEEP -exec rm -f '{}' \;
+
+cd "$pkgroot/var/run/seedlink"
+tar cf - *.seq *.state | gzip >"$pkgroot/var/lib/seedlink/backup/seq-"`date +'%Y%m%d'`.tgz

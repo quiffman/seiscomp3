@@ -721,7 +721,7 @@ class StationControl : public Control
 		std::vector<StationIdentifier> si;
  	protected:
 	private:
-		Logging *log;
+		Logging log;
 		int last_blockette, rest_size, eos, eoc;
 		std::string record_remains;
 		int AddChannelToStation(ChannelIdentifier);

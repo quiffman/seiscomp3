@@ -27,6 +27,7 @@ static void packet_handler (char *msrecord, int packet_type,
 static int  parameter_proc (int argcount, char **argvec);
 static char *getoptval (int argcount, char **argvec, int argopt);
 static int  add_dsarchive(const char *path, int archivetype);
+static int  set_dsbuffersize(int size);
 static void term_handler (int sig);
 static void print_timelog (const char *msg);
 static void usage (void);
@@ -98,21 +99,20 @@ main (int argc, char **argv)
 	        DSArchive *curdsa = dsarchive;
 
 	        while ( curdsa != NULL ) {
-		  if ( curdsa->datastream.grouproot ) {
-		    DataStreamGroup *group = curdsa->datastream.grouproot;
-		    while ( group != NULL ) {
-		      if ( group->filed ) {
-			if ( group->bp ) {
-			  sl_log (1, 3, "Writing data to data stream file %s\n", group->filename);
-			  if ( write (group->filed, group->buf, group->bp) != group->bp ) {
+		  if ( curdsa->datastream.grouphash ) {
+                    DataStreamGroup *curgroup, *tmp;
+                    HASH_ITER(hh, curdsa->datastream.grouphash, curgroup, tmp) {
+		      if ( curgroup->filed ) {
+			if ( curgroup->bp ) {
+			  sl_log (1, 3, "Writing data to data stream file %s\n", curgroup->filename);
+			  if ( write (curgroup->filed, curgroup->buf, curgroup->bp) != curgroup->bp ) {
 			    sl_log (2, 1,
 				    "main: failed to write record\n");
 			    return -1;
 			  }
 			}
-			group->bp = 0;
+			curgroup->bp = 0;
 		      }
-		      group = group->next;
 		    }
 		  }
 	          curdsa = curdsa->next;
@@ -308,6 +308,11 @@ parameter_proc (int argcount, char **argvec)
       else if (strcmp (argvec[optind], "-A") == 0)
 	{
 	  if ( add_dsarchive(getoptval(argcount, argvec, optind++), ARCH) == -1 )
+	    return -1;
+	}
+	  else if (strcmp (argvec[optind], "-B") == 0)
+	{
+	  if ( set_dsbuffersize(atoi (getoptval(argcount, argvec, optind++))) == -1 )
 	    return -1;
 	}
       else if (strcmp (argvec[optind], "-SDS") == 0)
@@ -543,7 +548,7 @@ add_dsarchive( const char *path, int archivetype )
   /* Setup new entry and add it to the front of the chain */
   newdsa->datastream.path = strdup(path);
   newdsa->datastream.archivetype = archivetype;
-  newdsa->datastream.grouproot = NULL;
+  newdsa->datastream.grouphash = NULL;
 
   if ( newdsa->datastream.path == NULL ) {
     sl_log (2, 0, "cannot allocate memory for new archive path\n");
@@ -555,6 +560,21 @@ add_dsarchive( const char *path, int archivetype )
 
   return 0;
 }  /* End of add_dsarchive() */
+
+
+/***************************************************************************
+ * set_dsbuffersize():
+ * Sets the buffer size of the archive
+ *
+ * Returns 0 on success, and -1 on failure
+ ***************************************************************************/
+static int
+set_dsbuffersize( int size )
+{
+  if ( size < 0 ) return -1;
+  DS_BUFSIZE = size * 512;
+  return 0;
+}
 
 
 /***************************************************************************
@@ -628,6 +648,7 @@ usage (void)
 	   "\n"
 	   " ## Data archiving options ##\n"
 	   " -A format       save all received records is a custom file structure\n"
+	   " -B count        set record buffer size to count*512, default 1000\n"
 	   " -SDS  SDSdir    save all received records in a SDS file structure\n"
 	   " -BUD  BUDdir    save all received data records in a BUD file structure\n"
 	   " -DLOG DLOGdir   save all received data records in an old-style\n"

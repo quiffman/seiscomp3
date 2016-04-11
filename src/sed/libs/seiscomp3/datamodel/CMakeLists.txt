@@ -1,1 +1,1 @@
-SUBDIRS(strongmotion)
+SUBDIRS(strongmotion vs)

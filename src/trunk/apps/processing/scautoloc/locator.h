@@ -31,6 +31,8 @@ class Locator : public Seiscomp::LocSAT {
 		void setStations(const Autoloc::StationDB *stations);
 
 		void setMinimumDepth(double);
+
+	public:
 		Origin *relocate(const Origin *origin);
 
 

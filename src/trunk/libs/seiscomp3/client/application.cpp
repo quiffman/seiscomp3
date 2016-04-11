@@ -1511,7 +1511,7 @@ bool Application::init() {
 	_queue.resize(10);
 
 	showMessage("Initialize logging");
-	initLogging();
+	if ( !initLogging() ) return false;
 
 	showMessage("Loading plugins");
 	if ( !initPlugins() ) return false;
@@ -2281,7 +2281,10 @@ bool Application::initLogging() {
 	try { logRotateArchiveSize = configGetInt("logging.file.rotator.archiveSize"); } catch (...) {}
 
 	bool enableLogging = _verbosity > 0;
-	bool syslog = commandline().hasOption("syslog");
+	bool syslog = false;
+
+	try { syslog = configGetBool("logging.syslog"); } catch ( ... ) {}
+	if ( commandline().hasOption("syslog") ) syslog = true;
 
 	bool trace = commandline().hasOption("trace");
 	if ( trace || commandline().hasOption("debug") ) {
@@ -2299,14 +2302,26 @@ bool Application::initLogging() {
 #ifndef WIN32
 		if ( syslog ) {
 			Logging::SyslogOutput* syslogOutput = new Logging::SyslogOutput();
-			if ( syslogOutput->open(_name.c_str()) ) {
-				std::cerr << "using syslog: " << _name << std::endl;
+			const char *facility = NULL;
+			string tmp_facility;
+
+			try {
+				tmp_facility = configGetString("logging.syslog.facility");
+				facility = tmp_facility.c_str();
+			}
+			catch ( ... ) {}
+
+			if ( syslogOutput->open(_name.c_str(), facility) ) {
+				std::cerr << "using syslog: " << _name << ", "
+				          << (facility?facility:"default") << "(code="
+				          << syslogOutput->facility() << ")" << std::endl;
 				_logger = syslogOutput;
 			}
 			else {
 				std::cerr << "failed to open syslog: " << _name << std::endl;
 				delete syslogOutput;
 				syslogOutput = NULL;
+				return false;
 			}
 		}
 		else

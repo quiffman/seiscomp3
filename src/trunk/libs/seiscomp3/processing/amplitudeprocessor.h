@@ -239,6 +239,9 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor : public TimeWindowProcessor {
 		//! Returns the type of amplitude to be calculated
 		const std::string& type() const;
 
+		//! Returns the unit of amplitude to be calculated
+		const std::string& unit() const;
+
 		void setHint(ProcessingHint hint, double value);
 
 		//! Dumps the record data into an ascii file
@@ -249,6 +252,9 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor : public TimeWindowProcessor {
 	//  Protected Interface
 	// ----------------------------------------------------------------------
 	protected:
+		//! Sets the unit of the computed amplitude.
+		void setUnit(const std::string &unit);
+
 		virtual void process(const Record *record);
 
 		virtual bool handleGap(Filter *filter, const Core::TimeSpan&,
@@ -332,23 +338,24 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor : public TimeWindowProcessor {
 		Core::Time       _trigger;
 
 		// User defined amplitude search window
-		OPT(double) _searchBegin, _searchEnd;
+		OPT(double)      _searchBegin, _searchEnd;
 
 		// pre-arrival offset and rms
-		OPT(double) _noiseOffset, _noiseAmplitude, _lastAmplitude;
+		OPT(double)      _noiseOffset, _noiseAmplitude, _lastAmplitude;
 
-		double _snrMax, _snrRMS;
-		bool   _enableUpdates;
-		bool   _enableResponses;
+		double           _snrMax, _snrRMS;
+		bool             _enableUpdates;
+		bool             _enableResponses;
 
 		// config
-		Config _config;
+		Config           _config;
 
-		std::string _type;
+		std::string      _type;
+		std::string      _unit;
 
-		std::string _pickID;
+		std::string      _pickID;
 
-		bool   _responseApplied;
+		bool             _responseApplied;
 
 	// ----------------------------------------------------------------------
 	//  Private Members

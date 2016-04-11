@@ -41,6 +41,7 @@ Amplitude::MetaObject::MetaObject(const Core::RTTI* rtti) : Seiscomp::Core::Meta
 	addProperty(objectProperty<TimeWindow>("timeWindow", "TimeWindow", false, false, true, &Amplitude::setTimeWindow, &Amplitude::timeWindow));
 	addProperty(objectProperty<RealQuantity>("period", "RealQuantity", false, false, true, &Amplitude::setPeriod, &Amplitude::period));
 	addProperty(Core::simpleProperty("snr", "float", false, false, false, false, true, false, NULL, &Amplitude::setSnr, &Amplitude::snr));
+	addProperty(Core::simpleProperty("unit", "string", false, false, false, false, false, false, NULL, &Amplitude::setUnit, &Amplitude::unit));
 	addProperty(Core::simpleProperty("pickID", "string", false, false, false, true, false, false, NULL, &Amplitude::setPickID, &Amplitude::pickID));
 	addProperty(objectProperty<WaveformStreamID>("waveformID", "WaveformStreamID", false, false, true, &Amplitude::setWaveformID, &Amplitude::waveformID));
 	addProperty(Core::simpleProperty("filterID", "string", false, false, false, false, false, false, NULL, &Amplitude::setFilterID, &Amplitude::filterID));
@@ -137,6 +138,7 @@ bool Amplitude::operator==(const Amplitude& rhs) const {
 	if ( _timeWindow != rhs._timeWindow ) return false;
 	if ( _period != rhs._period ) return false;
 	if ( _snr != rhs._snr ) return false;
+	if ( _unit != rhs._unit ) return false;
 	if ( _pickID != rhs._pickID ) return false;
 	if ( _waveformID != rhs._waveformID ) return false;
 	if ( _filterID != rhs._filterID ) return false;
@@ -295,6 +297,24 @@ double Amplitude::snr() const throw(Seiscomp::Core::ValueException) {
 	if ( _snr )
 		return *_snr;
 	throw Seiscomp::Core::ValueException("Amplitude.snr is not set");
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Amplitude::setUnit(const std::string& unit) {
+	_unit = unit;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const std::string& Amplitude::unit() const {
+	return _unit;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -503,6 +523,7 @@ Amplitude& Amplitude::operator=(const Amplitude& other) {
 	_timeWindow = other._timeWindow;
 	_period = other._period;
 	_snr = other._snr;
+	_unit = other._unit;
 	_pickID = other._pickID;
 	_waveformID = other._waveformID;
 	_filterID = other._filterID;
@@ -787,7 +808,7 @@ bool Amplitude::removeComment(const CommentIndex& i) {
 void Amplitude::serialize(Archive& ar) {
 	// Do not read/write if the archive's version is higher than
 	// currently supported
-	if ( ar.isHigherVersion<0,6>() ) {
+	if ( ar.isHigherVersion<0,7>() ) {
 		SEISCOMP_ERROR("Archive version %d.%d too high: Amplitude skipped",
 		               ar.versionMajor(), ar.versionMinor());
 		ar.setValidity(false);
@@ -802,6 +823,8 @@ void Amplitude::serialize(Archive& ar) {
 	ar & NAMED_OBJECT_HINT("timeWindow", _timeWindow, Archive::STATIC_TYPE | Archive::XML_ELEMENT);
 	ar & NAMED_OBJECT_HINT("period", _period, Archive::STATIC_TYPE | Archive::XML_ELEMENT);
 	ar & NAMED_OBJECT_HINT("snr", _snr, Archive::XML_ELEMENT);
+	if ( ar.supportsVersion<0,7>() )
+		ar & NAMED_OBJECT_HINT("unit", _unit, Archive::XML_ELEMENT);
 	ar & NAMED_OBJECT_HINT("pickID", _pickID, Archive::XML_ELEMENT);
 	ar & NAMED_OBJECT_HINT("waveformID", _waveformID, Archive::STATIC_TYPE | Archive::XML_ELEMENT);
 	ar & NAMED_OBJECT_HINT("filterID", _filterID, Archive::XML_ELEMENT);

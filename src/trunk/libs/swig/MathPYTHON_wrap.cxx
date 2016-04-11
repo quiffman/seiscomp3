@@ -2985,95 +2985,107 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl swig_types[40]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl swig_types[41]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl swig_types[42]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[43]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[44]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[45]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[46]
-#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[47]
-#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[48]
-#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[49]
-#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[50]
-#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[51]
-#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[52]
-#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[53]
-#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[54]
-#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[55]
-#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[56]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__AlignmentError swig_types[57]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__AverageT_double_t swig_types[58]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__AverageT_float_t swig_types[59]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__ChainFilterT_double_t swig_types[60]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__ChainFilterT_float_t swig_types[61]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_t swig_types[62]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_t swig_types[63]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadT_double_t swig_types[64]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadT_float_t swig_types[65]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_t swig_types[66]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_t swig_types[67]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_t swig_types[68]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t swig_types[69]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t swig_types[70]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t swig_types[71]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR___Biquad swig_types[72]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t swig_types[73]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t swig_types[74]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__InitialTaperT_double_t swig_types[75]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__InitialTaperT_float_t swig_types[76]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_t swig_types[77]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_t swig_types[78]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__STALTAT_double_t swig_types[79]
-#define SWIGTYPE_p_Seiscomp__Math__Filtering__STALTAT_float_t swig_types[80]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__CityT_double_t swig_types[81]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__CityT_float_t swig_types[82]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__CoordT_double_t swig_types[83]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__CoordT_float_t swig_types[84]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__NamedCoordT_double_t swig_types[85]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__NamedCoordT_float_t swig_types[86]
-#define SWIGTYPE_p_Seiscomp__Math__Geo__PositionInterpolator swig_types[87]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[88]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[89]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[90]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[91]
-#define SWIGTYPE_p_Seiscomp__Record swig_types[92]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[93]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[94]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[95]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[96]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[97]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t swig_types[98]
-#define SWIGTYPE_p_TYPE swig_types[99]
-#define SWIGTYPE_p_TagType swig_types[100]
-#define SWIGTYPE_p_Type swig_types[101]
-#define SWIGTYPE_p_ValueType swig_types[102]
-#define SWIGTYPE_p_allocator_type swig_types[103]
-#define SWIGTYPE_p_char swig_types[104]
-#define SWIGTYPE_p_const_iterator swig_types[105]
-#define SWIGTYPE_p_difference_type swig_types[106]
-#define SWIGTYPE_p_double swig_types[107]
-#define SWIGTYPE_p_float swig_types[108]
-#define SWIGTYPE_p_iterator swig_types[109]
-#define SWIGTYPE_p_p_PyObject swig_types[110]
-#define SWIGTYPE_p_size_type swig_types[111]
-#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__CityT_double_t_t swig_types[112]
-#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__CityT_float_t_t swig_types[113]
-#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_double_t_t swig_types[114]
-#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t swig_types[115]
-#define SWIGTYPE_p_std__allocatorT_double_t swig_types[116]
-#define SWIGTYPE_p_std__allocatorT_float_t swig_types[117]
-#define SWIGTYPE_p_std__exception swig_types[118]
-#define SWIGTYPE_p_std__invalid_argument swig_types[119]
-#define SWIGTYPE_p_std__string swig_types[120]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__CityT_double_t_std__allocatorT_Seiscomp__Math__Geo__CityT_double_t_t_t swig_types[121]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__CityT_float_t_std__allocatorT_Seiscomp__Math__Geo__CityT_float_t_t_t swig_types[122]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_double_t_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_double_t_t_t swig_types[123]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_float_t_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t_t swig_types[124]
-#define SWIGTYPE_p_std__vectorT__Tp__Alloc_t swig_types[125]
-#define SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t swig_types[126]
-#define SWIGTYPE_p_std__vectorT_float_std__allocatorT_float_t_t swig_types[127]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[128]
-#define SWIGTYPE_p_value_type swig_types[129]
-static swig_type_info *swig_types[131];
-static swig_module_info swig_module = {swig_types, 130, 0, 0, 0, 0};
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl swig_types[43]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl swig_types[44]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[45]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[46]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[47]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[48]
+#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[49]
+#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[50]
+#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[51]
+#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[52]
+#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[53]
+#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[54]
+#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[55]
+#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[56]
+#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[57]
+#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[58]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__AlignmentError swig_types[59]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__AverageT_double_t swig_types[60]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__AverageT_float_t swig_types[61]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__ChainFilterT_double_t swig_types[62]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__ChainFilterT_float_t swig_types[63]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_t swig_types[64]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_t swig_types[65]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadT_double_t swig_types[66]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__BiquadT_float_t swig_types[67]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_t swig_types[68]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_t swig_types[69]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_t swig_types[70]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t swig_types[71]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t swig_types[72]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t swig_types[73]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t swig_types[74]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t swig_types[75]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__IIR___Biquad swig_types[76]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t swig_types[77]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t swig_types[78]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__InitialTaperT_double_t swig_types[79]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__InitialTaperT_float_t swig_types[80]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_t swig_types[81]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_t swig_types[82]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__STALTAT_double_t swig_types[83]
+#define SWIGTYPE_p_Seiscomp__Math__Filtering__STALTAT_float_t swig_types[84]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__CityT_double_t swig_types[85]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__CityT_float_t swig_types[86]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__CoordT_double_t swig_types[87]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__CoordT_float_t swig_types[88]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__NamedCoordT_double_t swig_types[89]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__NamedCoordT_float_t swig_types[90]
+#define SWIGTYPE_p_Seiscomp__Math__Geo__PositionInterpolator swig_types[91]
+#define SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros swig_types[92]
+#define SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction swig_types[93]
+#define SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros swig_types[94]
+#define SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__Seismometer5sec swig_types[95]
+#define SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__WoodAnderson swig_types[96]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[97]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[98]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[99]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[100]
+#define SWIGTYPE_p_Seiscomp__Record swig_types[101]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[102]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[103]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[104]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[105]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[106]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t swig_types[107]
+#define SWIGTYPE_p_TYPE swig_types[108]
+#define SWIGTYPE_p_TagType swig_types[109]
+#define SWIGTYPE_p_Type swig_types[110]
+#define SWIGTYPE_p_ValueType swig_types[111]
+#define SWIGTYPE_p_allocator_type swig_types[112]
+#define SWIGTYPE_p_char swig_types[113]
+#define SWIGTYPE_p_const_iterator swig_types[114]
+#define SWIGTYPE_p_difference_type swig_types[115]
+#define SWIGTYPE_p_double swig_types[116]
+#define SWIGTYPE_p_float swig_types[117]
+#define SWIGTYPE_p_iterator swig_types[118]
+#define SWIGTYPE_p_p_PyObject swig_types[119]
+#define SWIGTYPE_p_size_type swig_types[120]
+#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__CityT_double_t_t swig_types[121]
+#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__CityT_float_t_t swig_types[122]
+#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_double_t_t swig_types[123]
+#define SWIGTYPE_p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t swig_types[124]
+#define SWIGTYPE_p_std__allocatorT_double_t swig_types[125]
+#define SWIGTYPE_p_std__allocatorT_float_t swig_types[126]
+#define SWIGTYPE_p_std__allocatorT_std__complexT_double_t_t swig_types[127]
+#define SWIGTYPE_p_std__complexT_double_t swig_types[128]
+#define SWIGTYPE_p_std__exception swig_types[129]
+#define SWIGTYPE_p_std__invalid_argument swig_types[130]
+#define SWIGTYPE_p_std__string swig_types[131]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__CityT_double_t_std__allocatorT_Seiscomp__Math__Geo__CityT_double_t_t_t swig_types[132]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__CityT_float_t_std__allocatorT_Seiscomp__Math__Geo__CityT_float_t_t_t swig_types[133]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_double_t_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_double_t_t_t swig_types[134]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_float_t_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t_t swig_types[135]
+#define SWIGTYPE_p_std__vectorT__Tp__Alloc_t swig_types[136]
+#define SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t swig_types[137]
+#define SWIGTYPE_p_std__vectorT_float_std__allocatorT_float_t_t swig_types[138]
+#define SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t swig_types[139]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[140]
+#define SWIGTYPE_p_value_type swig_types[141]
+static swig_type_info *swig_types[143];
+static swig_module_info swig_module = {swig_types, 142, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3173,6 +3185,7 @@ namespace swig {
 /* headers to be included in the wrapper code */
 #include "seiscomp3/math/geo.h"
 #include "seiscomp3/math/coord.h"
+#include "seiscomp3/math/math.h"
 #include "seiscomp3/math/filter.h"
 #include "seiscomp3/math/filter/rmhp.h"
 #include "seiscomp3/math/filter/taper.h"
@@ -3182,6 +3195,8 @@ namespace swig {
 #include "seiscomp3/math/filter/biquad.h"
 #include "seiscomp3/math/filter/butterworth.h"
 #include "seiscomp3/math/filter/taper.h"
+#include "seiscomp3/math/filter/seismometers.h"
+#include "seiscomp3/math/restitution/transferfunction.h"
 
 
 #include "seiscomp3/core/typedarray.h"
@@ -5384,6 +5399,143 @@ SWIG_AsVal_bool (PyObject *obj, bool *val)
   return SWIG_OK;
 }
 
+
+SWIGINTERN int
+SWIG_AsVal_std_complex_Sl_double_Sg_  (PyObject *o, std::complex<double>* val)
+{
+  if (PyComplex_Check(o)) {
+    if (val) *val = std::complex<double>(PyComplex_RealAsDouble(o), PyComplex_ImagAsDouble(o));
+    return SWIG_OK;
+  } else {
+    double d;    
+    int res = SWIG_AddCast(SWIG_AsVal_double (o, &d));
+    if (SWIG_IsOK(res)) {
+      if (val) *val = std::complex<double>(d, 0.0);
+      return res;
+    }
+  }
+  return SWIG_TypeError;
+}
+
+
+SWIGINTERNINLINE PyObject*
+SWIG_From_std_complex_Sl_double_Sg_  (/*@SWIG:/usr/local/share/swig/2.0.4a/typemaps/swigmacros.swg,104,%ifcplusplus@*/
+
+const std::complex<double>&
+
+
+
+/*@SWIG@*/ c)
+{
+  return PyComplex_FromDoubles(std::real(c), std::imag(c));
+}
+
+
+namespace swig {
+  template <> struct traits<std::complex<double> > {
+    typedef value_category category;
+    static const char* type_name() { return"std::complex<double>"; }
+  };  
+  template <>  struct traits_asval<std::complex<double> > {   
+    typedef std::complex<double> value_type;
+    static int asval(PyObject *obj, value_type *val) { 
+      return SWIG_AsVal_std_complex_Sl_double_Sg_ (obj, val);
+    }
+  };
+  template <>  struct traits_from<std::complex<double> > {
+    typedef std::complex<double> value_type;
+    static PyObject *from(const value_type& val) {
+      return SWIG_From_std_complex_Sl_double_Sg_  (val);
+    }
+  };
+}
+
+
+      namespace swig {
+	template <>  struct traits<std::vector<std::complex< double >, std::allocator< std::complex< double > > > > {
+	  typedef pointer_category category;
+	  static const char* type_name() {
+	    return "std::vector<" "std::complex< double >" "," "std::allocator< std::complex< double > >" " >";
+	  }
+	};
+      }
+    
+SWIGINTERN swig::SwigPyIterator *std_vector_Sl_Seiscomp_Math_Complex_Sg__iterator(std::vector< Seiscomp::Math::Complex > *self,PyObject **PYTHON_SELF){
+      return swig::make_output_iterator(self->begin(), self->begin(), self->end(), *PYTHON_SELF);
+    }
+SWIGINTERN bool std_vector_Sl_Seiscomp_Math_Complex_Sg____nonzero__(std::vector< Seiscomp::Math::Complex > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN bool std_vector_Sl_Seiscomp_Math_Complex_Sg____bool__(std::vector< Seiscomp::Math::Complex > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN std::vector< std::complex< double > >::size_type std_vector_Sl_Seiscomp_Math_Complex_Sg____len__(std::vector< Seiscomp::Math::Complex > const *self){
+      return self->size();
+    }
+SWIGINTERN std::vector< std::complex< double > >::value_type std_vector_Sl_Seiscomp_Math_Complex_Sg__pop(std::vector< Seiscomp::Math::Complex > *self){
+      if (self->size() == 0)
+	throw std::out_of_range("pop from empty container");
+      std::vector<std::complex< double >,std::allocator< std::complex< double > > >::value_type x = self->back();
+      self->pop_back();
+      return x;
+    }
+SWIGINTERN std::vector< std::complex< double >,std::allocator< std::complex< double > > > *std_vector_Sl_Seiscomp_Math_Complex_Sg____getslice__(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::difference_type i,std::vector< std::complex< double > >::difference_type j){
+      return swig::getslice(self, i, j);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____setslice____SWIG_0(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::difference_type i,std::vector< std::complex< double > >::difference_type j,std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &v=std::vector< std::complex< double >,std::allocator< std::complex< double > > >()){
+      swig::setslice(self, i, j, v);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____delslice__(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::difference_type i,std::vector< std::complex< double > >::difference_type j){
+      swig::delslice(self, i, j);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____delitem____SWIG_0(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::difference_type i){
+      self->erase(swig::getpos(self,i));
+    }
+SWIGINTERN std::vector< std::complex< double >,std::allocator< std::complex< double > > > *std_vector_Sl_Seiscomp_Math_Complex_Sg____getitem____SWIG_0(std::vector< Seiscomp::Math::Complex > *self,PySliceObject *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return NULL;
+      }
+      PySlice_GetIndices(SWIGPY_SLICE_ARG(slice), self->size(), &i, &j, &step);
+      return swig::getslice(self, i, j);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_0(std::vector< Seiscomp::Math::Complex > *self,PySliceObject *slice,std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &v){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(SWIGPY_SLICE_ARG(slice), self->size(), &i, &j, &step);
+      swig::setslice(self, i, j, v);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_1(std::vector< Seiscomp::Math::Complex > *self,PySliceObject *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(SWIGPY_SLICE_ARG(slice), self->size(), &i, &j, &step);
+      swig::delslice(self, i,j);
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____delitem____SWIG_1(std::vector< Seiscomp::Math::Complex > *self,PySliceObject *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(SWIGPY_SLICE_ARG(slice), self->size(), &i, &j, &step);
+      swig::delslice(self, i,j);
+    }
+SWIGINTERN std::vector< std::complex< double > >::value_type const &std_vector_Sl_Seiscomp_Math_Complex_Sg____getitem____SWIG_1(std::vector< Seiscomp::Math::Complex > const *self,std::vector< std::complex< double > >::difference_type i){
+      return *(swig::cgetpos(self, i));
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_2(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::difference_type i,std::vector< std::complex< double > >::value_type const &x){
+      *(swig::getpos(self,i)) = x;
+    }
+SWIGINTERN void std_vector_Sl_Seiscomp_Math_Complex_Sg__append(std::vector< Seiscomp::Math::Complex > *self,std::vector< std::complex< double > >::value_type const &x){
+      self->push_back(x);
+    }
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9998,6 +10150,28 @@ SWIGINTERN PyObject *vectord_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObje
   SWIG_TypeNewClientData(SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
+
+SWIGINTERN PyObject *_wrap_round(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double arg1 ;
+  double val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:round",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_double(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "round" "', argument " "1"" of type '" "double""'");
+  } 
+  arg1 = static_cast< double >(val1);
+  result = (double)Seiscomp::Math::round(arg1);
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
 
 SWIGINTERN PyObject *_wrap_CoordF_serialize(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
@@ -29476,6 +29650,870 @@ SWIGINTERN PyObject *ChainFilterD_swigregister(PyObject *SWIGUNUSEDPARM(self), P
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_new_PolesAndZeros__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_PolesAndZeros")) SWIG_fail;
+  result = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *)new Seiscomp::Math::SeismometerResponse::PolesAndZeros();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_PolesAndZeros__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::Poles *arg1 = 0 ;
+  Seiscomp::Math::SeismometerResponse::Zeros *arg2 = 0 ;
+  double arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:new_PolesAndZeros",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_PolesAndZeros" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::Poles const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_PolesAndZeros" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::Poles const &""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::Poles * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_PolesAndZeros" "', argument " "2"" of type '" "Seiscomp::Math::SeismometerResponse::Zeros const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_PolesAndZeros" "', argument " "2"" of type '" "Seiscomp::Math::SeismometerResponse::Zeros const &""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::Zeros * >(argp2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_PolesAndZeros" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = static_cast< double >(val3);
+  result = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *)new Seiscomp::Math::SeismometerResponse::PolesAndZeros((Seiscomp::Math::SeismometerResponse::Poles const &)*arg1,(Seiscomp::Math::SeismometerResponse::Zeros const &)*arg2,arg3);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_PolesAndZeros__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_PolesAndZeros",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_PolesAndZeros" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_PolesAndZeros" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros const &""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  result = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *)new Seiscomp::Math::SeismometerResponse::PolesAndZeros((Seiscomp::Math::SeismometerResponse::PolesAndZeros const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_PolesAndZeros(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 0) {
+    return _wrap_new_PolesAndZeros__SWIG_0(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_PolesAndZeros__SWIG_2(self, args);
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_new_PolesAndZeros__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_PolesAndZeros'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::SeismometerResponse::PolesAndZeros::PolesAndZeros()\n"
+    "    Seiscomp::Math::SeismometerResponse::PolesAndZeros::PolesAndZeros(Seiscomp::Math::SeismometerResponse::Poles const &,Seiscomp::Math::SeismometerResponse::Zeros const &,double)\n"
+    "    Seiscomp::Math::SeismometerResponse::PolesAndZeros::PolesAndZeros(Seiscomp::Math::SeismometerResponse::PolesAndZeros const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_poles_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  Seiscomp::Math::SeismometerResponse::Poles *arg2 = (Seiscomp::Math::SeismometerResponse::Poles *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:PolesAndZeros_poles_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_poles_set" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "PolesAndZeros_poles_set" "', argument " "2"" of type '" "Seiscomp::Math::SeismometerResponse::Poles *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::Poles * >(argp2);
+  if (arg1) (arg1)->poles = *arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_poles_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::Poles *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:PolesAndZeros_poles_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_poles_get" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  result = (Seiscomp::Math::SeismometerResponse::Poles *)& ((arg1)->poles);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_zeros_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  Seiscomp::Math::SeismometerResponse::Zeros *arg2 = (Seiscomp::Math::SeismometerResponse::Zeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:PolesAndZeros_zeros_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_zeros_set" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "PolesAndZeros_zeros_set" "', argument " "2"" of type '" "Seiscomp::Math::SeismometerResponse::Zeros *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::Zeros * >(argp2);
+  if (arg1) (arg1)->zeros = *arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_zeros_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::Zeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:PolesAndZeros_zeros_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_zeros_get" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  result = (Seiscomp::Math::SeismometerResponse::Zeros *)& ((arg1)->zeros);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_norm_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:PolesAndZeros_norm_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_norm_set" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "PolesAndZeros_norm_set" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  if (arg1) (arg1)->norm = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_PolesAndZeros_norm_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:PolesAndZeros_norm_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "PolesAndZeros_norm_get" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  result = (double) ((arg1)->norm);
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_PolesAndZeros(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_PolesAndZeros",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_PolesAndZeros" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *PolesAndZeros_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_WoodAnderson(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::GroundMotion arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::WoodAnderson *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_WoodAnderson",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_WoodAnderson" "', argument " "1"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg1 = static_cast< Seiscomp::Math::GroundMotion >(val1);
+  result = (Seiscomp::Math::SeismometerResponse::WoodAnderson *)new Seiscomp::Math::SeismometerResponse::WoodAnderson(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__WoodAnderson, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_WoodAnderson(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::WoodAnderson *arg1 = (Seiscomp::Math::SeismometerResponse::WoodAnderson *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_WoodAnderson",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__WoodAnderson, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_WoodAnderson" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::WoodAnderson *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::WoodAnderson * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *WoodAnderson_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__WoodAnderson, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_Seismometer5sec(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::GroundMotion arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::Seismometer5sec *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_Seismometer5sec",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Seismometer5sec" "', argument " "1"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg1 = static_cast< Seiscomp::Math::GroundMotion >(val1);
+  result = (Seiscomp::Math::SeismometerResponse::Seismometer5sec *)new Seiscomp::Math::SeismometerResponse::Seismometer5sec(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__Seismometer5sec, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_Seismometer5sec(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::Seismometer5sec *arg1 = (Seiscomp::Math::SeismometerResponse::Seismometer5sec *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_Seismometer5sec",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__Seismometer5sec, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Seismometer5sec" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::Seismometer5sec *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::Seismometer5sec * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *Seismometer5sec_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__Seismometer5sec, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPF__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::GroundMotion arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_WWSSN_SPF",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_WWSSN_SPF" "', argument " "1"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg1 = static_cast< Seiscomp::Math::GroundMotion >(val1);
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPF__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_WWSSN_SPF")) SWIG_fail;
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPF__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_WWSSN_SPF",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_WWSSN_SPF" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_WWSSN_SPF" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const &""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > * >(argp1);
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >((Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPF(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[2];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 1) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 0) {
+    return _wrap_new_WWSSN_SPF__SWIG_1(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_WWSSN_SPF__SWIG_2(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    {
+      int res = SWIG_AsVal_int(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      return _wrap_new_WWSSN_SPF__SWIG_0(self, args);
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_WWSSN_SPF'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >::WWSSN_SP_Filter(Seiscomp::Math::GroundMotion)\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >::WWSSN_SP_Filter()\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float >::WWSSN_SP_Filter(Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPF_setParameters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *) 0 ;
+  int arg2 ;
+  double *arg3 = (double *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:WWSSN_SPF_setParameters",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPF_setParameters" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "WWSSN_SPF_setParameters" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_double, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "WWSSN_SPF_setParameters" "', argument " "3"" of type '" "double const *""'"); 
+  }
+  arg3 = reinterpret_cast< double * >(argp3);
+  result = (int)(arg1)->setParameters(arg2,(double const *)arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPF_clone(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::InPlaceFilter< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:WWSSN_SPF_clone",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPF_clone" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > * >(argp1);
+  result = (Seiscomp::Math::Filtering::InPlaceFilter< float > *)((Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > const *)arg1)->clone();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPF_setInput(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *) 0 ;
+  Seiscomp::Math::GroundMotion arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:WWSSN_SPF_setInput",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPF_setInput" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "WWSSN_SPF_setInput" "', argument " "2"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg2 = static_cast< Seiscomp::Math::GroundMotion >(val2);
+  (arg1)->setInput(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_WWSSN_SPF(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_WWSSN_SPF",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_WWSSN_SPF" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *WWSSN_SPF_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPD__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::GroundMotion arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_WWSSN_SPD",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_WWSSN_SPD" "', argument " "1"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg1 = static_cast< Seiscomp::Math::GroundMotion >(val1);
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPD__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_WWSSN_SPD")) SWIG_fail;
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPD__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_WWSSN_SPD",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_WWSSN_SPD" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_WWSSN_SPD" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const &""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > * >(argp1);
+  result = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *)new Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >((Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_WWSSN_SPD(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[2];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 1) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 0) {
+    return _wrap_new_WWSSN_SPD__SWIG_1(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_WWSSN_SPD__SWIG_2(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    {
+      int res = SWIG_AsVal_int(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      return _wrap_new_WWSSN_SPD__SWIG_0(self, args);
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_WWSSN_SPD'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >::WWSSN_SP_Filter(Seiscomp::Math::GroundMotion)\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >::WWSSN_SP_Filter()\n"
+    "    Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double >::WWSSN_SP_Filter(Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPD_setParameters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *) 0 ;
+  int arg2 ;
+  double *arg3 = (double *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:WWSSN_SPD_setParameters",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPD_setParameters" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "WWSSN_SPD_setParameters" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_double, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "WWSSN_SPD_setParameters" "', argument " "3"" of type '" "double const *""'"); 
+  }
+  arg3 = reinterpret_cast< double * >(argp3);
+  result = (int)(arg1)->setParameters(arg2,(double const *)arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPD_clone(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Filtering::InPlaceFilter< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:WWSSN_SPD_clone",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPD_clone" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > * >(argp1);
+  result = (Seiscomp::Math::Filtering::InPlaceFilter< double > *)((Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > const *)arg1)->clone();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_WWSSN_SPD_setInput(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *) 0 ;
+  Seiscomp::Math::GroundMotion arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:WWSSN_SPD_setInput",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WWSSN_SPD_setInput" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "WWSSN_SPD_setInput" "', argument " "2"" of type '" "Seiscomp::Math::GroundMotion""'");
+  } 
+  arg2 = static_cast< Seiscomp::Math::GroundMotion >(val2);
+  (arg1)->setInput(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_WWSSN_SPD(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *arg1 = (Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_WWSSN_SPD",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_WWSSN_SPD" "', argument " "1"" of type '" "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *WWSSN_SPD_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
 SWIGINTERN PyObject *_wrap_delazi(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
@@ -30983,6 +32021,2850 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_TransferFunction___mul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TransferFunction___mul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction___mul__" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction___mul__" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction___mul__" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const &""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp2);
+  result = (Seiscomp::Math::Restitution::FFT::TransferFunction *)((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->operator *((Seiscomp::Math::Restitution::FFT::TransferFunction const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction___div__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TransferFunction___div__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction___div__" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction___div__" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction___div__" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const &""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp2);
+  result = (Seiscomp::Math::Restitution::FFT::TransferFunction *)((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->operator /((Seiscomp::Math::Restitution::FFT::TransferFunction const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_evaluate__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  Seiscomp::Math::Complex *arg2 = (Seiscomp::Math::Complex *) 0 ;
+  int arg3 ;
+  double *arg4 = (double *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:TransferFunction_evaluate",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_evaluate" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction_evaluate" "', argument " "2"" of type '" "Seiscomp::Math::Complex *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::Complex * >(argp2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "TransferFunction_evaluate" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_double, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "TransferFunction_evaluate" "', argument " "4"" of type '" "double const *""'"); 
+  }
+  arg4 = reinterpret_cast< double * >(argp4);
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->evaluate(arg2,arg3,(double const *)arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_evaluate__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > *arg2 = 0 ;
+  std::vector< double,std::allocator< double > > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:TransferFunction_evaluate",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_evaluate" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction_evaluate" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction_evaluate" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > * >(argp2);
+  {
+    std::vector<double,std::allocator< double > > *ptr = (std::vector<double,std::allocator< double > > *)0;
+    res3 = swig::asptr(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "TransferFunction_evaluate" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction_evaluate" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->evaluate(*arg2,(std::vector< double,std::allocator< double > > const &)*arg3);
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_evaluate(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[5];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 4) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = swig::asptr(argv[2], (std::vector<double,std::allocator< double > >**)(0));
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_TransferFunction_evaluate__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_double, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            return _wrap_TransferFunction_evaluate__SWIG_0(self, args);
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'TransferFunction_evaluate'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::evaluate(Seiscomp::Math::Complex *,int,double const *) const\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::evaluate(std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &,std::vector< double,std::allocator< double > > const &) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_deconvolve__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  int arg2 ;
+  Seiscomp::Math::Complex *arg3 = (Seiscomp::Math::Complex *) 0 ;
+  double arg4 ;
+  double arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  double val4 ;
+  int ecode4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:TransferFunction_deconvolve",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_deconvolve" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "TransferFunction_deconvolve" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "TransferFunction_deconvolve" "', argument " "3"" of type '" "Seiscomp::Math::Complex *""'"); 
+  }
+  arg3 = reinterpret_cast< Seiscomp::Math::Complex * >(argp3);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "TransferFunction_deconvolve" "', argument " "4"" of type '" "double""'");
+  } 
+  arg4 = static_cast< double >(val4);
+  ecode5 = SWIG_AsVal_double(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "TransferFunction_deconvolve" "', argument " "5"" of type '" "double""'");
+  } 
+  arg5 = static_cast< double >(val5);
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->deconvolve(arg2,arg3,arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_deconvolve__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > *arg2 = 0 ;
+  double arg3 ;
+  double arg4 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  double val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:TransferFunction_deconvolve",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_deconvolve" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction_deconvolve" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction_deconvolve" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > * >(argp2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "TransferFunction_deconvolve" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = static_cast< double >(val3);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "TransferFunction_deconvolve" "', argument " "4"" of type '" "double""'");
+  } 
+  arg4 = static_cast< double >(val4);
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->deconvolve(*arg2,arg3,arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_deconvolve(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[6];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 5) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 4) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          {
+            int res = SWIG_AsVal_double(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            return _wrap_TransferFunction_deconvolve__SWIG_1(self, args);
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_double(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_TransferFunction_deconvolve__SWIG_0(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'TransferFunction_deconvolve'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::deconvolve(int,Seiscomp::Math::Complex *,double,double) const\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::deconvolve(std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &,double,double) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_convolve__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  int arg2 ;
+  Seiscomp::Math::Complex *arg3 = (Seiscomp::Math::Complex *) 0 ;
+  double arg4 ;
+  double arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  double val4 ;
+  int ecode4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:TransferFunction_convolve",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_convolve" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "TransferFunction_convolve" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "TransferFunction_convolve" "', argument " "3"" of type '" "Seiscomp::Math::Complex *""'"); 
+  }
+  arg3 = reinterpret_cast< Seiscomp::Math::Complex * >(argp3);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "TransferFunction_convolve" "', argument " "4"" of type '" "double""'");
+  } 
+  arg4 = static_cast< double >(val4);
+  ecode5 = SWIG_AsVal_double(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "TransferFunction_convolve" "', argument " "5"" of type '" "double""'");
+  } 
+  arg5 = static_cast< double >(val5);
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->convolve(arg2,arg3,arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_convolve__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > *arg2 = 0 ;
+  double arg3 ;
+  double arg4 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  double val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:TransferFunction_convolve",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunction_convolve" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunction_convolve" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TransferFunction_convolve" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > * >(argp2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "TransferFunction_convolve" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = static_cast< double >(val3);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "TransferFunction_convolve" "', argument " "4"" of type '" "double""'");
+  } 
+  arg4 = static_cast< double >(val4);
+  ((Seiscomp::Math::Restitution::FFT::TransferFunction const *)arg1)->convolve(*arg2,arg3,arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunction_convolve(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[6];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 5) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 4) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          {
+            int res = SWIG_AsVal_double(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            return _wrap_TransferFunction_convolve__SWIG_1(self, args);
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_double(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_TransferFunction_convolve__SWIG_0(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'TransferFunction_convolve'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::convolve(int,Seiscomp::Math::Complex *,double,double) const\n"
+    "    Seiscomp::Math::Restitution::FFT::TransferFunction::convolve(std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > &,double,double) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_TransferFunction(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::TransferFunction *arg1 = (Seiscomp::Math::Restitution::FFT::TransferFunction *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_TransferFunction",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_TransferFunction" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::TransferFunction *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::TransferFunction * >(argp1);
+  if (arg1) arg1->decrementReferenceCount();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *TransferFunction_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__TransferFunction, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_TransferFunctionPAZ__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_TransferFunctionPAZ",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_TransferFunctionPAZ" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_TransferFunctionPAZ" "', argument " "1"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros const &""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp1);
+  result = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *)new Seiscomp::Math::Restitution::FFT::PolesAndZeros((Seiscomp::Math::SeismometerResponse::PolesAndZeros const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_TransferFunctionPAZ__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  Seiscomp::Math::Restitution::Pole *arg2 = (Seiscomp::Math::Restitution::Pole *) 0 ;
+  int arg3 ;
+  Seiscomp::Math::Restitution::Zero *arg4 = (Seiscomp::Math::Restitution::Zero *) 0 ;
+  double arg5 ;
+  int arg6 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  int val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:new_TransferFunctionPAZ",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_TransferFunctionPAZ" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_TransferFunctionPAZ" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::Pole *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::Restitution::Pole * >(argp2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_TransferFunctionPAZ" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "new_TransferFunctionPAZ" "', argument " "4"" of type '" "Seiscomp::Math::Restitution::Zero *""'"); 
+  }
+  arg4 = reinterpret_cast< Seiscomp::Math::Restitution::Zero * >(argp4);
+  ecode5 = SWIG_AsVal_double(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "new_TransferFunctionPAZ" "', argument " "5"" of type '" "double""'");
+  } 
+  arg5 = static_cast< double >(val5);
+  ecode6 = SWIG_AsVal_int(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "new_TransferFunctionPAZ" "', argument " "6"" of type '" "int""'");
+  } 
+  arg6 = static_cast< int >(val6);
+  result = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *)new Seiscomp::Math::Restitution::FFT::PolesAndZeros(arg1,arg2,arg3,arg4,arg5,arg6);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_TransferFunctionPAZ__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  Seiscomp::Math::Restitution::Pole *arg2 = (Seiscomp::Math::Restitution::Pole *) 0 ;
+  int arg3 ;
+  Seiscomp::Math::Restitution::Zero *arg4 = (Seiscomp::Math::Restitution::Zero *) 0 ;
+  double arg5 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:new_TransferFunctionPAZ",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_TransferFunctionPAZ" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_TransferFunctionPAZ" "', argument " "2"" of type '" "Seiscomp::Math::Restitution::Pole *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::Restitution::Pole * >(argp2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_TransferFunctionPAZ" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_std__complexT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "new_TransferFunctionPAZ" "', argument " "4"" of type '" "Seiscomp::Math::Restitution::Zero *""'"); 
+  }
+  arg4 = reinterpret_cast< Seiscomp::Math::Restitution::Zero * >(argp4);
+  ecode5 = SWIG_AsVal_double(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "new_TransferFunctionPAZ" "', argument " "5"" of type '" "double""'");
+  } 
+  arg5 = static_cast< double >(val5);
+  result = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *)new Seiscomp::Math::Restitution::FFT::PolesAndZeros(arg1,arg2,arg3,arg4,arg5);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, SWIG_POINTER_NEW |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_TransferFunctionPAZ(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[7];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 6) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_TransferFunctionPAZ__SWIG_0(self, args);
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    {
+      int res = SWIG_AsVal_int(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_new_TransferFunctionPAZ__SWIG_2(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    {
+      int res = SWIG_AsVal_int(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_std__complexT_double_t, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_int(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_new_TransferFunctionPAZ__SWIG_1(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_TransferFunctionPAZ'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Math::Restitution::FFT::PolesAndZeros::PolesAndZeros(Seiscomp::Math::SeismometerResponse::PolesAndZeros const &)\n"
+    "    Seiscomp::Math::Restitution::FFT::PolesAndZeros::PolesAndZeros(int,Seiscomp::Math::Restitution::Pole *,int,Seiscomp::Math::Restitution::Zero *,double,int)\n"
+    "    Seiscomp::Math::Restitution::FFT::PolesAndZeros::PolesAndZeros(int,Seiscomp::Math::Restitution::Pole *,int,Seiscomp::Math::Restitution::Zero *,double)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunctionPAZ_paz_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *arg1 = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *) 0 ;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *arg2 = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TransferFunctionPAZ_paz_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunctionPAZ_paz_set" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::PolesAndZeros * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TransferFunctionPAZ_paz_set" "', argument " "2"" of type '" "Seiscomp::Math::SeismometerResponse::PolesAndZeros *""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Math::SeismometerResponse::PolesAndZeros * >(argp2);
+  if (arg1) (arg1)->paz = *arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TransferFunctionPAZ_paz_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *arg1 = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Seiscomp::Math::SeismometerResponse::PolesAndZeros *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TransferFunctionPAZ_paz_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TransferFunctionPAZ_paz_get" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::PolesAndZeros * >(argp1);
+  result = (Seiscomp::Math::SeismometerResponse::PolesAndZeros *)& ((arg1)->paz);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_TransferFunctionPAZ(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Math::Restitution::FFT::PolesAndZeros *arg1 = (Seiscomp::Math::Restitution::FFT::PolesAndZeros *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_TransferFunctionPAZ",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_TransferFunctionPAZ" "', argument " "1"" of type '" "Seiscomp::Math::Restitution::FFT::PolesAndZeros *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Math::Restitution::FFT::PolesAndZeros * >(argp1);
+  if (arg1) arg1->decrementReferenceCount();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *TransferFunctionPAZ_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_vectorc_iterator(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  PyObject **arg2 = (PyObject **) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  swig::SwigPyIterator *result = 0 ;
+  
+  arg2 = &obj0;
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_iterator",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_iterator" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (swig::SwigPyIterator *)std_vector_Sl_Seiscomp_Math_Complex_Sg__iterator(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_swig__SwigPyIterator, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___nonzero__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc___nonzero__",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___nonzero__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (bool)std_vector_Sl_Seiscomp_Math_Complex_Sg____nonzero__((std::vector< std::complex< double > > const *)arg1);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___bool__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc___bool__",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___bool__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (bool)std_vector_Sl_Seiscomp_Math_Complex_Sg____bool__((std::vector< std::complex< double > > const *)arg1);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___len__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::size_type result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc___len__",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___len__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = std_vector_Sl_Seiscomp_Math_Complex_Sg____len__((std::vector< std::complex< double > > const *)arg1);
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_pop(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::value_type result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_pop",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_pop" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  try {
+    result = std_vector_Sl_Seiscomp_Math_Complex_Sg__pop(arg1);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_From_std_complex_Sl_double_Sg_(static_cast< std::complex<double> >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___getslice__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  std::vector< std::complex< double > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  std::vector< std::complex< double >,std::allocator< std::complex< double > > > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc___getslice__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___getslice__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___getslice__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc___getslice__" "', argument " "3"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::complex< double > >::difference_type >(val3);
+  try {
+    result = (std::vector< std::complex< double >,std::allocator< std::complex< double > > > *)std_vector_Sl_Seiscomp_Math_Complex_Sg____getslice__(arg1,arg2,arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setslice____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  std::vector< std::complex< double > >::difference_type arg3 ;
+  std::vector< std::complex< double >,std::allocator< std::complex< double > > > *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:vectorc___setslice__",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___setslice__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___setslice__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc___setslice__" "', argument " "3"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::complex< double > >::difference_type >(val3);
+  {
+    std::vector<std::complex< double >,std::allocator< std::complex< double > > > *ptr = (std::vector<std::complex< double >,std::allocator< std::complex< double > > > *)0;
+    res4 = swig::asptr(obj3, &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "vectorc___setslice__" "', argument " "4"" of type '" "std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "vectorc___setslice__" "', argument " "4"" of type '" "std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____setslice____SWIG_0(arg1,arg2,arg3,(std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &)*arg4);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  catch(std::invalid_argument &_e) {
+    SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setslice____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  std::vector< std::complex< double > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc___setslice__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___setslice__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___setslice__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc___setslice__" "', argument " "3"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::complex< double > >::difference_type >(val3);
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____setslice____SWIG_0(arg1,arg2,arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  catch(std::invalid_argument &_e) {
+    SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setslice__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[5];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 4) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_ptrdiff_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_ptrdiff_t(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_vectorc___setslice____SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_ptrdiff_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_ptrdiff_t(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          int res = swig::asptr(argv[3], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            return _wrap_vectorc___setslice____SWIG_0(self, args);
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc___setslice__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::__setslice__(std::vector< std::complex< double > >::difference_type,std::vector< std::complex< double > >::difference_type,std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &)\n"
+    "    std::vector< Seiscomp::Math::Complex >::__setslice__(std::vector< std::complex< double > >::difference_type,std::vector< std::complex< double > >::difference_type)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___delslice__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  std::vector< std::complex< double > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc___delslice__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___delslice__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___delslice__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc___delslice__" "', argument " "3"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::complex< double > >::difference_type >(val3);
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____delslice__(arg1,arg2,arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___delitem____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc___delitem__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___delitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___delitem__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____delitem____SWIG_0(arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___getitem____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  PySliceObject *arg2 = (PySliceObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::vector< std::complex< double >,std::allocator< std::complex< double > > > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc___getitem__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___getitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  {
+    if (!PySlice_Check(obj1)) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc___getitem__" "', argument " "2"" of type '" "PySliceObject *""'");
+    }
+    arg2 = (PySliceObject *) obj1;
+  }
+  try {
+    result = (std::vector< std::complex< double >,std::allocator< std::complex< double > > > *)std_vector_Sl_Seiscomp_Math_Complex_Sg____getitem____SWIG_0(arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setitem____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  PySliceObject *arg2 = (PySliceObject *) 0 ;
+  std::vector< std::complex< double >,std::allocator< std::complex< double > > > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc___setitem__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___setitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  {
+    if (!PySlice_Check(obj1)) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc___setitem__" "', argument " "2"" of type '" "PySliceObject *""'");
+    }
+    arg2 = (PySliceObject *) obj1;
+  }
+  {
+    std::vector<std::complex< double >,std::allocator< std::complex< double > > > *ptr = (std::vector<std::complex< double >,std::allocator< std::complex< double > > > *)0;
+    res3 = swig::asptr(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "vectorc___setitem__" "', argument " "3"" of type '" "std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "vectorc___setitem__" "', argument " "3"" of type '" "std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_0(arg1,arg2,(std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &)*arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  catch(std::invalid_argument &_e) {
+    SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setitem____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  PySliceObject *arg2 = (PySliceObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc___setitem__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___setitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  {
+    if (!PySlice_Check(obj1)) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc___setitem__" "', argument " "2"" of type '" "PySliceObject *""'");
+    }
+    arg2 = (PySliceObject *) obj1;
+  }
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_1(arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___delitem____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  PySliceObject *arg2 = (PySliceObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc___delitem__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___delitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  {
+    if (!PySlice_Check(obj1)) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc___delitem__" "', argument " "2"" of type '" "PySliceObject *""'");
+    }
+    arg2 = (PySliceObject *) obj1;
+  }
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____delitem____SWIG_1(arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___delitem__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+      if (_v) {
+        return _wrap_vectorc___delitem____SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_ptrdiff_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_vectorc___delitem____SWIG_0(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc___delitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::__delitem__(std::vector< std::complex< double > >::difference_type)\n"
+    "    std::vector< Seiscomp::Math::Complex >::__delitem__(PySliceObject *)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___getitem____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::vector< std::complex< double > >::value_type *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc___getitem__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___getitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___getitem__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  try {
+    result = (std::vector< std::complex< double > >::value_type *) &std_vector_Sl_Seiscomp_Math_Complex_Sg____getitem____SWIG_1((std::vector< std::complex< double > > const *)arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_From_std_complex_Sl_double_Sg_(static_cast< std::complex<double> >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___getitem__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+      if (_v) {
+        return _wrap_vectorc___getitem____SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_ptrdiff_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_vectorc___getitem____SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc___getitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::__getitem__(PySliceObject *)\n"
+    "    std::vector< Seiscomp::Math::Complex >::__getitem__(std::vector< std::complex< double > >::difference_type) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setitem____SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::difference_type arg2 ;
+  std::vector< std::complex< double > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  std::vector< std::complex< double > >::value_type temp3 ;
+  std::complex< double > val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc___setitem__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc___setitem__" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc___setitem__" "', argument " "2"" of type '" "std::vector< std::complex< double > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc___setitem__" "', argument " "3"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp3 = static_cast< std::vector< std::complex< double > >::value_type >(val3);
+  arg3 = &temp3;
+  try {
+    std_vector_Sl_Seiscomp_Math_Complex_Sg____setitem____SWIG_2(arg1,arg2,(std::complex< double > const &)*arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+  }
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc___setitem__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+      if (_v) {
+        return _wrap_vectorc___setitem____SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+      if (_v) {
+        int res = swig::asptr(argv[2], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_vectorc___setitem____SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_ptrdiff_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_std_complex_Sl_double_Sg_(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_vectorc___setitem____SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc___setitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::__setitem__(PySliceObject *,std::vector< std::complex< double >,std::allocator< std::complex< double > > > const &)\n"
+    "    std::vector< Seiscomp::Math::Complex >::__setitem__(PySliceObject *)\n"
+    "    std::vector< Seiscomp::Math::Complex >::__setitem__(std::vector< std::complex< double > >::difference_type,std::vector< std::complex< double > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_append(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::vector< std::complex< double > >::value_type temp2 ;
+  std::complex< double > val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_append",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_append" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_append" "', argument " "2"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp2 = static_cast< std::vector< std::complex< double > >::value_type >(val2);
+  arg2 = &temp2;
+  std_vector_Sl_Seiscomp_Math_Complex_Sg__append(arg1,(std::complex< double > const &)*arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_vectorc__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_vectorc")) SWIG_fail;
+  result = (std::vector< Seiscomp::Math::Complex > *)new std::vector< Seiscomp::Math::Complex >();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_vectorc__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  std::vector< Seiscomp::Math::Complex > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_vectorc",&obj0)) SWIG_fail;
+  {
+    std::vector<std::complex< double >,std::allocator< std::complex< double > > > *ptr = (std::vector<std::complex< double >,std::allocator< std::complex< double > > > *)0;
+    res1 = swig::asptr(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_vectorc" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_vectorc" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = (std::vector< Seiscomp::Math::Complex > *)new std::vector< Seiscomp::Math::Complex >((std::vector< Seiscomp::Math::Complex > const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_empty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_empty",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_empty" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (bool)((std::vector< Seiscomp::Math::Complex > const *)arg1)->empty();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_size(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::size_type result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_size",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_size" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = ((std::vector< Seiscomp::Math::Complex > const *)arg1)->size();
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_clear(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_clear",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_clear" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  (arg1)->clear();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_swap(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< Seiscomp::Math::Complex > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_swap",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_swap" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "vectorc_swap" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "vectorc_swap" "', argument " "2"" of type '" "std::vector< Seiscomp::Math::Complex > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp2);
+  (arg1)->swap(*arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_get_allocator(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< std::allocator< std::complex< double > > > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_get_allocator",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_get_allocator" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = ((std::vector< Seiscomp::Math::Complex > const *)arg1)->get_allocator();
+  resultobj = SWIG_NewPointerObj((new std::vector< std::complex< double > >::allocator_type(static_cast< const std::vector< std::complex< double > >::allocator_type& >(result))), SWIGTYPE_p_std__allocatorT_std__complexT_double_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_begin(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_begin",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_begin" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (arg1)->begin();
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_end(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_end",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_end" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (arg1)->end();
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_rbegin(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::reverse_iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_rbegin",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_rbegin" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (arg1)->rbegin();
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_rend(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::reverse_iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_rend",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_rend" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (arg1)->rend();
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_vectorc__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::complex< double > >::size_type arg1 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< Seiscomp::Math::Complex > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_vectorc",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_vectorc" "', argument " "1"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::complex< double > >::size_type >(val1);
+  result = (std::vector< Seiscomp::Math::Complex > *)new std::vector< Seiscomp::Math::Complex >(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_pop_back(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_pop_back",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_pop_back" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  (arg1)->pop_back();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_resize__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_resize",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_resize" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_resize" "', argument " "2"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::size_type >(val2);
+  (arg1)->resize(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_erase__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_erase",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_erase" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+    }
+  }
+  result = (arg1)->erase(arg2);
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_erase__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > arg2 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  swig::SwigPyIterator *iter3 = 0 ;
+  int res3 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc_erase",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_erase" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+    }
+  }
+  res3 = SWIG_ConvertPtr(obj2, SWIG_as_voidptrptr(&iter3), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res3) || !iter3) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "3"" of type '" "std::vector< std::complex< double > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter3);
+    if (iter_t) {
+      arg3 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_erase" "', argument " "3"" of type '" "std::vector< std::complex< double > >::iterator""'");
+    }
+  }
+  result = (arg1)->erase(arg2,arg3);
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_erase(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      swig::SwigPyIterator *iter = 0;
+      int res = SWIG_ConvertPtr(argv[1], SWIG_as_voidptrptr(&iter), swig::SwigPyIterator::descriptor(), 0);
+      _v = (SWIG_IsOK(res) && iter && (dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter) != 0));
+      if (_v) {
+        return _wrap_vectorc_erase__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      swig::SwigPyIterator *iter = 0;
+      int res = SWIG_ConvertPtr(argv[1], SWIG_as_voidptrptr(&iter), swig::SwigPyIterator::descriptor(), 0);
+      _v = (SWIG_IsOK(res) && iter && (dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter) != 0));
+      if (_v) {
+        swig::SwigPyIterator *iter = 0;
+        int res = SWIG_ConvertPtr(argv[2], SWIG_as_voidptrptr(&iter), swig::SwigPyIterator::descriptor(), 0);
+        _v = (SWIG_IsOK(res) && iter && (dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter) != 0));
+        if (_v) {
+          return _wrap_vectorc_erase__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc_erase'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::erase(std::vector< std::complex< double > >::iterator)\n"
+    "    std::vector< Seiscomp::Math::Complex >::erase(std::vector< std::complex< double > >::iterator,std::vector< std::complex< double > >::iterator)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_vectorc__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::complex< double > >::size_type arg1 ;
+  std::vector< std::complex< double > >::value_type *arg2 = 0 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  std::vector< std::complex< double > >::value_type temp2 ;
+  std::complex< double > val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::vector< Seiscomp::Math::Complex > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:new_vectorc",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_vectorc" "', argument " "1"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::complex< double > >::size_type >(val1);
+  ecode2 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_vectorc" "', argument " "2"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp2 = static_cast< std::vector< std::complex< double > >::value_type >(val2);
+  arg2 = &temp2;
+  result = (std::vector< Seiscomp::Math::Complex > *)new std::vector< Seiscomp::Math::Complex >(arg1,(std::vector< std::complex< double > >::value_type const &)*arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_vectorc(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 0) {
+    return _wrap_new_vectorc__SWIG_0(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    {
+      int res = SWIG_AsVal_size_t(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      return _wrap_new_vectorc__SWIG_2(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_vectorc__SWIG_1(self, args);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    {
+      int res = SWIG_AsVal_size_t(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      {
+        int res = SWIG_AsVal_std_complex_Sl_double_Sg_(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_new_vectorc__SWIG_3(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_vectorc'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::vector()\n"
+    "    std::vector< Seiscomp::Math::Complex >::vector(std::vector< Seiscomp::Math::Complex > const &)\n"
+    "    std::vector< Seiscomp::Math::Complex >::vector(std::vector< std::complex< double > >::size_type)\n"
+    "    std::vector< Seiscomp::Math::Complex >::vector(std::vector< std::complex< double > >::size_type,std::vector< std::complex< double > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_push_back(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::vector< std::complex< double > >::value_type temp2 ;
+  std::complex< double > val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_push_back",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_push_back" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_push_back" "', argument " "2"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp2 = static_cast< std::vector< std::complex< double > >::value_type >(val2);
+  arg2 = &temp2;
+  (arg1)->push_back((std::vector< std::complex< double > >::value_type const &)*arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_front(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::value_type *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_front",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_front" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (std::vector< std::complex< double > >::value_type *) &((std::vector< Seiscomp::Math::Complex > const *)arg1)->front();
+  resultobj = SWIG_From_std_complex_Sl_double_Sg_(static_cast< std::complex<double> >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_back(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::value_type *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_back",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_back" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = (std::vector< std::complex< double > >::value_type *) &((std::vector< Seiscomp::Math::Complex > const *)arg1)->back();
+  resultobj = SWIG_From_std_complex_Sl_double_Sg_(static_cast< std::complex<double> >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_assign(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::size_type arg2 ;
+  std::vector< std::complex< double > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  std::vector< std::complex< double > >::value_type temp3 ;
+  std::complex< double > val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc_assign",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_assign" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_assign" "', argument " "2"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::size_type >(val2);
+  ecode3 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc_assign" "', argument " "3"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp3 = static_cast< std::vector< std::complex< double > >::value_type >(val3);
+  arg3 = &temp3;
+  (arg1)->assign(arg2,(std::vector< std::complex< double > >::value_type const &)*arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_resize__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::size_type arg2 ;
+  std::vector< std::complex< double > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  std::vector< std::complex< double > >::value_type temp3 ;
+  std::complex< double > val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc_resize",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_resize" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_resize" "', argument " "2"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::size_type >(val2);
+  ecode3 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc_resize" "', argument " "3"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp3 = static_cast< std::vector< std::complex< double > >::value_type >(val3);
+  arg3 = &temp3;
+  (arg1)->resize(arg2,(std::vector< std::complex< double > >::value_type const &)*arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_resize(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_size_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_vectorc_resize__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_size_t(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_std_complex_Sl_double_Sg_(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_vectorc_resize__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc_resize'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::resize(std::vector< std::complex< double > >::size_type)\n"
+    "    std::vector< Seiscomp::Math::Complex >::resize(std::vector< std::complex< double > >::size_type,std::vector< std::complex< double > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_insert__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > arg2 ;
+  std::vector< std::complex< double > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  std::vector< std::complex< double > >::value_type temp3 ;
+  std::complex< double > val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:vectorc_insert",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_insert" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_insert" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_insert" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+    }
+  }
+  ecode3 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc_insert" "', argument " "3"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp3 = static_cast< std::vector< std::complex< double > >::value_type >(val3);
+  arg3 = &temp3;
+  result = (arg1)->insert(arg2,(std::vector< std::complex< double > >::value_type const &)*arg3);
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::complex< double > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_insert__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  SwigValueWrapper< std::vector< std::complex< double > >::iterator > arg2 ;
+  std::vector< std::complex< double > >::size_type arg3 ;
+  std::vector< std::complex< double > >::value_type *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  size_t val3 ;
+  int ecode3 = 0 ;
+  std::vector< std::complex< double > >::value_type temp4 ;
+  std::complex< double > val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:vectorc_insert",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_insert" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_insert" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "vectorc_insert" "', argument " "2"" of type '" "std::vector< std::complex< double > >::iterator""'");
+    }
+  }
+  ecode3 = SWIG_AsVal_size_t(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "vectorc_insert" "', argument " "3"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::complex< double > >::size_type >(val3);
+  ecode4 = SWIG_AsVal_std_complex_Sl_double_Sg_(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "vectorc_insert" "', argument " "4"" of type '" "std::vector< std::complex< double > >::value_type""'");
+  } 
+  temp4 = static_cast< std::vector< std::complex< double > >::value_type >(val4);
+  arg4 = &temp4;
+  (arg1)->insert(arg2,arg3,(std::vector< std::complex< double > >::value_type const &)*arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_insert(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[5];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 4) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      swig::SwigPyIterator *iter = 0;
+      int res = SWIG_ConvertPtr(argv[1], SWIG_as_voidptrptr(&iter), swig::SwigPyIterator::descriptor(), 0);
+      _v = (SWIG_IsOK(res) && iter && (dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter) != 0));
+      if (_v) {
+        {
+          int res = SWIG_AsVal_std_complex_Sl_double_Sg_(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_vectorc_insert__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    int res = swig::asptr(argv[0], (std::vector<std::complex< double >,std::allocator< std::complex< double > > >**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      swig::SwigPyIterator *iter = 0;
+      int res = SWIG_ConvertPtr(argv[1], SWIG_as_voidptrptr(&iter), swig::SwigPyIterator::descriptor(), 0);
+      _v = (SWIG_IsOK(res) && iter && (dynamic_cast<swig::SwigPyIterator_T<std::vector< std::complex< double > >::iterator > *>(iter) != 0));
+      if (_v) {
+        {
+          int res = SWIG_AsVal_size_t(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          {
+            int res = SWIG_AsVal_std_complex_Sl_double_Sg_(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            return _wrap_vectorc_insert__SWIG_1(self, args);
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'vectorc_insert'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< Seiscomp::Math::Complex >::insert(std::vector< std::complex< double > >::iterator,std::vector< std::complex< double > >::value_type const &)\n"
+    "    std::vector< Seiscomp::Math::Complex >::insert(std::vector< std::complex< double > >::iterator,std::vector< std::complex< double > >::size_type,std::vector< std::complex< double > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_reserve(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  std::vector< std::complex< double > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:vectorc_reserve",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_reserve" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "vectorc_reserve" "', argument " "2"" of type '" "std::vector< std::complex< double > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::complex< double > >::size_type >(val2);
+  (arg1)->reserve(arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_vectorc_capacity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< std::complex< double > >::size_type result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:vectorc_capacity",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "vectorc_capacity" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  result = ((std::vector< Seiscomp::Math::Complex > const *)arg1)->capacity();
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_vectorc(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< Seiscomp::Math::Complex > *arg1 = (std::vector< Seiscomp::Math::Complex > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_vectorc",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_vectorc" "', argument " "1"" of type '" "std::vector< Seiscomp::Math::Complex > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< Seiscomp::Math::Complex > * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *vectorc_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_VARARGS, NULL},
@@ -31125,6 +35007,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"vectord_capacity", _wrap_vectord_capacity, METH_VARARGS, (char *)"vectord_capacity(vectord self) -> size_type"},
 	 { (char *)"delete_vectord", _wrap_delete_vectord, METH_VARARGS, (char *)"delete_vectord(vectord self)"},
 	 { (char *)"vectord_swigregister", vectord_swigregister, METH_VARARGS, NULL},
+	 { (char *)"round", _wrap_round, METH_VARARGS, (char *)"round(double val) -> double"},
 	 { (char *)"CoordF_serialize", _wrap_CoordF_serialize, METH_VARARGS, (char *)"CoordF_serialize(CoordF self, Archive ar)"},
 	 { (char *)"new_CoordF", _wrap_new_CoordF, METH_VARARGS, (char *)"\n"
 		"CoordF()\n"
@@ -31885,6 +35768,45 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ChainFilterD_setParameters", _wrap_ChainFilterD_setParameters, METH_VARARGS, (char *)"ChainFilterD_setParameters(ChainFilterD self, int n, double params) -> int"},
 	 { (char *)"ChainFilterD_clone", _wrap_ChainFilterD_clone, METH_VARARGS, (char *)"ChainFilterD_clone(ChainFilterD self) -> InPlaceFilterD"},
 	 { (char *)"ChainFilterD_swigregister", ChainFilterD_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_PolesAndZeros", _wrap_new_PolesAndZeros, METH_VARARGS, (char *)"\n"
+		"PolesAndZeros()\n"
+		"PolesAndZeros(Poles poles, Zeros zeros, double norm)\n"
+		"new_PolesAndZeros(PolesAndZeros other) -> PolesAndZeros\n"
+		""},
+	 { (char *)"PolesAndZeros_poles_set", _wrap_PolesAndZeros_poles_set, METH_VARARGS, (char *)"PolesAndZeros_poles_set(PolesAndZeros self, Poles poles)"},
+	 { (char *)"PolesAndZeros_poles_get", _wrap_PolesAndZeros_poles_get, METH_VARARGS, (char *)"PolesAndZeros_poles_get(PolesAndZeros self) -> Poles"},
+	 { (char *)"PolesAndZeros_zeros_set", _wrap_PolesAndZeros_zeros_set, METH_VARARGS, (char *)"PolesAndZeros_zeros_set(PolesAndZeros self, Zeros zeros)"},
+	 { (char *)"PolesAndZeros_zeros_get", _wrap_PolesAndZeros_zeros_get, METH_VARARGS, (char *)"PolesAndZeros_zeros_get(PolesAndZeros self) -> Zeros"},
+	 { (char *)"PolesAndZeros_norm_set", _wrap_PolesAndZeros_norm_set, METH_VARARGS, (char *)"PolesAndZeros_norm_set(PolesAndZeros self, double norm)"},
+	 { (char *)"PolesAndZeros_norm_get", _wrap_PolesAndZeros_norm_get, METH_VARARGS, (char *)"PolesAndZeros_norm_get(PolesAndZeros self) -> double"},
+	 { (char *)"delete_PolesAndZeros", _wrap_delete_PolesAndZeros, METH_VARARGS, (char *)"delete_PolesAndZeros(PolesAndZeros self)"},
+	 { (char *)"PolesAndZeros_swigregister", PolesAndZeros_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_WoodAnderson", _wrap_new_WoodAnderson, METH_VARARGS, (char *)"new_WoodAnderson(GroundMotion input) -> WoodAnderson"},
+	 { (char *)"delete_WoodAnderson", _wrap_delete_WoodAnderson, METH_VARARGS, (char *)"delete_WoodAnderson(WoodAnderson self)"},
+	 { (char *)"WoodAnderson_swigregister", WoodAnderson_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_Seismometer5sec", _wrap_new_Seismometer5sec, METH_VARARGS, (char *)"new_Seismometer5sec(GroundMotion input) -> Seismometer5sec"},
+	 { (char *)"delete_Seismometer5sec", _wrap_delete_Seismometer5sec, METH_VARARGS, (char *)"delete_Seismometer5sec(Seismometer5sec self)"},
+	 { (char *)"Seismometer5sec_swigregister", Seismometer5sec_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_WWSSN_SPF", _wrap_new_WWSSN_SPF, METH_VARARGS, (char *)"\n"
+		"WWSSN_SPF(GroundMotion input = Velocity)\n"
+		"WWSSN_SPF()\n"
+		"new_WWSSN_SPF(WWSSN_SPF other) -> WWSSN_SPF\n"
+		""},
+	 { (char *)"WWSSN_SPF_setParameters", _wrap_WWSSN_SPF_setParameters, METH_VARARGS, (char *)"WWSSN_SPF_setParameters(WWSSN_SPF self, int n, double params) -> int"},
+	 { (char *)"WWSSN_SPF_clone", _wrap_WWSSN_SPF_clone, METH_VARARGS, (char *)"WWSSN_SPF_clone(WWSSN_SPF self) -> InPlaceFilterF"},
+	 { (char *)"WWSSN_SPF_setInput", _wrap_WWSSN_SPF_setInput, METH_VARARGS, (char *)"WWSSN_SPF_setInput(WWSSN_SPF self, GroundMotion input)"},
+	 { (char *)"delete_WWSSN_SPF", _wrap_delete_WWSSN_SPF, METH_VARARGS, (char *)"delete_WWSSN_SPF(WWSSN_SPF self)"},
+	 { (char *)"WWSSN_SPF_swigregister", WWSSN_SPF_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_WWSSN_SPD", _wrap_new_WWSSN_SPD, METH_VARARGS, (char *)"\n"
+		"WWSSN_SPD(GroundMotion input = Velocity)\n"
+		"WWSSN_SPD()\n"
+		"new_WWSSN_SPD(WWSSN_SPD other) -> WWSSN_SPD\n"
+		""},
+	 { (char *)"WWSSN_SPD_setParameters", _wrap_WWSSN_SPD_setParameters, METH_VARARGS, (char *)"WWSSN_SPD_setParameters(WWSSN_SPD self, int n, double params) -> int"},
+	 { (char *)"WWSSN_SPD_clone", _wrap_WWSSN_SPD_clone, METH_VARARGS, (char *)"WWSSN_SPD_clone(WWSSN_SPD self) -> InPlaceFilterD"},
+	 { (char *)"WWSSN_SPD_setInput", _wrap_WWSSN_SPD_setInput, METH_VARARGS, (char *)"WWSSN_SPD_setInput(WWSSN_SPD self, GroundMotion input)"},
+	 { (char *)"delete_WWSSN_SPD", _wrap_delete_WWSSN_SPD, METH_VARARGS, (char *)"delete_WWSSN_SPD(WWSSN_SPD self)"},
+	 { (char *)"WWSSN_SPD_swigregister", WWSSN_SPD_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delazi", _wrap_delazi, METH_VARARGS, (char *)"delazi(double lat1, double lon1, double lat2, double lon2)"},
 	 { (char *)"delandaz2coord", _wrap_delandaz2coord, METH_VARARGS, (char *)"delandaz2coord(double dist, double azi, double lat0, double lon0)"},
 	 { (char *)"scxsc", _wrap_scxsc, METH_VARARGS, (char *)"\n"
@@ -31930,6 +35852,114 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_PositionInterpolator", _wrap_delete_PositionInterpolator, METH_VARARGS, (char *)"delete_PositionInterpolator(PositionInterpolator self)"},
 	 { (char *)"PositionInterpolator_swigregister", PositionInterpolator_swigregister, METH_VARARGS, NULL},
 	 { (char *)"deg2km", _wrap_deg2km, METH_VARARGS, (char *)"deg2km(double deg) -> double"},
+	 { (char *)"TransferFunction___mul__", _wrap_TransferFunction___mul__, METH_VARARGS, (char *)"TransferFunction___mul__(TransferFunction self, TransferFunction a) -> TransferFunction"},
+	 { (char *)"TransferFunction___div__", _wrap_TransferFunction___div__, METH_VARARGS, (char *)"TransferFunction___div__(TransferFunction self, TransferFunction a) -> TransferFunction"},
+	 { (char *)"TransferFunction_evaluate", _wrap_TransferFunction_evaluate, METH_VARARGS, (char *)"\n"
+		"evaluate(Complex out, int n, double x)\n"
+		"TransferFunction_evaluate(TransferFunction self, vectorc out, vectord x)\n"
+		""},
+	 { (char *)"TransferFunction_deconvolve", _wrap_TransferFunction_deconvolve, METH_VARARGS, (char *)"\n"
+		"deconvolve(int n, Complex spec, double startFreq, double df)\n"
+		"TransferFunction_deconvolve(TransferFunction self, vectorc spec, double startFreq, \n"
+		"    double df)\n"
+		""},
+	 { (char *)"TransferFunction_convolve", _wrap_TransferFunction_convolve, METH_VARARGS, (char *)"\n"
+		"convolve(int n, Complex spec, double startFreq, double df)\n"
+		"TransferFunction_convolve(TransferFunction self, vectorc spec, double startFreq, \n"
+		"    double df)\n"
+		""},
+	 { (char *)"delete_TransferFunction", _wrap_delete_TransferFunction, METH_VARARGS, (char *)"delete_TransferFunction(TransferFunction self)"},
+	 { (char *)"TransferFunction_swigregister", TransferFunction_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_TransferFunctionPAZ", _wrap_new_TransferFunctionPAZ, METH_VARARGS, (char *)"\n"
+		"PolesAndZeros(PolesAndZeros polesAndZeros)\n"
+		"PolesAndZeros(int n_poles, Pole poles, int n_zeros, Zero zeros, double k, \n"
+		"    int addZeros = 0)\n"
+		"new_TransferFunctionPAZ(int n_poles, Pole poles, int n_zeros, Zero zeros, double k) -> TransferFunctionPAZ\n"
+		""},
+	 { (char *)"TransferFunctionPAZ_paz_set", _wrap_TransferFunctionPAZ_paz_set, METH_VARARGS, (char *)"TransferFunctionPAZ_paz_set(TransferFunctionPAZ self, PolesAndZeros paz)"},
+	 { (char *)"TransferFunctionPAZ_paz_get", _wrap_TransferFunctionPAZ_paz_get, METH_VARARGS, (char *)"TransferFunctionPAZ_paz_get(TransferFunctionPAZ self) -> PolesAndZeros"},
+	 { (char *)"delete_TransferFunctionPAZ", _wrap_delete_TransferFunctionPAZ, METH_VARARGS, (char *)"delete_TransferFunctionPAZ(TransferFunctionPAZ self)"},
+	 { (char *)"TransferFunctionPAZ_swigregister", TransferFunctionPAZ_swigregister, METH_VARARGS, NULL},
+	 { (char *)"vectorc_iterator", _wrap_vectorc_iterator, METH_VARARGS, (char *)"vectorc_iterator(vectorc self) -> SwigPyIterator"},
+	 { (char *)"vectorc___nonzero__", _wrap_vectorc___nonzero__, METH_VARARGS, (char *)"vectorc___nonzero__(vectorc self) -> bool"},
+	 { (char *)"vectorc___bool__", _wrap_vectorc___bool__, METH_VARARGS, (char *)"vectorc___bool__(vectorc self) -> bool"},
+	 { (char *)"vectorc___len__", _wrap_vectorc___len__, METH_VARARGS, (char *)"vectorc___len__(vectorc self) -> std::vector<(std::complex<(double)>)>::size_type"},
+	 { (char *)"vectorc_pop", _wrap_vectorc_pop, METH_VARARGS, (char *)"vectorc_pop(vectorc self) -> std::vector<(std::complex<(double)>)>::value_type"},
+	 { (char *)"vectorc___getslice__", _wrap_vectorc___getslice__, METH_VARARGS, (char *)"\n"
+		"vectorc___getslice__(vectorc self, std::vector<(std::complex<(double)>)>::difference_type i, \n"
+		"    std::vector<(std::complex<(double)>)>::difference_type j) -> vectorc\n"
+		""},
+	 { (char *)"vectorc___setslice__", _wrap_vectorc___setslice__, METH_VARARGS, (char *)"\n"
+		"__setslice__(std::vector<(std::complex<(double)>)>::difference_type i, \n"
+		"    std::vector<(std::complex<(double)>)>::difference_type j, \n"
+		"    vectorc v = std::vector< std::complex< double >,std::allocator< std::complex< double > > >())\n"
+		"vectorc___setslice__(vectorc self, std::vector<(std::complex<(double)>)>::difference_type i, \n"
+		"    std::vector<(std::complex<(double)>)>::difference_type j)\n"
+		""},
+	 { (char *)"vectorc___delslice__", _wrap_vectorc___delslice__, METH_VARARGS, (char *)"\n"
+		"vectorc___delslice__(vectorc self, std::vector<(std::complex<(double)>)>::difference_type i, \n"
+		"    std::vector<(std::complex<(double)>)>::difference_type j)\n"
+		""},
+	 { (char *)"vectorc___delitem__", _wrap_vectorc___delitem__, METH_VARARGS, (char *)"\n"
+		"__delitem__(std::vector<(std::complex<(double)>)>::difference_type i)\n"
+		"vectorc___delitem__(vectorc self, PySliceObject slice)\n"
+		""},
+	 { (char *)"vectorc___getitem__", _wrap_vectorc___getitem__, METH_VARARGS, (char *)"\n"
+		"__getitem__(PySliceObject slice) -> vectorc\n"
+		"vectorc___getitem__(vectorc self, std::vector<(std::complex<(double)>)>::difference_type i) -> std::vector<(std::complex<(double)>)>::value_type\n"
+		""},
+	 { (char *)"vectorc___setitem__", _wrap_vectorc___setitem__, METH_VARARGS, (char *)"\n"
+		"__setitem__(PySliceObject slice, vectorc v)\n"
+		"__setitem__(PySliceObject slice)\n"
+		"vectorc___setitem__(vectorc self, std::vector<(std::complex<(double)>)>::difference_type i, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type x)\n"
+		""},
+	 { (char *)"vectorc_append", _wrap_vectorc_append, METH_VARARGS, (char *)"vectorc_append(vectorc self, std::vector<(std::complex<(double)>)>::value_type x)"},
+	 { (char *)"vectorc_empty", _wrap_vectorc_empty, METH_VARARGS, (char *)"vectorc_empty(vectorc self) -> bool"},
+	 { (char *)"vectorc_size", _wrap_vectorc_size, METH_VARARGS, (char *)"vectorc_size(vectorc self) -> std::vector<(std::complex<(double)>)>::size_type"},
+	 { (char *)"vectorc_clear", _wrap_vectorc_clear, METH_VARARGS, (char *)"vectorc_clear(vectorc self)"},
+	 { (char *)"vectorc_swap", _wrap_vectorc_swap, METH_VARARGS, (char *)"vectorc_swap(vectorc self, vectorc v)"},
+	 { (char *)"vectorc_get_allocator", _wrap_vectorc_get_allocator, METH_VARARGS, (char *)"vectorc_get_allocator(vectorc self) -> std::vector<(std::complex<(double)>)>::allocator_type"},
+	 { (char *)"vectorc_begin", _wrap_vectorc_begin, METH_VARARGS, (char *)"vectorc_begin(vectorc self) -> std::vector<(std::complex<(double)>)>::iterator"},
+	 { (char *)"vectorc_end", _wrap_vectorc_end, METH_VARARGS, (char *)"vectorc_end(vectorc self) -> std::vector<(std::complex<(double)>)>::iterator"},
+	 { (char *)"vectorc_rbegin", _wrap_vectorc_rbegin, METH_VARARGS, (char *)"vectorc_rbegin(vectorc self) -> std::vector<(std::complex<(double)>)>::reverse_iterator"},
+	 { (char *)"vectorc_rend", _wrap_vectorc_rend, METH_VARARGS, (char *)"vectorc_rend(vectorc self) -> std::vector<(std::complex<(double)>)>::reverse_iterator"},
+	 { (char *)"vectorc_pop_back", _wrap_vectorc_pop_back, METH_VARARGS, (char *)"vectorc_pop_back(vectorc self)"},
+	 { (char *)"vectorc_erase", _wrap_vectorc_erase, METH_VARARGS, (char *)"\n"
+		"erase(std::vector<(std::complex<(double)>)>::iterator pos) -> std::vector<(std::complex<(double)>)>::iterator\n"
+		"vectorc_erase(vectorc self, std::vector<(std::complex<(double)>)>::iterator first, \n"
+		"    std::vector<(std::complex<(double)>)>::iterator last) -> std::vector<(std::complex<(double)>)>::iterator\n"
+		""},
+	 { (char *)"new_vectorc", _wrap_new_vectorc, METH_VARARGS, (char *)"\n"
+		"vectorc()\n"
+		"vectorc(vectorc arg0)\n"
+		"vectorc(std::vector<(std::complex<(double)>)>::size_type size)\n"
+		"new_vectorc(std::vector<(std::complex<(double)>)>::size_type size, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type value) -> vectorc\n"
+		""},
+	 { (char *)"vectorc_push_back", _wrap_vectorc_push_back, METH_VARARGS, (char *)"vectorc_push_back(vectorc self, std::vector<(std::complex<(double)>)>::value_type x)"},
+	 { (char *)"vectorc_front", _wrap_vectorc_front, METH_VARARGS, (char *)"vectorc_front(vectorc self) -> std::vector<(std::complex<(double)>)>::value_type"},
+	 { (char *)"vectorc_back", _wrap_vectorc_back, METH_VARARGS, (char *)"vectorc_back(vectorc self) -> std::vector<(std::complex<(double)>)>::value_type"},
+	 { (char *)"vectorc_assign", _wrap_vectorc_assign, METH_VARARGS, (char *)"\n"
+		"vectorc_assign(vectorc self, std::vector<(std::complex<(double)>)>::size_type n, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type x)\n"
+		""},
+	 { (char *)"vectorc_resize", _wrap_vectorc_resize, METH_VARARGS, (char *)"\n"
+		"resize(std::vector<(std::complex<(double)>)>::size_type new_size)\n"
+		"vectorc_resize(vectorc self, std::vector<(std::complex<(double)>)>::size_type new_size, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type x)\n"
+		""},
+	 { (char *)"vectorc_insert", _wrap_vectorc_insert, METH_VARARGS, (char *)"\n"
+		"insert(std::vector<(std::complex<(double)>)>::iterator pos, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type x) -> std::vector<(std::complex<(double)>)>::iterator\n"
+		"vectorc_insert(vectorc self, std::vector<(std::complex<(double)>)>::iterator pos, \n"
+		"    std::vector<(std::complex<(double)>)>::size_type n, \n"
+		"    std::vector<(std::complex<(double)>)>::value_type x)\n"
+		""},
+	 { (char *)"vectorc_reserve", _wrap_vectorc_reserve, METH_VARARGS, (char *)"vectorc_reserve(vectorc self, std::vector<(std::complex<(double)>)>::size_type n)"},
+	 { (char *)"vectorc_capacity", _wrap_vectorc_capacity, METH_VARARGS, (char *)"vectorc_capacity(vectorc self) -> std::vector<(std::complex<(double)>)>::size_type"},
+	 { (char *)"delete_vectorc", _wrap_delete_vectorc, METH_VARARGS, (char *)"delete_vectorc(vectorc self)"},
+	 { (char *)"vectorc_swigregister", vectorc_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -31975,6 +36005,9 @@ static void *_p_Seiscomp__Math__Geo__CityT_double_tTo_p_Seiscomp__Math__Geo__Coo
 static void *_p_Seiscomp__NumericArrayT_double_tTo_p_Seiscomp__TypedArrayT_double_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::TypedArray< double > *)  ((Seiscomp::NumericArray< double > *) x));
 }
+static void *_p_Seiscomp__Math__Restitution__FFT__PolesAndZerosTo_p_Seiscomp__Math__Restitution__FFT__TransferFunction(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Math::Restitution::FFT::TransferFunction *)  ((Seiscomp::Math::Restitution::FFT::PolesAndZeros *) x));
+}
 static void *_p_Seiscomp__Math__Geo__CityT_float_tTo_p_Seiscomp__Math__Geo__NamedCoordT_float_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Math::Geo::NamedCoord< float > *)  ((Seiscomp::Math::Geo::City< float > *) x));
 }
@@ -31986,6 +36019,12 @@ static void *_p_Seiscomp__Math__Geo__CityT_float_tTo_p_Seiscomp__Math__Geo__Coor
 }
 static void *_p_Seiscomp__NumericArrayT_float_tTo_p_Seiscomp__TypedArrayT_float_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::TypedArray< float > *)  ((Seiscomp::NumericArray< float > *) x));
+}
+static void *_p_Seiscomp__Math__SeismometerResponse__WoodAndersonTo_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Math::SeismometerResponse::PolesAndZeros *)  ((Seiscomp::Math::SeismometerResponse::WoodAnderson *) x));
+}
+static void *_p_Seiscomp__Math__SeismometerResponse__Seismometer5secTo_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Math::SeismometerResponse::PolesAndZeros *)  ((Seiscomp::Math::SeismometerResponse::Seismometer5sec *) x));
 }
 static void *_p_Seiscomp__Core__ValueErrorTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::exception *)  ((Seiscomp::Core::ValueError *) x));
@@ -32137,6 +36176,9 @@ static void *_p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_tTo_p_Sei
 static void *_p_Seiscomp__RecordTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::BaseObject *)  ((Seiscomp::Record *) x));
 }
+static void *_p_Seiscomp__Math__Restitution__FFT__PolesAndZerosTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Core::BaseObject *) (Seiscomp::Math::Restitution::FFT::TransferFunction *) ((Seiscomp::Math::Restitution::FFT::PolesAndZeros *) x));
+}
 static void *_p_Seiscomp__Core___private__InterruptibleObjectTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::BaseObject *)  ((Seiscomp::Core::_private::InterruptibleObject *) x));
 }
@@ -32157,6 +36199,9 @@ static void *_p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_tTo_
 }
 static void *_p_Seiscomp__Core__GreensFunctionTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::BaseObject *)  ((Seiscomp::Core::GreensFunction *) x));
+}
+static void *_p_Seiscomp__Math__Restitution__FFT__TransferFunctionTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Core::BaseObject *)  ((Seiscomp::Math::Restitution::FFT::TransferFunction *) x));
 }
 static void *_p_Seiscomp__GenericRecordTo_p_Seiscomp__Core__BaseObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::BaseObject *) (Seiscomp::Record *) ((Seiscomp::GenericRecord *) x));
@@ -32248,6 +36293,8 @@ static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericR
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl", "Seiscomp::GenericRecordPtr *|Seiscomp::Core::SmartPointer< Seiscomp::GenericRecord >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::IntArray const >::Impl *|Seiscomp::IntArrayCPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl", "Seiscomp::IntArrayPtr *|Seiscomp::Core::SmartPointer< Seiscomp::IntArray >::Impl *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl", "Seiscomp::Math::Restitution::FFT::TransferFunctionCPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Math::Restitution::FFT::TransferFunction const >::Impl *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl", "Seiscomp::Math::Restitution::FFT::TransferFunctionPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Math::Restitution::FFT::TransferFunction >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl", "Seiscomp::RecordCPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Record const >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::Record >::Impl *|Seiscomp::RecordPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl", "Seiscomp::StringArrayCPtr *|Seiscomp::Core::SmartPointer< Seiscomp::StringArray const >::Impl *", 0, 0, (void*)0, 0};
@@ -32268,6 +36315,8 @@ static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighp
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t = {"_p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t", "Seiscomp::Math::Filtering::IIR::ButterworthHighpass< float > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t = {"_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t", "Seiscomp::Math::Filtering::IIR::ButterworthLowpass< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t = {"_p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t", "Seiscomp::Math::Filtering::IIR::ButterworthLowpass< float > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t = {"_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t", "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< double > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t = {"_p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t", "Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter< float > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__IIR___Biquad = {"_p_Seiscomp__Math__Filtering__IIR___Biquad", "Seiscomp::Math::Filtering::IIR::_Biquad *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t = {"_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t", "Seiscomp::Math::Filtering::InPlaceFilter< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t = {"_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t", "Seiscomp::Math::Filtering::InPlaceFilter< float > *", 0, 0, (void*)0, 0};
@@ -32284,6 +36333,11 @@ static swig_type_info _swigt__p_Seiscomp__Math__Geo__CoordT_float_t = {"_p_Seisc
 static swig_type_info _swigt__p_Seiscomp__Math__Geo__NamedCoordT_double_t = {"_p_Seiscomp__Math__Geo__NamedCoordT_double_t", "std::vector< Seiscomp::Math::Geo::NamedCoord< double > >::value_type *|Seiscomp::Math::Geo::NamedCoordD *|Seiscomp::Math::Geo::NamedCoord< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Geo__NamedCoordT_float_t = {"_p_Seiscomp__Math__Geo__NamedCoordT_float_t", "Seiscomp::Math::Geo::NamedCoordF *|Seiscomp::Math::Geo::NamedCoord< float > *|std::vector< Seiscomp::Math::Geo::NamedCoord< float > >::value_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Math__Geo__PositionInterpolator = {"_p_Seiscomp__Math__Geo__PositionInterpolator", "Seiscomp::Math::Geo::PositionInterpolator *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros = {"_p_Seiscomp__Math__Restitution__FFT__PolesAndZeros", "Seiscomp::Math::Restitution::FFT::PolesAndZeros *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__Restitution__FFT__TransferFunction = {"_p_Seiscomp__Math__Restitution__FFT__TransferFunction", "Seiscomp::Math::Restitution::FFT::TransferFunction *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__SeismometerResponse__PolesAndZeros = {"_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros", "Seiscomp::Math::SeismometerResponse::PolesAndZeros *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec = {"_p_Seiscomp__Math__SeismometerResponse__Seismometer5sec", "Seiscomp::Math::SeismometerResponse::Seismometer5sec *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Math__SeismometerResponse__WoodAnderson = {"_p_Seiscomp__Math__SeismometerResponse__WoodAnderson", "Seiscomp::Math::SeismometerResponse::WoodAnderson *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__NumericArrayT_char_t = {"_p_Seiscomp__NumericArrayT_char_t", "Seiscomp::CharArray *|Seiscomp::NumericArray< char > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__NumericArrayT_double_t = {"_p_Seiscomp__NumericArrayT_double_t", "Seiscomp::DoubleArray *|Seiscomp::NumericArray< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__NumericArrayT_float_t = {"_p_Seiscomp__NumericArrayT_float_t", "Seiscomp::FloatArray *|Seiscomp::NumericArray< float > *", 0, 0, (void*)0, 0};
@@ -32311,6 +36365,8 @@ static swig_type_info _swigt__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT
 static swig_type_info _swigt__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t = {"_p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t", "std::vector< Seiscomp::Math::Geo::NamedCoord< float > >::allocator_type *|std::allocator< Seiscomp::Math::Geo::NamedCoord< float > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__allocatorT_double_t = {"_p_std__allocatorT_double_t", "std::vector< double >::allocator_type *|std::allocator< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__allocatorT_float_t = {"_p_std__allocatorT_float_t", "std::vector< float >::allocator_type *|std::allocator< float > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__allocatorT_std__complexT_double_t_t = {"_p_std__allocatorT_std__complexT_double_t_t", "std::allocator< std::complex< double > > *|std::vector< std::complex< double > >::allocator_type *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__complexT_double_t = {"_p_std__complexT_double_t", "Seiscomp::Math::Complex *|Seiscomp::Math::SeismometerResponse::Zero *|Seiscomp::Math::Restitution::Zero *|Seiscomp::Math::Restitution::Pole *|Seiscomp::Math::SeismometerResponse::Pole *|std::complex< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__exception = {"_p_std__exception", "std::exception *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__ValueError = {"_p_Seiscomp__Core__ValueError", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__ClassNotFound = {"_p_Seiscomp__Core__ClassNotFound", 0, 0, 0, 0, 0};
@@ -32334,6 +36390,7 @@ static swig_type_info _swigt__p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_fl
 static swig_type_info _swigt__p_std__vectorT__Tp__Alloc_t = {"_p_std__vectorT__Tp__Alloc_t", "std::vector< _Tp,_Alloc > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_double_std__allocatorT_double_t_t = {"_p_std__vectorT_double_std__allocatorT_double_t_t", "std::vector< double,std::allocator< double > > *|std::vector< double > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_float_std__allocatorT_float_t_t = {"_p_std__vectorT_float_std__allocatorT_float_t_t", "std::vector< float > *|std::vector< float,std::allocator< float > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t = {"_p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t", "std::vector< std::complex< double > > *|std::vector< Seiscomp::Math::Complex,std::allocator< Seiscomp::Math::Complex > > *|std::vector< Seiscomp::Math::Complex > *|std::vector< std::complex< double >,std::allocator< std::complex< double > > > *|Seiscomp::Math::Restitution::Poles *|Seiscomp::Math::SeismometerResponse::Poles *|Seiscomp::Math::Restitution::Zeros *|Seiscomp::Math::SeismometerResponse::Zeros *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_swig__SwigPyIterator = {"_p_swig__SwigPyIterator", "swig::SwigPyIterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0, 0, (void*)0, 0};
 
@@ -32381,6 +36438,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl,
@@ -32410,6 +36469,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t,
   &_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t,
   &_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t,
+  &_swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t,
+  &_swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t,
   &_swigt__p_Seiscomp__Math__Filtering__IIR___Biquad,
   &_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t,
   &_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t,
@@ -32426,6 +36487,11 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__Math__Geo__NamedCoordT_double_t,
   &_swigt__p_Seiscomp__Math__Geo__NamedCoordT_float_t,
   &_swigt__p_Seiscomp__Math__Geo__PositionInterpolator,
+  &_swigt__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros,
+  &_swigt__p_Seiscomp__Math__Restitution__FFT__TransferFunction,
+  &_swigt__p_Seiscomp__Math__SeismometerResponse__PolesAndZeros,
+  &_swigt__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec,
+  &_swigt__p_Seiscomp__Math__SeismometerResponse__WoodAnderson,
   &_swigt__p_Seiscomp__NumericArrayT_char_t,
   &_swigt__p_Seiscomp__NumericArrayT_double_t,
   &_swigt__p_Seiscomp__NumericArrayT_float_t,
@@ -32456,6 +36522,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t,
   &_swigt__p_std__allocatorT_double_t,
   &_swigt__p_std__allocatorT_float_t,
+  &_swigt__p_std__allocatorT_std__complexT_double_t_t,
+  &_swigt__p_std__complexT_double_t,
   &_swigt__p_std__exception,
   &_swigt__p_std__invalid_argument,
   &_swigt__p_std__string,
@@ -32466,6 +36534,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__vectorT__Tp__Alloc_t,
   &_swigt__p_std__vectorT_double_std__allocatorT_double_t_t,
   &_swigt__p_std__vectorT_float_std__allocatorT_float_t_t,
+  &_swigt__p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,
   &_swigt__p_swig__SwigPyIterator,
   &_swigt__p_value_type,
 };
@@ -32486,7 +36555,7 @@ static swig_cast_info _swigc__p_Seiscomp__Core___private__InterruptibleObject[] 
 static swig_cast_info _swigc__p_Seiscomp__Core__GreensFunction[] = {{&_swigt__p_Seiscomp__Core__GreensFunction, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Record[] = {{&_swigt__p_Seiscomp__Record, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__GenericRecord[] = {{&_swigt__p_Seiscomp__GenericRecord, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Seiscomp__Core__BaseObject[] = {  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_float_t, _p_Seiscomp__Math__Filtering__InitialTaperT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_char_t, _p_Seiscomp__NumericArrayT_char_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_char_t, _p_Seiscomp__TypedArrayT_char_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, _p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__Message, _p_Seiscomp__Core__MessageTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__DataMessage, _p_Seiscomp__Core__DataMessageTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_t, _p_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_double_t, _p_Seiscomp__Math__Filtering__InitialTaperT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_double_t, _p_Seiscomp__Math__Filtering__AverageT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_double_t, _p_Seiscomp__Math__Filtering__STALTAT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_double_t, _p_Seiscomp__Math__Geo__CityT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_double_t, _p_Seiscomp__Math__Geo__NamedCoordT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CoordT_double_t, _p_Seiscomp__Math__Geo__CoordT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_double_t, _p_Seiscomp__NumericArrayT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_double_t, _p_Seiscomp__TypedArrayT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_int_t, _p_Seiscomp__TypedArrayT_int_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_int_t, _p_Seiscomp__NumericArrayT_int_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Array, _p_Seiscomp__ArrayTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_double_t, _p_Seiscomp__Math__Filtering__ChainFilterT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, _p_Seiscomp__Math__Filtering__InPlaceFilterT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core___private__InterruptibleObject, _p_Seiscomp__Core___private__InterruptibleObjectTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__BaseObject, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CoordT_float_t, _p_Seiscomp__Math__Geo__CoordT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_float_t, _p_Seiscomp__NumericArrayT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_float_t, _p_Seiscomp__TypedArrayT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_float_t, _p_Seiscomp__Math__Geo__NamedCoordT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_float_t, _p_Seiscomp__Math__Geo__CityT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_float_t, _p_Seiscomp__Math__Filtering__AverageT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_float_t, _p_Seiscomp__Math__Filtering__STALTAT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_float_t, _p_Seiscomp__Math__Filtering__ChainFilterT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, _p_Seiscomp__Math__Filtering__InPlaceFilterT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__GreensFunction, _p_Seiscomp__Core__GreensFunctionTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Record, _p_Seiscomp__RecordTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_std__string_t, _p_Seiscomp__TypedArrayT_std__string_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__GenericRecord, _p_Seiscomp__GenericRecordTo_p_Seiscomp__Core__BaseObject, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__BaseObject[] = {  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_float_t, _p_Seiscomp__Math__Filtering__InitialTaperT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_char_t, _p_Seiscomp__NumericArrayT_char_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_char_t, _p_Seiscomp__TypedArrayT_char_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, _p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__Message, _p_Seiscomp__Core__MessageTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__DataMessage, _p_Seiscomp__Core__DataMessageTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_t, _p_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_double_t, _p_Seiscomp__Math__Filtering__InitialTaperT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_double_t, _p_Seiscomp__Math__Filtering__AverageT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_double_t, _p_Seiscomp__Math__Filtering__STALTAT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_double_t, _p_Seiscomp__Math__Geo__CityT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_double_t, _p_Seiscomp__Math__Geo__NamedCoordT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CoordT_double_t, _p_Seiscomp__Math__Geo__CoordT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_double_t, _p_Seiscomp__NumericArrayT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_double_t, _p_Seiscomp__TypedArrayT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_int_t, _p_Seiscomp__TypedArrayT_int_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_int_t, _p_Seiscomp__NumericArrayT_int_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Array, _p_Seiscomp__ArrayTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_double_t, _p_Seiscomp__Math__Filtering__ChainFilterT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, _p_Seiscomp__Math__Restitution__FFT__PolesAndZerosTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, _p_Seiscomp__Math__Filtering__InPlaceFilterT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core___private__InterruptibleObject, _p_Seiscomp__Core___private__InterruptibleObjectTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__BaseObject, 0, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_float_t, _p_Seiscomp__NumericArrayT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_float_t, _p_Seiscomp__TypedArrayT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CoordT_float_t, _p_Seiscomp__Math__Geo__CoordT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_float_t, _p_Seiscomp__Math__Geo__NamedCoordT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_float_t, _p_Seiscomp__Math__Geo__CityT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_float_t, _p_Seiscomp__Math__Filtering__AverageT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_float_t, _p_Seiscomp__Math__Filtering__STALTAT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_float_t, _p_Seiscomp__Math__Filtering__ChainFilterT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, _p_Seiscomp__Math__Filtering__InPlaceFilterT_float_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Core__GreensFunction, _p_Seiscomp__Core__GreensFunctionTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Record, _p_Seiscomp__RecordTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__TypedArrayT_std__string_t, _p_Seiscomp__TypedArrayT_std__string_tTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__GenericRecord, _p_Seiscomp__GenericRecordTo_p_Seiscomp__Core__BaseObject, 0, 0},  {&_swigt__p_Seiscomp__Math__Restitution__FFT__TransferFunction, _p_Seiscomp__Math__Restitution__FFT__TransferFunctionTo_p_Seiscomp__Core__BaseObject, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__Generic__ArchiveT_Seiscomp__Core__BaseObject_t[] = {  {&_swigt__p_Seiscomp__Core__Generic__ArchiveT_Seiscomp__Core__BaseObject_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__Generic__ClassFactoryInterfaceT_Seiscomp__Core__BaseObject_t[] = {  {&_swigt__p_Seiscomp__Core__Generic__ClassFactoryInterfaceT_Seiscomp__Core__BaseObject_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
@@ -32512,6 +36581,8 @@ static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericR
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
@@ -32532,6 +36603,8 @@ static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthHighp
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__IIR___Biquad[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR___Biquad, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_double_t, _p_Seiscomp__Math__Filtering__AverageT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_double_t, _p_Seiscomp__Math__Filtering__STALTAT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_double_t, _p_Seiscomp__Math__Filtering__InitialTaperT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_double_t, _p_Seiscomp__Math__Filtering__ChainFilterT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t[] = {  {&_swigt__p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_t, _p_Seiscomp__Math__Filtering__IIR__BiquadCascadeT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_t, _p_Seiscomp__Math__Filtering__RunningMeanHighPassT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthBandpassT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t, _p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__AverageT_float_t, _p_Seiscomp__Math__Filtering__AverageT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__STALTAT_float_t, _p_Seiscomp__Math__Filtering__STALTAT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__InitialTaperT_float_t, _p_Seiscomp__Math__Filtering__InitialTaperT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},  {&_swigt__p_Seiscomp__Math__Filtering__ChainFilterT_float_t, _p_Seiscomp__Math__Filtering__ChainFilterT_float_tTo_p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t, 0, 0},{0, 0, 0, 0}};
@@ -32548,6 +36621,11 @@ static swig_cast_info _swigc__p_Seiscomp__Math__Geo__CoordT_float_t[] = {  {&_sw
 static swig_cast_info _swigc__p_Seiscomp__Math__Geo__NamedCoordT_double_t[] = {  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_double_t, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_double_t, _p_Seiscomp__Math__Geo__CityT_double_tTo_p_Seiscomp__Math__Geo__NamedCoordT_double_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Geo__NamedCoordT_float_t[] = {  {&_swigt__p_Seiscomp__Math__Geo__NamedCoordT_float_t, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Geo__CityT_float_t, _p_Seiscomp__Math__Geo__CityT_float_tTo_p_Seiscomp__Math__Geo__NamedCoordT_float_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Math__Geo__PositionInterpolator[] = {  {&_swigt__p_Seiscomp__Math__Geo__PositionInterpolator, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros[] = {  {&_swigt__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__Restitution__FFT__TransferFunction[] = {  {&_swigt__p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros, _p_Seiscomp__Math__Restitution__FFT__PolesAndZerosTo_p_Seiscomp__Math__Restitution__FFT__TransferFunction, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__SeismometerResponse__PolesAndZeros[] = {  {&_swigt__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec, _p_Seiscomp__Math__SeismometerResponse__Seismometer5secTo_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0, 0},  {&_swigt__p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0, 0, 0},  {&_swigt__p_Seiscomp__Math__SeismometerResponse__WoodAnderson, _p_Seiscomp__Math__SeismometerResponse__WoodAndersonTo_p_Seiscomp__Math__SeismometerResponse__PolesAndZeros, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec[] = {  {&_swigt__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Math__SeismometerResponse__WoodAnderson[] = {  {&_swigt__p_Seiscomp__Math__SeismometerResponse__WoodAnderson, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__NumericArrayT_char_t[] = {  {&_swigt__p_Seiscomp__NumericArrayT_char_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__NumericArrayT_double_t[] = {  {&_swigt__p_Seiscomp__NumericArrayT_double_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__NumericArrayT_float_t[] = {  {&_swigt__p_Seiscomp__NumericArrayT_float_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -32575,6 +36653,8 @@ static swig_cast_info _swigc__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT
 static swig_cast_info _swigc__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t[] = {  {&_swigt__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__allocatorT_double_t[] = {  {&_swigt__p_std__allocatorT_double_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__allocatorT_float_t[] = {  {&_swigt__p_std__allocatorT_float_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__allocatorT_std__complexT_double_t_t[] = {  {&_swigt__p_std__allocatorT_std__complexT_double_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__complexT_double_t[] = {  {&_swigt__p_std__complexT_double_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__ValueError[] = {{&_swigt__p_Seiscomp__Core__ValueError, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__ClassNotFound[] = {{&_swigt__p_Seiscomp__Core__ClassNotFound, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__TypeException[] = {{&_swigt__p_Seiscomp__Core__TypeException, 0, 0, 0},{0, 0, 0, 0}};
@@ -32598,6 +36678,7 @@ static swig_cast_info _swigc__p_std__vectorT_Seiscomp__Math__Geo__NamedCoordT_fl
 static swig_cast_info _swigc__p_std__vectorT__Tp__Alloc_t[] = {  {&_swigt__p_std__vectorT__Tp__Alloc_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_double_std__allocatorT_double_t_t[] = {  {&_swigt__p_std__vectorT_double_std__allocatorT_double_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_float_std__allocatorT_float_t_t[] = {  {&_swigt__p_std__vectorT_float_std__allocatorT_float_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t[] = {  {&_swigt__p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_swig__SwigPyIterator[] = {  {&_swigt__p_swig__SwigPyIterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 0},{0, 0, 0, 0}};
 
@@ -32645,6 +36726,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_const_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Math__Restitution__FFT__TransferFunction_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl,
@@ -32674,6 +36757,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthHighpassT_float_t,
   _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_double_t,
   _swigc__p_Seiscomp__Math__Filtering__IIR__ButterworthLowpassT_float_t,
+  _swigc__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_double_t,
+  _swigc__p_Seiscomp__Math__Filtering__IIR__WWSSN_SP_FilterT_float_t,
   _swigc__p_Seiscomp__Math__Filtering__IIR___Biquad,
   _swigc__p_Seiscomp__Math__Filtering__InPlaceFilterT_double_t,
   _swigc__p_Seiscomp__Math__Filtering__InPlaceFilterT_float_t,
@@ -32690,6 +36775,11 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__Math__Geo__NamedCoordT_double_t,
   _swigc__p_Seiscomp__Math__Geo__NamedCoordT_float_t,
   _swigc__p_Seiscomp__Math__Geo__PositionInterpolator,
+  _swigc__p_Seiscomp__Math__Restitution__FFT__PolesAndZeros,
+  _swigc__p_Seiscomp__Math__Restitution__FFT__TransferFunction,
+  _swigc__p_Seiscomp__Math__SeismometerResponse__PolesAndZeros,
+  _swigc__p_Seiscomp__Math__SeismometerResponse__Seismometer5sec,
+  _swigc__p_Seiscomp__Math__SeismometerResponse__WoodAnderson,
   _swigc__p_Seiscomp__NumericArrayT_char_t,
   _swigc__p_Seiscomp__NumericArrayT_double_t,
   _swigc__p_Seiscomp__NumericArrayT_float_t,
@@ -32720,6 +36810,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__allocatorT_Seiscomp__Math__Geo__NamedCoordT_float_t_t,
   _swigc__p_std__allocatorT_double_t,
   _swigc__p_std__allocatorT_float_t,
+  _swigc__p_std__allocatorT_std__complexT_double_t_t,
+  _swigc__p_std__complexT_double_t,
   _swigc__p_std__exception,
   _swigc__p_std__invalid_argument,
   _swigc__p_std__string,
@@ -32730,6 +36822,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__vectorT__Tp__Alloc_t,
   _swigc__p_std__vectorT_double_std__allocatorT_double_t_t,
   _swigc__p_std__vectorT_float_std__allocatorT_float_t_t,
+  _swigc__p_std__vectorT_std__complexT_double_t_std__allocatorT_std__complexT_double_t_t_t,
   _swigc__p_swig__SwigPyIterator,
   _swigc__p_value_type,
 };
@@ -33417,6 +37510,9 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
+  SWIG_Python_SetConstant(d, "Displacement",SWIG_From_int(static_cast< int >(Seiscomp::Math::Displacement)));
+  SWIG_Python_SetConstant(d, "Velocity",SWIG_From_int(static_cast< int >(Seiscomp::Math::Velocity)));
+  SWIG_Python_SetConstant(d, "Acceleration",SWIG_From_int(static_cast< int >(Seiscomp::Math::Acceleration)));
   SWIG_Python_SetConstant(d, "KM_OF_DEGREE",SWIG_From_double(static_cast< double >(111.1329149013519096)));
 #if PY_VERSION_HEX >= 0x03000000
   return m;

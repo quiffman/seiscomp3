@@ -4,12 +4,13 @@ import os
 import sys
 import datetime, time
 from seiscomp3 import DataModel, IO, Client, Core, Logging
-from nettab.lineType import Nw, Sa, Na
+from nettab.lineType import Nw, Sa, Na, Ia
 from nettab.basesc3 import sc3
 
 class Rules(object):
     def __init__(self):
         self.attributes = {}
+        self.iattributes = []
         return
 
     @staticmethod
@@ -46,11 +47,21 @@ class Rules(object):
             raise Exception ("Nw %s/%s-%s not found in Ruleset" % key)
         items.append(na)
 
+    def Ia(self, ia):
+        self.iattributes.append(ia);
+
     def findKey(self, ncode, nstart, nend):
         for (code, start, end) in self.attributes:
             if code == ncode and self._overlaps(start, end, nstart, nend):
                 return (code, start, end)
         return None
+
+    def getInstrumentsAttributes(self, elementId, elementType):
+        att = {}
+        for item in self.iattributes:
+            if item.match(elementId, elementType):
+                att[item.Key] = item.Value
+        return att
 
     def getNetworkAttributes(self, key):
         att = {}
@@ -104,7 +115,8 @@ class InventoryModifier(Client.Application):
                 elif Type == "Sr":
                     raise Exception("Type not supported.")
                 elif Type == "Ia":
-                    raise Exception("Type not supported.")
+                    ia = Ia(Content)
+                    rules.Ia(ia)
                 elif Type == "Se":
                     raise Exception("Type not supported.")
                 elif Type == "Dl":
@@ -284,6 +296,14 @@ class InventoryModifier(Client.Application):
                         att = rules.getStationAttributes(key, ncode, scode, lcode, ccode, cstart, cend)
                         self._modifyInventory("channel", cha, att)
                         if att: Logging.info("   %s %s" % (ccode, att))
+
+        for sensor in self._loop(iv.sensor, iv.sensorCount()):
+            att = rules.getInstrumentsAttributes(sensor.name(), "Se")
+            self._modifyInventory("sensor", sensor, att)
+
+        for datalogger in self._loop(iv.datalogger, iv.dataloggerCount()):
+            att = rules.getInstrumentsAttributes(datalogger.name(), "Dl")
+            self._modifyInventory("datalogger", datalogger, att)
 
         return 0
 

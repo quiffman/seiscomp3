@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) by ETHZ/SED, GNS New Zealand, GeoScience Australia      *
+ *   Copyright (C) by GFZ Potsdam                                          *
  *                                                                         *
  *   You can redistribute and/or modify this program under the             *
  *   terms of the SeisComP Public License.                                 *
@@ -8,20 +8,21 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   SeisComP Public License for more details.                             *
- *                                                                         *
- *   Developed by gempa GmbH                                               *
  ***************************************************************************/
 
-#include <seiscomp3/core/plugin.h>
-#include <seiscomp3/datamodel/strongmotion/databasereader.h>
+// This file was created by a source code generator.
+// Do not modify the contents. Change the definition and run the generator
+// again!
 
 
-ADD_SC_PLUGIN("Data model extension for strong motion parameters",
-              "ETHZ/SED, gempa GmbH <jabe@gempa.de>", 1, 1, 0)
+#include <seiscomp3/datamodel/vs/types.h>
 
 
-// Dummy method to force linkage of libseiscomp3_datamodel_sm
-Seiscomp::DataModel::StrongMotion::StrongMotionReader *
-createReader() {
-	return new Seiscomp::DataModel::StrongMotion::StrongMotionReader(NULL);
+namespace Seiscomp {
+namespace DataModel {
+namespace VS {
+
+
+}
+}
 }

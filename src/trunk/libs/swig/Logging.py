@@ -236,6 +236,7 @@ class SyslogOutput(Output):
         except: self.this = this
     __swig_destroy__ = _Logging.delete_SyslogOutput
     __del__ = lambda self : None;
+    def facility(self): return _Logging.SyslogOutput_facility(self)
     def open(self, *args): return _Logging.SyslogOutput_open(self, *args)
     def isOpen(self): return _Logging.SyslogOutput_isOpen(self)
     def close(self): return _Logging.SyslogOutput_close(self)

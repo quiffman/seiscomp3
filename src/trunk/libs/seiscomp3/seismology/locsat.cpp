@@ -152,7 +152,7 @@ DataModel::Origin* LocSAT::locate(PickList& picks) throw(Core::GeneralException)
 
 
 DataModel::Origin* LocSAT::fromPicks(PickList& picks){
-	if ( _fixDepth ) {
+	if ( _usingFixedDepth ) {
 		_locator_params->fixing_depth = _fixedDepth;
 		_locator_params->fix_depth = 'y';
 	}
@@ -314,7 +314,7 @@ DataModel::Origin* LocSAT::relocate(const DataModel::Origin* origin, double time
 		return NULL;
 	}
 
-	if ( _fixDepth ) {
+	if ( _usingFixedDepth ) {
 		_locator_params->fixing_depth = _fixedDepth;
 		_locator_params->fix_depth = 'y';
 	}

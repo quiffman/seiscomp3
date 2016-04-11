@@ -24,18 +24,37 @@ def networkIter(inv, ro):
 	for i in xrange(inv.networkCount()):
 		net = inv.network(i)
 
-		if not ro.channel or ro.channel.matchNet(net.code()):
-			yield net
+		# network code
+		if ro.channel and not ro.channel.matchNet(net.code()):
+			continue
+
+		# start and end time
+		if ro.time:
+			try: end = net.end()
+			except: end = None
+			if not ro.time.match(net.start(), end):
+				continue
+
+		yield net
+
 
 #-------------------------------------------------------------------------------
 # Filtered station iterator which yields stations of a particular network
 # matching request options
-def stationIter(net, ro, matchChannel=True, matchGeo=True, matchTime=True):
+def stationIter(net, ro, matchGeo=False):
 	for i in xrange(net.stationCount()):
 		sta = net.station(i)
+
 		# station code
-		if matchChannel and ro.channel and not ro.channel.matchSta(sta.code()):
+		if ro.channel and not ro.channel.matchSta(sta.code()):
 			continue
+
+		# start and end time
+		if ro.time:
+			try: end = sta.end()
+			except: end = None
+			if not ro.time.match(sta.start(), end):
+				continue
 
 		# geographic location
 		if matchGeo and ro.geo:
@@ -44,13 +63,6 @@ def stationIter(net, ro, matchChannel=True, matchGeo=True, matchTime=True):
 				lon = sta.longitude()
 			except: continue
 			if not ro.geo.match(lat, lon):
-				continue
-
-		# start and end time
-		if matchTime and ro.time:
-			try: end = sta.end()
-			except: end = None
-			if not ro.time.match(sta.start(), end):
 				continue
 
 		yield sta
@@ -62,8 +74,19 @@ def stationIter(net, ro, matchChannel=True, matchGeo=True, matchTime=True):
 def locationIter(sta, ro):
 	for i in xrange(sta.sensorLocationCount()):
 		loc = sta.sensorLocation(i)
-		if not ro.channel or ro.channel.matchLoc(loc.code()):
-			yield loc
+
+		# location code
+		if ro.channel and not ro.channel.matchLoc(loc.code()):
+			continue
+
+		# start and end time
+		if ro.time:
+			try: end = loc.end()
+			except: end = None
+			if not ro.time.match(loc.start(), end):
+				continue
+
+		yield loc
 
 #-------------------------------------------------------------------------------
 # Filtered stream iterator which yields channels of a particular location
@@ -71,8 +94,19 @@ def locationIter(sta, ro):
 def streamIter(loc, ro):
 	for i in xrange(loc.streamCount()):
 		stream = loc.stream(i)
-		if not ro.channel or ro.channel.matchCha(stream.code()):
-			yield stream
+
+		# stream code
+		if ro.channel and not ro.channel.matchCha(stream.code()):
+			continue
+
+		# start and end time
+		if ro.time:
+			try: end = stream.end()
+			except: end = None
+			if not ro.time.match(stream.start(), end):
+				continue
+
+		yield stream
 
 
 #-------------------------------------------------------------------------------
@@ -85,13 +119,13 @@ def writeTS(req, data):
 # Finish served requests
 def onRequestServed(success, req):
 	if req._disconnected:
-		Logging.debug("Request aborted")
+		Logging.debug("request aborted")
 		return
 
 	if success:
-		Logging.debug("Request successfully served")
+		Logging.debug("request successfully served")
 	else:
-		Logging.debug("Request failed")
+		Logging.debug("request failed")
 	reactor.callFromThread(req.finish)
 
 

@@ -86,14 +86,13 @@ class _EventRequestOptions(RequestOptions):
 		self.output       = "qml"
 		self.comments     = True
 		self.formatted    = False
+		self.picks        = False
 
 
 	#---------------------------------------------------------------------------
 	def parse(self):
-		# time
+		self.parseNoData()
 		self.parseTime()
-
-		# geo filter (bounding box or bounding circle)
 		self.parseGeo()
 
 		# depth
@@ -103,7 +102,7 @@ class _EventRequestOptions(RequestOptions):
 		if "maxdepth" in self._args:
 			d.max = self.parseFloat("maxdepth")
 		if d.min is not None and d.max is not None and d.min > d.max:
-			raise ValueError, "mindepth exceeds maxdepth"
+			raise ValueError, "Mindepth exceeds maxdepth"
 		if d.min is not None or d.max:
 			self.depth = d
 
@@ -118,7 +117,7 @@ class _EventRequestOptions(RequestOptions):
 		elif "maxmagnitude" in self._args:
 			m.max = self.parseFloat("maxmagnitude")
 		if m.min is not None and m.max is not None and m.min > m.max:
-			raise ValueError, "minmagnitude exceeds maxmagnitude"
+			raise ValueError, "Minmagnitude exceeds maxmagnitude"
 		if "magtype" in self._args:
 			m.type = self._args["magtype"][0]
 		elif "magnitudetype" in self._args:
@@ -133,6 +132,8 @@ class _EventRequestOptions(RequestOptions):
 			self.allMags = self.parseBoolean("includeallmagnitudes")
 		if "includearrivals" in self._args:
 			self.arrivals = self.parseBoolean("includearrivals")
+		if "includepicks" in self._args:
+			self.picks = self.parseBoolean("includepicks")
 		if "includecomments" in self._args:
 			self.comments = self.parseBoolean("includecomments")
 
@@ -257,8 +258,10 @@ class FDSNEvent(resource.Resource):
 			return False
 
 		objCount = ep.eventCount()
-		Logging.debug("Events found: %i" % objCount)
+		Logging.debug("events found: %i" % objCount)
 		if not HTTP.checkObjects(req, objCount, maxObj): return False
+
+		pickIDs = set()
 
 		# add related information
 		for iEvent in xrange(ep.eventCount()):
@@ -323,7 +326,23 @@ class FDSNEvent(resource.Resource):
 				if ro.arrivals:
 					objCount += dbq.loadArrivals(o)
 
+					# collect pick IDs if requested
+					if ro.picks:
+						for iArrival in xrange(o.arrivalCount()):
+							pickIDs.add(o.arrival(iArrival).pickID())
+
 				if not HTTP.checkObjects(req, objCount, maxObj): return False
+
+		# picks
+		if pickIDs:
+			objCount += len(pickIDs)
+			if not HTTP.checkObjects(req, objCount, maxObj): return False
+			for pickID in pickIDs:
+				obj = dbq.getObject(DataModel.Pick.TypeInfo(), pickID)
+				pick = DataModel.Pick.Cast(obj)
+				if pick is not None:
+					ep.add(pick)
+
 
 		if ro.output == "csv":
 			req.setHeader("Content-Type", "text/plain")
@@ -352,6 +371,11 @@ class FDSNEvent(resource.Resource):
 		reqDist = ro.geo and ro.geo.bCircle
 		colPID = _T("publicID")
 		colTime = _T("time_value")
+		colMag = _T("magnitude_value")
+		if reqMag:
+			colOrderBy = "m.%s" % colMag
+		else:
+			colOrderBy = "o.%s" % colTime
 
 		bBox = None
 		if ro.geo:
@@ -362,7 +386,7 @@ class FDSNEvent(resource.Resource):
 				bBox = ro.geo.bCircle.calculateBBox()
 
 		# SELECT --------------------------------
-		q = "SELECT DISTINCT pe.%s, e.*" % colPID
+		q = "SELECT DISTINCT pe.%s, e.*, %s" % (colPID, colOrderBy)
 		if reqDist: # Great circle distance calculated by Haversine formula
 			c = ro.geo.bCircle
 			q += ", DEGREES(ACOS(" \
@@ -394,13 +418,15 @@ class FDSNEvent(resource.Resource):
 		if ro.time:
 			colTimeMS = _T("time_value_ms")
 			if ro.time.start is not None:
-				q += " AND o.%s >= '%s'" % (colTime, _time(ro.time.start))
+				t = _time(ro.time.start)
 				ms = ro.time.start.microseconds()
-				if ms > 0: q += " AND o.%s >= %i" % (colTimeMS, ms)
+				q += " AND (o.%s > '%s' OR (o.%s = '%s' AND o.%s >= %i)) " % (
+				     colTime, t, colTime, t, colTimeMS, ms)
 			if ro.time.end is not None:
-				q += " AND o.%s c= '%s'" % (colTime, _time(ro.time.end))
+				t = _time(ro.time.end)
 				ms = ro.time.end.microseconds()
-				if ms > 0: q += " AND o.%s <= %i" % (colTimeMS, ms)
+				q += " AND (o.%s < '%s' OR (o.%s = '%s' AND o.%s <= %i))" % (
+				     colTime, t, colTime, t, colTimeMS, ms)
 
 		# bounding box
 		if bBox:
@@ -428,24 +454,17 @@ class FDSNEvent(resource.Resource):
 
 		# updated after
 		if ro.updatedAfter:
-			timeStr = _time(ro.updatedAfter)
+			t = _time(ro.updatedAfter)
 			ms = ro.updatedAfter.microseconds()
-			colCTime = _T("creationinfo_creationtime")
-			colMTime = _T("creationinfo_modificationtime")
-			if ms > 0:
-				colCTimeMS = _T("creationinfo_creationtime_ms")
-				colMTimeMS = _T("creationinfo_modificationtime_ms")
-				tFilter = "(o.%s >= '%s' AND o.%s > %i)"
-			else:
-				tFilter = "o.%s > '%s'"
+			colCTime   = _T("creationinfo_creationtime")
+			colCTimeMS = _T("creationinfo_creationtime_ms")
+			colMTime   = _T("creationinfo_modificationtime")
+			colMTimeMS = _T("creationinfo_modificationtime_ms")
+			tFilter = "(o.%s > '%s' OR (o.%s = '%s' AND o.%s > %i))"
 
 			q += " AND ("
-			if ms > 0: q += tFilter % (colCTime, timeStr, colCTimeMS, ms)
-			else:      q += tFilter % (colCTime, timeStr)
-			q += " OR "
-			if ms > 0: q += tFilter % (colMTime, timeStr, colMTimeMS, ms)
-			else:      q += tFilter % (colMTime, timeStr)
-			q += ")"
+			q += tFilter % (colCTime, t, colCTime, t, colCTimeMS, ms) + " OR "
+			q += tFilter % (colMTime, t, colMTime, t, colMTimeMS, ms) + ")"
 
 		# magnitude information filter
 		if reqMag:
@@ -458,18 +477,13 @@ class FDSNEvent(resource.Resource):
 				# join magnitude table on preferred magnitude id of event
 				q += "pm.%s = e.%s" % (colPID, _T("preferredMagnitudeID"))
 
-			colMag = _T("magnitude_value")
 			if ro.mag and ro.mag.min is not None:
 				q += " AND m.%s >= %s" % (colMag, ro.mag.min)
 			if ro.mag and ro.mag.max is not None:
 				q += " AND m.%s <= %s" % (colMag, ro.mag.max)
 
 		# ORDER BY ------------------------------
-		q += " ORDER BY "
-		if not ro.orderBy or ro.orderBy.startswith("time"):
-			q += "o.%s" % colTime
-		else:
-			q += "m.%s" % colMag
+		q += " ORDER BY %s" % colOrderBy
 		if ro.orderBy and ro.orderBy.endswith("-asc"):
 			q += " ASC"
 		else:
@@ -500,7 +514,7 @@ class FDSNEvent(resource.Resource):
 			if ro.offset is not None:
 				q += " OFFSET %i" % ro.offset
 
-		Logging.debug("Event query: %s" % q)
+		Logging.debug("event query: %s" % q)
 
 		for e in dbq.getObjectIterator(q, DataModel.Event.TypeInfo()):
 			ep.add(DataModel.Event.Cast(e))

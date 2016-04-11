@@ -13,7 +13,7 @@
 			</group>
 			<group name="summaryMagnitude">
 				<description>The summary magnitude is building a weighted summary above all defined magnitude types. The single magnitude value is multiplied with the magnitude type specific weight. This is summed up for all magnitude types and the resulting sum is divided through the sum of all weights.</description>
-				<parameter name="enabled" type="bool" default="true">
+				<parameter name="enabled" type="boolean" default="true">
 					<description>Enables summary magnitude calculation.</description>
 				</parameter>
 				<parameter name="type" type="string" default="M">

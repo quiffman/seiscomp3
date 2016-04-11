@@ -119,6 +119,9 @@ class SC_SYSTEM_CORE_API Amplitude : public PublicObject {
 		void setSnr(const OPT(double)& snr);
 		double snr() const throw(Seiscomp::Core::ValueException);
 
+		void setUnit(const std::string& unit);
+		const std::string& unit() const;
+
 		void setPickID(const std::string& pickID);
 		const std::string& pickID() const;
 
@@ -216,6 +219,7 @@ class SC_SYSTEM_CORE_API Amplitude : public PublicObject {
 		OPT(TimeWindow) _timeWindow;
 		OPT(RealQuantity) _period;
 		OPT(double) _snr;
+		std::string _unit;
 		std::string _pickID;
 		OPT(WaveformStreamID) _waveformID;
 		std::string _filterID;

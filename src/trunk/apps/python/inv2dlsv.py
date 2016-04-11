@@ -19,6 +19,7 @@ from seiscomp.db.seiscomp3 import sc3wrap
 from seiscomp.db.seiscomp3.inventory import Inventory
 from seiscomp3 import DataModel, IO
 
+ORGANIZATION = "EIDA"
 
 def main():
     if len(sys.argv) < 1 or len(sys.argv) > 3:
@@ -53,7 +54,7 @@ def main():
     inv.load_stations("*", "*", "*", "*")
     inv.load_instruments()
 
-    vol = SEEDVolume(inv, "WebDC", "SeisComP SEED Volume", resp_dict=False)
+    vol = SEEDVolume(inv, ORGANIZATION, "", resp_dict=False)
 
     for net in sum([i.values() for i in inv.network.itervalues()], []):
         for sta in sum([i.values() for i in net.station.itervalues()], []):
@@ -63,7 +64,7 @@ def main():
                         vol.add_chan(net.code, sta.code, loc.code, strm.code, strm.start, strm.end)
 
                     except SEEDError, e:
-                        print "Error (%s,%s,%s,%s):" % (net.code, sta.code, loc.code, strm.code), str(e)
+                        print >> sys.stderr, "Error (%s,%s,%s,%s):" % (net.code, sta.code, loc.code, strm.code), str(e)
 
     if not out or out == "-":
         output = StringIO.StringIO()

@@ -61,6 +61,7 @@ void disp_usage(const char * progname, const char * options)
 void nll_puterr(const char *pm)
 {
 	fprintf(stderr, "%s: %s\n", prog_name, pm);
+        fflush(stderr);
 }
 
 
@@ -70,6 +71,7 @@ void nll_puterr(const char *pm)
 void nll_puterr2(const char *pmessage1, const char *pmessage2)
 {
 	fprintf(stderr, "%s: %s: %s\n", prog_name, pmessage1, pmessage2);
+        fflush(stderr);
 }
 
 

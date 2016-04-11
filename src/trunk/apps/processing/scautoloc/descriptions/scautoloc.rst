@@ -170,19 +170,25 @@ to 10°. By setting the 3rd column to 0, TE RGN is ignored by scautoloc.
 Preliminary origins
 ===================
 
-Usually, scautoloc will not report origins with less than a certain number of
-defining phases (specified by autoloc.minPhaseCount), typically 6-8 phases.
-In the case of events that result in very large amplitudes at a sufficient
-number of stations (hereafter called “XXL events”), it is possible to produce
-preliminary origins based on less picks.[[br]]Prerequisite is that all these
-picks have extraordinary large amplitudes and SNR and lie within a relatively
-small region. Such picks are hereafter called “XXL picks”. A pick is internally
-tagged as “XXL pick” if its amplitude exceeds a certain threshold (specified by
-autoloc.thresholdXXL) and has a SNR > 8. For larger SNR picks with smaller
-amplitude can reach the XXL tag, because it is justified to treat a large-SNR
-pick as XXL pick even if its amplitude is somewhat below the XXL amplitude
-threshold. The XXL criterion should be judged as workaround to identify picks
-which justify the nucleation of preliminary origins.
+Usually, scautoloc will not report origins with less than a certain
+number of defining phases (specified by autoloc.minPhaseCount),
+typically 6-8 phases, with 6 being the absolute minimum.  However,
+in case of potentially dangerous events, it may be desirable to
+receive "heads up" alert prior to reaching the minimum phase count,
+especially in a tsunami warning context. If very large amplitudes
+are registered at a sufficient number of stations, it is possible to
+produce preliminary origins (hereafter called ~@~\XXL events~@~])
+based on less than 6 picks.[[br]]Prerequisite is that all these
+picks have extraordinary large amplitudes and SNR and lie within a
+relatively small region. Such picks are hereafter called “XXL
+picks”. A pick is internally tagged as “XXL pick” if its
+amplitude exceeds a certain threshold (specified by
+autoloc.thresholdXXL) and has a SNR > 8. For larger SNR picks with
+smaller amplitude can reach the XXL tag, because it is justified to
+treat a large-SNR pick as XXL pick even if its amplitude is somewhat
+below the XXL amplitude threshold. The XXL criterion should be
+judged as workaround to identify picks which justify the nucleation
+of preliminary origins.
 
 Logging
 =======
@@ -247,7 +253,7 @@ In the test mode, scautoloc connects to a messaging server as usual and
 receives picks and amplitudes from there, but no results are sent back to
 the server. Log files are written as usual. This mode can be used to test
 new parameter settings before implementation in the real-time system. It also
-provides a simple way to log picks from a real-time system to file.
+provides a simple way to log picks from a real-time system to the pick log.
 
 Offline mode
 ============

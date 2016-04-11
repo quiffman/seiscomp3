@@ -228,7 +228,7 @@ DatabaseIterator DatabaseQuery::getAmplitudesForOrigin(const std::string& origin
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select PAmplitude." + _T("publicID") + ",Amplitude.* from Arrival,Amplitude,PublicObject as PAmplitude,Origin,PublicObject as POrigin where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Amplitude._oid=PAmplitude._oid and Origin._oid=POrigin._oid and POrigin." + _T("publicID") + "='";
+	query += "select PAmplitude." + _T("publicID") + ",Amplitude.* from Arrival,Origin,PublicObject as POrigin,Amplitude,PublicObject as PAmplitude where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Origin._oid=POrigin._oid and Amplitude._oid=PAmplitude._oid and POrigin." + _T("publicID") + "='";
 	query += toString(originID);
 	query += "'";
 
@@ -244,11 +244,27 @@ DatabaseIterator DatabaseQuery::getOriginsForAmplitude(const std::string& amplit
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select POrigin." + _T("publicID") + ",Origin.* from Arrival,Amplitude,PublicObject as PAmplitude,Origin,PublicObject as POrigin where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Amplitude._oid=PAmplitude._oid and Origin._oid=POrigin._oid and PAmplitude." + _T("publicID") + "='";
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Arrival,Origin,PublicObject as POrigin,Amplitude,PublicObject as PAmplitude where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Origin._oid=POrigin._oid and Amplitude._oid=PAmplitude._oid and PAmplitude." + _T("publicID") + "='";
 	query += toString(amplitudeID);
 	query += "'";
 
 	return getObjectIterator(query, Origin::TypeInfo());
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Origin* DatabaseQuery::getOriginByMagnitude(const std::string& magnitudeID) {
+	if ( !validInterface() ) return NULL;
+
+	std::string query;
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Origin,PublicObject as POrigin,Magnitude,PublicObject as PMagnitude where Magnitude._parent_oid=Origin._oid and Origin._oid=POrigin._oid and Magnitude._oid=PMagnitude._oid and PMagnitude." + _T("publicID") + "='";
+	query += toString(magnitudeID);
+	query += "'";
+
+	return Origin::Cast(queryObject(Origin::TypeInfo(), query));
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -630,7 +646,7 @@ DatabaseIterator DatabaseQuery::getFocalMechanismsDescending(const std::string& 
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select PFocalMechanism." + _T("publicID") + ",FocalMechanism.* from Event,PublicObject as PEvent,FocalMechanism,PublicObject as PFocalMechanism,FocalMechanismReference where FocalMechanismReference." + _T("focalMechanismID") + "=PFocalMechanism." + _T("publicID") + " and FocalMechanismReference._parent_oid=Event._oid and Event._oid=PEvent._oid and FocalMechanism._oid=PFocalMechanism._oid and PEvent." + _T("publicID") + "='";
+	query += "select PFocalMechanism." + _T("publicID") + ",FocalMechanism.* from Event,PublicObject as PEvent,FocalMechanismReference,FocalMechanism,PublicObject as PFocalMechanism where FocalMechanismReference." + _T("focalMechanismID") + "=PFocalMechanism." + _T("publicID") + " and FocalMechanismReference._parent_oid=Event._oid and Event._oid=PEvent._oid and FocalMechanism._oid=PFocalMechanism._oid and PEvent." + _T("publicID") + "='";
 	query += toString(eventID);
 	query += "' order by FocalMechanism." + _T("creationInfo_creationTime") + " desc";
 
@@ -807,7 +823,7 @@ DatabaseIterator DatabaseQuery::getArclinkRequestByStreamCode(Seiscomp::Core::Ti
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequest,PublicObject as PArclinkRequest,ArclinkRequestLine where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("created") + ">'";
+	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequestLine,ArclinkRequest,PublicObject as PArclinkRequest where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("created") + ">'";
 	query += toString(startTime);
 	query += "' and ArclinkRequest." + _T("created") + "<'";
 	query += toString(endTime);
@@ -906,7 +922,7 @@ DatabaseIterator DatabaseQuery::getArclinkRequest(const std::string& userID,
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequest,PublicObject as PArclinkRequest,ArclinkRequestLine where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("userID") + " like '";
+	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequestLine,ArclinkRequest,PublicObject as PArclinkRequest where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("userID") + " like '";
 	query += toString(userID);
 	query += "' and ArclinkRequest." + _T("created") + ">'";
 	query += toString(startTime);
@@ -947,7 +963,7 @@ DatabaseIterator DatabaseQuery::getArclinkRequestRestricted(const std::string& u
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequest,PublicObject as PArclinkRequest,ArclinkRequestLine where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("userID") + " like '";
+	query += "select distinct(PArclinkRequest." + _T("publicID") + "),ArclinkRequest.* from ArclinkRequestLine,ArclinkRequest,PublicObject as PArclinkRequest where ArclinkRequestLine._parent_oid=ArclinkRequest._oid and ArclinkRequest._oid=PArclinkRequest._oid and ArclinkRequest." + _T("userID") + " like '";
 	query += toString(userID);
 	query += "' and ArclinkRequest." + _T("created") + ">'";
 	query += toString(startTime);

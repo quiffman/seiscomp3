@@ -13,7 +13,7 @@
 double GCDistance(double lat1, double lon1, double lat2, double lon2)
 {
 	double d;
-	
+
 	if (lat1 == lat2 && lon1 == lon2)
 		return(0.0);
 
@@ -28,8 +28,47 @@ double GCDistance(double lat1, double lon1, double lat2, double lon2)
 
 double GCAzimuth(double lat1, double lon1, double lat2, double lon2)
 {
+        double lonA = lon1 * DE2RA;
+        double latA = lat1 * DE2RA;
+        double lonB = lon2 * DE2RA;
+        double latB = lat2 * DE2RA;
+
+        // distance
+        double dist =
+                acos(
+                sin(latA) * sin(latB)
+                + cos(latA) * cos(latB) * cos((lonB - lonA)));
+
+        // azimuth
+        double cosAzimuth =
+                (cos(latA) * sin(latB)
+                - sin(latA) * cos(latB)
+                * cos((lonB - lonA)))
+                / sin(dist);
+        double sinAzimuth =
+                cos(latB) * sin((lonB - lonA)) / sin(dist);
+        double az = atan2(sinAzimuth, cosAzimuth) / DE2RA;
+
+	if (isnan(az) && fabs(lon2-lon1)<0.000001) {
+		if (lat1>lat2) {
+			az = 180.0;
+		}
+		else {
+			az = 0.0;
+		}
+	}
+
+        if (az < 0.0) {
+            az += 360.0;
+        }
+
+        return (az);
+}
+
+double GCAzimuth_ERROR(double lat1, double lon1, double lat2, double lon2)
+{
 	double result = 0.0;
-	
+
 	double c, A;
 
 	long ilat1 = (long)(0.50 + lat1 * 360000.0);

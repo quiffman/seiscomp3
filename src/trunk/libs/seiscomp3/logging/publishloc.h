@@ -16,6 +16,8 @@
 #define __SC_LOGGING_PUBLISHLOC_H__
 
 #include <seiscomp3/logging/common.h>
+#include <stdarg.h>
+
 
 namespace Seiscomp {
 namespace Logging {
@@ -50,6 +52,8 @@ struct SC_SYSTEM_CORE_API PublishLoc {
 	void (*publish)(PublishLoc *, Channel *, const char *format, ...)
 	    PRINTF_FP(3,4);
 
+	void (*publishVA)(PublishLoc *, Channel *, const char *format, va_list args);
+
 	Node *pub;
 	const char *component;
 	const char *fileName;
@@ -64,6 +68,7 @@ struct SC_SYSTEM_CORE_API PublishLoc {
 
 
 SC_SYSTEM_CORE_API void Register(PublishLoc *loc, Channel *, const char *format, ... ) PRINTF(3,4);
+SC_SYSTEM_CORE_API void RegisterVA(PublishLoc *loc, Channel *, const char *format, va_list args );
 
 
 /* @def LOG_NO_COPY

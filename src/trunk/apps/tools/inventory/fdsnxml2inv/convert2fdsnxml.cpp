@@ -628,6 +628,9 @@ bool Convert2FDSNStaXML::process(FDSNXML::Station *sx_sta,
 bool Convert2FDSNStaXML::process(FDSNXML::Channel *sx_chan,
                              const DataModel::Stream *stream,
                              const DataModel::Datalogger *datalogger) {
+	if ( datalogger->decimationCount() == 0 )
+		return true;
+
 	// No stage0 response -> sorry
 	FDSNXML::Response *resp = NULL;
 	try { resp = &sx_chan->response(); } catch ( ...) {}

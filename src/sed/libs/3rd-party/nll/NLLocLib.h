@@ -162,6 +162,7 @@ typedef struct {
     double dx;
     double likelihood;
     double velocity;
+    double initial_temperature;
 }
 WalkParams;
 
@@ -204,7 +205,7 @@ EXTERN_TXT int NumEvents;
 EXTERN_TXT int NumEventsLocated;
 EXTERN_TXT int NumLocationsCompleted;
 
-#define MAX_NUM_OBS_FILES 1000
+#define MAX_NUM_OBS_FILES 10000
 EXTERN_TXT int NumObsFiles;
 
 /* number of arrivals read from obs file */
@@ -303,8 +304,9 @@ EXTERN_TXT int iRejectDuplicateArrivals;
 EXTERN_TXT PhaseIdent PhaseID[MAX_NUM_PHASE_ID];
 EXTERN_TXT int NumPhaseID;
 
-/* Extracted Filename Information */
+/* Event Information extracted from phase file */
 EXTERN_TXT EventTimeExtract EventTime;
+EXTERN_TXT long int EventID;
 
 /* magnitude calculation */
 #define MAG_UNDEF  	0
@@ -376,6 +378,7 @@ EXTERN_TXT double MetStepMin; /* minimum step size (km) */
 EXTERN_TXT double MetStepFact; /* step size factor */
 EXTERN_TXT double MetProbMin; /* minimum likelihood necessary after learn */
 EXTERN_TXT double MetVelocity; /* velocity for conversion of distance to time */
+EXTERN_TXT double MetInititalTemperature; /* initial temperature */
 EXTERN_TXT int MetUse; /* number of samples to use
 					= MetNumSamples - MetEquil */
 
@@ -490,10 +493,11 @@ int IsSameArrival(ArrivalDesc *, int, int, char *);
 int IsDuplicateArrival(ArrivalDesc *, int, int, int);
 int FindDuplicateTimeGrid(ArrivalDesc *arrival, int num_arrivals, int ntest);
 
-int WriteHypo71(FILE *, HypoDesc*, ArrivalDesc*, char*, int, int);
-int WriteHypoEll(FILE *, HypoDesc*, ArrivalDesc*, char*, int, int);
-int WriteHypoInverseArchive(FILE *, HypoDesc*, ArrivalDesc*, int, char*, int, int, double);
-int WriteHypoAlberto4(FILE *, HypoDesc*, ArrivalDesc*, char*);
+int WriteHypo71(FILE *, HypoDesc* , ArrivalDesc* , int , char* , int , int );
+int WriteHypoEll(FILE *, HypoDesc* , ArrivalDesc* , int , char* , int , int );
+int WriteHypoInverseArchive(FILE *fpio, HypoDesc *phypo, ArrivalDesc *parrivals, int narrivals,
+        char *filename, int writeY2000, int write_arrivals, double arrivalWeightMax);
+int WriteHypoAlberto4(FILE *, HypoDesc* , ArrivalDesc* , int , char* );
 int OpenSummaryFiles(char *, char *);
 int CloseSummaryFiles();
 
@@ -509,25 +513,26 @@ int LocGridSearch(int, int, int, ArrivalDesc*, GridDesc*,
         GaussLocParams*, HypoDesc*);
 int LocMetropolis(int, int, int, ArrivalDesc *,
         GridDesc*, GaussLocParams*, HypoDesc*, WalkParams*, float*);
-int SaveBestLocation(int num_arr_total, int num_arr_loc, ArrivalDesc *arrival,
+int SaveBestLocation(OctNode* poct_node, int num_arr_total, int num_arr_loc, ArrivalDesc *arrival,
         GridDesc* ptgrid, GaussLocParams* gauss_par, HypoDesc* phypo,
         double misfit_max, int iGridType, double cell_diagonal_time_var_best, double cell_diagonal_best, double cell_volume_best);
 int ConstWeightMatrix(int, ArrivalDesc*, GaussLocParams*);
+int CleanWeightMatrix();
 void CalcCenteredTimesObs(int, ArrivalDesc*, GaussLocParams*, HypoDesc*);
 INLINE void CalcCenteredTimesPred(int, ArrivalDesc*, GaussLocParams*);
-INLINE double CalcSolutionQuality(int num_arrivals, ArrivalDesc *arrival, GaussLocParams* gauss_par, int itype,
-        double* pmisfit, double* potime, double* potime_var, double cell_diagonal_time_var, double cell_diagonal, double cell_volume, double* effective_cell_size);
+INLINE double CalcSolutionQuality(OctNode* poct_node, int num_arrivals, ArrivalDesc *arrival, GaussLocParams* gauss_par, int itype,
+        double* pmisfit, double* potime, double* potime_var, double cell_diagonal_time_var, double cell_diagonal, double cell_volume, double* effective_cell_size, double *pot_variance_factor);
 INLINE double CalcSolutionQuality_GAU_ANALYTIC(int, ArrivalDesc*, GaussLocParams*, int, double*, double*);
 INLINE double CalcSolutionQuality_GAU_TEST(int, ArrivalDesc*, GaussLocParams*, int, double*, double*);
 INLINE double CalcSolutionQuality_EDT(int num_arrivals, ArrivalDesc *arrival, GaussLocParams* gauss_par, int itype, double* pmisfit, double* potime, double* potime_var, double cell_diagonal_time_var, int method_box);
-INLINE double CalcSolutionQuality_OT_STACK(int num_arrivals, ArrivalDesc *arrival,
+INLINE double CalcSolutionQuality_OT_STACK(OctNode* poct_node, int num_arrivals, ArrivalDesc *arrival,
         GaussLocParams* gauss_par, int itype, double* pmisfit, double* potime, double* potime_var,
-        double cell_half_diagonal_time_range, double cell_diagonal, double cell_volume, double* effective_cell_size);
+        double cell_half_diagonal_time_range, double cell_diagonal, double cell_volume, double* effective_cell_size, double *pot_variance_factor);
 INLINE double CalcSolutionQuality_ML_OT(int num_arrivals, ArrivalDesc *arrival, GaussLocParams* gauss_par, int itype, double* pmisfit, double* potime, double* potime_var, double cell_diagonal_time_var, int method_box);
 INLINE double calc_maximum_likelihood_ot_sort(
-        int num_arrivals, ArrivalDesc *arrival,
-        double cell_half_diagonal_time_range, double cell_diagonal, double *pot_var, int icalc_otime,
-        double *plog_prob_max, double *pot_stack_weight, double* effective_cell_size);
+        OctNode* poct_node, int num_arrivals, ArrivalDesc *arrival,
+        double cell_half_diagonal_time_range, double cell_diagonal, double cell_volume, double *pot_var, int icalc_otime,
+        double *plog_prob_max, double *pot_stack_weight, double* effective_cell_size, double *pot_variance_factor);
 INLINE double calc_maximum_likelihood_ot(double *ot_ml_arrival, double *ot_ml_arrival_edt_sum, int num_arrivals, ArrivalDesc *arrival, MatrixDouble edtmtx, double *pot_ml_var, int iwrite_errors,
         double *pprob_max);
 INLINE double calc_likelihood_ot(double *ot_ml_arrival, double *ot_ml_arrival_edt_sum, int num_arrivals, ArrivalDesc *arrival, MatrixDouble edtmtx, double time);
@@ -590,12 +595,6 @@ INLINE long double LocOctree_core(int ngrid, double xval, double yval, double zv
         double *misfit, double logWtMtrxSum);
 double getOctTreeStationDensityWeight(OctNode* poct_node, SourceDesc *stations, int numStations, GridDesc *pgrid, int iOctLevelMax);
 int GenEventScatterOcttree(OcttreeParams* pParams, double oct_node_value_max, float* fscatterdata, double integral, HypoDesc* Hypocenter);
-double convertOcttreeValuesToProb(ResultTreeNode* prtree, double sum, double oct_node_value_max);
-double integrateResultTree(ResultTreeNode* prtree, double sum, double oct_node_value_max);
-ResultTreeNode* createResultTree(ResultTreeNode* prtree, ResultTreeNode* pnew_rtree);
-int getScatterSampleResultTree(ResultTreeNode* prtree, OcttreeParams* pParams,
-        double integral, float* fdata, int npoints, int* pfdata_index,
-        double oct_node_value_max, double *poct_tree_scatter_volume);
 
 int GetElevCorr(char* line1);
 

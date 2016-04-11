@@ -96,6 +96,7 @@ void App::createCommandLineDescription() {
 	commandline().addOption("Settings", "grid", "The grid.conf file to use", &_gridConfigFile, false);
 
 	commandline().addOption("Settings", "default-depth", "", &_config.defaultDepth);
+	commandline().addOption("Settings", "default-depth-stickiness", "", &_config.defaultDepthStickiness);
 	commandline().addOption("Settings", "max-sgap", "", &_config.maxAziGapSecondary);
 	commandline().addOption("Settings", "max-rms", "", &_config.maxRMS);
 	commandline().addOption("Settings", "max-residual", "", &_config.maxResidualUse);
@@ -107,9 +108,12 @@ void App::createCommandLineDescription() {
 	commandline().addOption("Settings", "min-score", "Minimum score for an origin to be reported", &_config.minScore);
 	commandline().addOption("Settings", "min-pick-snr", "Minimum SNR for a pick to be processed", &_config.minPickSNR);
 
-	commandline().addOption("Settings", "threshold-xxl", "An amplitude exceeding this threshold will flag the pick as XXL", &_config.thresholdXXL);
-	commandline().addOption("Settings", "min-phase-count-xxl", "Minimum number of picks for an XXL origin to be reported", &_config.minPhaseCountXXL);
-	commandline().addOption("Settings", "max-distance-xxl", "", &_config.maxStaDistXXL);
+	commandline().addOption("Settings", "xxl-min-phase-count", "Minimum number of picks for an XXL origin to be reported", &_config.xxlMinPhaseCount);
+	commandline().addOption("Settings", "xxl-min-amplitude", "Flag pick as XXL if BOTH snr and amplitude exceed a threshold", &_config.xxlMinAmplitude);
+	commandline().addOption("Settings", "xxl-min-snr", "Flag pick as XXL if BOTH snr and amplitude exceed a threshold", &_config.xxlMinSNR);
+	commandline().addOption("Settings", "xxl-max-distance", "", &_config.xxlMaxStaDist);
+	commandline().addOption("Settings", "xxl-max-depth", "", &_config.xxlMaxDepth);
+	commandline().addOption("Settings", "xxl-dead-time", "", &_config.xxlDeadTime);
 
 	commandline().addOption("Settings", "min-sta-count-ignore-pkp", "Minimum station count for which we ignore PKP phases", &_config.minStaCountIgnorePKP);
 	commandline().addOption("Settings", "min-score-bypass-nucleator", "Minimum score at which the nucleator is bypassed", &_config.minScoreBypassNucleator);
@@ -181,6 +185,7 @@ bool App::initConfiguration() {
 	try { _config.maxAge = configGetDouble("autoloc.maxAge"); } catch (...) {}
 
 	try { _config.defaultDepth = configGetDouble("locator.defaultDepth"); } catch (...) {}
+	try { _config.defaultDepthStickiness = configGetDouble("autoloc.defaultDepthStickiness"); } catch (...) {}
 	try { _config.tryDefaultDepth = configGetBool("autoloc.tryDefaultDepth"); } catch (...) {}
 	try { _config.adoptManualDepth = configGetBool("autoloc.adoptManualDepth"); } catch (...) {}
 	try { _config.minimumDepth = configGetDouble("locator.minimumDepth"); } catch (...) {}
@@ -190,14 +195,41 @@ bool App::initConfiguration() {
 	try { _config.maxResidualUse = configGetDouble("autoloc.maxResidual"); } catch (...) {}
 	try { _config.maxStaDist = configGetDouble("autoloc.maxStationDistance"); } catch (...) {}
 	try { _config.defaultMaxNucDist = configGetDouble("autoloc.defaultMaxNucleationDistance"); } catch (...) {}
-	try { _config.thresholdXXL = configGetDouble("autoloc.thresholdXXL"); } catch (...) {}
-	try { _config.maxStaDistXXL = configGetDouble("autoloc.maxStationDistanceXXL"); } catch (...) {}
+
+	try { _config.xxlMinAmplitude = configGetDouble("autoloc.xxl.minAmplitude"); } catch (...) {
+		try {
+			// deprecated since 2013-06-26
+			_config.xxlMinAmplitude = configGetDouble("autoloc.thresholdXXL");
+			SEISCOMP_WARNING("Config parameter autoloc.thresholdXXL is deprecated.  Use autoloc.xxl.minAmplitude instead!");
+		} catch (...) {}
+	}
+
+	try { _config.xxlMaxStaDist = configGetDouble("autoloc.xxl.maxStationDistance"); } catch (...) {
+		try {
+			// deprecated since 2013-06-26
+			_config.xxlMaxStaDist = configGetDouble("autoloc.maxStationDistanceXXL");
+			SEISCOMP_WARNING("Config parameter autoloc.maxStationDistanceXXL is deprecated. Use autoloc.xxl.maxStationDistance instead!");
+		} catch (...) {}
+	}
+
+	try { _config.xxlMinPhaseCount = configGetInt("autoloc.xxl.minPhaseCount"); } catch (...) {
+		try {
+			// deprecated since 2013-06-26
+			_config.xxlMinPhaseCount = configGetInt("autoloc.minPhaseCountXXL");
+			SEISCOMP_WARNING("Config parameter autoloc.minPhaseCountXXL is deprecated. Use autoloc.xxl.minPhaseCount instead!");
+		} catch (...) {}
+	}
+
+	try { _config.xxlMinSNR = configGetDouble("autoloc.xxl.minSNR"); } catch (...) {}
+	try { _config.xxlMaxDepth = configGetDouble("autoloc.xxl.maxDepth"); } catch (...) {}
+	try { _config.xxlDeadTime = configGetDouble("autoloc.xxl.deadTime"); } catch (...) {}
+
+
 	try { _config.minPickSNR = configGetDouble("autoloc.minPickSNR"); } catch (...) {}
 	try { _config.minPickAffinity = configGetDouble("autoloc.minPickAffinity"); } catch (...) {}
 
 	try { _config.minPhaseCount = configGetInt("autoloc.minPhaseCount"); } catch (...) {}
 	try { _config.minScore = configGetDouble("autoloc.minScore"); } catch (...) {}
-	try { _config.minPhaseCountXXL = configGetInt("autoloc.minPhaseCountXXL"); } catch (...) {}
 	try { _config.minScoreBypassNucleator = configGetDouble("autoloc.minScoreBypassNucleator"); } catch (...) {}
 
 	try { _config.minStaCountIgnorePKP = configGetInt("autoloc.minStaCountIgnorePKP"); } catch (...) {}
@@ -232,6 +264,8 @@ bool App::initConfiguration() {
 	try { setLocatorProfile(configGetString("autoloc.locator.profile")); } catch (...) {}
 
 	try { _config.playback = configGetBool("autoloc.playback"); } catch ( ... ) {}
+	try { _config.offline = configGetBool("autoloc.offline"); } catch ( ... ) {}
+	try { _config.test = configGetBool("autoloc.test"); } catch ( ... ) {}
 
 	_config.pickLogFile = Environment::Instance()->absolutePath(_config.pickLogFile);
 	_stationLocationFile = Environment::Instance()->absolutePath(_stationLocationFile);
@@ -276,20 +310,19 @@ bool App::init() {
 
 	if ( ! initStations() ) return false;
 
-	// Read historical preferred origins
-	if ( !_config.playback )
+	if ( _config.playback ) {
+		// XML playback, set timer to 1 sec
+		SEISCOMP_DEBUG("Playback mode - enable timer of 1 sec");
+		enableTimer(1);
+	}
+	else {
+		// Read historical preferred origins in case we missed something
 		readHistoricEvents();
 
-	if ( _inputFileXML.empty() ) {
 		if ( _wakeUpTimout > 0 ) {
 			SEISCOMP_DEBUG("Enable timer of %d secs", _wakeUpTimout);
 			enableTimer(_wakeUpTimout);
 		}
-	}
-	else {
-		// XML playback, set timer to 1 sec
-		SEISCOMP_DEBUG("Playback mode - enable timer of 1 sec");
-		enableTimer(1);
 	}
 	
 	return Autoloc3::init();
@@ -503,7 +536,7 @@ bool App::runFromXMLFile(const char *fname)
 
 
 
-
+/*
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool App::runFromPickFile()
 {
@@ -533,7 +566,7 @@ bool App::runFromPickFile()
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+*/
 
 
 
@@ -545,14 +578,16 @@ bool App::run() {
 		return Application::run();
 
 	// XML playback: first fill object queue, then run()
-	if (_inputFileXML.size() > 0) {
+	if ( _config.playback && _inputFileXML.size() > 0) {
 		runFromXMLFile(_inputFileXML.c_str());
 		return Application::run();
 	}
 
+/*
+	// OBSOLETE not that the XML playback is available
 	else if ( ! _exitRequested )
 		runFromPickFile(); // pick file read from stdin
-
+*/
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -588,13 +623,13 @@ void App::handleMessage(Core::Message* msg) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void App::handleTimeout() {
 
-	if ( _inputFileXML.size() == 0 ) {
+	if ( ! _config.playback ) {
 		_flush();
 		return;
 	}
 
 
-	// The following is relevant for XML playback only.
+	// The following is relevant (and executed) only for XML playback.
 
 	while ( ! _objects.empty() && ! _exitRequested ) {
 
@@ -682,19 +717,11 @@ void App::addObject(const std::string& parentID, DataModel::Object* o) {
 	if ( po != NULL )
 		SEISCOMP_DEBUG("adding  %-12s %s",o->className(),po->publicID().c_str());
 	else
-		SEISCOMP_DEBUG("adding  %-12s",o->className());
+		return;
 
 	DataModel::Pick *pick = DataModel::Pick::Cast(o);
 	if ( pick ) {
 		logObject(_inputPicks, Core::Time::GMT());
-		const DataModel::WaveformStreamID &wfid = pick->waveformID();
-		SEISCOMP_DEBUG("        %-12s %-2s %-5s %-2s %-3s %-22s",
-			       o->className(),
-			       wfid.networkCode().c_str(),
-			       wfid.stationCode().c_str(),
-			       wfid.locationCode().c_str(),
-			       wfid.channelCode().c_str(),
-			       pick->time().value().toString("%F %T.%f000000").substr(0,22).c_str());
 		feed(pick);
 		return;
 	}
@@ -775,7 +802,7 @@ bool App::feed(DataModel::Pick *sc3pick) {
 		}
 	}
 	else { // default
-		pick->amp = 0.5*_config.thresholdXXL;
+		pick->amp = 0.5*_config.xxlMinAmplitude;
 		pick->per = 1;
 	}
 
@@ -861,23 +888,31 @@ bool App::feed(DataModel::Amplitude *sc3ampl) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool App::feed(DataModel::Origin *sc3origin) {
-	if ( ! sc3origin )
+
+	if ( ! sc3origin ) {
+		SEISCOMP_ERROR("This should never happen: origin=NULL");
 		return false;
+	}
+
+	SEISCOMP_INFO_S("got origin " + sc3origin->publicID() +
+			"   agency: " + objectAgencyID(sc3origin));
 
 	// if its an internal origin which is not manual -> ignore
-	if ( objectAgencyID(sc3origin) == agencyID() && ! manual(sc3origin) )
+	if ( objectAgencyID(sc3origin) == agencyID() && ! manual(sc3origin) ) {
+		SEISCOMP_INFO_S("Ignored origin from " + objectAgencyID(sc3origin) + " because not a manual origin");
 		return false;
+	}
 
 	// if it's an imported origin
 	if (objectAgencyID(sc3origin) != agencyID()) {
 
 		if ( ! _config.useImportedOrigins ) {
-			SEISCOMP_INFO_S("Ignored origin from " + objectAgencyID(sc3origin));
+			SEISCOMP_INFO_S("Ignored origin from " + objectAgencyID(sc3origin) + " because autoloc.useImportedOrigins = false");
 			return false;
 		}
 
 		if ( isAgencyIDBlocked(objectAgencyID(sc3origin)) ) {
-			SEISCOMP_INFO_S("Blocked origin from " + objectAgencyID(sc3origin));
+			SEISCOMP_INFO_S("Ignored origin from " + objectAgencyID(sc3origin) + " due to blocked agency ID");
 			return false;
 		}
 	}
@@ -885,18 +920,24 @@ bool App::feed(DataModel::Origin *sc3origin) {
 	// now we know that the origin is either
 	//  * imported from a trusted external source or
 	//  * an internal, manual origin
-	SEISCOMP_INFO_S("got origin " + sc3origin->publicID() +
-			"   agency: " + objectAgencyID(sc3origin));
 
 	// TODO: Vorher konsistente Picks/Arrivals sicher stellen.
 
 	::Autoloc::Origin *origin = convertFromSC3(sc3origin);
-	if ( ! origin )
+	if ( ! origin ) {
+		SEISCOMP_ERROR_S("Failed to convert origin " + objectAgencyID(sc3origin));
 		return false;
+	}
 
-	// mark imported origin
-	if ( objectAgencyID(sc3origin) != agencyID() )
+	// mark and log imported origin
+	if ( objectAgencyID(sc3origin) == agencyID() ) {
+		SEISCOMP_INFO_S("Using origin from agency " + objectAgencyID(sc3origin));
+		origin->imported = false;
+	}
+	else {
+		SEISCOMP_INFO_S("Using origin from agency " + objectAgencyID(sc3origin));
 		origin->imported = true;
+	}
 
 	::Autoloc::Autoloc3::feed(origin);
 

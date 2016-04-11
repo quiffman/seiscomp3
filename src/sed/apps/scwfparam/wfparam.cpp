@@ -224,6 +224,7 @@ WFParam::Config::Config() {
 	taperLength = -1;
 	padLength = -1;
 
+	enableShortEventID = false;
 	enableShakeMapXMLOutput = true;
 	shakeMapOutputPath = "@LOGDIR@/shakemaps";
 	shakeMapOutputScriptWait = true;
@@ -386,6 +387,7 @@ WFParam::WFParam(int argc, char **argv) : Application(argc, argv) {
 	NEW_OPT(_config.saveSpectraFiles, "wfparam.output.spectra.enable");
 	NEW_OPT(_config.spectraOutputPath, "wfparam.output.spectra.path");
 	NEW_OPT(_config.spectraOutputEventDirectory, "wfparam.output.spectra.withEventDirectory");
+	NEW_OPT(_config.enableShortEventID, "wfparam.output.shortEventID");
 	NEW_OPT(_config.enableShakeMapXMLOutput, "wfparam.output.shakeMap.enable");
 	NEW_OPT(_config.useMaximumOfHorizontals, "wfparam.output.shakeMap.maximumOfHorizontals");
 	NEW_OPT(_config.shakeMapOutputPath, "wfparam.output.shakeMap.path");
@@ -1793,6 +1795,9 @@ std::string WFParam::generateEventID(const DataModel::Event *evt) {
 
 	OriginPtr org = _cache.get<Origin>(evt->preferredOriginID());
 	if ( org == NULL ) return "";
+
+	if ( _config.enableShortEventID )
+		return org->time().value().toString("%Y%m%d%H%M%S");
 
 	MagnitudePtr mag = _cache.get<Magnitude>(evt->preferredMagnitudeID());
 

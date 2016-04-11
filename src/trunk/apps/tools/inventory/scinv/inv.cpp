@@ -256,7 +256,6 @@ const ResponseFIR *InventoryTask::findFIR(const std::string &publicID) {
 	if ( it == _session.firLookup.end() ) return NULL;
 	return (const ResponseFIR*)it->second;
 }
-
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 

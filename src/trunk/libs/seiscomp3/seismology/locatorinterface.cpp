@@ -32,7 +32,7 @@ SensorLocationDelegate::SensorLocationDelegate() {}
 
 
 LocatorInterface::LocatorInterface() {
-	_fixDepth = false;
+	_usingFixedDepth = false;
 	_enableDistanceCutOff = false;
 	_ignoreInitialLocation = false;
 }
@@ -85,12 +85,12 @@ bool LocatorInterface::supports(Capability c) const {
 
 
 void LocatorInterface::setFixedDepth(double depth, bool use) {
-	_fixDepth = use;
+	_usingFixedDepth = use;
 	_fixedDepth = depth;
 }
 
 void LocatorInterface::useFixedDepth(bool use) {
-	_fixDepth = use;
+	_usingFixedDepth = use;
 }
 
 

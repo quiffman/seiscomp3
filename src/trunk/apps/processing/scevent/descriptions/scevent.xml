@@ -73,7 +73,7 @@
 					</description>
 				</parameter>
 
-				<parameter name="compareAllArrivalTimes" type="bool" default="true">
+				<parameter name="compareAllArrivalTimes" type="boolean" default="true">
 					<description>
 						This parameter is only used in conjunction with
 						eventAssociation.maximumMatchingArrivalTimeDiff.

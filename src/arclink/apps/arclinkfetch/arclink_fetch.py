@@ -222,6 +222,7 @@ def process_options():
     parser.set_defaults(address = "eida.gfz-potsdam.de:18001",
                         request_format = "native",
                         data_format = "mseed",
+                        spfr = None,
                         label = None,
                         no_resp_dict = False,
                         rebuild_volume = False,
@@ -246,6 +247,9 @@ def process_options():
     koptions = ("mseed", "mseed4k", "fseed", "dseed", "inv", "inventory")
     parser.add_option("-k", "--data-format", type="choice", dest="data_format", choices=koptions,
       help="data format: mseed, mseed4k, fseed, dseed, inv[entory] (default %default)")
+
+    parser.add_option("-s", "--preferred-sample-rate", type="float", dest="spfr",
+      help="preferred sample rate")
 
     parser.add_option("-L", "--label", type="string", dest="label",
       help="label of SEED volume")
@@ -420,7 +424,8 @@ http://www.iris.edu/manuals/breq_fast.htm
 
     return (SSLpasswordDict, options.address, options.request_format, options.data_format,
       options.label, not options.no_resp_dict, options.rebuild_volume, options.proxymode,
-      options.user, options.timeout, options.retries, options.output_file, request_file)
+      options.user, options.timeout, options.retries, options.output_file, request_file,
+      options.spfr)
 
 def build_filename(encrypted, compressed, req_args):
     endung = ''
@@ -434,15 +439,21 @@ def build_filename(encrypted, compressed, req_args):
     return endung;
 
 def main():
-    (SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file) = process_options()
-    ret = _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file)
-    
+    (SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file, spfr) = process_options()
+
+    try:
+        ret = _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file, spfr)
+
+    except ArclinkError, e:
+        logs.error(str(e))
+        ret = 1
+
     if addr.startswith("eida.gfz-potsdam.de:") or addr.startswith("webdc.eu:"):
         logs.notice("\nin case of problems with your request, please contact eida@gfz-potsdam.de")
 
     return ret
 
-def _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file):
+def _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, rebuild_volume, proxymode, user, timeout, retries, output_file, input_file, spfr):
     reblock_mseed = False
     use_inventory = False
     use_routing = not proxymode
@@ -517,12 +528,7 @@ def _main(SSLpasswordDict, addr, request_format, data_format, label, resp_dict, 
     if (rebuild_volume or wildcards) and req_type != "INVENTORY":
         use_inventory = True
 
-    try:
-        (inv, req_ok, req_noroute, req_nodata) = mgr.execute(req, use_inventory, use_routing)
-
-    except ArclinkError, e:
-        logs.error(str(e))
-        return
+    (inv, req_ok, req_noroute, req_nodata) = mgr.execute(req, use_inventory, use_routing, spfr)
 
 ## Better report what was going on
     logs.info("\nthe following data requests were sent:")

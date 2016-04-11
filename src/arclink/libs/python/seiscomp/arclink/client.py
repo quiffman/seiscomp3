@@ -197,6 +197,18 @@ class ArclinkXMLError(ArclinkError):
 class ArclinkTimeout(ArclinkError):
     pass
 
+class _DownloadIterator(object):
+    def __init__(self, it, size, close):
+        self.__it = it
+        self.size = size
+        self.close = close
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self.__it.next()
+
 class Arclink(object):
     def __init__(self):
         self.__sock = None
@@ -424,16 +436,8 @@ class Arclink(object):
         finally:
             return (DEC, status)
 
-    def download_data(self, outfd, req_id, vol_id = None, pos = None,
-        timeout = 0, password = None, raw=False):
+    def __iter_data(self, size, password, raw):
         
-        if self.__wait:
-            size = self.__wait_size
-            self.__wait = False
-        
-        else:
-            size = self.__init_download(req_id, vol_id, pos, timeout)
-
         bytes_read = 0
         self.__errstate = False
 
@@ -469,13 +473,15 @@ class Arclink(object):
                             buf = decryptor.update(buf)
                         if decompressor is not None:
                             buf = decompressor.decompress(buf)
-                    outfd.write(buf)
+
+                    yield buf
     
                 if decryptor is not None:
                     buf = decryptor.final()
                     if decompressor is not None and len(buf) > 0:
                          buf = decompressor.decompress(buf)
-                    outfd.write(buf)
+
+                    yield buf
     
                 r = self.__fd.readline(LINESIZE).rstrip()
                 if r != "END":
@@ -488,16 +494,37 @@ class Arclink(object):
                     raise ArclinkError, "decrypt error."
 
         finally:
-            encrypted = (encStatus is True) and (decryptor is None)
-            if encrypted:
-                compressed = None
+            self.__encrypted = (encStatus is True) and (decryptor is None)
+            if self.__encrypted:
+                self.__compressed = None
             else:
-                compressed = ((decStatus is True) and (decompressor is None))
+                self.__compressed = ((decStatus is True) and (decompressor is None))
             
             if bytes_read and bytes_read != size:
                 self.__errstate = True
 
-        return (encrypted, compressed)
+    # Create a WSGI-compatible iterator
+    def iterdownload(self, req_id, vol_id = None, pos = None,
+        timeout = 0, password = None, raw=False):
+
+        size = self.__init_download(req_id, vol_id, pos, timeout)
+        it = self.__iter_data(size, password, raw)
+        return _DownloadIterator(it, size, self.close_connection)
+
+    def download_data(self, outfd, req_id, vol_id = None, pos = None,
+        timeout = 0, password = None, raw=False):
+
+        if self.__wait:
+            size = self.__wait_size
+            self.__wait = False
+        
+        else:
+            size = self.__init_download(req_id, vol_id, pos, timeout)
+
+        for buf in self.__iter_data(size, password, raw):
+            outfd.write(buf)
+        
+        return (self.__encrypted, self.__compressed)
 
     def download_xml(self, db, req_id, vol_id = None, pos = None,
         timeout = 0):

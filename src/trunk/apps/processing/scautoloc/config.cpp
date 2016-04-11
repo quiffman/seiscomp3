@@ -94,15 +94,12 @@ Autoloc3::Config::Config()
 	maxResidualUse = 7.0;
 	maxResidualKeep = 3*maxResidualUse;
 	maxAziGapSecondary = 360; // 360 means no SGAP restriction
-	thresholdXXL = 10000.;
-	deadTimeXXL = 120.;
 	maxStaDist = 180;
-	maxStaDistXXL = 15;
 	defaultMaxNucDist = 180;
 	minPhaseCount = 6;
-	minPhaseCountXXL = 4;
 	minScore = 8;
 	defaultDepth = 10;
+	defaultDepthStickiness = 0.5;
 	tryDefaultDepth = true;
 	adoptManualDepth = false;
 	minimumDepth = 5;
@@ -113,8 +110,8 @@ Autoloc3::Config::Config()
 	minScoreBypassNucleator = 40;
 	maxAllowedFakeProbability = 0.2; // TODO make this configurable
 	distSlope = 1.5; // TODO: Make this configurable after testing
-	offline = true;
-	test = true;
+	test = false;
+	offline = false;
 	playback = false;
 	cleanupInterval = 3600;
 	aggressivePKP = true;
@@ -133,23 +130,28 @@ Autoloc3::Config::Config()
 	publicationIntervalTimeSlope = 0.5;
 	publicationIntervalTimeIntercept = 0;
 	publicationIntervalPickCount = 20;
+
+	xxlMinAmplitude = 10000.;
+	xxlMinPhaseCount = 4;
+	xxlMaxStaDist = 15;
+	xxlMaxDepth = 100;
+	xxlDeadTime = 120.;
 }
 
 void Autoloc3::Config::dump() const
 {
 	SEISCOMP_INFO("Configuration:");
 	SEISCOMP_INFO("defaultDepth                     %g",     defaultDepth);
+	SEISCOMP_INFO("defaultDepthStickiness           %g",     defaultDepthStickiness);
 	SEISCOMP_INFO("tryDefaultDepth                  %s",     tryDefaultDepth ? "true":"false");
 	SEISCOMP_INFO("adoptManualDepth                 %s",     adoptManualDepth ? "true":"false");
 	SEISCOMP_INFO("minimumDepth                     %g",     minimumDepth);
 	SEISCOMP_INFO("minPhaseCount                    %d",     minPhaseCount);
-	SEISCOMP_INFO("minPhaseCountXXL                 %d",     minPhaseCountXXL);
 	SEISCOMP_INFO("minScore                         %.1f",   minScore);
 	SEISCOMP_INFO("minPickSNR                       %.1f",   minPickSNR);
 	SEISCOMP_INFO("maxResidual                      %.1f s", maxResidualUse);
 	SEISCOMP_INFO("goodRMS                          %.1f s", goodRMS);
 	SEISCOMP_INFO("maxRMS                           %.1f s", maxRMS);
-	SEISCOMP_INFO("maxStaDistXXL                    %.1f °", maxStaDistXXL);
 	SEISCOMP_INFO("minStaCountIgnorePKP             %d",     minStaCountIgnorePKP);
 	SEISCOMP_INFO("maxAge                           %.0f s", maxAge);
 	SEISCOMP_INFO("publicationIntervalTimeSlope     %.2f",   publicationIntervalTimeSlope);
@@ -158,10 +160,21 @@ void Autoloc3::Config::dump() const
 	SEISCOMP_INFO("reportAllPhases                  %s",     reportAllPhases ? "true":"false");
 	SEISCOMP_INFO("pickLogFile                      %s",     pickLogFile.size() ? pickLogFile.c_str() : "(none)");
 	SEISCOMP_INFO("dynamicPickThresholdInterval     %g",     dynamicPickThresholdInterval);
+	SEISCOMP_INFO("offline                          %s",     offline ? "true":"false");
+	SEISCOMP_INFO("test                             %s",     test ? "true":"false");
 	SEISCOMP_INFO("playback                         %s",     playback ? "true":"false");
 	SEISCOMP_INFO("useManualOrigins                 %s",     useManualOrigins ? "true":"false");
-	SEISCOMP_INFO("useImportedOrigins               %s",     useImportedOrigins ? "true":"false");
+// This isn't used still so we don't want to confuse the user....
+//	SEISCOMP_INFO("useImportedOrigins               %s",     useImportedOrigins ? "true":"false");
 	SEISCOMP_INFO("locatorProfile                   %s",     locatorProfile.c_str());
+
+	if (xxlMinPhaseCount <= 0) return;
+	SEISCOMP_INFO("XXL feature is active");
+	SEISCOMP_INFO("xxl.minPhaseCount                 %d",     xxlMinPhaseCount);
+	SEISCOMP_INFO("xxl.minAmplitude                  %g",     xxlMinAmplitude);
+	SEISCOMP_INFO("xxl.maxStationDistance           %.1f deg", xxlMaxStaDist);
+	SEISCOMP_INFO("xxl.maxDepth                      %g km",  xxlMaxDepth);
+	SEISCOMP_INFO("xxl.deadTime                      %g s",  xxlDeadTime);
 //	SEISCOMP_INFO("maxRadiusFactor                  %g", 	 maxRadiusFactor);
 }
 

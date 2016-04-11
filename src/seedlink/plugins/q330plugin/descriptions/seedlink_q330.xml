@@ -33,6 +33,12 @@
 					UDP port.
 				</description>
 			</parameter>
+			<parameter name="proc" type="string">
+				<description>
+				Name of the proc object (defined in streams.xml); used for processing
+				raw streams (streams submitted by a plugin as raw samples).
+				</description>
+			</parameter>
 			<parameter name="slot" type="int" default="1"/>
 				<description>
 					Q330 dataport number (1-4).

@@ -604,9 +604,12 @@ else:
 # First pass, collect commandline templates for options with a publicID
 for n in node_list: xml_collect_cmdline(n, True)
 
+man_pages = []
+
 for n in node_list:
   app_name = n.get('name')
   filename = os.path.join(app_path, (app_name + ".rst").lower())
+  man_pages.append((app_name.lower(), n.get('author')))
   try: f = codecs.open(filename, "w", "utf-8")
   except Exception, e:
     sys.stderr.write("ERROR: unable to create app rst '%s': %s\n" % (filename, str(e)))
@@ -836,8 +839,26 @@ if len(app_plugin_nodes) > 0:
 else:
   f.write("**No extensions available**\n")
 
+f = open(os.path.join(out_dir, "conf.py"), "a")
+print >> f, "# -- Options for manual page output --------------------------------------------"
+print >> f, ""
+print >> f, "# One entry per manual page. List of tuples"
+print >> f, "# (source start file, name, description, authors, manual section)."
+print >> f, "man_pages = ["
+for man_page in man_pages:
+  author = "GFZ Potsdam"
+  if man_page[1]: author = man_page[1]
+  print >> f, "    ('apps/%s', '%s', project + u' Documentation', [u'%s'], 1)," % (man_page[0], man_page[0], author)
+print >> f, "]"
+print >> f, ""
+f.close()
+
 print "Clean-up HTML build dir"
 try: shutil.rmtree(os.path.join(out_build_dir, "html"))
+except: pass
+
+print "Clean-up MAN build dir"
+try: shutil.rmtree(os.path.join(out_build_dir, "man1"))
 except: pass
 
 try:
@@ -846,3 +867,8 @@ except:
   os.environ["PYTHONPATH"] = os.path.abspath('../src/system/libs/python')
 
 os.system("sphinx-build -b html %s %s" % (out_dir, os.path.join(out_build_dir, "html")))
+os.system("sphinx-build -b man %s %s" % (out_dir, os.path.join(out_build_dir, "man1")))
+
+print "Clean-up MAN temporary files"
+try: shutil.rmtree(os.path.join(out_build_dir, "man1", ".doctrees"))
+except: pass

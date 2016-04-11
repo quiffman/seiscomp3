@@ -60,7 +60,7 @@ tel: +33(0)493752502  e-mail: anthony@alomax.net  web: http://www.alomax.net
 #endif
 
 #include "GridLib.h"
-#include "ran1.h"
+#include "ran1/ran1.h"
 #include "velmod.h"
 #include "GridMemLib.h"
 #include "calc_crust_corr.h"
@@ -528,6 +528,9 @@ cleanup:
                 nll_putmsg(0, MsgStr);
             } else
                 nll_putmsg(2, "");
+
+            // 201101013 AJL - Bug fix - this cleanup was done in NLLocLib.c->clean_memory() which puts the cleanup incorrectly inside the Locate loop
+            CleanWeightMatrix();
 
         } /* next event */
 

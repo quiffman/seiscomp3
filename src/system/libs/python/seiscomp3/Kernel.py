@@ -29,6 +29,7 @@ class Environment(seiscomp3.Config.Config):
     self.key_dir = os.path.join(self.root, "etc", "key")
     self.var_dir = os.path.join(self.root, "var")
     self.cwd = None
+    self.last_template_file = None
 
     self._csv = False
     self._readConfig()
@@ -185,21 +186,25 @@ class Environment(seiscomp3.Config.Config):
 
 
   def processTemplate(self, templateFile, paths, params, printError = False):
+    self.last_template_file = None
+
     for tp in paths:
-      if os.path.exists(tp):
+      if os.path.exists(os.path.join(tp, templateFile)):
         break
 
     else:
       if printError:
-        print "Error: template %s not found" % (templateFileName)
-      return
+        print "Error: template %s not found" % (templateFile)
+      return ""
 
     filename = os.path.join(tp, templateFile)
+    self.last_template_file = filename
+
     try: t = Template(open(filename).read())
     except:
       if printError:
         print "Error: template %s not readable" % filename
-      return
+      return ""
 
     params['date'] = time.ctime()
     params['template'] = filename

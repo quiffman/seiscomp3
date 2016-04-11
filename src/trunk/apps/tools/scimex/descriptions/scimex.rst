@@ -52,9 +52,9 @@ scimex_import.cfg
 
    mode = IMPORT
 
-   cleanUpInterval=86400
+   cleanupinterval = 86400
 
-   importSink = import1
+   importHosts = import1
 
    criteria.world.longitude = -180:180
    criteria.world.latitude = -90:90
@@ -64,7 +64,7 @@ scimex_import.cfg
 
    hosts.import1.address = localhost
    # The criterion "world" has been defined above
-   hosts.import1.criteria= world
+   hosts.import1.criteria = world
    # optional and true per default
    hosts.import1.filter = false
    # optional and true per default
@@ -78,9 +78,8 @@ scimex_import.cfg
 
 
 In this example, Pick and StationAmplitude objects are sent to the
-receiving system's IMPORT group to...
-
-.. note:: [why? to avoid interfering with the receiving system's picking].
+receiving system's IMPORT group to avoid interfering with the receiving system's
+picking.
 
 On the sending system, only those events with a high enough magnitude
 and enough arrivals, and with the AgencyID "GFZ" are exported:
@@ -93,8 +92,8 @@ scimex_export.cfg
 
    mode = EXPORT
 
-   cleanUpInterval = 7200
-   exportSink = exp1, exp2
+   cleanupinterval = 7200
+   exportHosts = exp1, exp2
 
    # Match everything with magnitude above or equal 5
    # and with more than 25 phases which comes from
@@ -103,7 +102,7 @@ scimex_export.cfg
    criteria.globalM5.longitude    = -180:180
    criteria.globalM5.magnitude    = 5:10
    criteria.globalM5.arrivalcount = 25
-   criteria.globalM5.agencyid     = GFZ
+   criteria.globalM5.agencyID     = GFZ
 
    # Export to a system which still runs a very old version. The
    # messages need to be converted.

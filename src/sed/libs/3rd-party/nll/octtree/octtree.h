@@ -66,6 +66,8 @@ tel: +33(0)493752502  e-mail: anthony@alomax.net  web: http://www.alomax.net
 /* structures */
 /*------------------------------------------------------------/ */
 
+#define VALUE_IS_LOG_PROB_DENSITY_IN_NODE 0
+#define VALUE_IS_PROBABILITY_IN_NODE 1
 
 /* octree node */
 
@@ -75,6 +77,7 @@ typedef struct octnode
 	OctNodePtr parent;		/* parent node */
 	Vect3D center;			/* absolute coordinates of center */
 	Vect3D ds;			/* length of sides */
+	int level;                      // level of node in oect-tree heirachy (0 = top, largest)
 	double value;			/* node value */
 	OctNodePtr child[2][2][2];	/* child nodes */
 	char isLeaf;			/* leaf flag, 1=leaf */
@@ -107,8 +110,9 @@ typedef struct resultTreeNode {
 	ResultTreeNodePtr left;		/* address of left node */
 	ResultTreeNodePtr right;	/* address of right node */
 	double value;			/* sort value */
+	int level;			/* level of node in oect-tree heirachy (0 = top, largest) */
 	double volume;		/* volume, node volume depends on geometry in physical space, may not be dx*dy*dz */
-	OctNode* pnode;			/* correspnding octree node */
+	OctNode* pnode;			/* corresponding octree node */
 } ResultTreeNode;
 
 
@@ -153,6 +157,9 @@ void freeResultTree(ResultTreeNode* prtn);
 ResultTreeNode* getHighestValue(ResultTreeNode* prtn);
 ResultTreeNode* getHighestLeafValue(ResultTreeNode* prtree);
 ResultTreeNode* getHighestLeafValueMinSize(ResultTreeNode* prtree, double sizeMinX, double sizeMinY, double sizeMinZ);
+ResultTreeNode* getHighestLeafValueLESpecifiedSize(ResultTreeNode* prtree, double sizeX, double sizeY, double sizeZ);
+ResultTreeNode* getHighestLeafValueOfSpecifiedSize(ResultTreeNode* prtree, double sizeX, double sizeY, double sizeZ);
+ResultTreeNode* getHighestLeafValueAtSpecifiedLevel(ResultTreeNode* prtree, int level);
 
 Tree3D* readTree3D(FILE *fpio);
 int readNode(FILE *fpio, OctNode* node);
@@ -161,6 +168,17 @@ int writeNode(FILE *fpio, OctNode* node);
 
 int nodeContains(OctNode* node, double x, double y, double z);
 int extendedNodeContains(OctNode* node, double x, double y, double z, int checkZ);
+
+int getScatterSampleResultTreeAtLevels(ResultTreeNode* prtree, int value_type, int num_scatter,
+        double integral, float* fdata, int npoints, int* pfdata_index,
+        double oct_node_value_ref, double *poct_tree_scatter_volume, int level_min, int level_max);
+int getScatterSampleResultTree(ResultTreeNode* prtree, int value_type, int num_scatter,
+        double integral, float* fdata, int npoints, int* pfdata_index,
+        double oct_node_value_max, double *poct_tree_scatter_volume);
+double convertOcttreeValuesToProb(ResultTreeNode* prtree, double sum, double oct_node_value_max);
+double integrateResultTreeAtLevels(ResultTreeNode* prtree, int value_type, double sum, double oct_node_value_max, int level_min, int level_max);
+double integrateResultTree(ResultTreeNode* prtree, int value_type, double sum, double oct_node_value_max);
+ResultTreeNode* createResultTree(ResultTreeNode* prtree, ResultTreeNode* pnew_rtree);
 
 
 /* */

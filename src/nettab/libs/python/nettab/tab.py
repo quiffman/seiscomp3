@@ -246,12 +246,16 @@ class Tab(object):
 				elif Type == "Sr":
 					if not g:
 						if not sg:
-							raise Exception("No station group defined, Hr line should come before station line.")
+							raise Exception("No station group defined, Sg line should come before station reference line.")
 						else:
 							g = StationGroup(sg)
-							for (filename, stationGroup) in self.n.iteritems():
-								if stationGroup.conflict(n):
+							for (filename, stationGroup) in self.g.iteritems():
+								if stationGroup.conflict(g):
 									raise Exception("Station group already defined %s (%s)-(%s) by file %s." % (stationGroup.code, stationGroup.start, stationGroup.end, filename))
+							for (filename, network) in self.n.iteritems():
+								if network.conflict(g):
+									raise Exception("Station group conflict network already defined %s (%s)-(%s) by file %s." % (network.code, network.start, network.end, filename))
+
 					try:
 						sr = Sr(Content)
 					except Exception,e:

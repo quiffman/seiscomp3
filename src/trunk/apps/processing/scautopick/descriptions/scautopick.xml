@@ -33,7 +33,7 @@
 					the filter and depends on it.
 				</description>
 			</parameter>
-			<parameter name="gapInterpolation" type="bool" default="false">
+			<parameter name="gapInterpolation" type="boolean" default="false">
 				<description>
 					Interpolate gaps linearily? This is valid for gaps shorter
 					than thresholds.maxGapLength.
@@ -56,7 +56,7 @@
 					Configures the secondary picker to use.
 				</description>
 			</parameter>
-			<parameter name="useAllStreams" type="bool" default="true">
+			<parameter name="useAllStreams" type="boolean" default="true">
 				<description>
 					If enabled the all streams are used for picking that are received by the picker.
 					This option has only effect if a file is used as input which contains more data than
@@ -64,7 +64,7 @@
 					will only receive the data it subscribed to.
 				</description>
 			</parameter>
-			<parameter name="sendDetections" type="bool" default="false">
+			<parameter name="sendDetections" type="boolean" default="false">
 				<description>
 					If enabled and a :confval:`picker` is configured then detections are sent as well.
 					To distinguish between detections and picks the evaluation mode of the pick is set

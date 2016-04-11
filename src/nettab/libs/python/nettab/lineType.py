@@ -613,7 +613,10 @@ class Ia(object):
 			rs = self.ids[elementID]
 			if len(rs) == 0: return True
 			for r in rs:
-				if isinstance(element,r): return True
+				if type(element) == str:
+					if r.__name__ == element: return True
+				else:
+					if isinstance(element,r): return True
 		except:
 			pass
 
@@ -622,7 +625,10 @@ class Ia(object):
 				if self._regexCompare(pattern, elementID):
 					if len(rs) == 0: return True
 					for r in rs:
-						if isinstance(element, r): return True
+						if type(element) == str:
+							if r.__name__ == element: return True
+						else:
+							if isinstance(element, r): return True
 		except:
 			pass
 		

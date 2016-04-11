@@ -42,6 +42,11 @@
 						Enables logging into a log file.
 					</description>
 				</parameter>
+				<parameter name="syslog" type="boolean" default="false">
+					<description>
+						Enables logging to syslog if supported by the host system.
+					</description>
+				</parameter>
 				<parameter name="components" type="list:string">
 					<description>
 						Limit the logging to the specified list of components, e.g. 'Application, Server'
@@ -74,6 +79,16 @@
 							</description>
 						</parameter>
 					</group>
+				</group>
+				<group name="syslog">
+					<parameter name="facility" type="string" default="local0">
+						<description>
+						Defines the syslog facility to be used according to the
+						defined facility names in syslog.h. The default is local0.
+						If the given name is invalid or not available, initializing
+						logging will fail and the application quits.
+						</description>
+					</parameter>
 				</group>
 			</group>
 			<group name="connection">
@@ -154,6 +169,22 @@
 					Load the configuration database from a given XML file if set. This
 					overrides the configuration definitions loaded from the database backend.
 				</parameter>
+			</group>
+			<group name="processing">
+				<group name="whitelist">
+					<parameter name="agencies" type="list:string">
+						<description>
+						Defines a whitelist of agencies that are allowed for processing separated by comma.
+						</description>
+					</parameter>
+				</group>
+				<group name="blacklist">
+					<parameter name="agencies" type="list:string">
+						<description>
+						Defines a blacklist of agencies that are not allowed for processing separated by comma.
+						</description>
+					</parameter>
+				</group>
 			</group>
 			<group name="recordstream">
 				<parameter name="service" type="string" default="slink"/>

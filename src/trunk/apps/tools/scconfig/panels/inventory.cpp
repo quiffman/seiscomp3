@@ -12,8 +12,10 @@
 
 
 #include "inventory.h"
+#include "inspector.h"
 
 #include <seiscomp3/system/environment.h>
+#include <seiscomp3/io/archive/xmlarchive.h>
 
 #include <QtGui>
 
@@ -503,11 +505,15 @@ InventoryPanel::InventoryPanel(QWidget *parent)
 	QAction *deleteFileAction = new QAction(tr("Delete"), this);
 	connect(deleteFileAction, SIGNAL(triggered()), this, SLOT(deleteFiles()));
 
+	QAction *inspectFileAction = new QAction(tr("Show content"), this);
+	connect(inspectFileAction, SIGNAL(triggered()), this, SLOT(inspectFile()));
+
 	_folderView = new QListView;
 	_folderView->setFrameShape(QFrame::NoFrame);
 	_folderView->setResizeMode(QListView::Adjust);
 	_folderView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_folderView->setContextMenuPolicy(Qt::ActionsContextMenu);
+	_folderView->addAction(inspectFileAction);
 	_folderView->addAction(deleteFileAction);
 
 	_folderTree = new QTreeView;
@@ -516,6 +522,7 @@ InventoryPanel::InventoryPanel(QWidget *parent)
 	_folderTree->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_folderTree->setSortingEnabled(true);
 	_folderTree->setContextMenuPolicy(Qt::ActionsContextMenu);
+	_folderTree->addAction(inspectFileAction);
 	_folderTree->addAction(deleteFileAction);
 
 	_folderModel = new QDirModel(this);
@@ -652,8 +659,8 @@ void InventoryPanel::deleteFiles() {
 
 	if ( indexes.isEmpty() ) return;
 
-	if ( QMessageBox::question(NULL, "Delete",
-	           "Do you really want to delete all selected files?",
+	if ( QMessageBox::question(NULL, tr("Delete"),
+	           tr("Do you really want to delete all selected files?"),
 	           QMessageBox::Yes | QMessageBox::No
 	     ) != QMessageBox::Yes )
 		return;
@@ -664,6 +671,45 @@ void InventoryPanel::deleteFiles() {
 
 	foreach ( const QPersistentModelIndex &i, toBeDeleted )
 		if ( i.isValid() ) _folderModel->remove(i);
+}
+
+
+void InventoryPanel::inspectFile() {
+	QModelIndexList indexes;
+	indexes = _selectionModel->selectedRows();
+
+	if ( indexes.isEmpty() ) return;
+
+	if ( indexes.count() > 1 ) {
+		QMessageBox::critical(NULL, tr("Show content"),
+		                      tr("More than one file selected"));
+		return;
+	}
+
+	Seiscomp::Environment *env = Seiscomp::Environment::Instance();
+	QString target = (env->installDir() + "/etc/inventory").c_str();
+	target = QDir::toNativeSeparators(target + "/" + indexes[0].data().toString());
+
+	Seiscomp::IO::XMLArchive ar;
+	if ( !ar.open(target.toAscii()) ) {
+		QMessageBox::critical(NULL, tr("Show content"),
+		                      tr("Could not open file"));
+		return;
+	}
+
+	Seiscomp::Core::BaseObjectPtr obj;
+	ar >> obj;
+	ar.close();
+
+	if ( obj == NULL ) {
+		QMessageBox::critical(NULL, tr("Show content"),
+		                      tr("Empty file"));
+		return;
+	}
+
+	Inspector dlg;
+	dlg.setObject(obj.get());
+	dlg.exec();
 }
 
 

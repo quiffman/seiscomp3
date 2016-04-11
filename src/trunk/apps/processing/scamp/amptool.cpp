@@ -816,6 +816,7 @@ void AmpTool::emitAmplitude(const AmplitudeProcessor *proc,
 	if ( res.period > 0 ) amp->setPeriod(RealQuantity(res.period));
 	if ( res.snr >= 0 ) amp->setSnr(res.snr);
 	amp->setType(proc->type());
+	amp->setUnit(proc->unit());
 	amp->setTimeWindow(
 		DataModel::TimeWindow(res.time.reference, res.time.begin, res.time.end)
 	);

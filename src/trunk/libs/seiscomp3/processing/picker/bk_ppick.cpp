@@ -1,9 +1,9 @@
 /*
 
   Original Author: Manfred Baer, Swiss Seismological Service
-  
+
   picker_ppick.f -- translated by f2c (version 20061008).
-  
+
   Manually modified in 2010 by Stefan Heimers,
   will work without libf2c.
 
@@ -20,14 +20,14 @@
 #include <seiscomp3/processing/picker/bk.h>
 
 
-int preset(double *rbuf, int *n, double *old, double *y2, 
-	   double *yt, double *sumx, double *sumx2, double *sdev, int *nsum, int 
-	   *itar, int *ptime, int *preptime, char *pfm, int *ipkflg, 
+int preset(double *rbuf, int *n, double *old, double *y2,
+	   double *yt, double *sumx, double *sumx2, double *sdev, int *nsum, int
+	   *itar, int *ptime, int *preptime, char *pfm, int *ipkflg,
 	   double *samplespersec){
-  
+
   static int i;
   static double yy2, ysv, yyt;
-    
+
   ysv = rbuf[0];
   *old = ysv;
   *sumx = ysv;
@@ -58,11 +58,11 @@ int preset(double *rbuf, int *n, double *old, double *y2,
 
 
 int ppick(double *reltrc, double *trace, int npts, double *
-	thrshl1, double *thrshl2, int *tdownmax, int *tupevent, int 
+	thrshl1, double *thrshl2, int *tdownmax, int *tupevent, int
 	*ipkflg, int *uptime, int *ptime, int *pamp, int *
-	pamptime, int *preptime, int *prepamp, int *prepamptime, 
-	int *ifrst, int *noise, int *noisetime, int *signal, 
-	int *signaltime, int *test, int *nanf, int *nend, 
+	pamptime, int *preptime, int *prepamp, int *prepamptime,
+	int *ifrst, int *noise, int *noisetime, int *signal,
+	int *signaltime, int *test, int *nanf, int *nend,
 	int *skip, int *prset, int *pickduration,
 	double *samplespersec, char *pfm){
 
@@ -71,7 +71,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
 
   static int realdown, i__;
   static double y2, yt;
-  static int picklength, amp, dmy, num;
+  static int picklength, amp, num;
   static double sum, ssx, rda2, rdi2, ssx2, edat, mean, edev, rdif;
   static int iamp;
   static double rdat;
@@ -83,26 +83,26 @@ int ppick(double *reltrc, double *trace, int npts, double *
   static double rawold;
 
   static int nstart, end_dur__, amptime;
-  
+
   /* ==================================================================== */
-  
+
   /* p-picker routine by m. baer, schweizer. erdbebendienst */
   /*                              institut fur geophysik */
   /*                              eth-zurich */
   /*                              8093 zurich */
   /*                              tel. 01-377 26 27 */
   /*                              telex: 823480 eheb ch */
-  
+
   /* see paper by m. baer and u. kradolfer: an automatic phase picker */
   /*                              for local and teleseismic events */
   /*                              bssa vol. 77,4 pp1437-1445 */
   /* ==================================================================== */
-  
+
   /* this subroutine can be call successively for subsequent portions */
   /* of a seismogram. all necessary values are passed back to the calling */
   /* program. */
   /* for the initial call, the following variables have to be set: */
-  
+
   /*      y2                    (e.g. = 1.0, or from any estimate) */
   /*      yt                    (e.g. = 1.0, or from any estimate) */
   /*      sdev                  (e.g. = 1.0) */
@@ -113,7 +113,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
   /*      thrshl2               (e.g. = 20.0) */
   /*      ptime                 must be 0 */
   /*      num                   must be 0 */
-  
+
   /* subroutine parameters: */
   /* reltrc      : timeseries as floating data, possibly filtered */
   /* trace	      : timeseries as integer data, unfiltered, used to */
@@ -149,16 +149,16 @@ int ppick(double *reltrc, double *trace, int npts, double *
   /* samplespersec: no of samples per second */
   /* realup      : number of up samples */
   /* realdown    : number of down samples in trigger window */
-  
+
   /*      common /pckpar/ tdownmax,tupevent,thrshl1,thrshl2 */
-  
+
   /* tdownmax    : if dtime exceeds tdownmax, the trigger is examined for */
   /*               validity */
   /* tupevent    : min nr of samples for itrm to be accepted as a pick */
   /* thrshl1     : threshold to trigger for pick (c.f. paper) */
   /* thrshl2     : threshold for updating sigma  (c.f. paper) */
-  
-  
+
+
   /* unfiltered */
   /* nanf & nend : write test output only for nanf<=nsmp<=nend */
   /*      data nanf,nend/9000,10000/ */
@@ -170,14 +170,14 @@ int ppick(double *reltrc, double *trace, int npts, double *
   /* Parameter adjustments */
   --trace;
   --reltrc;
-  
+
   /* Function Body */
   amptime = 0;
   realup = 0;
   if (*skip == 0) {
     nstart = *samplespersec * 3;
     /* skip first 3 seconds: bb-signals may */
-  } 
+  }
   else{
     nstart = *skip;
   }
@@ -225,10 +225,10 @@ int ppick(double *reltrc, double *trace, int npts, double *
     /*         write(7,'(i6,4e12.4,5i7)') i,edat,sdev,edev,rdat, */
     /*     +      ipkflg,itar,ptime,preptime,dtime */
   }
-  
-  
+
+
  L160:
-  
+
   /* loop for npts samples */
   ++i__;
   if (i__ > npts) {
@@ -242,7 +242,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
 	/* triggered for more than tupevent */
 	if (*ptime == 0) {
 	  *ptime = itar;
-	  if (*samplespersec < 100.f) { 
+	  if (*samplespersec < 100.f) {
 	    if (*ifrst < 0) {
 	      pfm[0]='U';
 	    }
@@ -267,7 +267,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
 	}
       }
     }
-    if (*test != 0) {	 
+    if (*test != 0) {
       std::cout << "pick at sample: " << *ptime    << std::endl;
       std::cout << " uptime=      "   <<  itrm     << std::endl; // TODO: is this correct???
       std::cout << " tupevent=    "   << *tupevent << std::endl;
@@ -286,7 +286,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
     }
     goto L160;
   }
-  
+
   rdat = reltrc[i__];
   rdif = (rdat - rawold) * *samplespersec;
   rawold = rdat;
@@ -301,7 +301,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
   }
   omega = y2 / yt;
   edev = (edat - mean) / sdev;
-  
+
   if (*test != 0 && i__ >= *nanf && i__ <= *nend) {
     // s_wsfe(&io___33);
     // do_fio(&c__1, (char *)&i__, (size_t)sizeof(int));
@@ -315,8 +315,6 @@ int ppick(double *reltrc, double *trace, int npts, double *
     // do_fio(&c__1, (char *)&(*preptime), (size_t)sizeof(int));
     // do_fio(&c__1, (char *)&dtime, (size_t)sizeof(int));
     // e_wsfe();
-  } else {
-    dmy = 0;
   }
   iamp = abs(trace[i__]) + 0.5;
   if (iamp > amp) {
@@ -327,7 +325,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
     *pamp = amp;
     *pamptime = amptime;
   }
- 
+
   if (edev > *thrshl1 && i__ > nstart << 1) {
     if (*ipkflg == 0) {
       /* save current parameters */
@@ -360,9 +358,9 @@ int ppick(double *reltrc, double *trace, int npts, double *
       ++(*uptime);
     }
     ++realup;
-    
+
     dtime = 0;
-    
+
   } else {
     if (*ipkflg != 0) {
       ++dtime;
@@ -414,7 +412,7 @@ int ppick(double *reltrc, double *trace, int npts, double *
       }
     }
   }
-  
+
   /*  update standard deviation */
   if (edev < *thrshl2 || i__ <= nstart + 256) {
     ssx += edat;
@@ -428,5 +426,5 @@ int ppick(double *reltrc, double *trace, int npts, double *
     num = sum + .5f;
   }
   goto L160;
-  
+
 } /* ppick */

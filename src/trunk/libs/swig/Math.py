@@ -439,6 +439,10 @@ class vectord(_object):
 vectord_swigregister = _Math.vectord_swigregister
 vectord_swigregister(vectord)
 
+
+def round(*args):
+  """round(double val) -> double"""
+  return _Math.round(*args)
 class CoordF(Core.BaseObject):
     """Proxy of C++ Seiscomp::Math::Geo::Coord<(float)> class"""
     __swig_setmethods__ = {}
@@ -2603,6 +2607,143 @@ class ChainFilterD(InPlaceFilterD):
 ChainFilterD_swigregister = _Math.ChainFilterD_swigregister
 ChainFilterD_swigregister(ChainFilterD)
 
+Displacement = _Math.Displacement
+Velocity = _Math.Velocity
+Acceleration = _Math.Acceleration
+class PolesAndZeros(_object):
+    """Proxy of C++ Seiscomp::Math::SeismometerResponse::PolesAndZeros class"""
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, PolesAndZeros, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, PolesAndZeros, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """
+        __init__(self) -> PolesAndZeros
+        __init__(self, Poles poles, Zeros zeros, double norm) -> PolesAndZeros
+        __init__(self, PolesAndZeros other) -> PolesAndZeros
+        """
+        this = _Math.new_PolesAndZeros(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_setmethods__["poles"] = _Math.PolesAndZeros_poles_set
+    __swig_getmethods__["poles"] = _Math.PolesAndZeros_poles_get
+    if _newclass:poles = _swig_property(_Math.PolesAndZeros_poles_get, _Math.PolesAndZeros_poles_set)
+    __swig_setmethods__["zeros"] = _Math.PolesAndZeros_zeros_set
+    __swig_getmethods__["zeros"] = _Math.PolesAndZeros_zeros_get
+    if _newclass:zeros = _swig_property(_Math.PolesAndZeros_zeros_get, _Math.PolesAndZeros_zeros_set)
+    __swig_setmethods__["norm"] = _Math.PolesAndZeros_norm_set
+    __swig_getmethods__["norm"] = _Math.PolesAndZeros_norm_get
+    if _newclass:norm = _swig_property(_Math.PolesAndZeros_norm_get, _Math.PolesAndZeros_norm_set)
+    __swig_destroy__ = _Math.delete_PolesAndZeros
+    __del__ = lambda self : None;
+PolesAndZeros_swigregister = _Math.PolesAndZeros_swigregister
+PolesAndZeros_swigregister(PolesAndZeros)
+
+class WoodAnderson(PolesAndZeros):
+    """Proxy of C++ Seiscomp::Math::SeismometerResponse::WoodAnderson class"""
+    __swig_setmethods__ = {}
+    for _s in [PolesAndZeros]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    __setattr__ = lambda self, name, value: _swig_setattr(self, WoodAnderson, name, value)
+    __swig_getmethods__ = {}
+    for _s in [PolesAndZeros]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    __getattr__ = lambda self, name: _swig_getattr(self, WoodAnderson, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """__init__(self, GroundMotion input) -> WoodAnderson"""
+        this = _Math.new_WoodAnderson(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _Math.delete_WoodAnderson
+    __del__ = lambda self : None;
+WoodAnderson_swigregister = _Math.WoodAnderson_swigregister
+WoodAnderson_swigregister(WoodAnderson)
+
+class Seismometer5sec(PolesAndZeros):
+    """Proxy of C++ Seiscomp::Math::SeismometerResponse::Seismometer5sec class"""
+    __swig_setmethods__ = {}
+    for _s in [PolesAndZeros]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Seismometer5sec, name, value)
+    __swig_getmethods__ = {}
+    for _s in [PolesAndZeros]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    __getattr__ = lambda self, name: _swig_getattr(self, Seismometer5sec, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """__init__(self, GroundMotion input) -> Seismometer5sec"""
+        this = _Math.new_Seismometer5sec(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _Math.delete_Seismometer5sec
+    __del__ = lambda self : None;
+Seismometer5sec_swigregister = _Math.Seismometer5sec_swigregister
+Seismometer5sec_swigregister(Seismometer5sec)
+
+class WWSSN_SPF(_object):
+    """Proxy of C++ Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter<(float)> class"""
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, WWSSN_SPF, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, WWSSN_SPF, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """
+        __init__(self, GroundMotion input = Velocity) -> WWSSN_SPF
+        __init__(self) -> WWSSN_SPF
+        __init__(self, WWSSN_SPF other) -> WWSSN_SPF
+        """
+        this = _Math.new_WWSSN_SPF(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def setParameters(self, *args):
+        """setParameters(self, int n, double params) -> int"""
+        return _Math.WWSSN_SPF_setParameters(self, *args)
+
+    def clone(self):
+        """clone(self) -> InPlaceFilterF"""
+        return _Math.WWSSN_SPF_clone(self)
+
+    def setInput(self, *args):
+        """setInput(self, GroundMotion input)"""
+        return _Math.WWSSN_SPF_setInput(self, *args)
+
+    __swig_destroy__ = _Math.delete_WWSSN_SPF
+    __del__ = lambda self : None;
+WWSSN_SPF_swigregister = _Math.WWSSN_SPF_swigregister
+WWSSN_SPF_swigregister(WWSSN_SPF)
+
+class WWSSN_SPD(_object):
+    """Proxy of C++ Seiscomp::Math::Filtering::IIR::WWSSN_SP_Filter<(double)> class"""
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, WWSSN_SPD, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, WWSSN_SPD, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """
+        __init__(self, GroundMotion input = Velocity) -> WWSSN_SPD
+        __init__(self) -> WWSSN_SPD
+        __init__(self, WWSSN_SPD other) -> WWSSN_SPD
+        """
+        this = _Math.new_WWSSN_SPD(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def setParameters(self, *args):
+        """setParameters(self, int n, double params) -> int"""
+        return _Math.WWSSN_SPD_setParameters(self, *args)
+
+    def clone(self):
+        """clone(self) -> InPlaceFilterD"""
+        return _Math.WWSSN_SPD_clone(self)
+
+    def setInput(self, *args):
+        """setInput(self, GroundMotion input)"""
+        return _Math.WWSSN_SPD_setInput(self, *args)
+
+    __swig_destroy__ = _Math.delete_WWSSN_SPD
+    __del__ = lambda self : None;
+WWSSN_SPD_swigregister = _Math.WWSSN_SPD_swigregister
+WWSSN_SPD_swigregister(WWSSN_SPD)
+
 
 def delazi(*args):
   """delazi(double lat1, double lon1, double lat2, double lon2)"""
@@ -2711,6 +2852,265 @@ def nearestCity(*args):
 def deg2km(*args):
   """deg2km(double deg) -> double"""
   return _Math.deg2km(*args)
+class TransferFunction(Core.BaseObject):
+    """Proxy of C++ Seiscomp::Math::Restitution::FFT::TransferFunction class"""
+    __swig_setmethods__ = {}
+    for _s in [Core.BaseObject]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    __setattr__ = lambda self, name, value: _swig_setattr(self, TransferFunction, name, value)
+    __swig_getmethods__ = {}
+    for _s in [Core.BaseObject]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    __getattr__ = lambda self, name: _swig_getattr(self, TransferFunction, name)
+    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+    def __mul__(self, *args):
+        """__mul__(self, TransferFunction a) -> TransferFunction"""
+        return _Math.TransferFunction___mul__(self, *args)
+
+    def __div__(self, *args):
+        """__div__(self, TransferFunction a) -> TransferFunction"""
+        return _Math.TransferFunction___div__(self, *args)
+
+    def evaluate(self, *args):
+        """
+        evaluate(self, Complex out, int n, double x)
+        evaluate(self, vectorc out, vectord x)
+        """
+        return _Math.TransferFunction_evaluate(self, *args)
+
+    def deconvolve(self, *args):
+        """
+        deconvolve(self, int n, Complex spec, double startFreq, double df)
+        deconvolve(self, vectorc spec, double startFreq, double df)
+        """
+        return _Math.TransferFunction_deconvolve(self, *args)
+
+    def convolve(self, *args):
+        """
+        convolve(self, int n, Complex spec, double startFreq, double df)
+        convolve(self, vectorc spec, double startFreq, double df)
+        """
+        return _Math.TransferFunction_convolve(self, *args)
+
+    __swig_destroy__ = _Math.delete_TransferFunction
+    __del__ = lambda self : None;
+TransferFunction_swigregister = _Math.TransferFunction_swigregister
+TransferFunction_swigregister(TransferFunction)
+
+class TransferFunctionPAZ(TransferFunction):
+    """Proxy of C++ Seiscomp::Math::Restitution::FFT::PolesAndZeros class"""
+    __swig_setmethods__ = {}
+    for _s in [TransferFunction]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
+    __setattr__ = lambda self, name, value: _swig_setattr(self, TransferFunctionPAZ, name, value)
+    __swig_getmethods__ = {}
+    for _s in [TransferFunction]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
+    __getattr__ = lambda self, name: _swig_getattr(self, TransferFunctionPAZ, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        """
+        PolesAndZeros(PolesAndZeros polesAndZeros) -> TransferFunctionPAZ
+        PolesAndZeros(int n_poles, Pole poles, int n_zeros, Zero zeros, double k, 
+            int addZeros = 0) -> TransferFunctionPAZ
+        __init__(self, int n_poles, Pole poles, int n_zeros, Zero zeros, double k) -> TransferFunctionPAZ
+        """
+        this = _Math.new_TransferFunctionPAZ(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_setmethods__["paz"] = _Math.TransferFunctionPAZ_paz_set
+    __swig_getmethods__["paz"] = _Math.TransferFunctionPAZ_paz_get
+    if _newclass:paz = _swig_property(_Math.TransferFunctionPAZ_paz_get, _Math.TransferFunctionPAZ_paz_set)
+    __swig_destroy__ = _Math.delete_TransferFunctionPAZ
+    __del__ = lambda self : None;
+TransferFunctionPAZ_swigregister = _Math.TransferFunctionPAZ_swigregister
+TransferFunctionPAZ_swigregister(TransferFunctionPAZ)
+
+class vectorc(_object):
+    """Proxy of C++ std::vector<(Seiscomp::Math::Complex)> class"""
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, vectorc, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, vectorc, name)
+    __repr__ = _swig_repr
+    def iterator(self):
+        """iterator(self) -> SwigPyIterator"""
+        return _Math.vectorc_iterator(self)
+
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self):
+        """__nonzero__(self) -> bool"""
+        return _Math.vectorc___nonzero__(self)
+
+    def __bool__(self):
+        """__bool__(self) -> bool"""
+        return _Math.vectorc___bool__(self)
+
+    def __len__(self):
+        """__len__(self) -> std::vector<(std::complex<(double)>)>::size_type"""
+        return _Math.vectorc___len__(self)
+
+    def pop(self):
+        """pop(self) -> std::vector<(std::complex<(double)>)>::value_type"""
+        return _Math.vectorc_pop(self)
+
+    def __getslice__(self, *args):
+        """
+        __getslice__(self, std::vector<(std::complex<(double)>)>::difference_type i, 
+            std::vector<(std::complex<(double)>)>::difference_type j) -> vectorc
+        """
+        return _Math.vectorc___getslice__(self, *args)
+
+    def __setslice__(self, *args):
+        """
+        __setslice__(self, std::vector<(std::complex<(double)>)>::difference_type i, 
+            std::vector<(std::complex<(double)>)>::difference_type j, 
+            vectorc v = std::vector< std::complex< double >,std::allocator< std::complex< double > > >())
+        __setslice__(self, std::vector<(std::complex<(double)>)>::difference_type i, 
+            std::vector<(std::complex<(double)>)>::difference_type j)
+        """
+        return _Math.vectorc___setslice__(self, *args)
+
+    def __delslice__(self, *args):
+        """
+        __delslice__(self, std::vector<(std::complex<(double)>)>::difference_type i, 
+            std::vector<(std::complex<(double)>)>::difference_type j)
+        """
+        return _Math.vectorc___delslice__(self, *args)
+
+    def __delitem__(self, *args):
+        """
+        __delitem__(self, std::vector<(std::complex<(double)>)>::difference_type i)
+        __delitem__(self, PySliceObject slice)
+        """
+        return _Math.vectorc___delitem__(self, *args)
+
+    def __getitem__(self, *args):
+        """
+        __getitem__(self, PySliceObject slice) -> vectorc
+        __getitem__(self, std::vector<(std::complex<(double)>)>::difference_type i) -> std::vector<(std::complex<(double)>)>::value_type
+        """
+        return _Math.vectorc___getitem__(self, *args)
+
+    def __setitem__(self, *args):
+        """
+        __setitem__(self, PySliceObject slice, vectorc v)
+        __setitem__(self, PySliceObject slice)
+        __setitem__(self, std::vector<(std::complex<(double)>)>::difference_type i, 
+            std::vector<(std::complex<(double)>)>::value_type x)
+        """
+        return _Math.vectorc___setitem__(self, *args)
+
+    def append(self, *args):
+        """append(self, std::vector<(std::complex<(double)>)>::value_type x)"""
+        return _Math.vectorc_append(self, *args)
+
+    def empty(self):
+        """empty(self) -> bool"""
+        return _Math.vectorc_empty(self)
+
+    def size(self):
+        """size(self) -> std::vector<(std::complex<(double)>)>::size_type"""
+        return _Math.vectorc_size(self)
+
+    def clear(self):
+        """clear(self)"""
+        return _Math.vectorc_clear(self)
+
+    def swap(self, *args):
+        """swap(self, vectorc v)"""
+        return _Math.vectorc_swap(self, *args)
+
+    def get_allocator(self):
+        """get_allocator(self) -> std::vector<(std::complex<(double)>)>::allocator_type"""
+        return _Math.vectorc_get_allocator(self)
+
+    def begin(self):
+        """begin(self) -> std::vector<(std::complex<(double)>)>::iterator"""
+        return _Math.vectorc_begin(self)
+
+    def end(self):
+        """end(self) -> std::vector<(std::complex<(double)>)>::iterator"""
+        return _Math.vectorc_end(self)
+
+    def rbegin(self):
+        """rbegin(self) -> std::vector<(std::complex<(double)>)>::reverse_iterator"""
+        return _Math.vectorc_rbegin(self)
+
+    def rend(self):
+        """rend(self) -> std::vector<(std::complex<(double)>)>::reverse_iterator"""
+        return _Math.vectorc_rend(self)
+
+    def pop_back(self):
+        """pop_back(self)"""
+        return _Math.vectorc_pop_back(self)
+
+    def erase(self, *args):
+        """
+        erase(self, std::vector<(std::complex<(double)>)>::iterator pos) -> std::vector<(std::complex<(double)>)>::iterator
+        erase(self, std::vector<(std::complex<(double)>)>::iterator first, 
+            std::vector<(std::complex<(double)>)>::iterator last) -> std::vector<(std::complex<(double)>)>::iterator
+        """
+        return _Math.vectorc_erase(self, *args)
+
+    def __init__(self, *args): 
+        """
+        __init__(self) -> vectorc
+        __init__(self, vectorc arg0) -> vectorc
+        __init__(self, std::vector<(std::complex<(double)>)>::size_type size) -> vectorc
+        __init__(self, std::vector<(std::complex<(double)>)>::size_type size, 
+            std::vector<(std::complex<(double)>)>::value_type value) -> vectorc
+        """
+        this = _Math.new_vectorc(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args):
+        """push_back(self, std::vector<(std::complex<(double)>)>::value_type x)"""
+        return _Math.vectorc_push_back(self, *args)
+
+    def front(self):
+        """front(self) -> std::vector<(std::complex<(double)>)>::value_type"""
+        return _Math.vectorc_front(self)
+
+    def back(self):
+        """back(self) -> std::vector<(std::complex<(double)>)>::value_type"""
+        return _Math.vectorc_back(self)
+
+    def assign(self, *args):
+        """
+        assign(self, std::vector<(std::complex<(double)>)>::size_type n, 
+            std::vector<(std::complex<(double)>)>::value_type x)
+        """
+        return _Math.vectorc_assign(self, *args)
+
+    def resize(self, *args):
+        """
+        resize(self, std::vector<(std::complex<(double)>)>::size_type new_size)
+        resize(self, std::vector<(std::complex<(double)>)>::size_type new_size, 
+            std::vector<(std::complex<(double)>)>::value_type x)
+        """
+        return _Math.vectorc_resize(self, *args)
+
+    def insert(self, *args):
+        """
+        insert(self, std::vector<(std::complex<(double)>)>::iterator pos, 
+            std::vector<(std::complex<(double)>)>::value_type x) -> std::vector<(std::complex<(double)>)>::iterator
+        insert(self, std::vector<(std::complex<(double)>)>::iterator pos, 
+            std::vector<(std::complex<(double)>)>::size_type n, 
+            std::vector<(std::complex<(double)>)>::value_type x)
+        """
+        return _Math.vectorc_insert(self, *args)
+
+    def reserve(self, *args):
+        """reserve(self, std::vector<(std::complex<(double)>)>::size_type n)"""
+        return _Math.vectorc_reserve(self, *args)
+
+    def capacity(self):
+        """capacity(self) -> std::vector<(std::complex<(double)>)>::size_type"""
+        return _Math.vectorc_capacity(self)
+
+    __swig_destroy__ = _Math.delete_vectorc
+    __del__ = lambda self : None;
+vectorc_swigregister = _Math.vectorc_swigregister
+vectorc_swigregister(vectorc)
+
 # This file is compatible with both classic and new-style classes.
 
 

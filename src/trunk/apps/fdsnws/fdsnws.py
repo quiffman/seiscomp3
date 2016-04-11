@@ -84,7 +84,7 @@ class BugfixedDigest(credentials.DigestCredentialFactory):
 
 		username = auth.get('username')
 		if not username:
-			raise error.LoginFailed('Invalid response, no username given.')
+			raise error.LoginFailed('Invalid response, no user name given.')
 
 		if 'opaque' not in auth:
 			raise error.LoginFailed('Invalid response, no opaque given.')
@@ -221,7 +221,7 @@ class FDSNWS(Application):
 
 		if not self._serveDataSelect and not self._serveEvent and \
 		   not self._serveStation:
-			Logging.error("All services disabled through configuration")
+			Logging.error("all services disabled through configuration")
 			return False
 
 		# access logger if requested
@@ -267,7 +267,7 @@ class FDSNWS(Application):
 			fileRes.childNotFound = NoResource()
 			dataselect1.putChild("", fileRes)
 			dataselect1.putChild("query", FDSNDataSelect())
-			msg = "authorization for restricted time series data required"
+			msg = "Authorization for restricted time series data required"
 			authSession = self._getAuthSessionWrapper(FDSNDataSelectRealm(), msg)
 			dataselect1.putChild("queryauth", authSession)
 			dataselect1.putChild("version", serviceVersion)

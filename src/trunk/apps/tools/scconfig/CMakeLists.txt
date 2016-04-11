@@ -8,6 +8,7 @@ SET(
 		fancyview.h
 		wizard.h
 		editor.h
+		panels/inspector.h
 		panels/bindings.h
 		panels/information.h
 		panels/inventory.h
@@ -20,6 +21,10 @@ SET(
 		icons.qrc
 )
 
+SET(
+	NEWCONFIG_UI
+		panels/inspector.ui
+)
 
 IF (NEWCONFIG_MOC_HEADERS)
 	QT4_WRAP_CPP(NEWCONFIG_MOC_SOURCES ${NEWCONFIG_MOC_HEADERS} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
@@ -43,6 +48,7 @@ SET(
 		fancyview.cpp
 		wizard.cpp
 		editor.cpp
+		panels/inspector.cpp
 		panels/bindings.cpp
 		panels/information.cpp
 		panels/inventory.cpp
@@ -50,6 +56,7 @@ SET(
 		panels/system.cpp
 		${NEWCONFIG_MOC_SOURCES}
 		${NEWCONFIG_RESOURCE_SOURCES}
+		${NEWCONFIG_UI_HEADERS}
 )
 
 

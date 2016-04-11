@@ -175,6 +175,15 @@ const std::string& AmplitudeProcessor::type() const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const std::string& AmplitudeProcessor::unit() const {
+	return _unit;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void AmplitudeProcessor::computeTimeWindow() {
 	if ( !(bool)_trigger )
 		setTimeWindow(Core::TimeWindow());
@@ -220,6 +229,15 @@ AmplitudeProcessor::capabilityParameters(Capability cap) const {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool AmplitudeProcessor::setParameter(Capability cap, const std::string &value) {
 	return false;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void AmplitudeProcessor::setUnit(const std::string &unit) {
+	_unit = unit;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -423,8 +441,10 @@ void AmplitudeProcessor::process(const Record *record) {
 
 		// Update status information
 		res.time.reference = dataTimeWindow().startTime() + Core::TimeSpan(dt);
-		res.time.begin = index.begin / _stream.fsamp;
-		res.time.end = index.end / _stream.fsamp;
+		//res.time.begin = index.begin / _stream.fsamp;
+		//res.time.end = index.end / _stream.fsamp;
+		res.time.begin = (si1 - index.index) / _stream.fsamp;
+		res.time.end = (si2 - index.index) / _stream.fsamp;
 
 		if ( progress >= 100 ) {
 			setStatus(Finished, 100.);

@@ -59,6 +59,7 @@ class SC_SYSTEM_CLIENT_API ARAICPicker : public Picker {
 	// ----------------------------------------------------------------------
 	private:
 		std::string _filter;
+		bool _dumpTraces;
 };
 
 

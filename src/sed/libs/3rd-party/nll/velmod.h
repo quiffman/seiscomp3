@@ -139,8 +139,7 @@ struct surface {
 				   SURF_REF_LOW - use lowest depth on surface */
 	double ref_level;	/* depth from ref point to reference level
 					for vel/den determination; */
-	double pix_shift;	/* shift in loc to account for
-							node_offset type */
+	double pix_shift;	/* shift in loc to account for node_offset type */
 	double zmin;	/* minimum z value on surface */
 	double zmax;	/* minimum z value on surface */
 	double vptop;	/* P velocity at ref level */
@@ -425,8 +424,7 @@ int get_model_solid(char* , FILE* );
 
 
 struct vertex *addvtx(int id_num);
-struct edge *addedge();
-//struct edge *addedge(int id_num);
+struct edge *addedge(int id_num);
 struct polygon *addpoly(int id_num);
 struct solid *addsolid(int id_num);
 void disp_model_poly();

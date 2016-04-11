@@ -593,6 +593,12 @@ class EventDump : public Seiscomp::Client::Application {
 					event->add(FocalMechanismReferencePtr(new FocalMechanismReference(event->preferredFocalMechanismID())).get());
 			}
 
+			bool foundPreferredMag = false;
+
+			// No need to search for it
+			if ( event->preferredMagnitudeID().empty() )
+				foundPreferredMag = true;
+
 			for ( size_t i = 0; i < event->originReferenceCount(); ++i ) {
 				OriginPtr origin = Origin::Cast(PublicObjectPtr(query()->getObject(Origin::TypeInfo(), event->originReference(i)->originID())));
 				if ( !origin ) {
@@ -606,13 +612,23 @@ class EventDump : public Seiscomp::Client::Application {
 					MagnitudePtr netMag;
 					while ( origin->magnitudeCount() > 0 ) {
 						if ( origin->magnitude(0)->publicID() == event->preferredMagnitudeID() )
-							netMag = origin->magnitude(i);
+							netMag = origin->magnitude(0);
 
 						origin->removeMagnitude(0);
 					}
 
-					if ( netMag )
+					if ( netMag ) {
+						foundPreferredMag = true;
 						origin->add(netMag.get());
+					}
+				}
+				else if ( !foundPreferredMag ){
+					for ( size_t m = 0; m < origin->magnitudeCount(); ++m ) {
+						if ( origin->magnitude(m)->publicID() == event->preferredMagnitudeID() ) {
+							foundPreferredMag = true;
+							break;
+						}
+					}
 				}
 
 				if ( !staMags ) {
@@ -700,6 +716,54 @@ class EventDump : public Seiscomp::Client::Application {
 
 					query()->load(derivedOrigin.get());
 					ep->add(derivedOrigin.get());
+
+					if ( !foundPreferredMag ) {
+						for ( size_t m = 0; m < derivedOrigin->magnitudeCount(); ++m ) {
+							if ( derivedOrigin->magnitude(m)->publicID() == event->preferredMagnitudeID() ) {
+								foundPreferredMag = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			// Find the preferred magnitude
+			if ( !foundPreferredMag ) {
+				OriginPtr org = query()->getOriginByMagnitude(event->preferredMagnitudeID());
+				if ( org ) {
+					query()->load(org.get());
+
+					if ( !staMags ) {
+						while ( org->stationMagnitudeCount() > 0 )
+							org->removeStationMagnitude(0);
+
+						for ( size_t i = 0; i < org->magnitudeCount(); ++i ) {
+							Magnitude* netMag = org->magnitude(i);
+							while ( netMag->stationMagnitudeContributionCount() > 0 )
+								netMag->removeStationMagnitudeContribution(0);
+						}
+					}
+
+					if ( ignoreArrivals ) {
+						while ( org->arrivalCount() > 0 )
+							org->removeArrival(0);
+					}
+
+					if ( preferredOnly && !allMags ) {
+						MagnitudePtr netMag;
+						while ( org->magnitudeCount() > 0 ) {
+							if ( org->magnitude(0)->publicID() == event->preferredMagnitudeID() )
+								netMag = org->magnitude(0);
+
+							org->removeMagnitude(0);
+						}
+
+						if ( netMag )
+							org->add(netMag.get());
+					}
+
+					ep->add(org.get());
 				}
 			}
 

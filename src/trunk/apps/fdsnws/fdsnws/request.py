@@ -8,6 +8,7 @@
 ################################################################################
 
 import fnmatch, math, re, string, sys
+from twisted.web import http
 
 from seiscomp3.Core import Time
 from seiscomp3 import Logging, Math
@@ -15,8 +16,8 @@ from seiscomp3 import Logging, Math
 class RequestOptions:
 
 	ChannelChars = re.compile(r'[^A-Z0-9*?]').search
-	TimeFormats = ( "%FT%T.%f",    # YYYY-MM-DDThh:mm:ss.sss
-	                "%Y-%jT%T.%f", # YYYY-DDDThh:mm:ss.sss
+	TimeFormats = ( "%FT%T.%f",    # YYYY-MM-DDThh:mm:ss.ssssss
+	                "%Y-%jT%T.%f", # YYYY-DDDThh:mm:ss.ssssss
 	                "%FT%T",       # YYYY-MM-DDThh:mm:ss
 	                "%Y-%jT%T",    # YYYY-DDDThh:mm:ss
 	                "%FT%R",       # YYYY-MM-DDThh:mm
@@ -77,12 +78,15 @@ class RequestOptions:
 			self.endBefore   = None
 			self.endAfter    = None
 
-		def match(self, start, end):
+		# used by FDSN Station only
+		def match(self, start, end=None):
 			# simple time
 			if self.simpleTime:
+				# limit to metadata epochs active on or after the specified
+				# start time and starting before specified end time
 				return \
-					(not self.start or (start and start >= self.start)) and \
-					(not self.end or (end and end <= self.end))
+					(not self.start or (not end or end >= self.start)) and \
+					(not self.end or start <= self.end)
 
 			# window time
 			return \
@@ -160,7 +164,7 @@ class RequestOptions:
 				if b.dateLineCrossing():
 					return lon >= b.minLon or lon <= b.maxLon
 				if b.minLon is not None and lon < b.minLon: return False
-				if b.maxLat is not None and lon > b.maxLon: return False
+				if b.maxLon is not None and lon > b.maxLon: return False
 				return True
 			elif self.bCircle:
 				c = self.bCircle
@@ -177,6 +181,7 @@ class RequestOptions:
 		self.service    = ""
 		self.accessTime = Time.GMT()
 		self.userName   = None
+		self.noData     = http.NO_CONTENT
 
 		self.channel = None
 		self.time    = None
@@ -188,6 +193,13 @@ class RequestOptions:
 			for key in args.keys():
 				self._args[key.lower()] = args[key]
 
+	#---------------------------------------------------------------------------
+	def parseNoData(self):
+		if "nodata" in self._args:
+			code = self.parseInt("nodata")
+			if code != http.NO_CONTENT and code != http.NOT_FOUND:
+				raise ValueError, "Invalid value in parameter nodata"
+			self.noData = code
 
 	#---------------------------------------------------------------------------
 	def parseChannel(self):
@@ -280,7 +292,7 @@ class RequestOptions:
 			b.maxLat = self.parseFloat("maxlatitude", -90, 90)
 		if b.minLat is not None and b.maxLat is not None and \
 		   b.minLat > b.maxLat:
-			raise ValueError, "minlatitude exceeds maxlatitude"
+			raise ValueError, "Minlatitude exceeds maxlatitude"
 
 		if "minlon" in self._args:
 			b.minLon = self.parseFloat("minlon", -180, 180)
@@ -313,7 +325,7 @@ class RequestOptions:
 			c.maxRad = self.parseFloat("maxradius", 0, 180)
 		if c.minRad is not None and c.maxRad is not None and \
 		   c.minRad > c.maxRad:
-			raise ValueError, "minradius exceeds maxradius"
+			raise ValueError, "Minradius exceeds maxradius"
 
 		hasBCircleRadParam = c.minRad is not None or c.maxRad is not None
 		hasBCircleParam = c.lat is not None or c.lon is not None or \

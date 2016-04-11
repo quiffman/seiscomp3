@@ -4720,6 +4720,43 @@ fail:
 SWIGINTERN PyObject *_wrap_new_SyslogOutput__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::Logging::SyslogOutput *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:new_SyslogOutput",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_SyslogOutput" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_SyslogOutput" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (Seiscomp::Logging::SyslogOutput *)new Seiscomp::Logging::SyslogOutput((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__Logging__SyslogOutput, SWIG_POINTER_NEW |  0 );
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SyslogOutput__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
@@ -4744,12 +4781,12 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_SyslogOutput(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[2];
+  PyObject *argv[3];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 1) && (ii < argc); ii++) {
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 0) {
@@ -4760,7 +4797,19 @@ SWIGINTERN PyObject *_wrap_new_SyslogOutput(PyObject *self, PyObject *args) {
     int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      return _wrap_new_SyslogOutput__SWIG_1(self, args);
+      return _wrap_new_SyslogOutput__SWIG_2(self, args);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_SyslogOutput__SWIG_1(self, args);
+      }
     }
   }
   
@@ -4768,6 +4817,7 @@ fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_SyslogOutput'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::Logging::SyslogOutput::SyslogOutput()\n"
+    "    Seiscomp::Logging::SyslogOutput::SyslogOutput(char const *,char const *)\n"
     "    Seiscomp::Logging::SyslogOutput::SyslogOutput(char const *)\n");
   return 0;
 }
@@ -4794,7 +4844,75 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SyslogOutput_open(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SyslogOutput_facility(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::SyslogOutput *arg1 = (Seiscomp::Logging::SyslogOutput *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SyslogOutput_facility",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__SyslogOutput, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SyslogOutput_facility" "', argument " "1"" of type '" "Seiscomp::Logging::SyslogOutput const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::SyslogOutput * >(argp1);
+  result = (int)((Seiscomp::Logging::SyslogOutput const *)arg1)->facility();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SyslogOutput_open__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::SyslogOutput *arg1 = (Seiscomp::Logging::SyslogOutput *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SyslogOutput_open",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__SyslogOutput, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SyslogOutput_open" "', argument " "1"" of type '" "Seiscomp::Logging::SyslogOutput *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::SyslogOutput * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SyslogOutput_open" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SyslogOutput_open" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (bool)(arg1)->open((char const *)arg2,(char const *)arg3);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SyslogOutput_open__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Logging::SyslogOutput *arg1 = (Seiscomp::Logging::SyslogOutput *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -4825,6 +4943,56 @@ SWIGINTERN PyObject *_wrap_SyslogOutput_open(PyObject *SWIGUNUSEDPARM(self), PyO
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SyslogOutput_open(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Logging__SyslogOutput, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_SyslogOutput_open__SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__Logging__SyslogOutput, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = SWIG_AsCharPtrAndSize(argv[2], 0, NULL, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_SyslogOutput_open__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'SyslogOutput_open'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Seiscomp::Logging::SyslogOutput::open(char const *,char const *)\n"
+    "    Seiscomp::Logging::SyslogOutput::open(char const *)\n");
+  return 0;
 }
 
 
@@ -4919,6 +5087,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"FileRotatorOutput_swigregister", FileRotatorOutput_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_SyslogOutput", _wrap_new_SyslogOutput, METH_VARARGS, NULL},
 	 { (char *)"delete_SyslogOutput", _wrap_delete_SyslogOutput, METH_VARARGS, NULL},
+	 { (char *)"SyslogOutput_facility", _wrap_SyslogOutput_facility, METH_VARARGS, NULL},
 	 { (char *)"SyslogOutput_open", _wrap_SyslogOutput_open, METH_VARARGS, NULL},
 	 { (char *)"SyslogOutput_isOpen", _wrap_SyslogOutput_isOpen, METH_VARARGS, NULL},
 	 { (char *)"SyslogOutput_close", _wrap_SyslogOutput_close, METH_VARARGS, NULL},

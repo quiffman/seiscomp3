@@ -92,7 +92,8 @@ class Autoloc3 {
 
 
 			// Use this depth if there is no depth resolution
-			double defaultDepth;          // default 10 km
+			double defaultDepth;           // default 10 km
+			double defaultDepthStickiness; // 0...1 default 0.5
 
 			// Try to relocate an origin using the configured default depth.
 			// If the resulting origin is "not much worse" than the free-depth
@@ -135,22 +136,10 @@ class Autoloc3 {
 			// to be reported
 			int minPhaseCount;           // default  6
 
-			// minimum absolute amplitude to flag a pick as XXL
-			double thresholdXXL;            // default  10000 nm/s
-
-			// ignore all picks within this time window
-			// length (in sec) following an XXL pick
-			double deadTimeXXL;		// default 60 s
-
 			// Minimum score for an origin to be reported;
 			// this seems to be a more reliable criterion
 			// than number of phases.
 			double minScore;
-
-			// Minimum number of picks for an XXL origin
-			// to be reported
-			unsigned int minPhaseCountXXL; // default  4
-			double maxStaDistXXL;         // default 10
 
 			// Minimum station count for which we ignore PKP phases
 			// XXX not yet used
@@ -181,11 +170,16 @@ class Autoloc3 {
 			int    publicationIntervalPickCount;
 			// XXX maybe score interval instead?
 
-			// If true, offline mode is selected
+			// If true, offline mode is selected. In offline mode,
+			// no database is accessed, and station locations are
+			// read from a plain text file.
 			bool offline;
 
 			// If true, test mode is selected. In test mode, no
-			// origins are sent.
+			// origins are sent. This is not the same as offline
+			// mode. Test mode is like normal online mode except
+			// no origins are sent (only logging output is
+			// produced).
 			bool test;
 
 			// If true, playback mode is selected. In playback mode,
@@ -208,6 +202,22 @@ class Autoloc3 {
 			bool useManualOrigins;
 			bool adoptManualOriginsFixedDepth;
 			bool useImportedOrigins;
+
+			// minimum absolute amplitude to flag a pick as XXL
+			double xxlMinAmplitude;            // default  10000 nm/s
+
+			// minimum SNR to flag a pick as XXL
+			double xxlMinSNR;            // default  8
+
+			// ignore all picks within this time window
+			// length (in sec) following an XXL pick
+			double xxlDeadTime;		// default 60 s
+
+			// Minimum number of picks for an XXL origin
+			// to be reported
+			unsigned int xxlMinPhaseCount; // default 4 picks
+			double xxlMaxStaDist;          // default 10 degrees
+			double xxlMaxDepth;            // default 100 km
 
 		public:
 			void dump() const;
@@ -297,7 +307,7 @@ class Autoloc3 {
 
 		// If the pick is an XXL pick, try to see if there are more
 		// XXL picks possibly giving rise to a preliminary origin
-		OriginPtr _preliminaryOriginXXL(const Pick*);
+		OriginPtr _xxlPreliminaryOrigin(const Pick*);
 
 		// Try to enhance the score by removing each pick
 		// and relocating.
@@ -391,7 +401,9 @@ class Autoloc3 {
 		// if successful, true is returned, otherwise false
 		bool _setDefaultDepth(Origin*);
 
-		bool _testDepthResolution(Origin*);
+		// Attempt to decide whether the focal depth can be resolved considering
+		// the station distribution. Returns true if resolvable, false if not.
+		bool _depthIsResolvable(Origin*);
 
 		bool _setTheRightDepth(Origin*);
 

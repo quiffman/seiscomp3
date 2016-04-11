@@ -144,6 +144,13 @@ class SC_SYSTEM_CORE_API DatabaseQuery : public DatabaseReader {
 		DatabaseIterator getOriginsForAmplitude(const std::string& amplitudeID);
 
 		/**
+		 * Returns all the origin that holds the given magnitude.
+		 * @param magnitudeID The publicID of the magnitude
+		 * @return A pointer to the Origin object
+		 */
+		Origin* getOriginByMagnitude(const std::string& magnitudeID);
+
+		/**
 		 * Returns all Arrivals where an assoziated pick is references
 		 * by the
 		 * AmplitudeID.

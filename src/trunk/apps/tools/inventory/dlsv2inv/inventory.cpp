@@ -15,6 +15,7 @@
 #include "inventory.h"
 
 #include <seiscomp3/client/inventory.h>
+#include <seiscomp3/utils/replace.h>
 #include <seiscomp3/core/system.h>
 
 #define SEISCOMP_COMPONENT sync_dlsv
@@ -30,13 +31,13 @@ using namespace Seiscomp;
 inline string strip(string s)
 {
 	unsigned int i = 0, j = 0;
-	
+
 	for(i = 0; i < s.length(); ++i)
 	{
 		if(s[i] != ' ')
 			break;
 	}
-	
+
 	for(j = s.length(); j; --j)
 	{
 		if(s[j-1] != ' ')
@@ -151,7 +152,7 @@ inline void check_fir(DataModel::ResponseFIRPtr rf, int &errors)
 	int i = 0;
 	for(; 2 * i < nc; ++i)
 		if(v[i] != v[nc - 1 - i]) break;
-	
+
 	if(2 * i > nc)
 	{
 		rf->setNumberOfCoefficients(i);
@@ -188,6 +189,36 @@ inline void check_paz(DataModel::ResponsePAZPtr rp, int &errors)
 		++errors;
 	}
 }
+
+
+struct NetworkDescriptionResolver : public Util::VariableResolver {
+	NetworkDescriptionResolver(DataModel::Network *n) : net(n) {}
+
+	virtual bool resolve(std::string &variable) const {
+		if ( variable == "code" )
+			variable = net->code();
+		else if ( variable == "start" )
+			variable = net->start().toString("%F %T");
+		else if ( variable == "end" ) {
+			try {
+				variable = net->end().toString("%F %T");
+			}
+			catch ( ... ) {
+				variable = "";
+			}
+		}
+		else if ( variable == "class" )
+			variable = net->netClass();
+		else if ( variable == "archive" )
+			variable = net->archive();
+		else
+			variable = "";
+		return true;
+	}
+
+	DataModel::Network *net;
+};
+
 
 Inventory::Inventory(const std::string &dcid, const std::string &net_description,
 	const std::string &net_type, const Seiscomp::Core::Time &net_start,
@@ -263,11 +294,11 @@ void Inventory::SynchronizeInventory()
 void Inventory::CleanupDatabase()
 {
 	SEISCOMP_INFO("Cleaning up the database");
-	
+
 	set<pair<string, string> > stat_codes;
 	for(unsigned int i=0; i<sc->si.size(); i++)
 	{
-		stat_codes.insert(make_pair(strip(sc->si[i].GetNetworkCode()), 
+		stat_codes.insert(make_pair(strip(sc->si[i].GetNetworkCode()),
 			strip(sc->si[i].GetStationCallLetters())));
 	}
 
@@ -369,7 +400,7 @@ void Inventory::GetStationComment(Comment &sc, DataModel::WaveformStreamID *wf)
 		if(code_key == comm.GetCommentCodeKey())
 		{
 			if(comm.GetDescriptionOfComment().size()>1)
-			{ 
+			{
 				DataModel::QCLog *log = DataModel::QCLog::Create();
 				log->setWaveformID(*wf);
 				log->setMessage(comm.GetDescriptionOfComment());
@@ -395,7 +426,7 @@ void Inventory::GetChannelComment(ChannelIdentifier& ci, DataModel::WaveformStre
 			if(code_key == comm.GetCommentCodeKey())
 			{
 				if(comm.GetDescriptionOfComment().size()>1)
-				{ 
+				{
 					DataModel::QCLog *log = DataModel::QCLog::Create();
 					log->setWaveformID(*wf);
 					log->setMessage(comm.GetDescriptionOfComment());
@@ -505,7 +536,7 @@ void Inventory::ProcessStation()
 			_net_start.get(&net_year);
 
 		SEISCOMP_INFO("Processing station %s %s %s", net_code.c_str(), sta_code.c_str(), sta_start.c_str());
-		
+
 		map<pair<string, int>, DataModel::NetworkPtr>::iterator net_it = networks.find(make_pair(net_code, net_year));
 
 		DataModel::NetworkPtr net;
@@ -525,11 +556,6 @@ void Inventory::ProcessStation()
 			networks[make_pair(net_code, net_year)] = net;
 			inventory->add(net.get());
  		}
- 
-		if(_net_description.empty())
-			net->setDescription(GetNetworkDescription(sc->si[i].GetNetworkIdentifierCode()));
-		else
-			net->setDescription(_net_description);
 
 		if ( _net_end )
 			net->setEnd(*_net_end);
@@ -539,6 +565,11 @@ void Inventory::ProcessStation()
 		net->setType(_net_type);
 		net->setRestricted(_restricted);
 		net->setShared(_shared);
+
+		if ( _net_description.empty() )
+			net->setDescription(GetNetworkDescription(sc->si[i].GetNetworkIdentifierCode()));
+		else
+			net->setDescription(Util::replace(_net_description, NetworkDescriptionResolver(net.get()), "${", "}", ""));
 
 		map<pair<pair<string, string>, Core::Time>, DataModel::StationPtr>::iterator sta_it = \
 			stations.find(make_pair(make_pair(net_code, sta_code), GetTime(sta_start)));
@@ -577,7 +608,7 @@ DataModel::StationPtr Inventory::InsertStation(StationIdentifier& si, DataModel:
 
 	DataModel::StationPtr station = DataModel::Station::Create();
 	station->setCode(strip(si.GetStationCallLetters()));
-	
+
 	string desc = si.GetSiteName();
 	if(desc.empty())
 		desc = si.GetStationCallLetters();
@@ -646,6 +677,8 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 	string net_code = strip(si.GetNetworkCode());
 	string sta_code = strip(si.GetStationCallLetters());
 
+	//cerr << net_code << "." << sta_code << endl;
+
 	map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> > loc_map;
 	for(unsigned int i=0; i<si.ci.size(); i++)
 	{
@@ -653,6 +686,8 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 		string loc_code = strip(ci.GetLocation());
 		Core::Time loc_start = GetTime(ci.GetStartDate());
 		OPT(Core::Time) loc_end = GetOptTime(ci.GetEndDate());
+
+		//cerr << "  + " << loc_code << ci.GetChannel() << "   " << loc_start.toString("%F %T") << endl;
 
 		map<pair<pair<double, double>, string>, pair<Core::Time, OPT(Core::Time)> >::iterator p;
 		if((p = loc_map.find(make_pair(make_pair(ci.GetLatitude(), ci.GetLongitude()), loc_code))) == loc_map.end())
@@ -663,7 +698,7 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 		{
 			if(p->second.first > loc_start)
 				p->second.first = loc_start;
-			
+
 			if(p->second.second && !loc_end)
 				p->second.second = loc_end;
 			else if (p->second.second && loc_end && *p->second.second < *loc_end)
@@ -715,7 +750,7 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 		}
 
 		sensor_locations.insert(make_pair(make_pair(make_pair(make_pair(net_code, sta_code), loc_code), sta_start), loc_start));
-		
+
 		DataModel::SensorLocationPtr loc = station->sensorLocation(DataModel::SensorLocationIndex(loc_code, loc_start));
 
 		if(!loc)
@@ -776,7 +811,7 @@ DataModel::SensorLocationPtr Inventory::InsertSensorLocation(ChannelIdentifier& 
 	loc->setLatitude(ci.GetLatitude());
 	loc->setLongitude(ci.GetLongitude());
 	loc->setElevation(ci.GetElevation());
-	
+
 	station->add(loc.get());
 	return loc;
 }
@@ -796,7 +831,7 @@ void Inventory::UpdateSensorLocation(ChannelIdentifier& ci, DataModel::SensorLoc
 	loc->setLatitude(ci.GetLatitude());
 	loc->setLongitude(ci.GetLongitude());
 	loc->setElevation(ci.GetElevation());
-	
+
 	loc->update();
 }
 
@@ -865,7 +900,7 @@ DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::S
 
 				strm->setDip(-ci.GetDip());
 			}
-					
+
 			break;
 		}
 	}
@@ -889,7 +924,7 @@ DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::S
 
 	strm->setRestricted(restricted);
 	strm->setShared(shared);
-	
+
 	loc->add(strm.get());
 	return strm;
 }
@@ -944,7 +979,7 @@ void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, b
 			break;
 		}
 	}
-	
+
 
 	strm->setFlags(ci.GetFlags());
 	strm->setFormat("Steim2");
@@ -994,7 +1029,7 @@ DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataMo
 	strm->setFormat("Steim2");
 	strm->setRestricted(restricted);
 	strm->setShared(shared);
-	
+
 	loc->add(strm.get());
 	return strm;
 }
@@ -1052,7 +1087,7 @@ void Inventory::ProcessDatalogger(ChannelIdentifier& ci, DataModel::StreamPtr st
 * Parameters:   ci              - information of a channel as it is stored in the dataless                                  *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:	nothing													    *
-* Description:	add a datalogger											    *		
+* Description:	add a datalogger											    *
 *******************************************************************************/
 DataModel::DataloggerPtr Inventory::InsertDatalogger(ChannelIdentifier& ci, DataModel::StreamPtr strm, const string& name)
 {
@@ -1194,7 +1229,7 @@ void Inventory::UpdateDatalogger(ChannelIdentifier& ci, DataModel::DataloggerPtr
 void Inventory::ProcessDecimation(ChannelIdentifier& ci, DataModel::DataloggerPtr dlg, DataModel::StreamPtr strm)
 {
 	SEISCOMP_DEBUG("Start processing decimation");
-	
+
 	DataModel::DecimationPtr deci = dlg->decimation(DataModel::DecimationIndex(strm->sampleRateNumerator(), strm->sampleRateDenominator()));
 	if(!deci)
 		InsertDecimation(ci, dlg, strm);
@@ -1229,7 +1264,7 @@ void Inventory::InsertDecimation(ChannelIdentifier& ci, DataModel::DataloggerPtr
 *               decimation      - the decimation that is in the database                                                    *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:      nothing                                                                                                     *
-* Description:	update an existing decimation belonging to the datalogger in process					    *	 
+* Description:	update an existing decimation belonging to the datalogger in process					    *
 *******************************************************************************/
 void Inventory::UpdateDecimation(ChannelIdentifier& ci, DataModel::DecimationPtr deci, DataModel::StreamPtr strm)
 {
@@ -1417,7 +1452,7 @@ void Inventory::UpdateDataloggerCalibration(ChannelIdentifier& ci, DataModel::Da
 *		after that the decimation table has to be updated with a new respfir name				    *
 *******************************************************************************/
 void Inventory::ProcessDataloggerFIR(ChannelIdentifier& ci, DataModel::DataloggerPtr dlg, DataModel::StreamPtr strm)
-{ 
+{
 	SEISCOMP_DEBUG("Start processing ResponseFIR information");
 
 	DataModel::DecimationPtr deci = dlg->decimation(DataModel::DecimationIndex(strm->sampleRateNumerator(), strm->sampleRateDenominator()));
@@ -1517,7 +1552,7 @@ DataModel::ResponseFIRPtr Inventory::InsertRespCoeff(ChannelIdentifier& ci, unsi
 	rf->setCorrection(0.0);
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == seqnum)
 			rf->setGain(fabs(ci.csg[i].GetSensitivityGain()));
 	}
@@ -1544,7 +1579,7 @@ DataModel::ResponseFIRPtr Inventory::InsertRespCoeff(ChannelIdentifier& ci, unsi
 	check_fir(rf, _fixedErrors);
 
 	inventory->add(rf.get());
-	
+
 	return rf;
 }
 
@@ -1570,7 +1605,7 @@ void Inventory::UpdateRespCoeff(ChannelIdentifier& ci, DataModel::ResponseFIRPtr
 	rf->setCorrection(0.0);
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == seqnum)
 			rf->setGain(fabs(ci.csg[i].GetSensitivityGain()));
 	}
@@ -1625,7 +1660,7 @@ DataModel::ResponseFIRPtr Inventory::InsertResponseFIRr(ChannelIdentifier& ci, u
 	char sc = ci.firr[seq].GetSymmetryCode();
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == seqnum)
 			rf->setGain(fabs(ci.csg[i].GetSensitivityGain()));
 	}
@@ -1680,7 +1715,7 @@ void Inventory::UpdateResponseFIRr(ChannelIdentifier& ci, DataModel::ResponseFIR
 	char sc = ci.firr[seq].GetSymmetryCode();
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == seqnum)
 			rf->setGain(fabs(ci.csg[i].GetSensitivityGain()));
 	}
@@ -1712,7 +1747,7 @@ void Inventory::UpdateResponseFIRr(ChannelIdentifier& ci, DataModel::ResponseFIR
 /*******************************************************************************
 * Function:     ProcessDataloggerPAZ											    *
 * Parameters:   ci              - information of a channel as it is stored in the dataless                                  *
-*		datalogger	- the datalogger that is in the database						    *	
+*		datalogger	- the datalogger that is in the database						    *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:      nothing                                                                                                     *
 * Description:	this function processes the update/addition of decimation, datalogger_calibration, datalogger_gain, 	    *
@@ -1733,7 +1768,7 @@ void Inventory::ProcessDataloggerPAZ(ChannelIdentifier& ci, DataModel::Datalogge
 	if(sequence_number != -1)
 	{
 		string instr = channel_name + ".stage_" + ToString<int>(ci.rpz[sequence_number].GetStageSequenceNumber());
-		
+
 		DataModel::ResponsePAZPtr rp = inventory->responsePAZ(DataModel::ResponsePAZIndex(instr));
 		if(!rp)
 			rp = InsertResponsePAZ(ci, instr);
@@ -1800,12 +1835,12 @@ void Inventory::ProcessDataloggerPAZ(ChannelIdentifier& ci, DataModel::Datalogge
 * Parameters:   ci              - information of a channel as it is stored in the dataless                                  *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:      nothing                                                                                                     *
-* Description:  check whether a new sensor should be added or an existing updated					    * 
+* Description:  check whether a new sensor should be added or an existing updated					    *
 *******************************************************************************/
 void Inventory::ProcessPAZSensor(ChannelIdentifier& ci, DataModel::StreamPtr strm)
 {
 	SEISCOMP_DEBUG("Start processing sensor information ");
-		
+
 	const char* unit = VELOCITY;
 	sequence_number = GetPAZSequence(ci, VELOCITY, CURRENT);
 	if(sequence_number == -1)
@@ -1843,7 +1878,7 @@ void Inventory::ProcessPAZSensor(ChannelIdentifier& ci, DataModel::StreamPtr str
 		unit = DISPLACE;
 		sequence_number = GetPAZSequence(ci, DISPLACE, DIGITAL);
 	}
-	
+
 	string sensorName = station_name + "." + ci.GetChannel().substr(1,2) + strip(ci.GetLocation());
 
 	DataModel::SensorPtr sm = inventory->sensor(DataModel::SensorIndex(sensorName));
@@ -1854,7 +1889,7 @@ void Inventory::ProcessPAZSensor(ChannelIdentifier& ci, DataModel::StreamPtr str
 
 	strm->setSensor(sm->publicID());
 	strm->setGainUnit(sm->unit());
-	
+
 	ProcessSensorCalibration(ci, sm, strm);
 	//ProcessSensorGain(ci, sm, strm);
 	ProcessSensorPAZ(ci, sm);
@@ -1870,12 +1905,12 @@ void Inventory::ProcessPAZSensor(ChannelIdentifier& ci, DataModel::StreamPtr str
 * Parameters:   ci              - information of a channel as it is stored in the dataless                                  *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:      nothing                                                                                                     *
-* Description:  check whether a new sensor should be added or an existing updated					    * 
+* Description:  check whether a new sensor should be added or an existing updated					    *
 *******************************************************************************/
 void Inventory::ProcessPolySensor(ChannelIdentifier& ci, DataModel::StreamPtr strm)
 {
 	SEISCOMP_DEBUG("Start processing sensor information ");
-		
+
 	const char* unit = PRESSURE;
 	sequence_number = GetPolySequence(ci, PRESSURE, CURRENT);
 	if(sequence_number == -1)
@@ -1893,7 +1928,7 @@ void Inventory::ProcessPolySensor(ChannelIdentifier& ci, DataModel::StreamPtr st
 		unit = TEMPERATURE;
 		sequence_number = GetPolySequence(ci, TEMPERATURE, DIGITAL);
 	}
-	
+
 	string sensorName = station_name + "." + ci.GetChannel().substr(1,2) + strip(ci.GetLocation());
 
 	DataModel::SensorPtr sm = inventory->sensor(DataModel::SensorIndex(sensorName));
@@ -1904,7 +1939,7 @@ void Inventory::ProcessPolySensor(ChannelIdentifier& ci, DataModel::StreamPtr st
 
 	strm->setSensor(sm->publicID());
 	strm->setGainUnit(sm->unit());
-	
+
 	// ProcessSensorCalibration(ci, sm, strm);
 	ProcessSensorPolynomial(ci, sm);
 
@@ -1926,7 +1961,7 @@ DataModel::SensorPtr Inventory::InsertSensor(ChannelIdentifier& ci, DataModel::S
 	int instr = ci.GetInstrument();
 
 	DataModel::SensorPtr sm = DataModel::Sensor::Create();
-	
+
 	sm->setName(name);
 	sm->setDescription(GetInstrumentName(instr));
 	sm->setModel(GetInstrumentName(instr));
@@ -1969,12 +2004,12 @@ void Inventory::UpdateSensor(ChannelIdentifier& ci, DataModel::SensorPtr sm, con
 *		sensor	- information of a sensor as it is stored in the database				    *
 *               seis_stream     - information of a channel as it is stored in the database                                  *
 * Returns:	nothing													    *
-* Description:	check whether a new sensorcalibration should be added or an existing updated			    *	
+* Description:	check whether a new sensorcalibration should be added or an existing updated			    *
 *******************************************************************************/
 void Inventory::ProcessSensorCalibration(ChannelIdentifier& ci, DataModel::SensorPtr sm, DataModel::StreamPtr strm)
 {
 	SEISCOMP_DEBUG("Process sensor calibration");
-	
+
 	DataModel::SensorCalibrationPtr cal = sm->sensorCalibration(DataModel::SensorCalibrationIndex(strm->sensorSerialNumber(), strm->sensorChannel(), strm->start()));
 	if(!cal)
 		InsertSensorCalibration(ci, sm, strm);
@@ -2010,7 +2045,7 @@ void Inventory::InsertSensorCalibration(ChannelIdentifier& ci, DataModel::Sensor
 	cal->setGainFrequency(0.0);
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[sequence_number].GetStageSequenceNumber())
 		{
 			cal->setGain(fabs(ci.csg[i].GetSensitivityGain()));
@@ -2044,7 +2079,7 @@ void Inventory::UpdateSensorCalibration(ChannelIdentifier& ci, DataModel::Sensor
 	cal->setGainFrequency(0.0);
 
 	for(unsigned int i=0; i< ci.csg.size(); i++)
-	{	
+	{
 		if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[sequence_number].GetStageSequenceNumber())
 		{
 			cal->setGain(fabs(ci.csg[i].GetSensitivityGain()));
@@ -2082,15 +2117,15 @@ void Inventory::ProcessSensorPAZ(ChannelIdentifier& ci, DataModel::SensorPtr sm)
 * Function:     InsertResponsePAZ											    	    *
 * Parameters:   ci		- information of a channel as it is stored in the dataless				    *
 *		instrument	- name of instrument the response paz is created for 					    *
-* Returns:	nothing													    *	
-* Description:	add a new resppaz											    *	
+* Returns:	nothing													    *
+* Description:	add a new resppaz											    *
 *******************************************************************************/
 DataModel::ResponsePAZPtr Inventory::InsertResponsePAZ(ChannelIdentifier& ci, string instrument)
 {
-	SEISCOMP_DEBUG("Voeg nieuwe response poles & zeros");	
+	SEISCOMP_DEBUG("Voeg nieuwe response poles & zeros");
 
 	DataModel::ResponsePAZPtr rp = DataModel::ResponsePAZ::Create();
-	
+
 	rp->setName(instrument);
 
 	char c = ci.rpz[sequence_number].GetTransferFunctionType();
@@ -2129,7 +2164,7 @@ DataModel::ResponsePAZPtr Inventory::InsertResponsePAZ(ChannelIdentifier& ci, st
 *******************************************************************************/
 void Inventory::UpdateResponsePAZ(ChannelIdentifier& ci, DataModel::ResponsePAZPtr rp)
 {
-	SEISCOMP_DEBUG("Wijzig response poles & zeros");	
+	SEISCOMP_DEBUG("Wijzig response poles & zeros");
 
 	char c = ci.rpz[sequence_number].GetTransferFunctionType();
 	rp->setType(string(&c, 1));
@@ -2185,15 +2220,15 @@ void Inventory::ProcessSensorPolynomial(ChannelIdentifier& ci, DataModel::Sensor
 * Function:     InsertResponsePolynomial											    	    *
 * Parameters:   ci		- information of a channel as it is stored in the dataless				    *
 *		instrument	- name of instrument the response paz is created for 					    *
-* Returns:	nothing													    *	
-* Description:	add a new resppaz											    *	
+* Returns:	nothing													    *
+* Description:	add a new resppaz											    *
 *******************************************************************************/
 DataModel::ResponsePolynomialPtr Inventory::InsertResponsePolynomial(ChannelIdentifier& ci, string instrument)
 {
-	SEISCOMP_DEBUG("Voeg nieuwe response polynomial");	
+	SEISCOMP_DEBUG("Voeg nieuwe response polynomial");
 
 	DataModel::ResponsePolynomialPtr rp = DataModel::ResponsePolynomial::Create();
-	
+
 	rp->setName(instrument);
 
 	rp->setGain(0.0);
@@ -2218,7 +2253,7 @@ DataModel::ResponsePolynomialPtr Inventory::InsertResponsePolynomial(ChannelIden
 	rp->setApproximationError(ci.rp[sequence_number].GetMaximumAbsoluteError());
 	rp->setNumberOfCoefficients(ci.rp[sequence_number].GetNumberOfPcoeff());
 	rp->setCoefficients(parseRealArray(ci.rp[sequence_number].GetPolynomialCoefficients()));
-	
+
 	inventory->add(rp.get());
 
 	return rp;
@@ -2233,7 +2268,7 @@ DataModel::ResponsePolynomialPtr Inventory::InsertResponsePolynomial(ChannelIden
 *******************************************************************************/
 void Inventory::UpdateResponsePolynomial(ChannelIdentifier& ci, DataModel::ResponsePolynomialPtr rp)
 {
-	SEISCOMP_DEBUG("Wijzig response polynomial");	
+	SEISCOMP_DEBUG("Wijzig response polynomial");
 
 	rp->setGain(0.0);
 	rp->setGainFrequency(0.0);
@@ -2256,7 +2291,7 @@ void Inventory::UpdateResponsePolynomial(ChannelIdentifier& ci, DataModel::Respo
 	rp->setApproximationError(ci.rp[sequence_number].GetMaximumAbsoluteError());
 	rp->setNumberOfCoefficients(ci.rp[sequence_number].GetNumberOfPcoeff());
 	rp->setCoefficients(parseRealArray(ci.rp[sequence_number].GetPolynomialCoefficients()));
-	
+
 	rp->update();
 }
 
@@ -2308,7 +2343,7 @@ string Inventory::GetInstrumentName(int lookup)
 				vector<string> extra = SplitStrings(name, ':');
 				if(extra.size() == 1)
 					name = instrument_info[0];
-				else 
+				else
 					name = extra[0];
 			}
 			else if(size == 3)
@@ -2348,7 +2383,7 @@ string Inventory::GetInstrumentType(int lookup)
 				else
 					name = "";
 			}
-			else 
+			else
 				name = "";
 		}
 	}
@@ -2376,7 +2411,7 @@ string Inventory::GetInstrumentManufacturer(int lookup)
 			int size = instrument_info.size();
 			if(size > 2)
 				name = instrument_info[0];
-			else 
+			else
 				name = "";
 		}
 	}
