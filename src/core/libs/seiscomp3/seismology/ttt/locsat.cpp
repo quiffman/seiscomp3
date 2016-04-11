@@ -132,16 +132,14 @@ TravelTimeList *Locsat::compute(double lat1, double lon1, double dep1,
 //	Math::Geo::delazi(lat1, lon1, lat2, lon2, &delta, &azi1, &azi2);
 	distaz2_(&lat1, &lon1, &lat2, &lon2, &delta, &azi1, &azi2);
 
-
 	/* TODO apply ellipticity correction */
 	TravelTimeList *ttlist = compute(delta, dep1);
 	ttlist->delta = delta;
 	ttlist->depth = dep1;
 	TravelTimeList::iterator it;
-        for (it = ttlist->begin(); it != ttlist->end(); ++it) {
-
+	for (it = ttlist->begin(); it != ttlist->end(); ++it) {
 		double ecorr = 0.;
-		if (ellipcorr((*it).phase, lat1, lon1, lat2, lon2, dep1, ecorr)) {
+		if ( ellipcorr((*it).phase, lat1, lon1, lat2, lon2, dep1, ecorr) ) {
 //			fprintf(stderr, " %7.3f %5.1f  TT = %.3f ecorr = %.3f\n", delta, dep1, (*it).time, ecorr);
 			(*it).time += ecorr;
 		}

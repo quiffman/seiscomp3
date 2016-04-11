@@ -20,6 +20,8 @@
 #include <seiscomp3/core/datetime.h>
 #include <seiscomp3/core/strings.h>
 #include <seiscomp3/io/recordstream.h>
+#include <seiscomp3/io/recordstream/arclink.h>
+#include <seiscomp3/io/recordstream/slconnection.h>
 
 #include "combined.h"
 
@@ -31,55 +33,45 @@ namespace _private {
 using namespace std;
 using namespace Seiscomp::Core;
 using namespace Seiscomp::IO;
-using namespace Seiscomp::RecordStream::Arclink;
 
-const TimeSpan defaultSeedlinkAvailability = 3600;
+const TimeSpan DefaultRealtimeAvailability = 3600;
 
-IMPLEMENT_SC_CLASS_DERIVED(CombinedConnection,
-                           Seiscomp::IO::RecordStream,
+IMPLEMENT_SC_CLASS_DERIVED(CombinedConnection, Seiscomp::IO::RecordStream,
                            "CombinedConnection");
 
 REGISTER_RECORDSTREAM(CombinedConnection, "combined");
 
-CombinedConnection::CombinedConnection()
-	: _useArclink(false), _download(false), _nstream(0) {
-	_seedlinkAvailability = defaultSeedlinkAvailability;
-	_seedlink = new SLConnection();
-	_arclink = new ArclinkConnection();
-	_nArclinkStreams = _nSeedlinkStreams = 0;
+CombinedConnection::CombinedConnection() {
+	init();
 }
 
-CombinedConnection::CombinedConnection(std::string serverloc)
-	: _useArclink(false), _download(false), _nstream(0) {
-	_seedlinkAvailability = defaultSeedlinkAvailability;
-	_seedlink = new SLConnection();
-	_arclink = new ArclinkConnection();
-	_nArclinkStreams = _nSeedlinkStreams = 0;
+CombinedConnection::CombinedConnection(std::string serverloc) {
+	init();
 	setSource(serverloc);
 }
 
-CombinedConnection::~CombinedConnection() {
+CombinedConnection::~CombinedConnection() {}
+
+void CombinedConnection::init() {
+	_started = false;
+	_nStream = _nArchive = _nRealtime = 0;
+	_realtimeAvailability = DefaultRealtimeAvailability;
+
+	_realtime = new SLConnection();
+	_archive = new Arclink::ArclinkConnection();
 }
 
 bool CombinedConnection::setRecordType(const char* type) {
-	return _seedlink->setRecordType(type) &&
-	       _arclink->setRecordType(type);
+	return _realtime->setRecordType(type) && _archive->setRecordType(type);
 }
 
 bool CombinedConnection::setSource(std::string serverloc) {
-	string::size_type sep = serverloc.find(';');
-	if ( sep == string::npos ) {
-		SEISCOMP_ERROR("Invalid RecordStream address: %s", serverloc.c_str());
-		throw RecordStreamException("invalid address");
-	}
-
-	string::size_type param_sep = serverloc.find("??");
-	if ( param_sep != string::npos ) {
-		if ( param_sep < sep ) {
-			SEISCOMP_ERROR("Invalid RecordStream address, parameter separator '\?\?' comes before host separator: %s", serverloc.c_str());
-			throw RecordStreamException("invalid address format");
-		}
-
+	// read optional parameters for combined source, separated by '??' after
+	// last URL
+	size_t param_sep = serverloc.find("??");
+	if ( param_sep == string::npos )
+		param_sep = serverloc.length();
+	else {
 		string params = serverloc.substr(param_sep+2);
 		serverloc.erase(param_sep);
 
@@ -100,76 +92,116 @@ bool CombinedConnection::setSource(std::string serverloc) {
 					value = "";
 				}
 
-				if ( name == "slinkMax" ) {
+				if ( name == "slinkMax" || name == "rtMax" ) {
 					double seconds;
 					if ( !Core::fromString(seconds, value) ) {
-						SEISCOMP_ERROR("Invalid RecordStream parameter value for '%s' in %s: expected a numerical value",
-						               name.c_str(), serverloc.c_str());
-						throw RecordStreamException("invalid address parameter value");
+						SEISCOMP_ERROR("Invalid RecordStream URL '%s', "
+						               "value of parameter '%s' not number",
+						               serverloc.c_str(), name.c_str());
+						throw RecordStreamException("Invalid RecordStream URL");
 					}
 
-					SEISCOMP_DEBUG("set slinkMax for combined recordstream to %f", seconds);
-					_seedlinkAvailability = Core::TimeSpan(seconds);
+					SEISCOMP_DEBUG("setting realtime availability to %f",
+					               seconds);
+					_realtimeAvailability = Core::TimeSpan(seconds);
 				}
 			}
 		}
 	}
 
-	_seedlink->setSource(string(serverloc, 0, sep));
-	_arclink->setSource(string(serverloc, sep + 1, string::npos));
+	// read URLs
+	size_t sep = serverloc.find(';');
+	if ( sep == string::npos || serverloc.find(';', sep+1) != string::npos ) {
+		SEISCOMP_ERROR("Invalid RecordStream URL '%s': exact 2 sources "
+		               "separated by ';' required", serverloc.c_str());
+		throw RecordStreamException("Invalid RecordStream URL");
+	}
+	if ( param_sep < sep ) {
+		SEISCOMP_ERROR("Invalid RecordStream URL '%s': parameter separator "
+		               "'\?\?' found before source separator ';'",
+		               serverloc.c_str());
+		throw RecordStreamException("invalid address format");
+	}
+
+	string rtSource = serverloc.substr(0, sep);
+	string arSource = serverloc.substr(sep + 1, param_sep - sep - 1);
+	string service;
+
+	// Change realtime stream if specified
+	sep = rtSource.find("/");
+	if ( sep != string::npos ) {
+		service = rtSource.substr(0, sep);
+		rtSource = sep+1 < rtSource.length() ? rtSource.substr(sep+1) : "";
+		IO::RecordStream *stream = IO::RecordStream::Create(service.c_str());
+		if ( !stream ) {
+			string msg = "Could not create realtime RecordStream: " + service;
+			SEISCOMP_ERROR_S(msg);
+			throw new RecordStreamException(msg);
+		}
+		else
+			_realtime = stream;
+	}
+
+	// Change archive stream if specified
+	sep = arSource.find("/");
+	if ( sep != string::npos ) {
+		service = arSource.substr(0, sep);
+		arSource = sep+1 < arSource.length() ? arSource.substr(sep+1) : "";
+		IO::RecordStream *stream = IO::RecordStream::Create(service.c_str());
+		if ( !stream ) {
+			string msg = "Could not create archive RecordStream: " + service;
+			SEISCOMP_ERROR_S(msg);
+			throw RecordStreamException(msg);
+		}
+		else
+			_archive = stream;
+	}
+
+	_realtime->setSource(rtSource);
+	_archive->setSource(arSource);
 
 	_curtime = Time::GMT();
-	_arclinkEndTime = _curtime - _seedlinkAvailability;
-	_nArclinkStreams = _nSeedlinkStreams = 0;
+	_archiveEndTime = _curtime - _realtimeAvailability;
 
 	return true;
 }
 
-bool CombinedConnection::setUser(std::string name, std::string password) {
-	_arclink->setUser(name, password);
-	return true;
-}
-
-bool CombinedConnection::addStream(std::string net, std::string sta, std::string loc, std::string cha) {
-	SEISCOMP_DEBUG("add stream %d %s.%s.%s.%s", _nstream, net.c_str(),
-		sta.c_str(), loc.c_str(), cha.c_str());
+bool CombinedConnection::addStream(std::string net, std::string sta,
+                                   std::string loc, std::string cha) {
+	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (ulong) _nStream, net.c_str(),
+	               sta.c_str(), loc.c_str(), cha.c_str());
 	// Streams without a time span are inserted into a temporary list
 	// and will be resolved when the data is requested the first time
 	pair<set<StreamIdx>::iterator, bool> result;
-	result = _streams.insert(StreamIdx(net, sta, loc, cha));
+	result = _tmpStreams.insert(StreamIdx(net, sta, loc, cha));
 	return result.second;
 }
 
-bool CombinedConnection::addStream(std::string net, std::string sta, std::string loc, std::string cha,
-	const Seiscomp::Core::Time &stime, const Seiscomp::Core::Time &etime) {
-	SEISCOMP_DEBUG("add stream %d %s.%s.%s.%s", _nstream, net.c_str(),
-		sta.c_str(), loc.c_str(), cha.c_str());
+bool CombinedConnection::addStream(std::string net, std::string sta,
+                                   std::string loc, std::string cha,
+                                   const Seiscomp::Core::Time &stime,
+                                   const Seiscomp::Core::Time &etime) {
+	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (ulong) _nStream, net.c_str(),
+	               sta.c_str(), loc.c_str(), cha.c_str());
 
-	if ( stime.valid() && stime < _arclinkEndTime ) {
-		if ( etime.valid() && etime <= _arclinkEndTime ) {
-			_arclink->addStream(net, sta, loc, cha, stime, etime);
-			++_nArclinkStreams;
+	if ( stime.valid() && stime < _archiveEndTime ) {
+		if ( etime.valid() && etime <= _archiveEndTime ) {
+			_archive->addStream(net, sta, loc, cha, stime, etime);
+			++_nArchive;
 		}
 		else {
-			_arclink->addStream(net, sta, loc, cha, stime, _arclinkEndTime);
-			_seedlink->addStream(net, sta, loc, cha, _arclinkEndTime, etime);
-			++_nArclinkStreams;
-			++_nSeedlinkStreams;
+			_archive->addStream(net, sta, loc, cha, stime, _archiveEndTime);
+			_realtime->addStream(net, sta, loc, cha, _archiveEndTime, etime);
+			++_nArchive;
+			++_nRealtime;
 		}
 	}
 	else {
-		_seedlink->addStream(net, sta, loc, cha, stime, etime);
-		++_nSeedlinkStreams;
+		_realtime->addStream(net, sta, loc, cha, stime, etime);
+		++_nRealtime;
 	}
 
-	++_nstream;
-	return true;
-}
-
-bool CombinedConnection::removeStream(std::string net, std::string sta, std::string loc, std::string cha) {
-	_seedlink->removeStream(net, sta, loc, cha);
-	_arclink->removeStream(net, sta, loc, cha);
-	_streams.erase(StreamIdx(net, sta, loc, cha));
+	++_nStream;
 	return true;
 }
 
@@ -187,73 +219,61 @@ bool CombinedConnection::setTimeWindow(const Seiscomp::Core::TimeWindow &w) {
 	return setStartTime(w.startTime()) && setEndTime(w.endTime());
 }
 
-
 bool CombinedConnection::setTimeout(int seconds) {
-	_seedlink->setTimeout(seconds);
-	_arclink->setTimeout(seconds);
-	return true;
-}
-
-bool CombinedConnection::clear() {
-	_seedlink->clear();
-	_arclink->clear();
+	_realtime->setTimeout(seconds);
+	_archive->setTimeout(seconds);
 	return true;
 }
 
 void CombinedConnection::close() {
-	_seedlink->close();
-	_arclink->close();
-	_nArclinkStreams = _nSeedlinkStreams = 0;
-}
-
-bool CombinedConnection::reconnect() {
-	_seedlink->reconnect();
-	_arclink->reconnect();
-	return true;
+	_realtime->close();
+	_archive->close();
+	_nArchive = 0;
 }
 
 std::istream& CombinedConnection::stream() {
-	if ( !_download ) {
-		// Add the temporary saved streams (added without a time span)
-		// now and split them correctly
-		for ( set<StreamIdx>::iterator it = _streams.begin(); it != _streams.end(); ++it)
-			addStream(it->network(), it->station(), it->location(), it->channel(),
-			          _startTime, _endTime);
-		_streams.clear();
+	if ( !_started ) {
+		_started = true;
 
-		_download = true;
-		_useArclink = _nArclinkStreams > 0;
-		if ( _useArclink )
-			SEISCOMP_DEBUG("start %d Arclink requests", (int)_nArclinkStreams);
+		// add the temporary streams (added without a time span) now and split
+		// them correctly
+		for ( set<StreamIdx>::iterator it = _tmpStreams.begin();
+		      it != _tmpStreams.end(); ++it )
+			addStream(it->network(), it->station(), it->location(),
+			          it->channel(), _startTime, _endTime);
+		_tmpStreams.clear();
+
+		if ( _nArchive > 0 )
+			SEISCOMP_DEBUG("start %lu archive requests", (ulong) _nArchive);
 		else
-			SEISCOMP_DEBUG("start %d Seedlink requests", (int)_nSeedlinkStreams);
+			SEISCOMP_DEBUG("start %lu realtime requests", (ulong) _nRealtime);
 	}
 
-	if ( _useArclink ) {
-		std::istream &is = _arclink->stream();
+	if ( _nArchive > 0 ) {
+		std::istream &is = _archive->stream();
 		if ( !is.eof() )
 			return is;
 		else {
-			_arclink->close();
-			_useArclink = false;
-			SEISCOMP_DEBUG("start %d Seedlink requests", (int)_nSeedlinkStreams);
+			_archive->close();
+			_nArchive = 0;
+			SEISCOMP_DEBUG("start %lu realtime requests", (ulong) _nRealtime);
 		}
 
-		return _seedlink->stream();
+		return _realtime->stream();
 	}
 	else
-		return _seedlink->stream();
+		return _realtime->stream();
 }
 
 Record* CombinedConnection::createRecord(Array::DataType dt, Record::Hint h) {
-	if ( _useArclink )
-		return _arclink->createRecord(dt, h);
+	if ( _nArchive > 0 )
+		return _archive->createRecord(dt, h);
 	else
-		return _seedlink->createRecord(dt, h);
+		return _realtime->createRecord(dt, h);
 }
 
+} // namesapce Combined
 } // namespace _private
-} // namespace Combined
 } // namespace RecordStream
 } // namespace Seiscomp
 

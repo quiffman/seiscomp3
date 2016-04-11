@@ -68,11 +68,10 @@ class MySQLDB(QueryInterface):
 
   def deleteJournalQuery(self, *v):
     q = "delete JournalEntry from JournalEntry, " + ", ".join(v) + " where " + \
-        v[0] + "._oid=" + v[1] + "._oid and "
+        v[0] + "._oid=" + v[1] + "._oid"
 
     for i in range(1, len(v)-1):
-      if i > 1: q += " and "
-      q += v[i] + "._oid=" + v[i+1] + "._oid"
+      q += " and " + v[i] + "._oid=" + v[i+1] + "._oid"
 
     q += " and JournalEntry.objectID=PublicObject.publicID"
 
@@ -153,11 +152,10 @@ class PostgresDB(QueryInterface):
 
   def deleteJournalQuery(self, *v):
     q = "delete from JournalEntry using " + ", ".join(v) + " where " + \
-        v[0] + "._oid=" + v[1] + "._oid and "
+        v[0] + "._oid=" + v[1] + "._oid"
 
     for i in range(1, len(v)-1):
-      if i > 1: q += " and "
-      q += v[i] + "._oid=" + v[i+1] + "._oid"
+      q += " and " + v[i] + "._oid=" + v[i+1] + "._oid"
 
     q += " and JournalEntry." + self.cnvCol("objectID") + "=PublicObject." + self.cnvCol("publicID")
 

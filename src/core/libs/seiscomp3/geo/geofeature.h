@@ -24,6 +24,8 @@ namespace Seiscomp
 namespace Geo
 {
 
+DEFINE_SMARTPOINTER(Category);
+DEFINE_SMARTPOINTER(GeoFeature);
 
 typedef Math::Geo::CoordF Vertex;
 
@@ -78,6 +80,9 @@ class SC_CORE_GEO_API GeoFeature : public Core::BaseObject {
 
 		bool contains(const Vertex &v) const;
 
+		double area() const;
+
+		static double area(const Vertex *polygon, size_t sides);
 
 	private:
 		static bool contains(const Vertex& v, const Vertex *polygon, size_t sides);

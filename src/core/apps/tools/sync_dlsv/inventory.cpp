@@ -192,10 +192,14 @@ inline void check_paz(DataModel::ResponsePAZPtr rp)
 	}
 }
 	
-Inventory::Inventory(INIT_MAP& init,
+Inventory::Inventory(const std::string &dcid, const std::string &net_description,
+	const std::string &net_type, const Seiscomp::Core::Time &net_start,
+	const Seiscomp::Core::Time &net_end, bool temporary, bool restricted, bool shared,
 	Seiscomp::Communication::Connection* connection,
 	Seiscomp::Applications::SynchroCallbacks* cb):
-	init_values(init), _connection(connection), _cb(cb)
+	_dcid(dcid), _net_description(net_description), _net_type(net_type),
+	_net_start(net_start), _net_end(net_end), _temporary(temporary),
+	_restricted(restricted), _shared(shared), _connection(connection), _cb(cb)
 {
 	vector<string> steim1;
 	steim1.push_back("F1 P4 W4 D0-31 C2 R1 P8 W4 D0-31 C2");
@@ -347,7 +351,7 @@ void Inventory::CleanupDatabase(bool dumpOnly)
 				continue;
 			}
 
-			if(sta->archive() != init_values[ARCHIVE])
+			if(sta->archive() != _dcid)
 			{
 				SEISCOMP_INFO("skipping station %s %s", net->code().c_str(), sta->code().c_str());
 
@@ -532,7 +536,12 @@ void Inventory::ProcessStation(bool dumpOnly)
 	for(unsigned int i = 0; i < inventory()->networkCount(); ++i)
 	{
 		DataModel::NetworkPtr net = inventory()->network(i);
-		networks[net->code()] = net;
+
+		int net_year = 0;
+		if(_temporary)
+			_net_start.get(&net_year);
+
+		networks[make_pair(net->code(), net_year)] = net;
 
 		for(unsigned int j = 0; j < net->stationCount(); ++j)
 		{
@@ -547,31 +556,45 @@ void Inventory::ProcessStation(bool dumpOnly)
 		string sta_code = strip(sc->si[i].GetStationCallLetters());
 		string sta_start = strip(sc->si[i].GetStartDate());
 
+		int net_year = 0;
+		if(_temporary)
+			_net_start.get(&net_year);
+
 		SEISCOMP_INFO("Processing station %s %s %s", net_code.c_str(), sta_code.c_str(), sta_start.c_str());
 		
-		map<string, DataModel::NetworkPtr>::iterator net_it = networks.find(net_code);
+		map<pair<string, int>, DataModel::NetworkPtr>::iterator net_it = networks.find(make_pair(net_code, net_year));
 
 		DataModel::NetworkPtr net;
 
 		if(net_it != networks.end())
 		{
 			net = net_it->second;
+			net->update();
 		}
 		else
 		{
-			// If a network doesn't exist, add an entry with some default values
 			net = DataModel::Network::Create();
 			net->setCode(net_code);
-			net->setDescription(GetNetworkDescription(sc->si[i].GetNetworkIdentifierCode()));
-			net->setStart(Core::Time(1980, 1, 1));
-			net->setArchive(init_values[ARCHIVE]);
-			net->setType("BB");
-			net->setNetClass("p");
-			net->setRestricted(false);
-			net->setShared(true);
+			net->setStart(_net_start);
+			net->setArchive(_dcid);
+			net->setNetClass(_temporary? "t": "p");
+			networks[make_pair(net_code, net_year)] = net;
 			inventory()->add(net.get());
-			networks[net_code] = net;
 		}
+
+		if(_net_description.empty())
+			net->setDescription(GetNetworkDescription(sc->si[i].GetNetworkIdentifierCode()));
+		else
+			net->setDescription(_net_description);
+
+		if(_net_end < Core::Time(2100, 1, 1))
+			net->setEnd(_net_end);
+		else
+			net->setEnd(Core::None);
+
+		net->setType(_net_type);
+		net->setRestricted(_restricted);
+		net->setShared(_shared);
 
 		map<pair<pair<string, string>, Core::Time>, DataModel::StationPtr>::iterator sta_it = \
 			stations.find(make_pair(make_pair(net_code, sta_code), GetTime(sta_start)));
@@ -579,7 +602,7 @@ void Inventory::ProcessStation(bool dumpOnly)
 		if(sta_it != stations.end())
 		{
 			DataModel::StationPtr sta = sta_it->second;
-			if(sta->archive() != init_values[ARCHIVE])
+			if(sta->archive() != _dcid)
 			{
 				SEISCOMP_WARNING("station %s (%s) belongs to datacenter %s, ignoring station %s",
 					sta_code.c_str(), sta_start.c_str(), sta->archive().c_str(), sta_code.c_str());
@@ -644,9 +667,9 @@ DataModel::StationPtr Inventory::InsertStation(StationIdentifier& si, DataModel:
 	station->setPlace(si.GetCity());
 	station->setCountry(si.GetCountry());
 	station->setRemark(Core::None);
-	station->setRestricted(false);
-	station->setShared(true);
-	station->setArchive(init_values[ARCHIVE]);
+	station->setRestricted(network->restricted());
+	station->setShared(network->shared());
+	station->setArchive(_dcid);
 	GetComment(si);
 
 	network->add(station.get());
@@ -783,9 +806,9 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 			DataModel::StreamPtr strm = loc->stream(DataModel::StreamIndex(strm_code, strm_start));
 
 			if(!strm)
-				strm = InsertStream(ci, loc, station->restricted());
+				strm = InsertStream(ci, loc, station->restricted(), station->shared());
 			else
-				UpdateStream(ci, strm, station->restricted()); //, ins.second);
+				UpdateStream(ci, strm, station->restricted(), station->shared()); //, ins.second);
 
 			// ProcessComponent(ci, strm);
 			ProcessDatalogger(ci, strm);
@@ -802,9 +825,9 @@ void Inventory::ProcessStream(StationIdentifier& si, DataModel::StationPtr stati
 			DataModel::AuxStreamPtr strm = loc->auxStream(DataModel::AuxStreamIndex(strm_code, strm_start));
 
 			if(!strm)
-				strm = InsertAuxStream(ci, loc, station->restricted());
+				strm = InsertAuxStream(ci, loc, station->restricted(), station->shared());
 			else
-				UpdateAuxStream(ci, strm, station->restricted());
+				UpdateAuxStream(ci, strm, station->restricted(), station->shared());
 		}
 	}
 }
@@ -875,7 +898,7 @@ void Inventory::UpdateSensorLocation(ChannelIdentifier& ci, DataModel::SensorLoc
 * Returns:	nothing													    *
 * Description:	insert a new channel(seisstream)									    *
 ****************************************************************************************************************************/
-DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, bool restricted)
+DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, bool restricted, bool shared)
 {
 	SEISCOMP_DEBUG("Insert seisstream information (%s)", ci.GetChannel().c_str());
 
@@ -968,6 +991,7 @@ DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::S
 	}
 
 	strm->setRestricted(restricted);
+	strm->setShared(shared);
 	
 	loc->add(strm.get());
 	return strm;
@@ -980,7 +1004,7 @@ DataModel::StreamPtr Inventory::InsertStream(ChannelIdentifier& ci, DataModel::S
 * Returns:	nothing													    *
 * Description:	update the current channel with information from dataless						    *
 ****************************************************************************************************************************/
-void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, bool restricted) //, bool FirstComponent)
+void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, bool restricted, bool shared) //, bool FirstComponent)
 {
 	SEISCOMP_DEBUG("Update seisstream information (%s)", ci.GetChannel().c_str());
 
@@ -1059,6 +1083,7 @@ void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, b
 	}
 
 	strm->setRestricted(restricted);
+	strm->setShared(shared);
 
 	strm->update();
 }
@@ -1070,7 +1095,7 @@ void Inventory::UpdateStream(ChannelIdentifier& ci, DataModel::StreamPtr strm, b
 * Returns:	nothing													    *
 * Description:	insert a new channel(auxstream)									    *
 ****************************************************************************************************************************/
-DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, bool restricted)
+DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataModel::SensorLocationPtr loc, bool restricted, bool shared)
 {
 	SEISCOMP_DEBUG("Insert auxstream information");
 
@@ -1099,6 +1124,7 @@ DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataMo
 	strm->setFlags(ci.GetFlags());
 	strm->setFormat("Steim2");
 	strm->setRestricted(restricted);
+	strm->setShared(shared);
 	
 	loc->add(strm.get());
 	return strm;
@@ -1111,7 +1137,7 @@ DataModel::AuxStreamPtr Inventory::InsertAuxStream(ChannelIdentifier& ci, DataMo
 * Returns:	nothing													    *
 * Description:	update the current channel with information from dataless						    *
 ****************************************************************************************************************************/
-void Inventory::UpdateAuxStream(ChannelIdentifier& ci, DataModel::AuxStreamPtr strm, bool restricted)
+void Inventory::UpdateAuxStream(ChannelIdentifier& ci, DataModel::AuxStreamPtr strm, bool restricted, bool shared)
 {
 	SEISCOMP_DEBUG("Update auxstream information");
 
@@ -1136,6 +1162,7 @@ void Inventory::UpdateAuxStream(ChannelIdentifier& ci, DataModel::AuxStreamPtr s
 	strm->setFlags(ci.GetFlags());
 	strm->setFormat("Steim2");
 	strm->setRestricted(restricted);
+	strm->setShared(shared);
 
 	strm->update();
 }

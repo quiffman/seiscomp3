@@ -19,8 +19,6 @@
 #include <seiscomp3/core/datetime.h>
 #include <seiscomp3/core/timewindow.h>
 #include <seiscomp3/io/recordstream.h>
-#include <seiscomp3/io/recordstream/slconnection.h>
-#include <seiscomp3/io/recordstream/arclink.h>
 #include <seiscomp3/io/api.h>
 
 namespace Seiscomp {
@@ -31,12 +29,12 @@ namespace _private {
 DEFINE_SMARTPOINTER(CombinedConnection);
 
 class SC_CORE_IO_API CombinedConnection : public Seiscomp::IO::RecordStream {
-	DECLARE_SC_CLASS(CombinedConnection);
+	DECLARE_SC_CLASS(CombinedConnection)
 
 	public:
 		//! C'tor
 		CombinedConnection();
-		
+
 		//! Initializing Constructor
 		CombinedConnection(std::string serverloc);
 
@@ -45,12 +43,9 @@ class SC_CORE_IO_API CombinedConnection : public Seiscomp::IO::RecordStream {
 
 		virtual bool setRecordType(const char*);
 
-		//! Initialize the arclink connection.
+		//! Initialize the combined connection.
 		bool setSource(std::string serverloc);
-		
-		//! Supply user credentials
-		bool setUser(std::string name, std::string password);
-		
+
 		//! Adds the given stream to the server connection description
 		bool addStream(std::string net, std::string sta, std::string loc, std::string cha);
 
@@ -58,53 +53,49 @@ class SC_CORE_IO_API CombinedConnection : public Seiscomp::IO::RecordStream {
 		bool addStream(std::string net, std::string sta, std::string loc, std::string cha,
 			const Seiscomp::Core::Time &stime, const Seiscomp::Core::Time &etime);
 
-		//! Removes the given stream from the connection description. Returns true on success; false otherwise.
-		bool removeStream(std::string net, std::string sta, std::string loc, std::string cha);
-  
 		//! Adds the given start time to the server connection description
 		bool setStartTime(const Seiscomp::Core::Time &stime);
-		
+
 		//! Adds the given end time to the server connection description
 		bool setEndTime(const Seiscomp::Core::Time &etime);
-		
+
 		//! Adds the given end time window to the server connection description
 		bool setTimeWindow(const Seiscomp::Core::TimeWindow &w);
 
 		//! Sets timeout
 		bool setTimeout(int seconds);
-  
-		//! Removes all stream list, time window, etc. -entries from the connection description object.
-		bool clear();
 
-		//! Terminates the arclink connection.
+		//! Terminates the combined connection.
 		void close();
 
-		//! Reconnects a terminated arclink connection.
-		bool reconnect();
- 
 		//! Returns the data stream
 		std::istream& stream();
-		
+
 		Record* createRecord(Array::DataType, Record::Hint);
-		
+
 	private:
-		bool _useArclink;
-		bool _download;
-		int _nstream;
-		Core::TimeSpan  _seedlinkAvailability;
-		Core::Time      _startTime;
-		Core::Time      _endTime;
-		Core::Time      _curtime;
-		Core::Time      _arclinkEndTime;
-		size_t          _nArclinkStreams;
-		size_t          _nSeedlinkStreams;
-		std::set<StreamIdx> _streams;
-		SLConnectionPtr _seedlink;
-		Arclink::ArclinkConnectionPtr _arclink;
+		void init();
+
+	private:
+		bool                _started;
+
+		size_t              _nStream;
+		size_t              _nArchive;
+		size_t              _nRealtime;
+
+		Core::Time          _startTime;
+		Core::Time          _endTime;
+		Core::Time          _curtime;
+		Core::Time          _archiveEndTime;
+		Core::TimeSpan      _realtimeAvailability;
+
+		std::set<StreamIdx> _tmpStreams;
+		IO::RecordStreamPtr _realtime;
+		IO::RecordStreamPtr _archive;
 };
 
+} // namesapce Combined
 } // namespace _private
-} // namespace Combined
 } // namespace RecordStream
 } // namespace Seiscomp
 

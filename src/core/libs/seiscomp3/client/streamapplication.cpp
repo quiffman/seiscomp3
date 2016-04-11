@@ -35,6 +35,7 @@ StreamApplication::StreamApplication(int argc, char **argv)
 	_recordInputHint = Record::DATA_ONLY;
 	_logRecords = NULL;
 	_receivedRecords = 0;
+	_requestSync = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -197,7 +198,13 @@ void StreamApplication::startRecordThread() {
 void StreamApplication::waitForRecordThread() {
 	if ( _recordThread ) {
 		SEISCOMP_INFO("Waiting for record thread");
+		if ( !_recordLock.try_lock() )
+			SEISCOMP_DEBUG("Releasing acquisition lock obtained from acquisition thread");
+		_recordLock.unlock();
 		_recordThread->join();
+		if ( !_recordLock.try_lock() )
+			SEISCOMP_DEBUG("Releasing acquisition lock (2) obtained from acquisition thread");
+		_recordLock.unlock();
 		delete _recordThread;
 		_recordThread = NULL;
 	}
@@ -362,5 +369,39 @@ void StreamApplication::acquisitionFinished() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool StreamApplication::storeRecord(Record *rec) {
-	return _queue.push(rec);
+	_recordLock.lock();
+	bool r = _queue.push(rec);
+	if ( _requestSync ) {
+		_requestSync = false;
+		sendNotification(Notification::Sync);
+	}
+	else {
+		_recordLock.unlock();
+	}
+	return r;
 }
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void StreamApplication::requestSync() {
+	_requestSync = true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void StreamApplication::handleEndSync() {
+	_requestSync = false;
+	_recordLock.unlock();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

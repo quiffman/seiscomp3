@@ -78,10 +78,23 @@ int RunningAverage::count(const Core::Time &time) const {
 	if ( shiftBins < 0 )
 		return count;
 
+	/*
+	for ( size_t i = shiftBins; i < _timeSpan; ++i ) {
+		if ( _front+i < _timeSpan )
+			count += _bins[_front+i];
+		else
+			count += _bins[_front+i-_timeSpan];
+	}
+	*/
+
 	for ( size_t i = _front + shiftBins; i < _timeSpan; ++i )
 		count += _bins[i];
 
-	for ( size_t i = 0; i < _front; ++i )
+	size_t i = 0;
+	if ( _front > _timeSpan-shiftBins )
+		i = _front - (_timeSpan-shiftBins);
+
+	for ( ; i < _front; ++i )
 		count += _bins[i];
 
 	return count;

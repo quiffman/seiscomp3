@@ -143,7 +143,7 @@ const std::string GeoFeatureSet::initStatus(unsigned int fileCount) const {
 
 	std::ostringstream buffer;
 	buffer << "Read " << _features.size()
-	       << " segments(s) with a total number of "
+	       << " segment(s) with a total number of "
 	       << vertexCount << " vertice(s) from " << fileCount << " file(s)";
 
 	return buffer.str();

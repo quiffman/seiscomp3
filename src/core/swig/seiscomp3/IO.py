@@ -1157,16 +1157,12 @@ class CombinedConnection(RecordStream):
     __del__ = lambda self : None;
     def setRecordType(self, *args): return _IO.CombinedConnection_setRecordType(self, *args)
     def setSource(self, *args): return _IO.CombinedConnection_setSource(self, *args)
-    def setUser(self, *args): return _IO.CombinedConnection_setUser(self, *args)
     def addStream(self, *args): return _IO.CombinedConnection_addStream(self, *args)
-    def removeStream(self, *args): return _IO.CombinedConnection_removeStream(self, *args)
     def setStartTime(self, *args): return _IO.CombinedConnection_setStartTime(self, *args)
     def setEndTime(self, *args): return _IO.CombinedConnection_setEndTime(self, *args)
     def setTimeWindow(self, *args): return _IO.CombinedConnection_setTimeWindow(self, *args)
     def setTimeout(self, *args): return _IO.CombinedConnection_setTimeout(self, *args)
-    def clear(self): return _IO.CombinedConnection_clear(self)
     def close(self): return _IO.CombinedConnection_close(self)
-    def reconnect(self): return _IO.CombinedConnection_reconnect(self)
     def stream(self): return _IO.CombinedConnection_stream(self)
     def createRecord(self, *args): return _IO.CombinedConnection_createRecord(self, *args)
 CombinedConnection_swigregister = _IO.CombinedConnection_swigregister

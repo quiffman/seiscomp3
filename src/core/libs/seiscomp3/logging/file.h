@@ -28,7 +28,7 @@ class SC_CORE_LOGGING_API FileOutput : public Output {
 		FileOutput(const char* filename);
 		~FileOutput();
 
-		bool open(const char* filename);
+		virtual bool open(const char* filename);
 		bool isOpen();
 
 	protected:

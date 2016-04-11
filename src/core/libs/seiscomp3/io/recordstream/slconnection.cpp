@@ -39,13 +39,15 @@ using namespace Seiscomp;
 using namespace Seiscomp::Core;
 using namespace Seiscomp::IO;
 
+const string DefaultHost = "localhost";
+const string DefaultPort = "18000";
 
 IMPLEMENT_SC_CLASS_DERIVED(SLConnection,
                            Seiscomp::IO::RecordStream,
                            "SeedLinkConnection");
-    
+
 REGISTER_RECORDSTREAM(SLConnection, "slink");
-    
+
 
 SLConnection::StreamBuffer::StreamBuffer() {}
 
@@ -111,6 +113,19 @@ bool SLConnection::setSource(string serverloc) {
 	}
 	else
 		_serverloc = serverloc;
+
+	// set address defaults if necessary
+	if ( _serverloc.empty() || _serverloc == ":" )
+		_serverloc = DefaultHost + ":" + DefaultPort;
+	else {
+		pos = _serverloc.find(':');
+		if ( pos == string::npos )
+			_serverloc += ":" + DefaultPort;
+		else if ( pos == _serverloc.length()-1 )
+			_serverloc += DefaultPort;
+		else if ( pos == 0 )
+			_serverloc.insert(0, DefaultHost);
+	}
 
 	_retriesLeft = -1;
 
@@ -178,11 +193,11 @@ bool SLConnection::setTimeout(int seconds) {
     return true;
 }
 
-void SLConnection::handshake() { 
+void SLConnection::handshake() {
 	Util::StopWatch aStopWatch;
 
 	bool batchmode = false;
-	_sock.sendRequest("BATCH",false); 
+	_sock.sendRequest("BATCH",false);
 	string response = _sock.readline();
 
 	if (response == "OK") {
@@ -200,7 +215,7 @@ void SLConnection::handshake() {
 			_sock.sendRequest("SELECT " + it->selector(), !batchmode);
 			SEISCOMP_DEBUG("Seedlink command: SELECT %s", it->selector().c_str());
 
-			string timestr = "";	 
+			string timestr = "";
 			Time stime = (it->startTime() != Time()) ? it->startTime() : _stime;
 			Time etime = (it->endTime() != Time()) ? it->endTime() : _etime;
 
@@ -228,7 +243,7 @@ void SLConnection::handshake() {
 						timestr = Time::GMT().toString("%Y,%m,%d,%H,%M,%S") + " " +
 						          etime.toString("%Y,%m,%d,%H,%M,%S");
 					}
-					/* else: with a missing start time and an end time in the past 
+					/* else: with a missing start time and an end time in the past
 					   the time window can not be set correctly */
 				}
 			}
@@ -254,7 +269,7 @@ Time getEndtime(MSRecord *prec) {
 
     if (prec->samprate > 0)
         diff = prec->samplecnt / prec->samprate;
-    
+
     if (diff == 0)
         return stime;
     return stime + Time(diff);
@@ -333,7 +348,7 @@ istream& SLConnection::stream() {
 				_stream.clear(std::ios::eofbit);
 				break;
 			}
-	
+
 			_slrecord += _sock.read(strlen(ERRTOKEN)-strlen(TERMTOKEN));
 			if (!_slrecord.compare(ERRTOKEN)) {
 				_sock.close();
@@ -341,7 +356,7 @@ istream& SLConnection::stream() {
 				break;
 			}
 			/********************/
-	
+
 			_slrecord += _sock.read(HEADSIZE+RECSIZE-strlen(ERRTOKEN));
 			char * data = const_cast<char *>(_slrecord.c_str());
 			if ( !MS_ISVALIDHEADER(data+HEADSIZE) ) {
@@ -350,7 +365,7 @@ istream& SLConnection::stream() {
 			}
 
 			MSRecord *prec = NULL;
-	
+
 			if (msr_unpack(data+HEADSIZE,RECSIZE,&prec,0,0) == MS_NOERROR) {
 				int samprate_fact = prec->fsdh->samprate_fact;
 				int numsamples = prec->fsdh->numsamples;

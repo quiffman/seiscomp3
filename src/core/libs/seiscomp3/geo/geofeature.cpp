@@ -87,8 +87,8 @@ bool GeoFeature::contains(const Vertex &v) const {
 
 bool GeoFeature::contains(const Vertex& v, const Vertex *polygon,
                           size_t sides) {
-	// should not happen since when reading the BNA files the last point is
-	// removed if it equals the first point
+	// should not happen since when reading the BNA files the last point if it
+	// equals the first point
 	if ( polygon[0] == polygon[sides-1] )
 		--sides;
 
@@ -106,17 +106,17 @@ bool GeoFeature::contains(const Vertex& v, const Vertex *polygon,
 		// Skip segments where v.lon falls outside the segments horizontal
 		// boundings
 		if ( segWidth >= 0 ) {
-			if ( relLonLeft < 0 || relLonRight > 0 ) continue;
+			if ( relLonLeft < 0 || relLonRight >= 0 ) continue;
 		}
 		else {
-			if ( relLonLeft > 0 || relLonRight < 0 ) continue;
+			if ( relLonLeft > 0 || relLonRight <= 0 ) continue;
 		}
 
 		Vertex::ValueType y0;
 
 		// y0 = latitude of crossing
 		y0 = relLonLeft * (polygon[i].lat - polygon[j].lat) /
-		     fabs(segWidth) + polygon[j].lat;
+		     segWidth + polygon[j].lat;
 
 		// North crossing
 		if ( y0 > v.lat )
@@ -124,4 +124,46 @@ bool GeoFeature::contains(const Vertex& v, const Vertex *polygon,
 	}
 
 	return oddCrossings;
+}
+
+
+double GeoFeature::area() const {
+	if ( !closedPolygon() ) return false;
+
+	size_t startIdx = 0, endIdx = 0;
+	size_t nSubFeat = _subFeatures.size();
+	double A = 0.0;
+
+	for ( size_t i = 0; i <= nSubFeat; ++i ) {
+		endIdx = (i == nSubFeat ? _vertices.size() : _subFeatures[i]);
+		A += area(&_vertices[startIdx], endIdx - startIdx);
+		startIdx = endIdx;
+	}
+
+	return A;
+}
+
+
+double GeoFeature::area(const Vertex *polygon, size_t sides) {
+	// should not happen since when reading the BNA files the last point if it
+	// equals the first point
+	if ( polygon[0] == polygon[sides-1] )
+		--sides;
+
+	// no polygon if less than 3 sites
+	if ( sides < 3 ) return 0;
+
+	int j = sides - 1;
+	double A = 0.0;
+
+	Vertex::ValueType ref_lon = polygon[0].lon;
+
+	for ( size_t i = 0; i < sides; j = i++ ) {
+		double l0 = sub(polygon[j].lon, ref_lon);
+		double l1 = sub(polygon[i].lon, ref_lon);
+
+		A += l1*polygon[j].lat - l0*polygon[i].lat;
+	}
+
+	return A*0.5;
 }

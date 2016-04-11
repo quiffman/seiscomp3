@@ -41,8 +41,7 @@ Tests = {\
 
 
 #----------------------------------------------------------------------------
-# Class TestLog to hold the properties of a certain test. It also creates
-# XML.
+# Class TestLog to hold the properties of a test. It also creates XML.
 #----------------------------------------------------------------------------
 class TestLog:
   def __init__(self):
@@ -52,7 +51,15 @@ class TestLog:
 
   def toXML(self, f, name):
     f.write('<test name="%s"' % name)
-    if self.value: f.write(' value="%s"' % self.value)
+    if self.value:
+      try:
+        # Try to convert to float
+        fvalue = float(self.value)
+        if fvalue % 1.0 >= 1E-6:
+          f.write(' value="%f"' % fvalue)
+        else:
+          f.write(' value="%d"' % int(fvalue))
+      except: f.write(' value="%s"' % self.value)
     if self.uom: f.write(' uom="%s"' % self.uom)
     if self.update: f.write(' updateTime="%s"' % self.update)
     f.write('/>')

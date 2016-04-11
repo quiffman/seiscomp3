@@ -68,6 +68,7 @@ struct Config {
 	size_t          minMwCount;
 
 	bool            enableFallbackPreferredMagnitude;
+	bool            updatePreferredSolutionAfterMerge;
 
 	std::string     eventIDPrefix;
 	std::string     eventIDPattern;
@@ -75,6 +76,7 @@ struct Config {
 	StringList      agencies;
 	StringList      authors;
 	StringList      methods;
+	std::string     score;
 
 	StringList      priorities;
 

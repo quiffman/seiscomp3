@@ -21,6 +21,7 @@
 #include <seiscomp3/datamodel/eventparameters.h>
 #include <seiscomp3/datamodel/journaling.h>
 #include <seiscomp3/plugins/events/eventprocessor.h>
+#include <seiscomp3/plugins/events/scoreprocessor.h>
 
 #define SEISCOMP_COMPONENT SCEVENT
 #include <seiscomp3/logging/log.h>
@@ -188,6 +189,7 @@ class EventTool : public Application {
 
 		Config                        _config;
 		EventProcessors               _processors;
+		ScoreProcessorPtr             _score;
 
 		EventMap                      _events;
 		DataModel::EventParametersPtr _ep;

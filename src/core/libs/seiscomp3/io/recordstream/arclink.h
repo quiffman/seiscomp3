@@ -109,6 +109,7 @@ class SC_CORE_IO_API ArclinkConnection : public Seiscomp::IO::RecordStream {
 		std::string _serverloc;
 		std::string _user;
 		std::string _passwd;
+		std::list<StreamIdx> _ordered;
 		std::set<StreamIdx> _streams;
 		Seiscomp::Core::Time _stime;
 		Seiscomp::Core::Time _etime;

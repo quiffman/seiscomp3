@@ -244,9 +244,9 @@ dumpOrigin(const Seiscomp::DataModel::Origin *origin)
 
 
 bool
-equivalent( 
-	const Seiscomp::DataModel::WaveformStreamID &wfid1, 
-	const Seiscomp::DataModel::WaveformStreamID &wfid2) 
+equivalent(
+	const Seiscomp::DataModel::WaveformStreamID &wfid1,
+	const Seiscomp::DataModel::WaveformStreamID &wfid2)
 { 
 	if (wfid1.networkCode() != wfid2.networkCode()) return false;
 	if (wfid1.stationCode() != wfid2.stationCode()) return false;

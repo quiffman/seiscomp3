@@ -33,14 +33,14 @@ EventInformation::EventInformation(Cache *c, Config *cfg_)
 
 EventInformation::EventInformation(Cache *c, Config *cfg_,
                                    DatabaseQuery *q, const string &eventID)
-: cache(c), cfg(cfg_), aboutToBeRemoved(false), dirtyPickSet(false) {
+: cache(c), cfg(cfg_), created(false), aboutToBeRemoved(false), dirtyPickSet(false) {
 	load(q, eventID);
 }
 
 
 EventInformation::EventInformation(Cache *c, Config *cfg_,
                                    DatabaseQuery *q, EventPtr &event)
-: cache(c), cfg(cfg_), aboutToBeRemoved(false), dirtyPickSet(false) {
+: cache(c), cfg(cfg_), created(false), aboutToBeRemoved(false), dirtyPickSet(false) {
 	load(q, event);
 }
 

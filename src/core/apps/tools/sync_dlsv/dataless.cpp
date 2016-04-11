@@ -30,7 +30,8 @@ void Dataless::SynchronizeDataless(string dataless, Seiscomp::Communication::Con
 {
 	SEISCOMP_INFO("START PROCESSING DATALESS");
 
-	invent = new Inventory(init_values, conn, cb);
+	invent = new Inventory(_dcid, _net_description, _net_type, _net_start, _net_end,
+		_temporary, _restricted, _shared, conn, cb);
 	invent->vic = new VolumeIndexControl();
 	invent->adc = new AbbreviationDictionaryControl();
 	invent->sc = new StationControl();
@@ -80,7 +81,7 @@ void Dataless::ParseDataless(string file)
 		
 			if(invent->SetConnection())
 			{
-				invent->SynchronizeInventory(dump);
+				invent->SynchronizeInventory(_dump);
 				invent->CloseConnection();
 				invent->vic->EmptyVectors();
 				invent->adc->EmptyVectors();

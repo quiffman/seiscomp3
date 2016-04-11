@@ -214,6 +214,7 @@ class FileRotatorOutput(FileOutput):
         this = _Logging.new_FileRotatorOutput(*args)
         try: self.this.append(this)
         except: self.this = this
+    def open(self, *args): return _Logging.FileRotatorOutput_open(self, *args)
     __swig_destroy__ = _Logging.delete_FileRotatorOutput
     __del__ = lambda self : None;
 FileRotatorOutput_swigregister = _Logging.FileRotatorOutput_swigregister

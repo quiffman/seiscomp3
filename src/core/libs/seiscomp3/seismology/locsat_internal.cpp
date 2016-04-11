@@ -137,24 +137,26 @@ Loc* LocSAT::doLocation(){
 
 void LocSAT::addSite(const char* station, float lat, float lon, float elev){
 
-	if (_sites)
+	if ( _sites ) {
 		for (int i = 0; i < _siteCount; i++)
 			if (strcmp(station, _sites[i].sta) == 0){
 				return;
 			}
+	}
 
-	if (!_sites){
+	if ( !_sites ) {
 		_siteCount = 1;
 		_sites = (Site*)malloc(_siteCount * sizeof(Site));
 	}
-	else{
+	else {
 		_siteCount++;
 		_sites = (Site*)realloc(_sites, _siteCount * sizeof(Site));
 	}
+
 	strcpy(_sites[_siteCount-1].sta, station);
 	_sites[_siteCount-1].lat = lat;
 	_sites[_siteCount-1].lon = lon;
-	_sites[_siteCount-1].elev = elev;
+	_sites[_siteCount-1].elev = elev * 0.001; // Convert m to km
 
 	_num_sta = _siteCount;
 
@@ -164,13 +166,13 @@ void LocSAT::addSite(const char* station, float lat, float lon, float elev){
 void LocSAT::addArrival(long arrival_id, const char* station, const char* phase,
                         double time, float deltim, int defining){
 
-	if (!_arrival){
+	if ( !_arrival ) {
 		_arrivalCount = 1;
 		_arrival = (Arrival*)malloc(_arrivalCount * sizeof(Arrival));
 		_assoc = (Assoc*)malloc(_arrivalCount * sizeof(Assoc));
 		_locator_errors = (Locator_errors*)malloc(sizeof(Locator_errors));
 	}
-	else{
+	else {
 		_arrivalCount++;
 		_arrival = (Arrival*)realloc(_arrival, _arrivalCount * sizeof(Arrival));
 		_assoc = (Assoc*)realloc(_assoc, _arrivalCount * sizeof(Assoc));
@@ -180,11 +182,10 @@ void LocSAT::addArrival(long arrival_id, const char* station, const char* phase,
 	_arrival[_arrivalCount-1].time = time;
 	_arrival[_arrivalCount-1].deltim = deltim;
 	
-	if (defining > 0)
+	if ( defining > 0 )
 		strcpy(_assoc[_arrivalCount-1].timedef, "d");
 	else
 		strcpy(_assoc[_arrivalCount-1].timedef, "n");
-
 
 	_arrival[_arrivalCount-1].azimuth = -1.0;
 	_arrival[_arrivalCount-1].slow 	 = -1.0;

@@ -30,8 +30,13 @@ class Synchro : public Seiscomp::Client::Application, public SynchroCallbacks {
 
 	private:
 		std::string _dcid;
+		std::string _net_description;
+		std::string _net_type;
+		std::string _net_start_str;
+		std::string _net_end_str;
+		Core::Time _net_start;
+		Core::Time _net_end;
 		std::string _syncID;
-		INIT_MAP _init;
 		bool syncCallback();
 };
 

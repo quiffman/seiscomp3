@@ -83,6 +83,14 @@ public:
     virtual bool handleInitializationErrorSwigPublic(Seiscomp::Client::Application::Stage stage) {
       return Seiscomp::Client::Application::handleInitializationError(stage);
     }
+    virtual void handleStartSync();
+    virtual void handleStartSyncSwigPublic() {
+      Seiscomp::Client::Application::handleStartSync();
+    }
+    virtual void handleEndSync();
+    virtual void handleEndSyncSwigPublic() {
+      Seiscomp::Client::Application::handleEndSync();
+    }
     virtual bool dispatch(Seiscomp::Core::BaseObject *arg0);
     virtual bool dispatchSwigPublic(Seiscomp::Core::BaseObject *arg0) {
       return Seiscomp::Client::Application::dispatch(arg0);
@@ -176,7 +184,7 @@ private:
       return method;
     }
 private:
-    mutable swig::SwigVar_PyObject vtable[34];
+    mutable swig::SwigVar_PyObject vtable[36];
 #endif
 
 };
@@ -252,6 +260,14 @@ public:
     virtual bool handleInitializationError(Seiscomp::Client::Application::Stage stage);
     virtual bool handleInitializationErrorSwigPublic(Seiscomp::Client::Application::Stage stage) {
       return Seiscomp::Client::Application::handleInitializationError(stage);
+    }
+    virtual void handleStartSync();
+    virtual void handleStartSyncSwigPublic() {
+      Seiscomp::Client::Application::handleStartSync();
+    }
+    virtual void handleEndSync();
+    virtual void handleEndSyncSwigPublic() {
+      Seiscomp::Client::StreamApplication::handleEndSync();
     }
     virtual bool dispatch(Seiscomp::Core::BaseObject *obj);
     virtual bool dispatchSwigPublic(Seiscomp::Core::BaseObject *obj) {
@@ -355,7 +371,7 @@ private:
       return method;
     }
 private:
-    mutable swig::SwigVar_PyObject vtable[35];
+    mutable swig::SwigVar_PyObject vtable[37];
 #endif
 
 };

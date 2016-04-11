@@ -32,6 +32,7 @@ class SC_CORE_LOGGING_API FileRotatorOutput : public FileOutput {
 		 */
 		FileRotatorOutput(const char* filename, int timeSpan = 60*60*24, int historySize = 7);
 
+		bool open(const char* filename);
 
 	protected:
 		/** Callback method for receiving log messages */

@@ -19,6 +19,9 @@
 #include <sstream>
 #include <stdio.h>
 
+#ifndef WIN32
+#include <sys/stat.h>
+#endif
 
 namespace Seiscomp {
 namespace Logging {
@@ -30,6 +33,18 @@ FileRotatorOutput::FileRotatorOutput(int timeSpan, int historySize)
 
 FileRotatorOutput::FileRotatorOutput(const char* filename, int timeSpan, int historySize)
  : FileOutput(filename), _timeSpan(timeSpan), _historySize(historySize), _lastInterval(-1) {
+}
+
+bool FileRotatorOutput::open(const char* filename) {
+	if ( !FileOutput::open(filename) ) return false;
+
+#ifndef WIN32
+	struct stat st;
+	if ( stat(filename, &st) == 0 )
+		_lastInterval = st.st_mtime / _timeSpan;
+
+#endif
+	return true;
 }
 
 void FileRotatorOutput::log(const char* channelName,
@@ -80,7 +95,9 @@ void FileRotatorOutput::rotateLogs() {
 		renameLog(i, i+1);
 
 	// Open the new stream
+	int tmp(_lastInterval);
 	open(_filename.c_str());
+	_lastInterval = tmp;
 }
 
 

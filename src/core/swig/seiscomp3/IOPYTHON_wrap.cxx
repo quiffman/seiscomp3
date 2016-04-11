@@ -25505,50 +25505,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CombinedConnection_setUser(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:CombinedConnection_setUser",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CombinedConnection_setUser" "', argument " "1"" of type '" "Seiscomp::RecordStream::Combined::_private::CombinedConnection *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::RecordStream::Combined::_private::CombinedConnection * >(argp1);
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj1, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_setUser" "', argument " "2"" of type '" "std::string""'"); 
-    }
-    arg2 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj2, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_setUser" "', argument " "3"" of type '" "std::string""'"); 
-    }
-    arg3 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  result = (bool)(arg1)->setUser(arg2,arg3);
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_CombinedConnection_addStream__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
@@ -25783,72 +25739,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CombinedConnection_removeStream(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:CombinedConnection_removeStream",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CombinedConnection_removeStream" "', argument " "1"" of type '" "Seiscomp::RecordStream::Combined::_private::CombinedConnection *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::RecordStream::Combined::_private::CombinedConnection * >(argp1);
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj1, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_removeStream" "', argument " "2"" of type '" "std::string""'"); 
-    }
-    arg2 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj2, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_removeStream" "', argument " "3"" of type '" "std::string""'"); 
-    }
-    arg3 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj3, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_removeStream" "', argument " "4"" of type '" "std::string""'"); 
-    }
-    arg4 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  {
-    std::basic_string<char> *ptr = (std::basic_string<char> *)0;
-    int res = SWIG_AsPtr_std_basic_string_Sl_char_Sg_(obj4, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "CombinedConnection_removeStream" "', argument " "5"" of type '" "std::string""'"); 
-    }
-    arg5 = *ptr;
-    if (SWIG_IsNewObj(res)) delete ptr;
-  }
-  result = (bool)(arg1)->removeStream(arg2,arg3,arg4,arg5);
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_CombinedConnection_setStartTime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
@@ -25982,28 +25872,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CombinedConnection_clear(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CombinedConnection_clear",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CombinedConnection_clear" "', argument " "1"" of type '" "Seiscomp::RecordStream::Combined::_private::CombinedConnection *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::RecordStream::Combined::_private::CombinedConnection * >(argp1);
-  result = (bool)(arg1)->clear();
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_CombinedConnection_close(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
@@ -26019,28 +25887,6 @@ SWIGINTERN PyObject *_wrap_CombinedConnection_close(PyObject *SWIGUNUSEDPARM(sel
   arg1 = reinterpret_cast< Seiscomp::RecordStream::Combined::_private::CombinedConnection * >(argp1);
   (arg1)->close();
   resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_CombinedConnection_reconnect(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::RecordStream::Combined::_private::CombinedConnection *arg1 = (Seiscomp::RecordStream::Combined::_private::CombinedConnection *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CombinedConnection_reconnect",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CombinedConnection_reconnect" "', argument " "1"" of type '" "Seiscomp::RecordStream::Combined::_private::CombinedConnection *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::RecordStream::Combined::_private::CombinedConnection * >(argp1);
-  result = (bool)(arg1)->reconnect();
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
   return NULL;
@@ -26501,16 +26347,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_CombinedConnection", _wrap_delete_CombinedConnection, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setRecordType", _wrap_CombinedConnection_setRecordType, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setSource", _wrap_CombinedConnection_setSource, METH_VARARGS, NULL},
-	 { (char *)"CombinedConnection_setUser", _wrap_CombinedConnection_setUser, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_addStream", _wrap_CombinedConnection_addStream, METH_VARARGS, NULL},
-	 { (char *)"CombinedConnection_removeStream", _wrap_CombinedConnection_removeStream, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setStartTime", _wrap_CombinedConnection_setStartTime, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setEndTime", _wrap_CombinedConnection_setEndTime, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setTimeWindow", _wrap_CombinedConnection_setTimeWindow, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_setTimeout", _wrap_CombinedConnection_setTimeout, METH_VARARGS, NULL},
-	 { (char *)"CombinedConnection_clear", _wrap_CombinedConnection_clear, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_close", _wrap_CombinedConnection_close, METH_VARARGS, NULL},
-	 { (char *)"CombinedConnection_reconnect", _wrap_CombinedConnection_reconnect, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_stream", _wrap_CombinedConnection_stream, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_createRecord", _wrap_CombinedConnection_createRecord, METH_VARARGS, NULL},
 	 { (char *)"CombinedConnection_swigregister", CombinedConnection_swigregister, METH_VARARGS, NULL},

@@ -50,13 +50,15 @@ using namespace Seiscomp;
 using namespace Seiscomp::Core;
 using namespace Seiscomp::IO;
 
+const string DefaultHost = "localhost";
+const string DefaultPort = "18001";
 
 IMPLEMENT_SC_CLASS_DERIVED(ArclinkConnection,
 			   Seiscomp::IO::RecordStream,
 			   "ArclinkConnection");
 
 REGISTER_RECORDSTREAM(ArclinkConnection, "arclink");
-  
+
 ArclinkConnection::ArclinkConnection()
     : RecordStream(), _stream(std::istringstream::in|std::istringstream::binary),
      _user("guest@anywhere"), _readingData(false), _chunkMode(false),
@@ -103,6 +105,20 @@ bool ArclinkConnection::setSource(std::string serverloc) {
 	}
 	else
 		_serverloc = serverloc;
+
+	// set address defaults if necessary
+	if ( _serverloc.empty() || _serverloc == ":" )
+		_serverloc = DefaultHost + ":" + DefaultPort;
+	else {
+		pos = _serverloc.find(':');
+		if ( pos == string::npos )
+			_serverloc += ":" + DefaultPort;
+		else if ( pos == _serverloc.length()-1 )
+			_serverloc += DefaultPort;
+		else if ( pos == 0 )
+			_serverloc.insert(0, DefaultHost);
+	}
+
 	return true;
 }
 
@@ -119,6 +135,7 @@ bool ArclinkConnection::setUser(std::string name, std::string password) {
 bool ArclinkConnection::addStream(std::string net, std::string sta, std::string loc, std::string cha) {
 	pair<set<StreamIdx>::iterator, bool> result;
 	result = _streams.insert(StreamIdx(net, sta, loc, cha));
+	if ( result.second ) _ordered.push_back(*result.first);
 	return result.second;
 }
 
@@ -126,11 +143,17 @@ bool ArclinkConnection::addStream(std::string net, std::string sta, std::string 
 	const Seiscomp::Core::Time &stime, const Seiscomp::Core::Time &etime) {
 	pair<set<StreamIdx>::iterator, bool> result;
 	result = _streams.insert(StreamIdx(net, sta, loc, cha, stime, etime));
+	if ( result.second ) _ordered.push_back(*result.first);
 	return result.second;
 }
 
 bool ArclinkConnection::removeStream(std::string net, std::string sta, std::string loc, std::string cha) {
-	_streams.erase(StreamIdx(net, sta, loc, cha));
+	std::set<StreamIdx>::iterator it;
+	it = _streams.find(StreamIdx(net, sta, loc, cha));
+	if ( it == _streams.end() ) return false;
+	std::list<StreamIdx>::iterator lit = std::find(_ordered.begin(), _ordered.end(), *it);
+	if ( lit != _ordered.end() ) _ordered.erase(lit);
+	_streams.erase(it);
 	return true;
 }
 
@@ -185,7 +208,7 @@ void ArclinkConnection::handshake() {
 
 	SEISCOMP_DEBUG("%s running at %s", _software.c_str(),
 	               _organization.c_str());
-    
+
 	if ( _passwd.length() )
 		_sock.sendRequest("USER " + _user + " " + _passwd, true);
 	else
@@ -193,7 +216,7 @@ void ArclinkConnection::handshake() {
 
 	_sock.sendRequest("REQUEST WAVEFORM format=MSEED", true);
 
-	for ( set<StreamIdx>::iterator it = _streams.begin(); it != _streams.end(); ++it ) {
+	for ( list<StreamIdx>::iterator it = _ordered.begin(); it != _ordered.end(); ++it ) {
 		SEISCOMP_DEBUG("Arclink request: %s", it->str(_stime, _etime).c_str());
 		if ((it->startTime() == Time() && _stime == Time()) ||
 			(it->endTime() == Time() && _etime == Time())) {
@@ -205,16 +228,15 @@ void ArclinkConnection::handshake() {
 	}
 
 	_reqID = _sock.sendRequest("END", true);
-	_sock.sendRequest("BDOWNLOAD " + _reqID, false);
+	_sock.sendRequest("BCDOWNLOAD " + _reqID, false);
 	r = _sock.readline();
 
 	if ( r == "ERROR" ) {
-		_sock.sendRequest("BCDOWNLOAD " + _reqID, false);
+		_sock.sendRequest("BDOWNLOAD " + _reqID, false);
 		r = _sock.readline();
 	}
 
 	if ( r == "ERROR" ) {
-		_chunkMode = false;
 		_remainingBytes = 0;
 	}
 	else if ( r.compare(0, 6, "CHUNK ") == 0 ) {
@@ -309,7 +331,7 @@ std::istream& ArclinkConnection::stream() {
 
 	return _stream;
 }
-    
+
 } // namespace _private
 } // namespace Arclink
 } // namespace RecordStream

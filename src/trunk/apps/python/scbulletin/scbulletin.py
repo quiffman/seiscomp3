@@ -116,10 +116,9 @@ class Bulletin(object):
 
         txt = ""
 
-        if not self._evt:
+        evt = self._evt
+        if not evt and self._dbq:
             evt = self._dbq.getEvent(orid)
-        else:
-            evt = self._evt
 
         if evt:
             txt += "Event:\n"
@@ -299,7 +298,7 @@ class Bulletin(object):
 
                 key = mag.amplitudeID()
                 amp = seiscomp3.DataModel.Amplitude.Find(key)
-                if amp is None:
+                if amp is None and self._dbq:
                     # Bei einem manuellen Pick muss eine gefundene, automatische
                     # Amplitude in eine neue, "manuelle" Amplitude gefaked werden,
                     # die dann auf den manuellen Pick verweist. -> MagTool
@@ -351,10 +350,11 @@ class Bulletin(object):
 
 
     def _printOriginAutoloc1(self, org):
-        if self._evt:
-            evt = self._evt
-        else:
+        evt = self._evt
+        if not evt and self._dbq:
             evt = self._dbq.getEvent(org.publicID())
+        if not evt:
+            return ""
         evid = evt.publicID()
         pos = evid.find("#") # XXX Hack!!!
         if pos != -1:
@@ -458,7 +458,7 @@ class Bulletin(object):
                     if typ=="mb":
                         ampid = m.amplitudeID()
                         a = seiscomp3.DataModel.Amplitude.Find(ampid)
-                        if a is None:
+                        if a is None and self._dbq:
                             obj = self._dbq.loadObject(seiscomp3.DataModel.Amplitude.TypeInfo(), ampid)
                             a   = seiscomp3.DataModel.Amplitude.Cast(obj)
                         if a:
@@ -491,8 +491,9 @@ class Bulletin(object):
         if isinstance(origin, seiscomp3.DataModel.Origin):
             org = origin
         elif isinstance(origin, str):
-            org = self._dbq.loadObject(seiscomp3.DataModel.Origin.TypeInfo(), origin)
-            org = seiscomp3.DataModel.Origin.Cast(org)
+            if self._dbq:
+                org = self._dbq.loadObject(seiscomp3.DataModel.Origin.TypeInfo(), origin)
+                org = seiscomp3.DataModel.Origin.Cast(org)
             if not org:
                 seiscomp3.Logging.error("origin '%s' not loaded" % origin)
                 return
@@ -519,9 +520,10 @@ class Bulletin(object):
                     org = event.preferredOriginID()
                 return self.printOrigin(org)
             elif isinstance(event, str):
-                evt = self._dbq.loadObject(seiscomp3.DataModel.Event.TypeInfo(), event)
-                evt = seiscomp3.DataModel.Event.Cast(evt)
-                self._evt = evt
+                if self._dbq:
+                    evt = self._dbq.loadObject(seiscomp3.DataModel.Event.TypeInfo(), event)
+                    evt = seiscomp3.DataModel.Event.Cast(evt)
+                    self._evt = evt
                 if evt is None:
                     raise TypeError, "unknown event '" + event + "'"
                 return self.printOrigin(evt.preferredOriginID())

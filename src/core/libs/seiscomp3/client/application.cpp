@@ -1080,11 +1080,15 @@ bool Application::isStationEnabled(const std::string& networkCode,
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const std::string& Application::messagingHost() const {
 	return _messagingHost;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1745,7 +1749,13 @@ bool Application::sync(const char *syncID) {
 	// Safety first
 	if ( _currentSyncID.empty() ) return false;
 
-	if ( !requestSync(_currentSyncID.c_str()) ) return false;
+	handleStartSync();
+
+	if ( !requestSync(_currentSyncID.c_str()) ) {
+		handleEndSync();
+		SEISCOMP_INFO("End sync");
+		return false;
+	}
 
 	// Start listening to messages if not done yet
 	if ( !_messageThread )
@@ -1758,8 +1768,24 @@ bool Application::sync(const char *syncID) {
 		idle();
 	}
 
+	handleEndSync();
+
 	return true;
 }
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::handleStartSync() {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::handleEndSync() {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -1815,6 +1841,10 @@ bool Application::processEvent() {
 			case Notification::Close:
 				SEISCOMP_INFO("Close event received, returning");
 				return false;
+
+			case Notification::Sync:
+				sync();
+				break;
 
 			default:
 				if ( !dispatchNotification(evt.type, obj.get()) )
@@ -2218,13 +2248,8 @@ bool Application::initLogging() {
 			else
 				logger = new Logging::FileOutput();
 
-			if ( logger->open(logFile.c_str()) ) {
-				//std::cerr << "using logfile: " << logFile << std::endl;
-				if ( logRotator )
-					//std::cerr << "using logfile rotating, timespan: " << logRotateTime << " secs, "
-                    //          << "#archives: " << logRotateArchiveSize << std::endl;
+			if ( logger->open(logFile.c_str()) )
 				_logger = logger;
-			}
 			else {
 				std::cerr << "failed to open logfile: " << logFile << std::endl;
 				delete logger;

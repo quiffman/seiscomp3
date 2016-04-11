@@ -60,7 +60,7 @@ const char *PRIORITY_TOKENS[] = {
 	"AGENCY", "AUTHOR", "STATUS", "METHOD",
 	"PHASES", "PHASES_AUTOMATIC",
 	"RMS", "RMS_AUTOMATIC",
-	"TIME", "TIME_AUTOMATIC"
+	"TIME", "TIME_AUTOMATIC", "SCORE"
 };
 
 
@@ -223,11 +223,13 @@ bool EventTool::initConfiguration() {
 	try { _config.eventIDPrefix = configGetString("eventIDPrefix"); } catch (...) {}
 	try { _config.eventIDPattern = configGetString("eventIDPattern"); } catch (...) {}
 
+	try { _config.updatePreferredSolutionAfterMerge = configGetBool("eventAssociation.updatePreferredAfterMerge"); } catch (...) {}
 	try { _config.enableFallbackPreferredMagnitude = configGetBool("eventAssociation.enableFallbackMagnitude"); } catch (...) {}
 	try { _config.magTypes = configGetStrings("eventAssociation.magTypes"); } catch (...) {}
 	try { _config.agencies = configGetStrings("eventAssociation.agencies"); } catch (...) {}
 	try { _config.authors = configGetStrings("eventAssociation.authors"); } catch (...) {}
 	try { _config.methods = configGetStrings("eventAssociation.methods"); } catch (...) {}
+	try { _config.score = configGetString("eventAssociation.score"); } catch (...) {}
 	try { _config.priorities = configGetStrings("eventAssociation.priorities"); } catch (...) {}
 
 	for ( Config::StringList::iterator it = _config.priorities.begin();
@@ -243,6 +245,12 @@ bool EventTool::initConfiguration() {
 
 		if ( !validToken ) {
 			SEISCOMP_ERROR("Unexpected token in eventAssociation.priorities: %s", it->c_str());
+			return false;
+		}
+
+		// SCORE requires a score method to be set up.
+		if ( *it == "SCORE" && _config.score.empty() ) {
+			SEISCOMP_ERROR("eventAssociation.priorities defines SCORE but no score method is set up.");
 			return false;
 		}
 	}
@@ -298,10 +306,25 @@ bool EventTool::init() {
 	_config.magTypes.push_back("MLv");
 	_config.magTypes.push_back("mb");
 
+	_config.updatePreferredSolutionAfterMerge = false;
 	_config.delayTimeSpan = 0;
 	_config.delayPrefFocMech = 0;
 
 	if ( !Application::init() ) return false;
+
+	if ( !_config.score.empty() ) {
+		_score = ScoreProcessorFactory::Create(_config.score.c_str());
+		if ( !_score ) {
+			SEISCOMP_ERROR("Score method '%s' is not available. Is the correct plugin loaded?",
+			               _config.score.c_str());
+			return false;
+		}
+
+		if ( !_score->setup(configuration()) ) {
+			SEISCOMP_ERROR("Score '%s' failed to initialize", _config.score.c_str());
+			return false;
+		}
+	}
 
 	_inputOrigin = addInputObjectLog("origin");
 	_inputMagnitude = addInputObjectLog("magnitude");
@@ -2636,6 +2659,21 @@ void EventTool::choosePreferred(EventInformation *info, Origin *origin,
 							break;
 						}
 					}
+					else if ( *it == "SCORE" ) {
+						double score = _score->evaluate(origin);
+						double preferredScore = _score->evaluate(info->preferredOrigin.get());
+						if ( score < preferredScore ) {
+							SEISCOMP_DEBUG("... skipping potential preferred origin, there is one with higher score: %f > %f",
+							               preferredScore, score);
+							return;
+						}
+						else if ( score > preferredScore ) {
+							SEISCOMP_LOG(_infoChannel, "Origin %s: score of %f is larger than %f",
+							             origin->publicID().c_str(), score,
+							             preferredScore);
+							break;
+						}
+					}
 				}
 
 				// Agency priority is a special case and an origin can become preferred without
@@ -3105,6 +3143,21 @@ void EventTool::choosePreferred(EventInformation *info, DataModel::FocalMechanis
 							break;
 						}
 					}
+					else if ( *it == "SCORE" ) {
+						double score = _score->evaluate(fm);
+						double preferredScore = _score->evaluate(info->preferredFocalMechanism.get());
+						if ( score < preferredScore ) {
+							SEISCOMP_DEBUG("... skipping potential preferred focalmechanism, there is one with higher score: %f > %f",
+							               preferredScore, score);
+							return;
+						}
+						else if ( score > preferredScore ) {
+							SEISCOMP_LOG(_infoChannel, "FocalMechanism %s: score of %f is larger than %f",
+							             fm->publicID().c_str(), score,
+							             preferredScore);
+							break;
+						}
+					}
 				}
 			}
 			else {
@@ -3316,8 +3369,9 @@ bool EventTool::mergeEvents(EventInformation *target, EventInformation *source) 
 			query()->loadMagnitudes(org.get());
 		}
 
-		// Update the preferred origin
-		choosePreferred(target, org.get(), NULL);
+		// Update the preferred origin if configured to do so
+		if ( _config.updatePreferredSolutionAfterMerge )
+			choosePreferred(target, org.get(), NULL);
 	}
 
 	while ( sourceEvent->focalMechanismReferenceCount() > 0 ) {
@@ -3365,8 +3419,9 @@ bool EventTool::mergeEvents(EventInformation *target, EventInformation *source) 
 			query()->loadMomentTensors(fm.get());
 		}
 
-		// Update the preferred origin
-		choosePreferred(target, fm.get());
+		// Update the preferred focalfechanism
+		if ( _config.updatePreferredSolutionAfterMerge )
+			choosePreferred(target, fm.get());
 	}
 
 	// Remove source event

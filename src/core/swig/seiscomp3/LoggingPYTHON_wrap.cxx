@@ -4571,6 +4571,40 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FileRotatorOutput_open(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Logging::FileRotatorOutput *arg1 = (Seiscomp::Logging::FileRotatorOutput *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FileRotatorOutput_open",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Logging__FileRotatorOutput, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FileRotatorOutput_open" "', argument " "1"" of type '" "Seiscomp::Logging::FileRotatorOutput *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Logging::FileRotatorOutput * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "FileRotatorOutput_open" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (bool)(arg1)->open((char const *)arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_FileRotatorOutput(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Logging::FileRotatorOutput *arg1 = (Seiscomp::Logging::FileRotatorOutput *) 0 ;
@@ -4807,6 +4841,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"FileOutput_isOpen", _wrap_FileOutput_isOpen, METH_VARARGS, NULL},
 	 { (char *)"FileOutput_swigregister", FileOutput_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_FileRotatorOutput", _wrap_new_FileRotatorOutput, METH_VARARGS, NULL},
+	 { (char *)"FileRotatorOutput_open", _wrap_FileRotatorOutput_open, METH_VARARGS, NULL},
 	 { (char *)"delete_FileRotatorOutput", _wrap_delete_FileRotatorOutput, METH_VARARGS, NULL},
 	 { (char *)"FileRotatorOutput_swigregister", FileRotatorOutput_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_SyslogOutput", _wrap_new_SyslogOutput, METH_VARARGS, NULL},

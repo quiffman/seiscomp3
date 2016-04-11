@@ -79,7 +79,6 @@ class MagTool {
 		OriginMap  _orgs;
 
 		DataModel::PublicObjectTimeSpanBuffer _objectCache;
-		DataModel::EventParametersPtr _ep;
 
 	public:
 		void setSummaryMagnitudeEnabled(bool);
@@ -109,13 +108,6 @@ class MagTool {
 		bool feed(DataModel::Pick*);
 		bool feed(DataModel::Amplitude*, bool update);
 
-		// Trigger a house keeping.
-		//
-		// This uses the expiry time span to identify and remove old objects
-		// from the internal buffers. Returns the total number of removed
-		// objects. Removing only means that the reference counter of these
-		// objects is decreased by one.
-		int  cleanup(const Core::TimeSpan& expiry);
 
 	protected:
 		typedef std::pair<std::string, double> MagnitudeEntry;
