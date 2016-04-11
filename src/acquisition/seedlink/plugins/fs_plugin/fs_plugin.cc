@@ -43,7 +43,7 @@
 #include "fs_plugin.h"
 #include "diag.h"
 
-#define MYVERSION "1.0 (2010.256)"
+#define MYVERSION "1.0 (2012.048)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/plugins.ini"

@@ -13569,7 +13569,7 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_0(PyObject *SWIGUNUSEDP
   } 
   arg8 = static_cast< int >(val8);
   result = (Seiscomp::TravelTimeList *)(arg1)->compute(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -13645,7 +13645,7 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_1(PyObject *SWIGUNUSEDP
   } 
   arg7 = static_cast< double >(val7);
   result = (Seiscomp::TravelTimeList *)(arg1)->compute(arg2,arg3,arg4,arg5,arg6,arg7);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -13712,7 +13712,7 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_2(PyObject *SWIGUNUSEDP
   } 
   arg6 = static_cast< double >(val6);
   result = (Seiscomp::TravelTimeList *)(arg1)->compute(arg2,arg3,arg4,arg5,arg6);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__TravelTimeList, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;

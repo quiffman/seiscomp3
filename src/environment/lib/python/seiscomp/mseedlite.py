@@ -76,7 +76,7 @@ class Record(object):
 
         self.header += fixhead
         
-        if self.rectype != 'D' and self.rectype != 'R' and self.rectype != 'Q':
+        if self.rectype != 'D' and self.rectype != 'R' and self.rectype != 'Q' and self.rectype != 'M':
             fd.read(_MAX_RECLEN - _FIXHEAD_LEN)
             raise MSeedNoData, "non-data record"
         

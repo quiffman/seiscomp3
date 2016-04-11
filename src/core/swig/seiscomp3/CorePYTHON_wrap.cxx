@@ -3631,7 +3631,6 @@ SWIG_AsVal_float (PyObject * obj, float *val)
 SWIGINTERN Seiscomp::Core::BaseObject *Seiscomp_Core_Generic_Archive_Sl_Seiscomp_Core_BaseObject_Sg__readObject(Seiscomp::Core::Generic::Archive< Seiscomp::Core::BaseObject > *self){
     Seiscomp::Core::BaseObject* obj;
     *self >> obj;
-    if ( obj ) obj->incrementReferenceCount();
     return obj;
   }
 SWIGINTERN void Seiscomp_Core_Generic_Archive_Sl_Seiscomp_Core_BaseObject_Sg__writeObject(Seiscomp::Core::Generic::Archive< Seiscomp::Core::BaseObject > *self,Seiscomp::Core::BaseObject *obj){

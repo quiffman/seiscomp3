@@ -253,12 +253,14 @@ void ImEx::handleMessage(Core::Message* message) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImEx::done()
-{
-	Client::Application::done();
-
+void ImEx::done() {
 	for ( size_t i = 0; i <_imexImpls.size(); ++i )
 		_imexImpls[i]->stop();
+
+	for ( size_t i = 0; i <_imexImpls.size(); ++i )
+		_imexImpls[i]->wait();
+
+	Client::Application::done();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

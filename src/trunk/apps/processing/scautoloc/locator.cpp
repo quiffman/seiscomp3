@@ -103,6 +103,8 @@ static bool fixedDepth(const Origin *origin)
 		case Origin::DepthManuallyFixed:
 		case Origin::DepthDefault:
 			return true;
+		default:
+			break;
 	}
 	return false;
 }

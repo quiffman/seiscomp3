@@ -16,8 +16,6 @@
 std::vector<_Biquad> _init_bw_biquads (int order, double fc, double fsamp, int type);
 std::vector<_Biquad> _init_bw_biquads2(int order, double f1, double f2, double fsamp, int type);
 
-#define TEST_NEW_BANDPASS
-
 #define BUTTER_TYPE_HIGH 0
 #define BUTTER_TYPE_LOW  1
 #define BUTTER_TYPE_BAND 2
@@ -144,17 +142,8 @@ void ButterworthBandpass<TYPE>::setSamplingFrequency(double fsamp)
 
         std::vector< _Biquad > b;
 
-#ifdef TEST_NEW_BANDPASS
 	// This is a proper bandpass
         b = _init_bw_biquads2(_order,_fmin,_fmax,_fsamp, BUTTER_TYPE_BAND);
-#else
-	// This is a bandpass obtained by catenation of lowpass and highpass
-	// of same order
-	//
-	// We should keep this, as it also has advantages. But it
-	// should be renamed e.g. to ButterworthHighLowPass
-        b = _init_bw_biquads2(_order,_fmin,_fmax,_fsamp, BUTTER_TYPE_HIGHLOW);
-#endif
 
         typename std::vector< _Biquad >::const_iterator biq;
 	for (biq = b.begin(); biq != b.end(); biq++)
@@ -228,3 +217,31 @@ void ButterworthBandpass<TYPE>::apply(int n, TYPE *inout)
 	_lastSample = inout[n-1];
 	BiquadCascade<TYPE>::apply(n, inout);
 }
+
+
+template<class TYPE>
+ButterworthHighLowpass<TYPE>::ButterworthHighLowpass(int order, double fmin,
+                                                     double fmax, double fsamp)
+: ButterworthBandpass<TYPE>(order, fmin, fmax, fsamp) {}
+
+
+template<class TYPE>
+void ButterworthHighLowpass<TYPE>::setSamplingFrequency(double fsamp)
+{
+	if (ButterworthBandpass<TYPE>::_fsamp == fsamp)
+		return;
+
+	ButterworthBandpass<TYPE>::_fsamp = fsamp;
+	BiquadCascade<TYPE>::_clear();
+
+        std::vector< _Biquad > b;
+
+	// This is a bandpass obtained by catenation of lowpass and highpass
+	// of same order
+        b = _init_bw_biquads2(ButterworthBandpass<TYPE>::_order,ButterworthBandpass<TYPE>::_fmin,ButterworthBandpass<TYPE>::_fmax,ButterworthBandpass<TYPE>::_fsamp, BUTTER_TYPE_HIGHLOW);
+
+        typename std::vector< _Biquad >::const_iterator biq;
+	for (biq = b.begin(); biq != b.end(); biq++)
+		append(Biquad<TYPE>(*biq));
+}
+

@@ -30,10 +30,12 @@ namespace IIR {
 INSTANTIATE_INPLACE_FILTER(ButterworthLowpass, SC_CORE_MATH_API);
 INSTANTIATE_INPLACE_FILTER(ButterworthHighpass, SC_CORE_MATH_API);
 INSTANTIATE_INPLACE_FILTER(ButterworthBandpass, SC_CORE_MATH_API);
+INSTANTIATE_INPLACE_FILTER(ButterworthHighLowpass, SC_CORE_MATH_API);
 
 REGISTER_INPLACE_FILTER(ButterworthLowpass, "BW_LP");
 REGISTER_INPLACE_FILTER(ButterworthHighpass, "BW_HP");
 REGISTER_INPLACE_FILTER(ButterworthBandpass, "BW");
+REGISTER_INPLACE_FILTER(ButterworthHighLowpass, "BW_HLP");
 
 static void _bw_coeff_lp_hp(double phi, double L, int type, double *a, double *b)
 {

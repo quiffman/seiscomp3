@@ -33,7 +33,7 @@ IMPLEMENT_SC_CLASS_DERIVED(ConfigStation, PublicObject, "ConfigStation");
 ConfigStation::MetaObject::MetaObject(const Core::RTTI* rtti) : Seiscomp::Core::MetaObject(rtti) {
 	addProperty(Core::simpleProperty("networkCode", "string", false, false, true, false, false, false, NULL, &ConfigStation::setNetworkCode, &ConfigStation::networkCode));
 	addProperty(Core::simpleProperty("stationCode", "string", false, false, true, false, false, false, NULL, &ConfigStation::setStationCode, &ConfigStation::stationCode));
-	addProperty(Core::simpleProperty("enabled", "bool", false, false, false, false, false, false, NULL, &ConfigStation::setEnabled, &ConfigStation::enabled));
+	addProperty(Core::simpleProperty("enabled", "boolean", false, false, false, false, false, false, NULL, &ConfigStation::setEnabled, &ConfigStation::enabled));
 	addProperty(arrayClassProperty<Setup>("setup", "Setup", &ConfigStation::setupCount, &ConfigStation::setup, static_cast<bool (ConfigStation::*)(Setup*)>(&ConfigStation::add), &ConfigStation::removeSetup, static_cast<bool (ConfigStation::*)(Setup*)>(&ConfigStation::remove)));
 }
 
@@ -90,6 +90,7 @@ bool ConfigStationIndex::operator!=(const ConfigStationIndex& idx) const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ConfigStation::ConfigStation() {
+	_enabled = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -109,6 +110,7 @@ ConfigStation::ConfigStation(const ConfigStation& other)
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ConfigStation::ConfigStation(const std::string& publicID)
  : PublicObject(publicID) {
+	_enabled = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

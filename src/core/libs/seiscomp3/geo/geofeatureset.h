@@ -28,16 +28,6 @@ namespace Geo
 	
 class SC_CORE_GEO_API GeoFeatureSet : public Core::BaseObject {
 public:
-	/** Returns the singleton instance of this class */
-	static const GeoFeatureSet &getInstance();
-
-	/** Returns reference to GeoFeature vector */
-	const std::vector<GeoFeature*> &features() const { return _features; };
-	
-	/** Returns reference to Category vector */
-	const std::vector<Category*> &categories() const { return _categories; };
-
-private:
 	/** Default constructor */
 	GeoFeatureSet();
 	/** Copy constructor, intentionally left undefined */
@@ -45,8 +35,8 @@ private:
 	/** Destructor */
 	virtual ~GeoFeatureSet();
 	/** Copy operator, intentionally left undefined */
-	GeoFeatureSet & operator=(const GeoFeatureSet &);	
-	
+	GeoFeatureSet & operator=(const GeoFeatureSet &);
+
 	/**
 	 * Removes and destructs all elements from the _features and
 	 * _categories vectors
@@ -59,7 +49,17 @@ private:
 	 * subdirectory is used as a category.
 	 */
 	size_t readBNADir(const std::string& dirPath);
+
+	/** Reads one BNA-file */
+	bool readBNAFile(const std::string& filename, const Category* category);
+
+	/** Returns reference to GeoFeature vector */
+	const std::vector<GeoFeature*> &features() const { return _features; };
 	
+	/** Returns reference to Category vector */
+	const std::vector<Category*> &categories() const { return _categories; };
+
+private:
 	/** Reads a BNADir recursively, used by readBNADir() */
 	size_t readBNADirRecursive(const fs::path directory,
 	                           const Category* category);
@@ -69,11 +69,8 @@ private:
 
 	/** Reads the BNA-header */
 	bool readBNAHeader(std::ifstream& infile, std::string& segment,
-			   unsigned int& rank, unsigned int& points, bool& isClosed) const;
+	                   unsigned int& rank, unsigned int& points, bool& isClosed) const;
 
-	/** Reads one BNA-file */
-	bool readBNAFile(const std::string& filename, const Category* category);
-	
 	/** Compares two GeoFeatures by their rank */
 	static const bool compareByRank(const GeoFeature* gf1,
 	                        	const GeoFeature* gf2);
@@ -93,6 +90,19 @@ private:
 	
 	/** Vector of Categories */
 	std::vector<Category*> _categories;
+};
+
+class GeoFeatureSetSingleton {
+	public:
+		/** Returns the singleton instance of this class */
+		static const GeoFeatureSet &getInstance();
+
+	private:
+		/** Default constructor */
+		GeoFeatureSetSingleton();
+
+	private:
+		GeoFeatureSet         _geoFeatureSet;
 };
 
 } // of ns Geo

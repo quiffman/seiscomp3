@@ -314,6 +314,41 @@ void Inventory::loadStations(DataModel::DatabaseReader* reader) {
 }
 
 
+void Inventory::filter(const TypeWhiteList &typeWhitelist,
+                       const TypeWhiteList &typeBlacklist) {
+	if ( !_inventory ) return;
+
+	for ( size_t n = 0; n < _inventory->networkCount(); ) {
+		DataModel::Network *net = _inventory->network(n);
+		const std::string &net_type = net->type();
+
+		// Type blocked?
+		if ( !(typeWhitelist.empty()?true:typeWhitelist.find(net_type) != typeWhitelist.end()) ||
+		     !(typeBlacklist.empty()?true:typeBlacklist.find(net_type) == typeBlacklist.end()) ) {
+			_inventory->removeNetwork(n);
+			continue;
+		}
+
+		++n;
+
+		for ( size_t s = 0; s < net->stationCount(); ) {
+			DataModel::Station *sta = net->station(s);
+			const std::string &sta_type = sta->type();
+
+			// Type not blocked?
+			if ( (typeWhitelist.empty()?true:typeWhitelist.find(sta_type) != typeWhitelist.end()) &&
+			     (typeBlacklist.empty()?true:typeBlacklist.find(sta_type) == typeBlacklist.end()) ) {
+				++s;
+				continue;
+			}
+
+			// Remove station
+			net->removeStation(s);
+		}
+	}
+}
+
+
 void Inventory::setInventory(DataModel::Inventory *inv) {
         _inventory = inv;
 }

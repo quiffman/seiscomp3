@@ -22,7 +22,7 @@ from seiscomp import logs
 
 # Compatibillity for python 2.3
 import sys
-from sets import Set as set
+if sys.version_info < (2,4): from sets import Set as set
 
 def isPyVersion(major, minor):
     return sys.version_info[0] == major and \
@@ -731,9 +731,7 @@ class Instruments(object):
             self.__sm_attr[id] = dict()
             return self.__sm_attr[id]
     
-    def update_inventory(self, inv, dlname, dlsn, dlgain_mult, smname, smsn, smgain,
-        rate, rate_div):
-
+    def update_inventory_dl(self, inv, dlname, dlsn, dlgain_mult, rate, rate_div):
         try:
             (logger_pubid, logger_gain) = self.__dlinst[(dlname, dlsn, dlgain_mult, rate, rate_div)]
 
@@ -753,6 +751,9 @@ class Instruments(object):
 
             self.__dlinst[(dlname, dlsn, dlgain_mult, rate, rate_div)] = (logger_pubid, logger_gain)
 
+        return (logger_pubid, logger_gain)
+
+    def update_inventory_sm(self, inv, smname, smsn, smgain):
         try:
             (sensor_pubid, sensor_gain, gain_freq, gain_unit) = self.__sminst[(smname, smsn, smgain)]
 
@@ -764,6 +765,11 @@ class Instruments(object):
 
             self.__sminst[(smname, smsn, smgain)] = (sensor_pubid, sensor_gain, gain_freq, gain_unit)
 
+        return (sensor_pubid, sensor_gain, gain_freq, gain_unit)
+
+    def update_inventory(self, inv, dlname, dlsn, dlgain_mult, smname, smsn, smgain, rate, rate_div):
+        (logger_pubid, logger_gain) = self.update_inventory_dl(inv, dlname, dlsn, dlgain_mult, rate, rate_div)
+        (sensor_pubid, sensor_gain, gain_freq, gain_unit) = self.update_inventory_sm(inv, smname, smsn, smgain)
         return (logger_pubid, logger_gain, sensor_pubid, sensor_gain, gain_freq, gain_unit)
 
     def load_db(self, file):
@@ -1565,46 +1571,40 @@ class Nettab(object):
         return self.__parse_netline_attr(desc, name, code, dc, # start, end
             **self.__get_net_attr(code, start))
     
-    def load_tab(self, file, incremental=False):
+    def load_tab(self, file):
         fd = open(file)
-        net = None
-        lineno = 0
-        lastcode = ""
         try:
-            line = fd.readline()
-            lineno = 1
-            while line:
-                splitline = line.split()
-                if splitline and splitline[0] and splitline[0][0] != '#':
-                    if len(splitline) >= 11 and net is not None:
-                        if incremental and lastcode and lastcode != splitline[0]:
-                            yield 0
-                            net.stations.clear()
-
-                        lastcode = splitline[0]
-
-                        net.parse_tabline(*splitline[:12])
-                        if len(splitline) > 12:
-                            logs.debug("%s:%d: ignored unknown columns: %s" % \
-                              (file, lineno, " ".join(splitline[12:])))
-
-                    elif len(splitline) >= 4:
-                        net = self.__parse_netline(*splitline[:4])
-                        if len(splitline) > 4:
-                            logs.debug("%s:%d: ignored unknown columns: %s" % \
-                              (file, lineno, " ".join(splitline[4:])))
-
-                    else:
-                        raise NettabError, "invalid number of columns (%d)" % (len(splitline),)
-
+            net = None
+            lineno = 0
+            try:
                 line = fd.readline()
-                lineno += 1
+                lineno = 1
+                while line:
+                    splitline = line.split()
+                    if splitline and splitline[0] and splitline[0][0] != '#':
+                        if len(splitline) >= 11 and net is not None:
+                            net.parse_tabline(*splitline[:12])
+                            if len(splitline) > 12:
+                                logs.debug("%s:%d: ignored unknown columns: %s" % \
+                                  (file, lineno, " ".join(splitline[12:])))
 
-        except (NettabError, TypeError, ValueError), e:
+                        elif len(splitline) >= 4:
+                            net = self.__parse_netline(*splitline[:4])
+                            if len(splitline) > 4:
+                                logs.debug("%s:%d: ignored unknown columns: %s" % \
+                                  (file, lineno, " ".join(splitline[4:])))
+
+                        else:
+                            raise NettabError, "invalid number of columns (%d)" % (len(splitline),)
+
+                    line = fd.readline()
+                    lineno += 1
+
+            except (NettabError, TypeError, ValueError), e:
+                raise NettabError, "%s:%d: %s" % (file, lineno, str(e))
+
+        finally:
             fd.close()
-            raise NettabError, "%s:%d: %s" % (file, lineno, str(e))
-
-        fd.close()
 
     def load_vnet(self, file):
         fd = open(file)

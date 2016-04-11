@@ -27,7 +27,7 @@ from seiscomp.db.seiscomp3.inventory import Inventory
 from seiscomp3 import Core, Client, DataModel, Logging
 
 # For compatibility with python 2.3
-from sets import Set as set
+if sys.version_info < (2,4): from sets import Set as set
 
 def sortDictionary(dict):
     newDict = {}
@@ -78,7 +78,7 @@ def loadGains(fileName):
         logs.error("cannot open %s: %s" % (fileName, str(e)))
         sys.exit(1)
 
-def getGain(datalogger, dataloggerId, seismometer, seismometerId, streamCode):
+def getDataloggerGain(datalogger, dataloggerId, streamCode):
     try:
         if datalogger == "DUMMY":
             dataloggerGain = 1.0
@@ -95,6 +95,14 @@ def getGain(datalogger, dataloggerId, seismometer, seismometerId, streamCode):
 
                 return 0
         
+    except KeyError, e:
+        logs.error("cannot find gain for " + str(e))
+        return 0
+
+    return dataloggerGain
+        
+def getSeismometerGain(seismometer, seismometerId, streamCode):
+    try:
         if seismometer == "DUMMY":
             seismometerGain = 1.0
 
@@ -114,7 +122,7 @@ def getGain(datalogger, dataloggerId, seismometer, seismometerId, streamCode):
         logs.error("cannot find gain for " + str(e))
         return 0
 
-    return dataloggerGain * seismometerGain
+    return seismometerGain
         
 _rx_samp = re.compile(r'(?P<bandCode>[A-Z])?(?P<sampleRate>.*)$')
 
@@ -441,16 +449,24 @@ class StreamWrapper(object):
         seismometer, seismometerId, channel, depth, azimuth, dip,
         gainFreq, gainMult, gainUnit, format, restricted, inv):
 
-        errmsg = None
+        errmsg_dl = None
+        errmsg_sm = None
         
         try:
-            (smsn, smgain) = (seismometerId.split('/') + [None])[:2]
-            (datalogger, dlgain, seismometer, smgain, gainFreq, gainUnit) = instdb.update_inventory(inv,
-                datalogger, dataloggerId, gainMult, seismometer, smsn, smgain, rate, rateDiv)
+            (datalogger, dlgain) = instdb.update_inventory_dl(inv,
+                datalogger, dataloggerId, gainMult, rate, rateDiv)
 
         except NettabError, e:
-            errmsg = str(e)
+            errmsg_dl = str(e)
             dlgain = []
+
+        try:
+            (smsn, smgain) = (seismometerId.split('/') + [None])[:2]
+            (seismometer, smgain, gainFreq, gainUnit) = instdb.update_inventory_sm(inv,
+                seismometer, smsn, smgain)
+
+        except NettabError, e:
+            errmsg_sm = str(e)
             smgain = []
 
         self.obj.setSampleRateNumerator(rate)
@@ -474,17 +490,26 @@ class StreamWrapper(object):
         complete = True
         
         try:
-            gain = smgain[channel] * dlgain[channel]
+            dataloggerGain = dlgain[channel]
 
         except IndexError:
             complete = False
-            gain = gainMult * getGain(datalogger, dataloggerId, seismometer,
-                seismometerId, self.obj.code())
+            dataloggerGain = gainMult * getDataloggerGain(datalogger, dataloggerId, self.obj.code())
 
-            if gain == 0 and errmsg:
-                logs.error(errmsg)
+            if dataloggerGain == 0 and errmsg_dl:
+                logs.error(errmsg_dl)
         
-        self.obj.setGain(gain)
+        try:
+            seismometerGain = smgain[channel]
+
+        except IndexError:
+            complete = False
+            seismometerGain = getSeismometerGain(seismometer, seismometerId, self.obj.code())
+
+            if seismometerGain == 0 and errmsg_sm:
+                logs.error(errmsg_sm)
+        
+        self.obj.setGain(seismometerGain * dataloggerGain)
 
         return complete
             

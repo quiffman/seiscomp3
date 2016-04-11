@@ -13,7 +13,7 @@
 
 
 #include <seiscomp3/processing/response.h>
-#include <seiscomp3/math/deconvolution/fft.h>
+#include <seiscomp3/math/restitution/fft.h>
 
 
 namespace Seiscomp {
@@ -42,12 +42,12 @@ bool Response::deconvolveFFT(int n, float *inout, double fsamp,
                              double cutoff,
                              double min_freq, double max_freq,
                              int numberOfIntegrations) {
-	Math::Deconvolution::FFT::TransferFunctionPtr tf =
+	Math::Restitution::FFT::TransferFunctionPtr tf =
 		getTransferFunction(numberOfIntegrations);
 	if ( !tf )
 		return false;
 
-	return Math::Deconvolution::transformFFT(n, inout, fsamp, tf.get(),
+	return Math::Restitution::transformFFT(n, inout, fsamp, tf.get(),
 	                                         cutoff, min_freq, max_freq);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -60,12 +60,12 @@ bool Response::deconvolveFFT(int n, double *inout, double fsamp,
                              double cutoff,
                              double min_freq, double max_freq,
                              int numberOfIntegrations) {
-	Math::Deconvolution::FFT::TransferFunctionPtr tf =
+	Math::Restitution::FFT::TransferFunctionPtr tf =
 		getTransferFunction(numberOfIntegrations);
 	if ( !tf )
 		return false;
 
-	return Math::Deconvolution::transformFFT(n, inout, fsamp, tf.get(),
+	return Math::Restitution::transformFFT(n, inout, fsamp, tf.get(),
 	                                         cutoff, min_freq, max_freq);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -100,7 +100,7 @@ bool Response::deconvolveFFT(DoubleArray &inout, double fsamp,
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Math::Deconvolution::FFT::TransferFunction *
+Math::Restitution::FFT::TransferFunction *
 Response::getTransferFunction(int numberOfIntegrations) {
 	return NULL;
 }
@@ -218,11 +218,11 @@ void ResponsePAZ::convertFromHz() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Math::Deconvolution::FFT::TransferFunction *
+Math::Restitution::FFT::TransferFunction *
 ResponsePAZ::getTransferFunction(int numberOfIntegrations) {
 	try {
-		Math::Deconvolution::FFT::PolesAndZeros *paz =
-			new Math::Deconvolution::FFT::PolesAndZeros(
+		Math::Restitution::FFT::PolesAndZeros *paz =
+			new Math::Restitution::FFT::PolesAndZeros(
 				(int)_poles.size(), &_poles[0],
 				(int)_zeros.size(), &_zeros[0],
 				normalizationFactor(), numberOfIntegrations);

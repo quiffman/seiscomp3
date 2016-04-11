@@ -12,20 +12,21 @@
 
 
 
-#ifndef __SEISCOMP_MATH_DECONVOLUTION_TRANSFERFUNCTION_H__
-#define __SEISCOMP_MATH_DECONVOLUTION_TRANSFERFUNCTION_H__
+#ifndef __SEISCOMP_MATH_RESTITUTION_TRANSFERFUNCTION_H__
+#define __SEISCOMP_MATH_RESTITUTION_TRANSFERFUNCTION_H__
 
 
 #include <seiscomp3/core/baseobject.h>
 #include <seiscomp3/math/math.h>
 #include <seiscomp3/math/filter/seismometers.h>
+#include <seiscomp3/math/restitution/types.h>
 #include <vector>
 #include <cstdlib>
 
 
 namespace Seiscomp {
 namespace Math {
-namespace Deconvolution {
+namespace Restitution {
 namespace FFT {
 
 
@@ -86,12 +87,6 @@ class TransferFunction : public Core::BaseObject {
 		virtual void convolve_(int n, Complex *spec, double startFreq, double df) const;
 };
 
-
-typedef std::complex<double> Pole;
-typedef std::complex<double> Zero;
-
-typedef std::vector<Pole> Poles;
-typedef std::vector<Zero> Zeros;
 
 class PolesAndZeros : public TransferFunction {
 	public:

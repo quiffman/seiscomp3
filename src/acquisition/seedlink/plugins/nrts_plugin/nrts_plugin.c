@@ -28,7 +28,7 @@
 #include "util.h"
 #include "plugin.h"
 
-#define MYVERSION "1.2 (2010.256)"
+#define MYVERSION "1.2 (2012.048)"
 
 #ifndef DEFAULT_SERVER
 #define DEFAULT_SERVER "localhost"

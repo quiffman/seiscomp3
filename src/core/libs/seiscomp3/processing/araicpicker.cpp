@@ -10,7 +10,6 @@
  *   SeisComP Public License for more details.                             *
  ***************************************************************************/
 
-
 #define SEISCOMP_COMPONENT AICPicker
 
 #include <seiscomp3/logging/log.h>
@@ -141,6 +140,7 @@ static bool repick(int n, const TYPE *data, int &kmin, double &snr)
 }
 
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ARAICPicker::ARAICPicker() {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

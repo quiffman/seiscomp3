@@ -17,7 +17,7 @@
 #include <seiscomp3/processing/amplitudeprocessor_Mjma.h>
 #include <seiscomp3/math/mean.h>
 #include <seiscomp3/math/filter/seismometers.h>
-#include <seiscomp3/math/deconvolution/fft.h>
+#include <seiscomp3/math/restitution/fft.h>
 
 
 using namespace Seiscomp::Math;
@@ -81,7 +81,7 @@ void AmplitudeProcessor_Mjma::initFilter(double fsamp) {
 bool AmplitudeProcessor_Mjma::deconvolveData(Response *resp,
                                              DoubleArray &data,
                                              int numberOfIntegrations) {
-	Math::Deconvolution::FFT::TransferFunctionPtr tf =
+	Math::Restitution::FFT::TransferFunctionPtr tf =
 		resp->getTransferFunction(numberOfIntegrations);
 
 	if ( tf == NULL ) {
@@ -89,11 +89,11 @@ bool AmplitudeProcessor_Mjma::deconvolveData(Response *resp,
 		return false;
 	}
 
-	Math::Deconvolution::FFT::PolesAndZeros seis5sec(
+	Math::Restitution::FFT::PolesAndZeros seis5sec(
 		Math::SeismometerResponse::Seismometer5sec(Math::Velocity)
 	);
 
-	Math::Deconvolution::FFT::TransferFunctionPtr cascade =
+	Math::Restitution::FFT::TransferFunctionPtr cascade =
 		*tf / seis5sec;
 
 	// Remove linear trend
@@ -101,7 +101,7 @@ bool AmplitudeProcessor_Mjma::deconvolveData(Response *resp,
 	Math::Statistics::computeLinearTrend(data.size(), data.typedData(), m, n);
 	Math::Statistics::detrend(data.size(), data.typedData(), m, n);
 
-	return Math::Deconvolution::transformFFT(data.size(), data.typedData(),
+	return Math::Restitution::transformFFT(data.size(), data.typedData(),
 	                                         _fsamp, cascade.get(),
 	                                         _config.respTaper, _config.respMinFreq, _config.respMaxFreq);
 }

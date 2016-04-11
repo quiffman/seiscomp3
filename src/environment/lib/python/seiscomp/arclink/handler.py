@@ -397,13 +397,13 @@ class _RequestTrackerDB(object):
         self.totalLineCount = 0
         self.okLineCount = 0
 
+        al = DataModel.ArclinkLog()
+        al.add(self.arclinkRequest)
 
 
 
     @enableNotifier
     def send(self):
-        al = DataModel.ArclinkLog()
-        al.add(self.arclinkRequest)
         msg = DataModel.Notifier.GetMessage(True)
         if msg:
             sc3App.connection().send("LOGGING", msg)

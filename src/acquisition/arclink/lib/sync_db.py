@@ -40,7 +40,7 @@ try:
 except ImportError:
     have_sqlobject = False
 
-VERSION = "1.0 (2010.256)"
+VERSION = "1.0 (2012.048)"
 
 _rx_datetime = re.compile("([0-9]{4})-([0-9]{2})-([0-9]{2})T" \
     "([0-9]{2}):([0-9]{2}):([0-9]{2})(.([0-9]*))?" \

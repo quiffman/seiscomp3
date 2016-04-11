@@ -25,7 +25,7 @@ from seiscomp.db.generic.inventory import Inventory
 from seiscomp.mseedlite import Input as MSeedInput, MSeedError
 from seiscomp.fseed import SEEDVolume, SEEDError, _WaveformData
 
-VERSION = "1.2.2 (2011.290)"
+VERSION = "1.2.2 (2012.048)"
 
 ORGANIZATION = "WebDC"
 LABEL = "WebDC SEED Volume"

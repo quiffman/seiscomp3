@@ -415,6 +415,8 @@ scart - dump records of an SDS structure, sort them, modify the
 Usage: scart [options] [archive]
 
 Options:
+    --stdout         writes on stdout if import mode is used instead
+                     of creating a SDS archive
     -I               specify recordstream URL when in import mode
                      when using another recordstream than file a
                      stream list file is needed
@@ -453,7 +455,7 @@ def usage(exitcode=0):
 
 try:
   opts, files = getopt(sys.argv[1:], "I:dsmEn:c:t:l:hv",
-                       ["dump", "list=", "sort", "modify", "speed=", "files=", "verbose", "test", "help"])
+                       ["stdout", "dump", "list=", "sort", "modify", "speed=", "files=", "verbose", "test", "help"])
 except GetoptError:
   usage(exitcode=1)
 
@@ -470,6 +472,7 @@ filePoolSize = 100
 recordURL    = "file://-"
 
 speed        = 0
+stdout       = False
 
 channels     = "(B|S|M|H)(L|H)(Z|N|E)"
 networks     = "*"
@@ -480,6 +483,7 @@ for flag, arg in opts:
     if   flag == "-t":  tmin, tmax = map(str2time, arg.split("~"))
     elif flag == "-E":  endtime = True
     elif flag in ("-h", "--help"):    usage(exitcode=0)
+    elif flag in ("--stdout"):        stdout = True
     elif flag in ("-v", "--verbose"): verbose = True
     elif flag in ("-d", "--dump"):    dump = True
     elif flag in ("-l", "--list"):    listFile = arg
@@ -613,30 +617,37 @@ else:
   input = seiscomp3.IO.RecordInput(rs, seiscomp3.Core.Array.INT, seiscomp3.Core.Record.SAVE_RAW)
   filePool = dict()
   f = None
-  for rec in input:
-    dir, file = archive.location(rec.startTime(), rec.networkCode(), rec.stationCode(), rec.locationCode(), rec.channelCode())
-    file = dir + file
+  try:
+    for rec in input:
+      if stdout:
+        sys.stdout.write(rec.raw().str())
+        continue
 
-    if test == False:
-      try:
-        f = filePool[file]
-      except:
-        outdir = '/'.join((archiveDirectory + file).split('/')[:-1])
-        if create_dir(outdir) == False:
-          sys.stderr.write("Could not create directory '%s'\n" % outdir)
-          sys.exit(-1)
+      dir, file = archive.location(rec.startTime(), rec.networkCode(), rec.stationCode(), rec.locationCode(), rec.channelCode())
+      file = dir + file
 
+      if test == False:
         try:
-          f = open(archiveDirectory + file, 'ab')
+          f = filePool[file]
         except:
-          sys.stderr.write("File '%s' could not be opened for writing\n" % (outputDirectory + file))
-          sys.exit(-1)
+          outdir = '/'.join((archiveDirectory + file).split('/')[:-1])
+          if create_dir(outdir) == False:
+            sys.stderr.write("Could not create directory '%s'\n" % outdir)
+            sys.exit(-1)
 
-        # Remove old handles
-        if len(filePool) < filePoolSize:
-          filePool[file] = f
+          try:
+            f = open(archiveDirectory + file, 'ab')
+          except:
+            sys.stderr.write("File '%s' could not be opened for writing\n" % (outputDirectory + file))
+            sys.exit(-1)
 
-      f.write(rec.raw().str())
+          # Remove old handles
+          if len(filePool) < filePoolSize:
+            filePool[file] = f
 
-    if verbose:
-      sys.stderr.write("%s %s %s\n" % (rec.streamID(), rec.startTime().iso(), file))
+        f.write(rec.raw().str())
+
+      if verbose:
+        sys.stderr.write("%s %s %s\n" % (rec.streamID(), rec.startTime().iso(), file))
+  except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))

@@ -22,6 +22,7 @@
 #include <seiscomp3/client/commandline.h>
 #include <seiscomp3/client/queue.h>
 #include <seiscomp3/client/monitor.h>
+#include <seiscomp3/client/inventory.h>
 #include <seiscomp3/client/api.h>
 #include <seiscomp3/config/config.h>
 #include <seiscomp3/config/environment.h>
@@ -31,8 +32,6 @@
 #include <seiscomp3/datamodel/configmodule.h>
 #include <seiscomp3/math/coord.h>
 #include <seiscomp3/utils/timer.h>
-
-#include <set>
 
 
 #define SCCoreApp (Seiscomp::Client::Application::Instance())
@@ -274,6 +273,9 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		//! Returns the application's database interface
 		IO::DatabaseInterface* database() const;
 
+		//! Returns the application's database URI
+		const std::string &databaseURI() const;
+
 		//! Returns the application's database query interface
 		DataModel::DatabaseQuery* query() const;
 
@@ -476,7 +478,7 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		 * The returned pointer is managed by the Application and must not
 		 * be deleted.
 		 */
-		ObjectMonitor::Log *
+		ObjectLog *
 		addInputObjectLog(const std::string &name,
 		                  const std::string &channel = "");
 
@@ -486,7 +488,7 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		 * The returned pointer is managed by the Application and must not
 		 * be deleted.
 		 */
-		ObjectMonitor::Log *
+		ObjectLog *
 		addOutputObjectLog(const std::string &name,
 		                   const std::string &channel = "");
 
@@ -495,7 +497,7 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		 * @param log Pointer returned by addInputObjectLog or addOutputObjectLog
 		 * @param timestamp The timestamp to be logged
 		 */
-		void logObject(ObjectMonitor::Log *log, const Core::Time &timestamp,
+		void logObject(ObjectLog *log, const Core::Time &timestamp,
 		               size_t count = 1);
 
 
@@ -766,6 +768,9 @@ class SC_CORE_CLIENT_API Application : public Seiscomp::Core::InterruptibleObjec
 		std::string _author;
 		std::set<std::string> _procWhiteList;
 		std::set<std::string> _procBlackList;
+
+		Inventory::TypeWhiteList _inventoryTypeWhiteList;
+		Inventory::TypeBlackList _inventoryTypeBlackList;
 
 		Logging::Output* _logger;
 		DataModel::DatabaseQueryPtr _query;

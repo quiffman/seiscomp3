@@ -12,19 +12,20 @@
 
 
 
-#ifndef __SEISCOMP_MATH_DECONVOLUTION_FFT_H__
-#define __SEISCOMP_MATH_DECONVOLUTION_FFT_H__
+#ifndef __SEISCOMP_MATH_RESTITUTION_FFT_H__
+#define __SEISCOMP_MATH_RESTITUTION_FFT_H__
 
 
 #include <complex>
 #include <vector>
 #include <seiscomp3/math/math.h>
-#include <seiscomp3/math/deconvolution/transferfunction.h>
+#include <seiscomp3/math/restitution/types.h>
+#include <seiscomp3/math/restitution/transferfunction.h>
 
 
 namespace Seiscomp {
 namespace Math {
-namespace Deconvolution {
+namespace Restitution {
 
 
 // Transforms a time series into the spectra, deconvolves it with the
@@ -52,8 +53,8 @@ bool transformFFT(int n, T *inout, double fsamp, int n_poles, SeismometerRespons
 }
 
 template <typename T>
-bool transformFFT(std::vector<T> &inout, double fsamp, const FFT::Poles &poles,
-                  const FFT::Zeros &zeros, double norm, double cutoff,
+bool transformFFT(std::vector<T> &inout, double fsamp, const Poles &poles,
+                  const Zeros &zeros, double norm, double cutoff,
                   double min_freq, double max_freq) {
 	return transformFFT(inout.size(), &inout[0], poles.size(), &poles[0],
 	                    zeros.size(), &zeros[0], norm, cutoff, min_freq, max_freq);

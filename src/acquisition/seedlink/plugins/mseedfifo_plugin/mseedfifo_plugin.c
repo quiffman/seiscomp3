@@ -29,7 +29,7 @@
 #include "libslink.h"
 #include "plugin.h"
 
-#define MYVERSION "1.0 (2010.256)"
+#define MYVERSION "1.0 (2012.048)"
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL0

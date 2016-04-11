@@ -298,7 +298,7 @@ class DatalessReader(object):
             logs.error("Cannot find instrument name in abbreviation dictionary")
             instr_name = ""
         
-        if self.__sta and (not end_date or end_date.year > datetime.datetime.utcnow().year):
+        if self.__sta and (not end_date or end_date > datetime.datetime.utcnow()):
             self.__sta.add_channel(loc_id, chan_id, local_depth, azimuth, dip,
                 sample_rate, instr_name, start_date, end_date)
 

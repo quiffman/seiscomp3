@@ -34,7 +34,7 @@ from seiscomp.db.seiscomp3 import sc3wrap
 from seiscomp.db.seiscomp3.routing import Routing
 from seiscomp.db.seiscomp3.inventory import Inventory
 
-VERSION = "1.1 (2010.256)"
+VERSION = "1.1 (2012.048)"
 DEFAULT_USER = "arclink@webdc"
 DEFAULT_LABEL = "WebDC"
 SOCKET_TIMEOUT = 300

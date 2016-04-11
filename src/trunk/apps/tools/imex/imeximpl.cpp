@@ -18,7 +18,6 @@
 #include <algorithm>
 
 #include <boost/bind.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -50,6 +49,14 @@
 namespace Seiscomp {
 namespace Applications {
 
+#define USE_MSG_WRAPPER
+
+#ifdef USE_MSG_WRAPPER
+#define SEND_MSG(group, msg) sendMessage(group, msg)
+#else
+#define SEND_MSG(group, msg) sendMessage(group, msg.notifierMessage())
+#endif
+
 // debug
 #define PUBLIC_OBJECT_INFO(object, notifier) \
 	SEISCOMP_INFO("Sending %s with publicID %s and operation %s", \
@@ -70,12 +77,14 @@ void dataMessageInfo(Core::DataMessage* dataMessage) {
 void notifierMessageInfo(DataModel::NotifierMessage* notifierMessage) {
 	DataModel::NotifierMessage::iterator notifierIt = notifierMessage->begin();
 
+	/*
 	while ( notifierIt != notifierMessage->end() ) {
 		(*notifierIt)->apply();
 		++notifierIt;
 	}
 
 	notifierIt = notifierMessage->begin();
+	*/
 	for ( ; notifierIt != notifierMessage->end(); notifierIt++ ) {
 		Core::BaseObject* object = (*notifierIt)->object();
 		if ( !object ) continue;
@@ -190,6 +199,8 @@ bool findOrigin(const std::string& id, const ImExImpl::SentOriginList& list)
 ImExImpl::ImExImpl(ImEx* imex, const std::string& sinkName)
  : _sinkName(sinkName),
    _imex(imex),
+   _thread0(NULL),
+   _thread1(NULL),
    _sleepDuration(3),
    _filter(true),
    _useDefinedRoutingTable(false),
@@ -305,8 +316,8 @@ bool ImExImpl::init()
 	if ( !buildRoutingTable() )
 		return false;
 
-	if ( connectToSink() != Core::Status::SEISCOMP_SUCCESS )
-		return false;
+	_thread0 = new boost::thread(boost::bind(&ImExImpl::connectToSink, this));
+	_thread0->yield();
 
 	return true;
 }
@@ -332,13 +343,14 @@ int ImExImpl::connectToSink()
 	}
 	SEISCOMP_DEBUG("Successfully connected to sink master: %s", _sinkAddress.c_str());
 
-	// Get rid of data messages and read commands that are may send.
-	boost::thread thrd(boost::bind(&ImExImpl::readSinkMessages, this));
-	boost::thread::yield();
-
 	_isRunning = true;
-	boost::thread thread0(boost::bind(&ImExImpl::sendMessageRaw, this));
-	thread0.yield();
+
+	// Spawn "send message" thread
+	_thread1 = new boost::thread(boost::bind(&ImExImpl::sendMessageRaw, this));
+	_thread1->yield();
+
+	// Get rid of data messages and read commands that are may send.
+	readSinkMessages();
 
 	return Core::Status::SEISCOMP_SUCCESS;
 }
@@ -350,9 +362,9 @@ int ImExImpl::connectToSink()
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool ImExImpl::handleMessage(Core::Message* message)
 {
-	if (_messageQueue.size() > _maxQueueSize) {
-		SEISCOMP_DEBUG("(%s) message queue exceeded maximum size of %ld Skipping message.",
-				_sinkName.c_str(), (long int)_maxQueueSize);
+	if ( _messageQueue.size() >= _maxQueueSize ) {
+		SEISCOMP_DEBUG("(%s) message queue exceeded maximum size of %ld. Skipping message.",
+		               _sinkName.c_str(), (long int)_maxQueueSize);
 		return false;
 	}
 
@@ -394,6 +406,7 @@ bool ImExImpl::handleMessage(Core::Message* message)
 			}
 		}
 	}
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -446,8 +459,8 @@ void ImExImpl::cleanUp()
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::stop()
-{
+void ImExImpl::stop() {
+	_messageQueue.close();
 	_isRunning = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -456,8 +469,26 @@ void ImExImpl::stop()
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-std::string ImExImpl::sinkName() const
-{
+void ImExImpl::wait() {
+	if ( _thread0 ) {
+		_thread0->join();
+		delete _thread0;
+		_thread0 = NULL;
+	}
+
+	if ( _thread1 ) {
+		_thread1->join();
+		delete _thread1;
+		_thread1 = NULL;
+	}
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+std::string ImExImpl::sinkName() const {
 	return _sinkName + "@" + _sinkAddress;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -517,6 +548,14 @@ ImExImpl::RoutingTable ImExImpl::CreateDefaultRoutingTable() {
 	tmpRoutingTable.insert(std::make_pair(DataModel::StationMagnitude::ClassName(), "MAGNITUDE"));
 	tmpRoutingTable.insert(std::make_pair(DataModel::StationMagnitudeContribution::ClassName(), "MAGNITUDE"));
 	tmpRoutingTable.insert(std::make_pair(DataModel::Magnitude::ClassName(), "MAGNITUDE"));
+	//! TODO: Implement forwarding of focal mechanisms and moment tensors
+	/*
+	tmpRoutingTable.insert(std::make_pair(DataModel::FocalMechanism::ClassName(), "FOCMECH"));
+	tmpRoutingTable.insert(std::make_pair(DataModel::MomentTensor::ClassName(), "FOCMECH"));
+	tmpRoutingTable.insert(std::make_pair(DataModel::MomentTensorStationContribution::ClassName(), "FOCMECH"));
+	tmpRoutingTable.insert(std::make_pair(DataModel::MomentTensorComponentContribution::ClassName(), "FOCMECH"));
+	tmpRoutingTable.insert(std::make_pair(DataModel::MomentTensorPhaseSetting::ClassName(), "FOCMECH"));
+	*/
 	tmpRoutingTable.insert(std::make_pair(DataModel::Event::ClassName(), "EVENT"));
 
 	return tmpRoutingTable;
@@ -595,8 +634,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 	DataModel::NotifierMessage::iterator notifierIt = notifierMessage->begin();
 	for ( ; notifierIt!= notifierMessage->end(); ++notifierIt ) {
 		Core::BaseObject* object = (*notifierIt)->object();
-		if ( !object )
-			continue;
+		if ( !object ) continue;
 
 		DataModel::PublicObject *po = DataModel::PublicObject::Cast((*notifierIt)->object());
 		if ( po )
@@ -617,7 +655,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 				hasBeenSentAlready = hasOriginBeenSent(origin->publicID());
 
 			SEISCOMP_DEBUG("(%s) Handling object of type: %s with id: %s",
-					_sinkName.c_str(), className.c_str(), origin->publicID().c_str());
+			               _sinkName.c_str(), className.c_str(), origin->publicID().c_str());
 			if ( hasBeenSentAlready || isOriginEligible(origin) ) {
 				if ( hasBeenSentAlready || hasEventBeenSent(origin) || filter(origin) ) {
 					sendOrigin(origin, hasBeenSentAlready);
@@ -628,7 +666,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 		if ( className == DataModel::Arrival::ClassName() ) {
 			DataModel::Arrival* arrival = DataModel::Arrival::Cast(object);
 			SEISCOMP_DEBUG("(%s) Handling object of type: %s",
-					_sinkName.c_str(), className.c_str());
+			               _sinkName.c_str(), className.c_str());
 			DataModel::Origin* origin = arrival->origin();
 			if ( !origin ) { continue; }
 			if ( hasOriginBeenSent(origin->publicID()) ) {
@@ -641,14 +679,14 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 				IMEXMessage imexMessage;
 				if ( pickIt != _imex->pickList().end() ) {
 					imexMessage.notifierMessage().attach(
-							new DataModel::Notifier(DataModel::EventParameters::ClassName(), DataModel::OP_ADD, pickIt->get())
+						new DataModel::Notifier(DataModel::EventParameters::ClassName(), DataModel::OP_ADD, pickIt->get())
 					);
 					_sentPicks.push_back(pickIt->get());
 				}
 				imexMessage.notifierMessage().attach(
-						new DataModel::Notifier(origin->publicID(), (*notifierIt)->operation(), arrival)
+					new DataModel::Notifier(origin->publicID(), (*notifierIt)->operation(), arrival)
 				);
-				sendMessage(_routingTable[className], &imexMessage);
+				SEND_MSG(_routingTable[className], &imexMessage);
 			}
 			else if ( isOriginEligible(origin) ) {
 				if ( hasEventBeenSent(origin) || filter(origin) ) {
@@ -668,7 +706,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 						_sinkName.c_str(), className.c_str(), magnitude->publicID().c_str());
 					IMEXMessage imexMessage;
 					imexMessage.notifierMessage().attach(notifierIt->get());
-					sendMessage(_routingTable[className], &imexMessage);
+					SEND_MSG(_routingTable[className], &imexMessage);
 				}
 			}
 			else {
@@ -686,7 +724,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 		else if ( className == DataModel::StationMagnitudeContribution::ClassName() ) {
 			// DataModel::StationMagnitudeContribution* magReference = DataModel::StationMagnitudeContribution::Cast(object);
 			SEISCOMP_DEBUG("(%s) Handling object of type: %s",
-					_sinkName.c_str(), className.c_str());
+			               _sinkName.c_str(), className.c_str());
 			std::string magnitudeParentID = (*notifierIt)->parentID();
 			DataModel::Magnitude* magnitude;
 			magnitude = DataModel::Magnitude::Find(magnitudeParentID);
@@ -702,10 +740,10 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 			if ( hasOriginBeenSent(parentID) ) {
 				if ( !Applications::findOrigin(parentID, tmpSentOrigins) ) {
 					SEISCOMP_DEBUG("(%s) Relaying object of type: %s",
-							_sinkName.c_str(), className.c_str());
+					               _sinkName.c_str(), className.c_str());
 					IMEXMessage imexMessage;
 					imexMessage.notifierMessage().attach(notifierIt->get());
-					sendMessage(_routingTable[className], &imexMessage);
+					SEND_MSG(_routingTable[className], &imexMessage);
 				}
 			}
 			else {
@@ -728,10 +766,11 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 			if ( hasOriginBeenSent(parentID) ) {
 				if ( !Applications::findOrigin(parentID, tmpSentOrigins) ) {
 					SEISCOMP_DEBUG("(%s) Relaying object of type: %s with id: %s",
-							_sinkName.c_str(), className.c_str(), magnitude->publicID().c_str());
+					               _sinkName.c_str(), className.c_str(),
+					               magnitude->publicID().c_str());
 					IMEXMessage imexMessage;
 					imexMessage.notifierMessage().attach(notifierIt->get());
-					sendMessage(_routingTable[className], &imexMessage);
+					SEND_MSG(_routingTable[className], &imexMessage);
 				}
 			}
 			else {
@@ -749,7 +788,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 		else if ( className == DataModel::Event::ClassName() ) {
 			DataModel::Event* event  = DataModel::Event::Cast(object);
 			SEISCOMP_DEBUG("(%s) Handling object of type: %s with id: %s",
-					_sinkName.c_str(), className.c_str(), event->publicID().c_str());
+			               _sinkName.c_str(), className.c_str(), event->publicID().c_str());
 			SEISCOMP_DEBUG("   * preferredOriginID = %s", event->preferredOriginID().c_str());
 			SEISCOMP_DEBUG("   * preferredMagnitudeID = %s", event->preferredMagnitudeID().c_str());
 			if ( event ) {
@@ -791,7 +830,8 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 		}
 		else {
 			SEISCOMP_DEBUG("(%s) Received object: %s with notifier type: %s",
-					_sinkName.c_str(), className.c_str(), (*notifierIt)->operation().toString());
+			               _sinkName.c_str(), className.c_str(),
+			               (*notifierIt)->operation().toString());
 		}
 	}
 }
@@ -803,7 +843,7 @@ void ImExImpl::handleNotifierMessage(DataModel::NotifierMessage* notifierMessage
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ImExImpl::readSinkMessages()
 {
-	while ( true ) {
+	while ( !_imex->isExitRequested() ) {
 		Communication::NetworkMessagePtr networkMsgPtr;
 		while ((networkMsgPtr = _sink->receive(false)) != NULL);
 		Core::sleep(1);
@@ -1002,7 +1042,7 @@ bool ImExImpl::filter(DataModel::Origin* origin)
 	SEISCOMP_DEBUG("Filtering origin: %s", origin->publicID().c_str());
 	SEISCOMP_DEBUG("Checking latitude/longitude");
 	if ( !_criterion->isInLatitudeRange(origin->latitude()) ||
-			!_criterion->isInLongitudeRange(origin->longitude()) ) {
+	     !_criterion->isInLongitudeRange(origin->longitude()) ) {
 		SEISCOMP_DEBUG("= latitude/longitude mismatch =");
 		SEISCOMP_DEBUG("%s", _criterion->what().c_str());
 		_criterion->clearError();
@@ -1039,7 +1079,13 @@ bool ImExImpl::filter(DataModel::Origin* origin)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::serializeMessage(const std::string& destination, Core::Message* message) {
+void ImExImpl::serializeMessage(const std::string &destination, Core::Message *message) {
+	if ( _messageQueue.size() >= _maxQueueSize ) {
+		SEISCOMP_DEBUG("(%s) message queue exceeded maximum size of %ld. Skipping message.",
+		               _sinkName.c_str(), (long int)_maxQueueSize);
+		return;
+	}
+
 	if ( destination == "NULL" ) {
 		SEISCOMP_DEBUG("Destination for notifierMessage is NULL. Skipping message!");
 		return;
@@ -1114,42 +1160,43 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 				SentPicks::iterator it = std::find_if(
 						_sentPicks.begin(), _sentPicks.end(),
 						std::bind1st(
-								std::pointer_to_binary_function<DataModel::Arrival*, DataModel::Pick*, bool>(findPick),
-								arrival
+							std::pointer_to_binary_function<DataModel::Arrival*, DataModel::Pick*, bool>(findPick),
+							arrival
 						)
 				);
 
 				if ( it == _sentPicks.end() ) {
 					_sentPicks.push_back((*pickIt).get());
 					imexMessage.notifierMessage().attach(
-							new DataModel::Notifier(
-									DataModel::EventParameters::ClassName(), DataModel::OP_ADD, pickIt->get()
-							)
+						new DataModel::Notifier(
+							DataModel::EventParameters::ClassName(), DataModel::OP_ADD, pickIt->get()
+						)
 					);
 				}
 				break;
 			}
 		}
 	}
-	SEISCOMP_DEBUG("Sending %d %s to %s in respect to origin %s", imexMessage.size(),
-			DataModel::Pick::ClassName(),
-			_routingTable[DataModel::Pick::ClassName()].c_str(), originID.c_str());
-	sendMessage(_routingTable[DataModel::Pick::ClassName()], &imexMessage);
+	SEISCOMP_DEBUG("Sending %d %s to %s in respect to origin %s",
+	               imexMessage.size(), DataModel::Pick::ClassName(),
+	               _routingTable[DataModel::Pick::ClassName()].c_str(),
+	               originID.c_str());
+	SEND_MSG(_routingTable[DataModel::Pick::ClassName()], &imexMessage);
 	imexMessage.clear();
 
 	// Attach origin
 	if ( update ) {
 		imexMessage.notifierMessage().attach(
-				new DataModel::Notifier(
-						DataModel::EventParameters::ClassName(), DataModel::OP_UPDATE, origin
-				)
+			new DataModel::Notifier(
+				DataModel::EventParameters::ClassName(), DataModel::OP_UPDATE, origin
+			)
 		);
 	}
 	else {
 		imexMessage.notifierMessage().attach(
-				new DataModel::Notifier(
-						DataModel::EventParameters::ClassName(), DataModel::OP_ADD, origin
-				)
+			new DataModel::Notifier(
+				DataModel::EventParameters::ClassName(), DataModel::OP_ADD, origin
+			)
 		);
 	}
 
@@ -1157,8 +1204,8 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 	if ( !update ) {
 		for ( size_t i = 0; i < origin->arrivalCount(); ++i ) {
 			imexMessage.notifierMessage().attach(
-					new DataModel::Notifier(
-						origin->publicID(), DataModel::OP_ADD, origin->arrival(i)));
+				new DataModel::Notifier(
+					origin->publicID(), DataModel::OP_ADD, origin->arrival(i)));
 		}
 		SEISCOMP_DEBUG("Sending %d %s and origin %s to %s",
 				imexMessage.size(),
@@ -1170,7 +1217,7 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 				originID.c_str(),
 				_routingTable[DataModel::Arrival::ClassName()].c_str());
 
-	sendMessage(_routingTable[DataModel::Arrival::ClassName()], &imexMessage);
+	SEND_MSG(_routingTable[DataModel::Arrival::ClassName()], &imexMessage);
 	imexMessage.clear();
 
 	if ( !update ) {
@@ -1183,18 +1230,18 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 			for ( ; saIt != _imex->amplitudeList().end(); ++saIt) {
 				if ( stationMagnitude->amplitudeID() == (*saIt)->publicID() ) {
 					SentAmplitudes::iterator it = std::find_if(
-							_sentAmplitudes.begin(),
-							_sentAmplitudes.end(),
-							std::bind1st(
-									std::pointer_to_binary_function<DataModel::StationMagnitude*, DataModel::Amplitude*, bool>(
-											findAmplitude), stationMagnitude));
+						_sentAmplitudes.begin(),
+						_sentAmplitudes.end(),
+						std::bind1st(
+							std::pointer_to_binary_function<DataModel::StationMagnitude*, DataModel::Amplitude*, bool>(
+									findAmplitude), stationMagnitude));
 					if ( it == _sentAmplitudes.end() ) {
 						++amplitudeCount;
 						_sentAmplitudes.push_back((*saIt).get());
 						imexMessage.notifierMessage().attach(
-								new DataModel::Notifier(
-										DataModel::EventParameters::ClassName(), DataModel::OP_ADD, saIt->get()
-								)
+							new DataModel::Notifier(
+								DataModel::EventParameters::ClassName(), DataModel::OP_ADD, saIt->get()
+							)
 						);
 					}
 					break;
@@ -1202,16 +1249,20 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 			}
 
 			imexMessage.notifierMessage().attach(
-					new DataModel::Notifier(
-						origin->publicID(), DataModel::OP_ADD, stationMagnitude
-					)
+				new DataModel::Notifier(
+					origin->publicID(), DataModel::OP_ADD, stationMagnitude
+				)
 			);
 		}
+
 		SEISCOMP_DEBUG("Sending %ld %s and %d %s to %s in respect to origin %s",
-				(long int)origin->stationMagnitudeCount(), DataModel::StationMagnitude::ClassName(),
-				amplitudeCount, DataModel::Amplitude::ClassName(),
-					_routingTable[DataModel::StationMagnitude::ClassName()].c_str(), originID.c_str());
-		sendMessage(_routingTable[DataModel::StationMagnitude::ClassName()], &imexMessage);
+		               (long int)origin->stationMagnitudeCount(),
+		               DataModel::StationMagnitude::ClassName(),
+		               amplitudeCount, DataModel::Amplitude::ClassName(),
+		               _routingTable[DataModel::StationMagnitude::ClassName()].c_str(),
+		               originID.c_str());
+
+		SEND_MSG(_routingTable[DataModel::StationMagnitude::ClassName()], &imexMessage);
 		imexMessage.clear();
 
 		// send NetworkMagnitudes
@@ -1227,23 +1278,25 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 			stationMagnitudeContributionCount += magnitude->stationMagnitudeContributionCount();
 			for ( size_t j = 0; j < magnitude->stationMagnitudeContributionCount(); ++j ) {
 				imexMessage.notifierMessage().attach(
-						new DataModel::Notifier(
-							magnitude->publicID(),
-							DataModel::OP_ADD,
-							magnitude->stationMagnitudeContribution(j)
-						)
+					new DataModel::Notifier(
+						magnitude->publicID(),
+						DataModel::OP_ADD,
+						magnitude->stationMagnitudeContribution(j)
+					)
 				);
 			}
 		}
+
 		SEISCOMP_DEBUG("Sending %ld %s and %ld %s to %s in respect to origin %s",
-					(long int)origin->magnitudeCount(),
-					DataModel::Magnitude::ClassName(),
-					(long int)stationMagnitudeContributionCount,
-					DataModel::StationMagnitudeContribution::ClassName(),
-					_routingTable[DataModel::Magnitude::ClassName()].c_str(),
-					originID.c_str()
+		               (long int)origin->magnitudeCount(),
+		               DataModel::Magnitude::ClassName(),
+		               (long int)stationMagnitudeContributionCount,
+		               DataModel::StationMagnitudeContribution::ClassName(),
+		               _routingTable[DataModel::Magnitude::ClassName()].c_str(),
+		               originID.c_str()
 		);
-		sendMessage(_routingTable[DataModel::Magnitude::ClassName()], &imexMessage);
+
+		SEND_MSG(_routingTable[DataModel::Magnitude::ClassName()], &imexMessage);
 		imexMessage.clear();
 
 		_sentOrigins.push_back(origin);
@@ -1260,8 +1313,9 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 void ImExImpl::sendEvent(EventWrapper& eventWrapper)
 {
 	SEISCOMP_DEBUG("Sending %s to %s in respect to origin %s",
-			DataModel::Event::ClassName(),
-			_routingTable[DataModel::Event::ClassName()].c_str(), eventWrapper.preferredOriginID().c_str());
+	               DataModel::Event::ClassName(),
+	               _routingTable[DataModel::Event::ClassName()].c_str(),
+	               eventWrapper.preferredOriginID().c_str());
 
 	Core::DataMessage dataMessage;
 	dataMessage.attach(eventWrapper.event());
@@ -1274,7 +1328,7 @@ void ImExImpl::sendEvent(EventWrapper& eventWrapper)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::sendMessage(const std::string& destination, Core::Message* message)
+void ImExImpl::sendMessage(const std::string& destination, Core::Message *message)
 {
 	(this->*sendMessageImpl)(destination, message);
 }
@@ -1284,7 +1338,7 @@ void ImExImpl::sendMessage(const std::string& destination, Core::Message* messag
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::sendMessageImport(const std::string& destination, Core::Message* message)
+void ImExImpl::sendMessageImport(const std::string& destination, Core::Message *message)
 {
 	// The actual sending of the message happens in a separate thread
 	serializeMessage(destination, &(reinterpret_cast<IMEXMessage*>(message)->notifierMessage()));
@@ -1295,7 +1349,7 @@ void ImExImpl::sendMessageImport(const std::string& destination, Core::Message* 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::sendMessageExport(const std::string& destination, Core::Message* message)
+void ImExImpl::sendMessageExport(const std::string& destination, Core::Message *message)
 {
 	// The actual sending of the message happens in a separate thread
 	serializeMessage(destination, message);
@@ -1305,56 +1359,32 @@ void ImExImpl::sendMessageExport(const std::string& destination, Core::Message* 
 
 
 
-//// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-//void ImExImpl::sendMessageRaw()
-//{
-//	while ( _isRunning ) {
-//		NetworkMessageWrapper nmw = _messageQueue.pop();
-//		while ( int ret = _sink->send(nmw.destination(), nmw.networkMessage()) != Core::Status::SEISCOMP_SUCCESS ) {
-//			SEISCOMP_ERROR("(%s) Could not send message to %s on sink master %s due to error %d",
-//					_sinkName.c_str(), nmw.destination().c_str(), _sink->masterAddress().c_str(), ret);
-//			if ( !_sink->isConnected() ) {
-//				SEISCOMP_ERROR("(%s) Trying to reconnect to %s", _sinkName.c_str(), _sink->masterAddress().c_str());
-//				if ( _sink->reconnect() != Core::Status::SEISCOMP_SUCCESS )
-//					Core::sleep(1);
-//			}
-//			else {
-//				Core::sleep(1);
-//			}
-//		}
-//		SEISCOMP_DEBUG("(%s) Sent message to %s", _sinkName.c_str(), nmw.destination().c_str());
-//	}
-//}
-//// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void ImExImpl::sendMessageRaw()
-{
+void ImExImpl::sendMessageRaw() {
 	while ( _isRunning ) {
-		if ( _messageQueue.size() == 0 ) {
-			if ( !_sink->isConnected() )
-				_sink->reconnect();
-			sleep(1);
-			continue;
-		}
+		try {
+			NetworkMessageWrapper nmw = _messageQueue.pop();
 
-		NetworkMessageWrapper nmw = _messageQueue.pop();
-		while ( int ret = _sink->send(nmw.destination(), nmw.networkMessage()) != Core::Status::SEISCOMP_SUCCESS ) {
-			SEISCOMP_ERROR("(%s) Could not send message to %s on sink master %s due to error %d",
-			               _sinkName.c_str(), nmw.destination().c_str(),
-			               _sink->masterAddress().c_str(), ret);
+			while ( int ret = _sink->send(nmw.destination(), nmw.networkMessage()) != Core::Status::SEISCOMP_SUCCESS ) {
+				SEISCOMP_ERROR("(%s) Could not send message to %s on sink master %s due to error %d",
+				               _sinkName.c_str(), nmw.destination().c_str(),
+				               _sink->masterAddress().c_str(), ret);
 
-			if ( !_sink->isConnected() ) {
-				SEISCOMP_ERROR("(%s) Trying to reconnect to %s", _sinkName.c_str(), _sink->masterAddress().c_str());
-				_sink->reconnect();
+				if ( !_isRunning ) break;
+
+				if ( !_sink->isConnected() ) {
+					SEISCOMP_ERROR("(%s) Trying to reconnect to %s", _sinkName.c_str(), _sink->masterAddress().c_str());
+					_sink->reconnect();
+				}
+
+				Core::sleep(1);
 			}
 
-			Core::sleep(1);
+			SEISCOMP_DEBUG("(%s) Sent message to %s", _sinkName.c_str(), nmw.destination().c_str());
 		}
-		SEISCOMP_DEBUG("(%s) Sent message to %s", _sinkName.c_str(), nmw.destination().c_str());
+		catch ( Core::GeneralException& ex ) {
+			SEISCOMP_INFO("(%s) Exception: %s, returning", _sinkName.c_str(), ex.what());
+		}
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

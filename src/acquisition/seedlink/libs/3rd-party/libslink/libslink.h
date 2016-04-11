@@ -36,7 +36,7 @@ extern "C" {
 #define LIBSLINK_RELEASE "2009.240"
   
 #define SLRECSIZE           512      /* Mini-SEED record size */
-#define MAX_HEADER_SIZE     512      /* Max record header size */
+#define MAX_HEADER_SIZE     504      /* Max record header size */
 #define SLHEADSIZE          8        /* SeedLink header size */
 #define SELSIZE             8        /* Maximum selector size */
 #define BUFSIZE             8192     /* Size of receiving buffer */

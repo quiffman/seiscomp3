@@ -153,7 +153,7 @@ void dispatch (struct gcf_block_struct *b, int recno)
                 mp->station, mp->channel, buffer, b->samples, b->sample_rate, recno, numstreams);
 
         if ( NO_SEND == 0 )
-             send_raw_depoch ( mp->station, mp->channel, b->estart, 0, 100, b->data, b->samples);
+             send_raw_depoch ( mp->station, mp->channel, b->estart, 0, -1, b->data, b->samples);
 
         time_of_next_expected_sample[chid] = b->estart + (b->samples)/b->sample_rate;
 

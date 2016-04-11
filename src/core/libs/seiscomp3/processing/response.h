@@ -17,7 +17,7 @@
 
 #include <seiscomp3/core/baseobject.h>
 #include <seiscomp3/core/typedarray.h>
-#include <seiscomp3/math/deconvolution/transferfunction.h>
+#include <seiscomp3/math/restitution/transferfunction.h>
 #include <seiscomp3/processing/api.h>
 
 #include <vector>
@@ -30,6 +30,8 @@ namespace Processing  {
 DEFINE_SMARTPOINTER(Response);
 
 class SC_CORE_PROCESSING_API Response : public Core::BaseObject {
+	DECLARE_CASTS(Response);
+
 	// ----------------------------------------------------------------------
 	//  X'truction
 	// ----------------------------------------------------------------------
@@ -72,7 +74,7 @@ class SC_CORE_PROCESSING_API Response : public Core::BaseObject {
 		//! @param numberOfIntegrations How often to integrate. In case of
 		//!                             'poles and zeros' this will push n
 		//!                             additional zeros to 'zeros'.
-		virtual Math::Deconvolution::FFT::TransferFunction *
+		virtual Math::Restitution::FFT::TransferFunction *
 			getTransferFunction(int numberOfIntegrations = 0);
 };
 
@@ -80,6 +82,8 @@ class SC_CORE_PROCESSING_API Response : public Core::BaseObject {
 DEFINE_SMARTPOINTER(ResponsePAZ);
 
 class SC_CORE_PROCESSING_API ResponsePAZ : public Response {
+	DECLARE_CASTS(ResponsePAZ);
+
 	// ----------------------------------------------------------------------
 	//  X'truction
 	// ----------------------------------------------------------------------
@@ -122,7 +126,7 @@ class SC_CORE_PROCESSING_API ResponsePAZ : public Response {
 	//  Public interface
 	// ----------------------------------------------------------------------
 	public:
-		Math::Deconvolution::FFT::TransferFunction *
+		Math::Restitution::FFT::TransferFunction *
 			getTransferFunction(int numberOfIntegrations = 0);
 
 

@@ -559,6 +559,10 @@ class Application(Core.InterruptibleObject):
         """database(self) -> DatabaseInterface"""
         return _Client.Application_database(self)
 
+    def databaseURI(self):
+        """databaseURI(self) -> string"""
+        return _Client.Application_databaseURI(self)
+
     def query(self):
         """query(self) -> DatabaseQuery"""
         return _Client.Application_query(self)
@@ -768,22 +772,22 @@ class Application(Core.InterruptibleObject):
 
     def addInputObjectLog(self, *args):
         """
-        addInputObjectLog(self, string name, string channel = "") -> Log
-        addInputObjectLog(self, string name) -> Log
+        addInputObjectLog(self, string name, string channel = "") -> ObjectLog
+        addInputObjectLog(self, string name) -> ObjectLog
         """
         return _Client.Application_addInputObjectLog(self, *args)
 
     def addOutputObjectLog(self, *args):
         """
-        addOutputObjectLog(self, string name, string channel = "") -> Log
-        addOutputObjectLog(self, string name) -> Log
+        addOutputObjectLog(self, string name, string channel = "") -> ObjectLog
+        addOutputObjectLog(self, string name) -> ObjectLog
         """
         return _Client.Application_addOutputObjectLog(self, *args)
 
     def logObject(self, *args):
         """
-        logObject(self, Log log, Time timestamp, size_t count = 1)
-        logObject(self, Log log, Time timestamp)
+        logObject(self, ObjectLog log, Time timestamp, size_t count = 1)
+        logObject(self, ObjectLog log, Time timestamp)
         """
         return _Client.Application_logObject(self, *args)
 
@@ -1233,6 +1237,10 @@ class Inventory(_object):
     def setInventory(self, *args):
         """setInventory(self, Inventory arg0)"""
         return _Client.Inventory_setInventory(self, *args)
+
+    def filter(self, *args):
+        """filter(self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist)"""
+        return _Client.Inventory_filter(self, *args)
 
     def loadStations(self, *args):
         """loadStations(self, DatabaseReader arg0)"""

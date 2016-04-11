@@ -200,9 +200,7 @@ size_t EventInformation::matchingPicks(DataModel::DatabaseQuery *q,
 
 
 bool EventInformation::valid() const {
-	return event != NULL
-	       && preferredOrigin != NULL
-	       && !pickIDs.empty();
+	return event != NULL && preferredOrigin != NULL;
 }
 
 

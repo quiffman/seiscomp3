@@ -1,9 +1,10 @@
 SUBDIRS(
 	archivetool
-	bulletin
+	scbulletin
 	procalert
 	proclatency
-	voicealert
+	scalert
+	scvoice
 	eplog
 	evtls
 	evtlog

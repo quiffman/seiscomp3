@@ -12,7 +12,7 @@
 
 
 #define SEISCOMP_COMPONENT Autoloc
-//#define EXTRA_DEBUGGING
+#define EXTRA_DEBUGGING
 //#define LOG_RELOCATOR_CALLS
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/seismology/ttt.h>
@@ -455,6 +455,11 @@ bool Autoloc3::feed(Origin *origin)
 				continue;
 
 			// Do we have an arrival for this station already?
+			// We have to look for arrivals that either reference the same pick
+			// or arrivals for the same station/phase combination. The latter
+			// is still risky if two nearby picks of the same onset are assigned
+			// different phase codes, e.g. P/Pn or P/PKP; in that case we end up
+			// both picks forming part of the solution.
 			bool have=false;
 			for(unsigned int k=0; k<arrivals.size(); k++) {
 				Arrival _arr = arrivals[k];
@@ -479,7 +484,7 @@ bool Autoloc3::feed(Origin *origin)
 		found->arrivals = arrivals;
 		found->id = id;
 
-		// TODO: consider making this relocation optional	
+		// TODO: consider making this relocation optional
 		if (origin->depthType == Origin::DepthManuallyFixed) {
 			_relocator.useFixedDepth(fixed);
 		}
@@ -1414,7 +1419,7 @@ bool Autoloc3::_setDefaultDepth(Origin *origin)
 	return true;
 }
 
-bool Autoloc3::_tryDefaultDepth(Origin *origin)
+bool Autoloc3::_setTheRightDepth(Origin *origin)
 {
 	if ( ! _config.tryDefaultDepth)
 		return false;
@@ -1423,11 +1428,32 @@ bool Autoloc3::_tryDefaultDepth(Origin *origin)
 		return false;
 
 
-	// TODO:
 	// dann aber auch mal testen, ob man mit freier Tiefe evtl. weiter kommt.
 	// Sonst bleibt das immer bei der Default-Tiefe haengen!
-	if (origin->depthType == Origin::DepthDefault)
+	if (origin->depthType == Origin::DepthDefault) {
+		// XXX BAUSTELLE XXX
+		OriginPtr test = new Origin(*origin);
+		test->depthType = Origin::DepthFree;
+
+		_relocator.useFixedDepth(false);
+		OriginPtr relo = _relocator.relocate(test.get());
+		if ( ! relo) {
+			SEISCOMP_WARNING("_setDefaultDepth: failed relocation");
+			return false;
+		}
+
+		double radius = 5*(relo->dep >= _config.defaultDepth ? relo->dep : _config.defaultDepth)/111.2;
+		
+		// XXX This is a hack, but better than nothing:
+		// if there are at least 2 stations within 5 times the source depth, we assume sufficient depth resolution.
+		if (relo->definingPhaseCount(0, radius) >= 2) {
+			origin->updateFrom(relo.get());
+			return false;
+		}
+
 		return true;
+		// XXX BAUSTELLE XXX
+	}
 
 	// XXX This is a hack, but better than nothing:
 	// if there are at least 2 stations within 5 times the source depth, we assume sufficient depth resolution.
@@ -1567,6 +1593,9 @@ bool Autoloc3::_rework(Origin *origin)
 	// the default depth for this origin. Check if any of these is met.
 	bool enforceDefaultDepth = false;
 	bool adoptManualDepth = false;
+
+// TODO TODO TODO TODO TODO
+// put all this depth related stuff into _setTheRightDepth()
 	if (_config.adoptManualDepth && origin->depthType == Origin::DepthManuallyFixed) {
 			SEISCOMP_INFO("Adopting depth of %g km from manual origin", origin->dep);
 			adoptManualDepth = true;
@@ -1576,7 +1605,7 @@ bool Autoloc3::_rework(Origin *origin)
 			enforceDefaultDepth = true;
 			SEISCOMP_INFO("Enforcing default depth due to epicenter location");
 		}
-		else if ( _tryDefaultDepth(origin) ) {
+		else if ( _setTheRightDepth(origin) ) {
 			enforceDefaultDepth = true;
 			SEISCOMP_INFO("Enforcing default depth due to epicenter-station geometry");
 		}

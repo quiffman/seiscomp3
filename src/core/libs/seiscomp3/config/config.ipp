@@ -214,6 +214,7 @@ std::vector<T> Config::getVec(const std::string& name, bool* error) const
 		return getVec<T>(name);
 	}
 	catch (...) {
+		*error = true;
 		return std::vector<T>();
 	}
 }

@@ -16,6 +16,7 @@
 #define CONFIG_BASE "geo.feature"
 
 #include <seiscomp3/config/environment.h>
+#include <seiscomp3/core/strings.h>
 #include <seiscomp3/logging/log.h>
 
 #include <boost/version.hpp>
@@ -28,16 +29,18 @@
 using namespace Seiscomp::Geo;
 
 
-const GeoFeatureSet &GeoFeatureSet::getInstance() {
-	static GeoFeatureSet instance;
-	return instance;
+const GeoFeatureSet &GeoFeatureSetSingleton::getInstance() {
+	static GeoFeatureSetSingleton instance;
+	return instance._geoFeatureSet;
 }
 
+GeoFeatureSetSingleton::GeoFeatureSetSingleton() {
+	Seiscomp::Environment* env = Seiscomp::Environment::Instance();
+	if ( !_geoFeatureSet.readBNADir(env->configDir() + "/bna") )
+		_geoFeatureSet.readBNADir(env->shareDir() + "/bna");
+}
 
 GeoFeatureSet::GeoFeatureSet() {
-	Seiscomp::Environment* env = Seiscomp::Environment::Instance();
-	if ( !readBNADir(env->configDir() + "/bna") )
-		readBNADir(env->shareDir() + "/bna");
 }
 
 GeoFeatureSet::~GeoFeatureSet() {
@@ -151,41 +154,43 @@ bool GeoFeatureSet::readBNAHeader(std::ifstream& infile, std::string& segment,
                                   unsigned int& rank, unsigned int& points,
                                   bool& isClosed) const {
 
-	std::string tmpStr;
+	size_t pos1, pos2;
+	std::string line, tmpStr;
+	std::getline(infile, line);
 
-	try {
-		// segment
-		std::getline(infile, tmpStr, '"');
-		std::getline(infile, segment, '"');
+	// segment
+	if ( (pos1 = line.find('"')) == std::string::npos ) return false;
+	if ( (pos2 = line.find('"', pos1+1)) == std::string::npos ) return false;
+	segment = line.substr(pos1+1, pos2-pos1-1);
 
-		// rank
-		std::getline(infile, tmpStr, '"');
-		std::getline(infile, tmpStr, '"');
+	// rank
+	if ( (pos1 = line.find('"', pos2+1)) == std::string::npos ) return false;
+	if ( (pos2 = line.find('"', pos1+1)) == std::string::npos ) return false;
+	tmpStr = line.substr(pos1+1, pos2-pos1-1);
 
-		try {
-			rank = atoi(tmpStr.c_str());
-		} catch (const std::exception &e) {
-			SEISCOMP_WARNING("Invalid rank found, setting to 1");
-			rank = 1;
-		}
-
-		// points
-		isClosed = false;
-		std::getline(infile, tmpStr, ',');
-		std::getline(infile, tmpStr);
-		boost::algorithm::trim(tmpStr);
-		if (tmpStr.length() == 0)
-			points = 0;
-		else if (tmpStr[0] == '-')
-			points = atoi(tmpStr.substr(1).c_str());
-		else {
-			points = atoi(tmpStr.c_str());
-			isClosed = true;
-		}
-	} catch (const std::exception &e) {
-		return false;
+	if ( tmpStr.length() >= 6 && strncmp(tmpStr.c_str(), "rank ", 5) == 0 ) {
+		rank = atoi(tmpStr.substr(5, tmpStr.length()-5).c_str());
+	}
+	else {
+		SEISCOMP_WARNING("Invalid rank found, setting to 1");
+		rank = 1;
 	}
 
+	// points
+	if ( (pos1 = line.find(',', pos2+1)) == std::string::npos ) return false;
+	tmpStr = line.substr(pos1+1);
+
+	Seiscomp::Core::trim(tmpStr);
+	int p;
+	if ( !Seiscomp::Core::fromString(p, tmpStr) ) return false;
+	if ( p >= 0 ) {
+		points = p;
+		isClosed = true;
+	}
+	else {
+		points = -p;
+		isClosed = false;
+	}
 	return true;
 }
 
@@ -232,8 +237,11 @@ bool GeoFeatureSet::readBNAFile(const std::string& filename,
 
 	std::ifstream infile(filename.c_str());
 
-	if (infile.bad())
+	if ( infile.fail() ) {
+		SEISCOMP_WARNING("Could not open segment file for reading: %s",
+		                 filename.c_str());
 		return false;
+	}
 
 	GeoFeature* feature;
 	unsigned int lineNum = 0;
@@ -245,66 +253,58 @@ bool GeoFeatureSet::readBNAFile(const std::string& filename,
 	Vertex v;
 	bool startSubFeature;
 
-	try {
-		while ( !infile.eof() ) {
-			++lineNum;
+	while ( infile.good() ) {
+		++lineNum;
 
-			if ( !readBNAHeader(infile, segment, rank, points, isClosed) ) {
-				SEISCOMP_WARNING("error reading BNA header in file %s at line %i",
-						 filename.c_str(), lineNum);
+		if ( !readBNAHeader(infile, segment, rank, points, isClosed) ) {
+			SEISCOMP_WARNING("error reading BNA header in file %s at line %i",
+			                 filename.c_str(), lineNum);
+			continue;
+		}
+		startSubFeature = false;
+
+		feature = new GeoFeature(segment, category, rank);
+		_features.push_back(feature);
+		if ( isClosed )
+			feature->setClosedPolygon(true);
+
+		// read vertices
+		for ( unsigned int pi = 0; pi < points && infile.good(); ++pi ) {
+			++lineNum;
+			std::getline(infile, tmpStr, ',');
+			v.lon = atof(tmpStr.c_str());
+			std::getline(infile, tmpStr);
+			v.lat = atof(tmpStr.c_str());
+			if ( v.lon < -180 || v.lon > 180 ) {
+				SEISCOMP_DEBUG("invalid longitude in file %s at line %i",
+						       filename.c_str(), lineNum);
 				continue;
 			}
-			startSubFeature = false;
-
-			feature = new GeoFeature(segment, category, rank);
-			_features.push_back(feature);
-			if ( isClosed )
-				feature->setClosedPolygon(true);
-
-			// read vertices
-			for ( unsigned int pi = 0; pi < points; ++pi ) {
-				++lineNum;
-				std::getline(infile, tmpStr, ',');
-				v.lon = atof(tmpStr.c_str());
-				std::getline(infile, tmpStr);
-				v.lat = atof(tmpStr.c_str());
-				if (v.lon < -180 || v.lon > 180) {
-					SEISCOMP_DEBUG("invalid longitude in file %s at line %i",
-						       filename.c_str(), lineNum);
-					continue;
-
-				}
-				if (v.lat < -90 || v.lat > 90) {
-					SEISCOMP_DEBUG("invalid latitude in file %s at line %i",
-					               filename.c_str(), lineNum);
-					continue;
-				}
-
-				if ( !feature->vertices().empty() ) {
-					// check if the current vertex marks the end of a (sub-) or
-					// feature and if so don't add it to the vertex vector but mark
-					// the next vertex as the starting point of a new sub feature
-					if ( v == feature->vertices().front() ) {
-						startSubFeature = true;
-						continue;
-					}
-					// Don't add the vertex if it is equal to the start point of
-					// the current subfeature
-					else if ( !startSubFeature &&
-					          !feature->subFeatures().empty() &&
-					          v == feature->vertices()[feature->subFeatures().back()] ) {
-						continue;
-					}
-				}
-				feature->addVertex(v, startSubFeature);
-				startSubFeature = false;
+			if ( v.lat < -90 || v.lat > 90 ) {
+				SEISCOMP_DEBUG("invalid latitude in file %s at line %i",
+				               filename.c_str(), lineNum);
+				continue;
 			}
+
+			if ( !feature->vertices().empty() ) {
+				// check if the current vertex marks the end of a (sub-) or
+				// feature and if so don't add it to the vertex vector but mark
+				// the next vertex as the starting point of a new sub feature
+				if ( v == feature->vertices().front() ) {
+					startSubFeature = true;
+					continue;
+				}
+				// Don't add the vertex if it is equal to the start point of
+				// the current subfeature
+				else if ( !startSubFeature &&
+				         !feature->subFeatures().empty() &&
+				         v == feature->vertices()[feature->subFeatures().back()] ) {
+					continue;
+				}
+			}
+			feature->addVertex(v, startSubFeature);
+			startSubFeature = false;
 		}
-	}
-	catch (const std::exception& ex) {
-		SEISCOMP_ERROR("Error reading file %s at line %i",
-			       filename.c_str(), lineNum);
-		return false;
 	}
 
 	return true;

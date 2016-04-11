@@ -163,7 +163,7 @@ DEFINE_SMARTPOINTER(StationWrapper);
 class StationWrapper  : public Seiscomp::Core::BaseObject {
 public:
 	StationWrapper(const Station *station, const std::string &phase, float distance, float azimuth, float ttime, float hslow)
-		:  station(station), phase(phase), distance(distance), azimuth(azimuth), ttime(ttime), hslow(hslow) {}
+		:  station(station), distance(distance), azimuth(azimuth), ttime(ttime), hslow(hslow), phase(phase)  {}
 	StationWrapper(const StationWrapper &other) {
 		station     = other.station;
 		phase       = other.phase;

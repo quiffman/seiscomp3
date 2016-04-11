@@ -27,8 +27,9 @@
 #
 #
 
+import sys
+if sys.version_info < (2,4): from sets import Set as set
 import os, shutil, datetime, poplib, smtplib, sys, StringIO, commands, fnmatch
-from sets import Set
 from re import *
 from time import *
 from types import *
@@ -70,7 +71,7 @@ LABEL = "breq_req"
 FORMAIL_BIN = "/usr/bin/formail"
 SENDMAIL_BIN = "/usr/sbin/sendmail"
 
-VERSION = "0.8 (2011.234)"
+VERSION = "0.8 (2012.048)"
 
 class BreqParser(object):
 	"""
@@ -238,8 +239,8 @@ class BreqParser(object):
 											int(d["beg_hour"]),int(d["beg_min"]),int(d["beg_sec"]))
 				end_time = datetime.datetime(int(d["end_4year"]),int(d["end_month"]),int(d["end_day"]),
 											int(d["end_hour"]),int(d["end_min"]),int(d["end_sec"]))
-			except:
-				self.failstr = "%s%s  [error: wrong begin or end time]\n" % (self.failstr, line)
+			except ValueError as e:
+				self.failstr = "%s%s [error: wrong begin or end time: %s]\n" % (self.failstr, line, e)
 				return
 			
 			# expand network and station
@@ -455,10 +456,10 @@ def _check_size(reqlist):
 	for req in reqlist:
 		tdiff = req[5] - req[4]
 		if tdiff.days > 999:
-			return "Max. time window of 999 days exeeded. ["+req[0]+" "+req[1]+" "+req[2]+"]"
+			return "Max. time window of 999 days exceded. ["+req[0]+" "+req[1]+" "+req[2]+"]"
 		
 	if len(reqlist) > 1000:
-		return "Number of requests exeeds limit of 1000."
+		return "Number of requests exceeds limit of 1000."
 	
 	return ""
 		

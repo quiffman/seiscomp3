@@ -1008,6 +1008,15 @@ IO::DatabaseInterface* Application::database() const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const std::string &Application::databaseURI() const {
+	return _db;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DataModel::DatabaseQuery* Application::query() const {
 	return _query.get();
 }
@@ -1563,6 +1572,8 @@ bool Application::init() {
 				return false;
 			}
 		}
+
+		Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
 	}
 	else if ( _enableLoadStations ) {
 		if ( !_inventoryDBFilename.empty() ) {
@@ -1586,6 +1597,8 @@ bool Application::init() {
 				return false;
 			}
 		}
+
+		Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
 	}
 
 	if ( _exitRequested )
@@ -2111,6 +2124,16 @@ bool Application::initConfiguration() {
 	try {
 		std::vector<std::string> blackList = configGetStrings("processing.blacklist.agencies");
 		std::copy(blackList.begin(), blackList.end(), std::inserter(_procBlackList, _procBlackList.end()));
+	} catch ( ... ) {}
+
+	try {
+		std::vector<std::string> whiteList = configGetStrings("inventory.whitelist.type");
+		std::copy(whiteList.begin(), whiteList.end(), std::inserter(_inventoryTypeWhiteList, _inventoryTypeWhiteList.end()));
+	} catch ( ... ) {}
+
+	try {
+		std::vector<std::string> blackList = configGetStrings("inventory.blacklist.type");
+		std::copy(blackList.begin(), blackList.end(), std::inserter(_inventoryTypeBlackList, _inventoryTypeBlackList.end()));
 	} catch ( ... ) {}
 
 	try { _enableLoadCities = configGetBool("loadCities"); } catch ( ... ) {}

@@ -86,6 +86,22 @@ class CloneVisitor : public Visitor {
 
 }
 
+namespace {
+	std::ostream &operator<<(std::ostream &os, const ComplexArray &ar) {
+		os << "Complex Array of " << ar.content().size() << " elements";
+		return os;
+	}
+	
+	std::ostream &operator<<(std::ostream &os, const RealArray &ar) {
+		os << "Real Array of " << ar.content().size() << " elements";
+		return os;
+	}
+	
+	std::ostream &operator<<(std::ostream &os, const Blob &ar) {
+		os << "Blob size: " << ar.content().size();
+		return os;
+	}
+}
 
 ThreeComponents::ThreeComponents() {
 	comps[0] = NULL;
@@ -365,6 +381,185 @@ Object *copy(Object* obj) {
 // DataModel Diff / Merge
 ///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+// DiffMerge::LogNode
+///////////////////////////////////////////////////////////////////////////////
+DiffMerge::LogNode::LogNode(Object* o1, int level = 0) {
+	reset();
+	_title = o2t(o1);
+	_level = level;
+}
+
+
+DiffMerge::LogNode::LogNode(std::string title, int level = 0) {
+	reset();
+	_title = title;
+	_level = level;
+}
+
+
+void DiffMerge::LogNode::setParent(LogNode *n){
+	_parent = n;
+	
+	_padding.clear();
+	_padding.append(_parent->_padding);
+	_padding.append(" ");
+	
+	_level = _parent->_level;
+	
+	return;
+}
+
+
+std::string DiffMerge::LogNode::o2t(Object *o){
+	std::stringstream title;
+	
+	title << o->className() << " ";
+	for ( size_t i = 0; i < o->meta()->propertyCount(); ++i ) {
+		const Core::MetaProperty* prop = o->meta()->property(i);
+		
+		// we do only compare index properties
+		if ( ! prop->isIndex() )
+			continue;
+		
+		if ( prop->isClass() )
+			throw Core::TypeException(
+					"Violation of contract: property " +
+					prop->name() +
+					" is of class type and marked as index");
+		
+		Core::MetaValue value;
+		bool isSet_o = true;
+		try { value = prop->read(o); } catch ( ... ) { isSet_o = false; }
+		if (!isSet_o) continue;
+		
+		if ( prop->isEnum() || prop->type() == "int")
+			title << "[" << boost::any_cast<int>(value) << "]";
+		
+		if ( prop->type() == "float" )
+			title << "[" << boost::any_cast<double>(value) << "]";
+		
+		if ( prop->type() == "string" )
+			title << "[" << boost::any_cast<std::string>(value) << "]";
+		
+		if ( prop->type() == "datetime" )
+			title << "[" << boost::any_cast<Core::Time>(value).iso() << "]";
+		
+		if ( prop->type() == "boolean" )
+			title << "[" << boost::any_cast<bool>(value) << "]";
+		
+		if ( prop->type() == "ComplexArray") {
+			Core::BaseObject* bo1 = boost::any_cast<Core::BaseObject*>(value);
+			ComplexArray *ca = ComplexArray::Cast(bo1);
+			title << "[ComplexArray of " << ca->content().size() << " elements]";
+		}
+		
+		if ( prop->type() == "RealArray") {
+			Core::BaseObject* bo1 = boost::any_cast<Core::BaseObject*>(value);
+			RealArray *ra = RealArray::Cast(bo1);
+			title << "[ComplexArray of " << ra->content().size() << " elements]";
+		}
+		
+		if ( prop->type() == "Blob") {
+			Core::BaseObject* bo1 = boost::any_cast<Core::BaseObject*>(value);
+			Blob *ba = Blob::Cast(bo1);
+			title << "[Blob: " << ba << "]";
+		}
+	}
+	return title.str();
+}
+
+
+void DiffMerge::LogNode::add(std::string s1, std::string n){
+	if (_level < 1) return;
+	s1.append(": ");
+	s1.append(n);
+	_messages.push_back(s1);
+	return;
+}
+
+
+template <class T>
+std::string DiffMerge::LogNode::compare(T a, T b) {
+	std::stringstream ss;
+	ss << a << ((a == b)?" == ":" != ") << b;
+	return ss.str();
+}
+
+
+void DiffMerge::LogNode::reset () {
+	_parent = NULL;
+	_title.clear();
+	_padding.clear();
+	_level = 0;
+}
+
+
+DiffMerge::LogNodePtr DiffMerge::LogNode::add(DiffMerge::LogNodePtr child){
+	child->setParent(this);
+	_childs.push_back(child);
+	return child;
+}
+
+
+void DiffMerge::LogNode::add(std::string title, Object *o1) {
+	add(title, this->o2t(o1));
+	return;
+}
+
+
+void DiffMerge::LogNode::add(std::string title, bool status, std::string comment){
+	if (_level < 2 && status) return;
+	
+	comment.insert(0, ((status)?"== ":"!= "));
+	this->add(title, comment);
+	return;
+}
+
+
+template <class T>
+void DiffMerge::LogNode::add(std::string title, T a, T b){
+	if (_level < 2 && a == b) return;
+	this->add(title, compare<T>(a,b));
+	return;
+}
+
+
+void DiffMerge::LogNode::show(std::ostream &os){
+	os << _padding << _title << std::endl;
+
+	for(uint i = 0; i < _messages.size(); i++)
+		os << " " << _padding << _messages[i] << std::endl;
+
+	for(uint i = 0; i < _childs.size(); i++)
+		_childs[i]->show(os);
+
+	os << std::endl;
+	
+	return;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// DiffMerge
+///////////////////////////////////////////////////////////////////////////////
+DiffMerge::DiffMerge() {
+	_currentNode = NULL;
+	_logLevel = -1;
+}
+
+
+void DiffMerge::setLoggingLevel(int level) {
+	_logLevel = level;
+}
+
+
+void  DiffMerge::showLog(std::ostream &os) {
+	if ( _currentNode != NULL )
+		_currentNode->show(os);
+}
+
+
 /**
  * Compares the value of a non array property.
  * @param prop property to compare
@@ -373,7 +568,7 @@ Object *copy(Object* obj) {
  * @return true if both values are equal or empty, else false
  * @throw TypeException if the property to compare is of class or array type
  */
-bool compareNonArrayProperty(const Core::MetaProperty* prop, Object* o1, Object* o2) {
+bool DiffMerge::compareNonArrayProperty(const Core::MetaProperty* prop, Object* o1, Object* o2) {
 	if ( prop->isArray() )
 		throw Core::TypeException("Expected non array property");
 
@@ -386,37 +581,71 @@ bool compareNonArrayProperty(const Core::MetaProperty* prop, Object* o1, Object*
 	try { v_o1 = prop->read(o1); } catch ( ... ) { isSet_o1 = false; }
 	try { v_o2 = prop->read(o2); } catch ( ... ) { isSet_o2 = false; }
 	
-	if ( !isSet_o1 && !isSet_o2 ) return true;
-	if ( v_o1.empty() && v_o2.empty() ) return true;
-	if ( !isSet_o1 || v_o1.empty() ) return false;
-	if ( v_o1.type() != v_o2.type() ) return false;
+	if ( !isSet_o1 && !isSet_o2 ) {
+		if (_currentNode) _currentNode->add(prop->name(), true, "both unsetted");
+		return true;
+	}
+	if ( v_o1.empty() && v_o2.empty() ) {
+		if (_currentNode) _currentNode->add(prop->name(), true, "both empty");
+		return true;
+	}
+	if ( !isSet_o1 || v_o1.empty() ) {
+		if (_currentNode) _currentNode->add(prop->name(), false, "missing or empty on Object 1");
+		return false;
+	}
+	if ( !isSet_o2 || v_o2.empty() ) {
+		if (_currentNode) _currentNode->add(prop->name(), false, "missing or empty on Object 2");
+		return false;
+	}
+	if ( v_o1.type() != v_o2.type() ) {
+		if (_currentNode) _currentNode->add(prop->name(), false, "types differs");
+		return false;
+	}
 
-	if ( prop->isEnum() || prop->type() == "int")
+	if ( prop->isEnum() || prop->type() == "int") {
+		if (_currentNode) _currentNode->add<int>(prop->name(), boost::any_cast<int>(v_o1), boost::any_cast<int>(v_o2));
 		return boost::any_cast<int>(v_o1) == boost::any_cast<int>(v_o2);
-	if ( prop->type() == "float" )
+	}
+	if ( prop->type() == "float" ) {
+		if (_currentNode) _currentNode->add<double>(prop->name(), boost::any_cast<double>(v_o1), boost::any_cast<double>(v_o2));
 		return boost::any_cast<double>(v_o1) == boost::any_cast<double>(v_o2);
-	if ( prop->type() == "string" )
+	}
+	if ( prop->type() == "string" ){
+		if (_currentNode) _currentNode->add<std::string>(prop->name(), boost::any_cast<std::string>(v_o1), boost::any_cast<std::string>(v_o2));
 		return boost::any_cast<std::string>(v_o1) == boost::any_cast<std::string>(v_o2);
-	if ( prop->type() == "datetime" )
+	}
+	if ( prop->type() == "datetime" ){
+		if (_currentNode) _currentNode->add<std::string>(prop->name(), boost::any_cast<Core::Time>(v_o1).iso(), boost::any_cast<Core::Time>(v_o2).iso());
 		return boost::any_cast<Core::Time>(v_o1) == boost::any_cast<Core::Time>(v_o2);
-	if ( prop->type() == "boolean" )
+	}
+	if ( prop->type() == "boolean" ) {
+		if (_currentNode) _currentNode->add<bool>(prop->name(), boost::any_cast<bool>(v_o1), boost::any_cast<bool>(v_o2));
 		return boost::any_cast<bool>(v_o1) == boost::any_cast<bool>(v_o2);
+	}
 
 	Core::BaseObject* bo1 = boost::any_cast<Core::BaseObject*>(v_o1);
 	Core::BaseObject* bo2 = boost::any_cast<Core::BaseObject*>(v_o2);
 	if ( prop->type() == "ComplexArray") {
 		ComplexArray* ca1 = ComplexArray::Cast(bo1);
 		ComplexArray* ca2 = ComplexArray::Cast(bo2);
-		return ca1->content() == ca2->content();
+		if (_currentNode) _currentNode->add<ComplexArray>(prop->name(), *ca1, *ca2);
+		return ca1->equal(*ca2);
+	}
+	if ( prop->type() == "RealArray") {
+		RealArray* ra1 = RealArray::Cast(bo1);
+		RealArray* ra2 = RealArray::Cast(bo2);
+		return ra1->equal(*ra2);
 	}
 	if ( prop->type() == "Blob") {
-		Blob* ca1 = Blob::Cast(bo1);
-		Blob* ca2 = Blob::Cast(bo2);
-		return ca1->content() == ca2->content();
+		Blob* b1 = Blob::Cast(bo1);
+		Blob* b2 = Blob::Cast(bo2);
+		if (_currentNode) _currentNode->add<Blob>(prop->name(), *b1, *b2);
+		return b1->equal(*b2);
 	}
-	
+
 	throw Core::TypeException("Unexpected type: " + prop->type());
 }
+
 
 /**
  * Compares the className and all index properties of two objects.
@@ -425,10 +654,15 @@ bool compareNonArrayProperty(const Core::MetaProperty* prop, Object* o1, Object*
  * @return true if the className and all index properties of both objects
  * are equal, else false
  */
-bool equalsIndex(Object* o1, Object* o2) {
+bool DiffMerge::equalsIndex(Object *o1, Object *o2) {
+	LogNodePtr nodeCopy = _currentNode;
+	_currentNode = NULL;
+	
 	// compare className
-	if ( o1->className() != o2->className() )
+	if ( o1->className() != o2->className() ){
+		_currentNode = nodeCopy;
 		return false;
+	}
 	
 	// iterate over all properties
 	for ( size_t i = 0; i < o1->meta()->propertyCount(); ++i ) {
@@ -444,11 +678,16 @@ bool equalsIndex(Object* o1, Object* o2) {
 				metaProp->name() +
 				" is of class type and marked as index");
 			
-		if ( ! compareNonArrayProperty(metaProp, o1, o2) )
+		if ( ! compareNonArrayProperty(metaProp, o1, o2) ){
+			_currentNode = nodeCopy;
 			return false;
+		}
 	}
+
+	_currentNode = nodeCopy;
 	return true;
 }
+
 
 /**
  * Scans a object tree for a particular node. Objects are compared on base of
@@ -458,7 +697,7 @@ bool equalsIndex(Object* o1, Object* o2) {
  * @return pointer to the item within the object tree or NULL if the node was
  * not found
  */
-Object* find(Object* tree, Object* node) {
+Object* DiffMerge::find(Object* tree, Object* node) {
 	if ( equalsIndex(tree, node) ) return tree;
 	
 	Object* result = NULL;
@@ -490,16 +729,18 @@ Object* find(Object* tree, Object* node) {
 	return NULL;
 }
 
+
 /**
  * Returns the public id, if any, of an object. The object is casted to
  * PublicObject and a copy of the publicID is returned.
  * @param o the object to retrieve it's publicID from
  * @return PublicObject.publicID or "" if the Cast to PublicObject failed
  */
-const std::string getPublicID(Object* o) {
+std::string DiffMerge::getPublicID(Object *o) {
 	PublicObject* po = PublicObject::Cast(o);
 	return po ? po->publicID() : "";
 }
+
 
 /**
  * Recursively compares two objects and collects all differences.
@@ -509,40 +750,66 @@ const std::string getPublicID(Object* o) {
  * @param diffList list to collect differences in
  * @throw TypeException if any type restriction is violated
  */
-void diffRecursive(Object* o1, Object* o2, const std::string& o1ParentID,
+void DiffMerge::diffRecursive(Object* o1, Object* o2, const std::string& o1ParentID,
                    std::vector<NotifierPtr>& diffList) {
 	// Both objects empty, nothing to compare here
 	if ( !o1 && !o2 ) return;
-	
+
 	// No element on the left -> ADD
 	if ( !o1 ) {
-		AppendNotifier<std::vector<NotifierPtr> >(
-			diffList, OP_ADD, o2, o1ParentID);
+		if (_currentNode) _currentNode->add("Adding", o2);
+		AppendNotifier(diffList, OP_ADD, o2, o1ParentID);
 		return;
 	}
 
 	// No element on the right -> REMOVE
 	if ( !o2 ) {
-		AppendNotifier<std::vector<NotifierPtr> >(
-			diffList, OP_REMOVE, o1, o1ParentID);
+		if ( _currentNode != NULL ) _currentNode->add("Removing", o1);
+		AppendNotifier(diffList, OP_REMOVE, o1, o1ParentID);
 		return;
 	}
-	
+
+	LogNodePtr l_currentNode = _currentNode;
+	if ( _currentNode )
+		_currentNode = _currentNode->add(new LogNode(o1));
+
 	std::string id_o1 = getPublicID(o1);
 	NotifierPtr n;
+
+	bool updateAdded = false;
+
 	// Iterate over all properties
 	for ( size_t i = 0; i < o1->meta()->propertyCount(); ++i ) {
 		const Core::MetaProperty* prop = o1->meta()->property(i);
 		
 		// Non array property: Compare simple value(s)
 		if ( !prop->isArray() ) {
-			if ( !compareNonArrayProperty(prop, o1, o2) ) {
-				n = new Notifier(o1ParentID, OP_UPDATE, o2);
+			bool status = compareNonArrayProperty(prop, o1, o2);
+			if ( updateAdded ) continue;
+
+			if ( !status ) {
+				std::string id_o2 = getPublicID(o2);
+
+				if ( id_o1 != id_o2 ) {
+					if (_currentNode) _currentNode->add("Updating PID", o1);
+					// PublicID's are different, clone o1 and assign
+					// the values of o2 but not its publicID
+					ObjectPtr tmp = o1->clone();
+					tmp->assign(o2);
+					n = new Notifier(o1ParentID, OP_UPDATE, tmp.get());
+				}
+				else {
+					if (_currentNode) _currentNode->add("Updating", o1);
+					n = new Notifier(o1ParentID, OP_UPDATE, o2);
+				}
+
 				diffList.push_back(n);
+				updateAdded = true;
 			}
+
 			continue;
 		}
-		
+
 		// Class and array property:
 		// The order of elements of a class array is arbitrary, hence
 		// each element of one array must be searched among all elements
@@ -553,6 +820,7 @@ void diffRecursive(Object* o1, Object* o2, const std::string& o1ParentID,
 			const Core::BaseObject* bo = prop->arrayObject(o2, i_o2);
 			v_o2.push_back(Object::Cast(const_cast<Core::BaseObject*>(bo)));
 		}
+
 		// For each element of o1 array search counterpart in o2
 		for ( size_t i_o1 = 0; i_o1 < prop->arrayElementCount(o1); ++i_o1 ) {
 			const Core::BaseObject* bo = prop->arrayObject(o1, i_o1);
@@ -570,19 +838,21 @@ void diffRecursive(Object* o1, Object* o2, const std::string& o1ParentID,
 				v_o2.erase(it_o2);
 			}
 			else {
-				AppendNotifier<std::vector<NotifierPtr> >(
-					diffList, OP_REMOVE, o1Child, id_o1);
+				if (_currentNode) _currentNode->add("Removing", o1Child);
+				AppendNotifier(diffList, OP_REMOVE, o1Child, id_o1);
 			}
 		}
 
 		// Add all elements of o2 array which have no counterpart in o1
 		std::vector<Object*>::iterator it_o2 = v_o2.begin();
-		for ( ; it_o2 != v_o2.end(); ++it_o2 ) {
-			AppendNotifier<std::vector<NotifierPtr> >(diffList, OP_ADD, *it_o2);
+		for ( ; it_o2 != v_o2.end(); ++it_o2 ){
+			if (_currentNode) _currentNode->add("Adding", *it_o2);
+			AppendNotifier(diffList, OP_ADD, *it_o2, id_o1);
 		}
+
 		v_o2.clear();
 	}
-	
+	_currentNode = l_currentNode;
 }
 
 
@@ -597,7 +867,7 @@ void diffRecursive(Object* o1, Object* o2, const std::string& o1ParentID,
  * no common child object could be found
  * @throw TypeException if any type restriction is violated
  */
-bool diff(Object* o1, Object* o2, std::vector<NotifierPtr>& diffList) {
+bool DiffMerge::diff(Object* o1, Object* o2, std::vector<NotifierPtr>& diffList) {
 	if ( !o1 || !o2 )
 		return false;
 
@@ -612,15 +882,28 @@ bool diff(Object* o1, Object* o2, std::vector<NotifierPtr>& diffList) {
 	o2 = fO2 ? fO2 : o2;
 	std::string parentID = o1->parent() ? getPublicID(o1->parent()) : "";
 	
+	LogNodePtr newNode = NULL;
+
+	if ( _logLevel >= 0 )
+		newNode = new LogNode(o1, _logLevel);
+	
+	// Set the logger
+	_currentNode = newNode;
+
 	// Recursively diff both objects
 	diffRecursive(o1, o2, parentID, diffList);
+	
+	// Restore the logger
+	_currentNode = newNode;
+	
 	return true;
 }
+
 
 /**
  * Visitor which collects publicIDs.
  */
-class SC_CORE_DATAMODEL_API PublicIDCollector : protected Visitor {
+class PublicIDCollector : protected Visitor {
 	public:
 		void collect(Object *o, std::vector<std::string> *ids) {
 			if ( o == NULL || ids == NULL ) return;
@@ -641,11 +924,12 @@ class SC_CORE_DATAMODEL_API PublicIDCollector : protected Visitor {
 		std::vector<std::string> *_publicIDs;
 };
 
+
 /**
  * Visitor which validates/repairs all references
  * (MetaProperty::isReference() == true) to publicIDs.
  */
-class SC_CORE_DATAMODEL_API ReferenceValidator : public Visitor {
+class ReferenceValidator : public Visitor {
 
 	public:
 		/**
@@ -791,6 +1075,7 @@ class SC_CORE_DATAMODEL_API ReferenceValidator : public Visitor {
 		size_t _mapCount;
 };
 
+
 /**
  * Visitor which recursively clones an object.
  */
@@ -845,6 +1130,7 @@ class DeepCloner : protected Visitor {
 		ObjectPtr _clone;
 };
 
+
 /**
  * Recursively merges object o2 into object o1.
  * @param o1 object to merge o2 into
@@ -854,7 +1140,7 @@ class DeepCloner : protected Visitor {
  * @throw ValueException if one of the object pointer is NULL
  * @throw TypeException if both objects are not of same type
  */
-void mergeRecursive(Object* o1, Object* o2, std::map<std::string, std::string> &idMap) {
+void DiffMerge::mergeRecursive(Object* o1, Object* o2, std::map<std::string, std::string> &idMap) {
 	if ( !o1 || !o2 )
 		throw Core::ValueException("Invalid object pointer (NULL)");
 	if ( o1->typeInfo() != o2->typeInfo() )
@@ -939,7 +1225,7 @@ void mergeRecursive(Object* o1, Object* o2, std::map<std::string, std::string> &
  * in the tree
  * @throw TypeException if any type restriction is violated
  */
-bool merge(Object* tree, Object* node, std::map<std::string, std::string>& idMap) {
+bool DiffMerge::merge(Object* tree, Object* node, std::map<std::string, std::string>& idMap) {
 	if ( !tree || !node ) {
 		SEISCOMP_WARNING("Invalid merge objects (NULL)");
 		return false;
@@ -957,6 +1243,7 @@ bool merge(Object* tree, Object* node, std::map<std::string, std::string>& idMap
 	return true;
 }
 
+
 /**
  * Merges all all objects in the vector in order of their appearance into the
  * mergeResult object, @ref merge(Object*, Object*). The mergeResult object must
@@ -967,8 +1254,7 @@ bool merge(Object* tree, Object* node, std::map<std::string, std::string>& idMap
  * @param objects vector of objects to merge
  * @return true if all objects could be merged successfully, else false.
  */
-SC_CORE_DATAMODEL_API bool
-merge(Object* mergeResult, const std::vector<Object*>& objects) {
+bool DiffMerge::merge(Object* mergeResult, const std::vector<Object*>& objects) {
 	if ( mergeResult == NULL ) return false;
 
 	// Track publicID changes
@@ -983,10 +1269,11 @@ merge(Object* mergeResult, const std::vector<Object*>& objects) {
 
 	// Repair references
 	size_t mappingsPerformed = mapReferences(mergeResult, idMap);
-	SEISCOMP_DEBUG("%ld mappingsPerformed", (unsigned long) mappingsPerformed);
+	SEISCOMP_DEBUG("%ld mappings performed", (unsigned long) mappingsPerformed);
 
 	return retn;
 }
+
 
 /**
  * Validates the internal publicID references of the specified object. In a
@@ -995,7 +1282,7 @@ merge(Object* mergeResult, const std::vector<Object*>& objects) {
  * @param o object to validate
  * @return true if all references point to an existing publicID, else false
  */
-bool validateReferences(Object* o) {
+bool DiffMerge::validateReferences(Object* o) {
 	// Collect publicIDs
 	std::vector<std::string> publicIDs;
 	PublicIDCollector pc;
@@ -1006,6 +1293,7 @@ bool validateReferences(Object* o) {
 	return rv.validate(o, &publicIDs);
 }
 
+
 /**
  * Maps publicID references of the specified object. While the object is
  * traversed top-down, a lookup for each reference in the publicID map is
@@ -1014,11 +1302,11 @@ bool validateReferences(Object* o) {
  * @param map publicIDMap of deprecated to current publicIDs
  * @return number of mappings performed
  */
-SC_CORE_DATAMODEL_API size_t
-mapReferences(Object* o, const std::map<std::string, std::string> &publicIDMap) {
+size_t DiffMerge::mapReferences(Object* o, const std::map<std::string, std::string> &publicIDMap) {
 	ReferenceValidator rv;
 	return rv.repair(o, &publicIDMap);
 }
+
 
 } // of ns DataModel
 } // of ns Seiscomp

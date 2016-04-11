@@ -55,7 +55,7 @@ if [ ! -r "$station_cfg" ]; then
     exit 1
 fi
 
-VERSION="3.0 (2011.290)"
+VERSION="3.0 (2012.048)"
 KEY_VERSION="2.5"
 
 SED=sed

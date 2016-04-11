@@ -94,6 +94,8 @@ Seiscomp::DataModel::Origin *Autoloc::convertToSC3(const Autoloc::Origin* origin
 	case Autoloc::Origin::DepthManuallyFixed:
 			sc3origin->setDepthType(Seiscomp::DataModel::OriginDepthType(Seiscomp::DataModel::OPERATOR_ASSIGNED));
 			break;
+	default:
+			break;
 	}
 
 	// This is a preliminary fix which prevents autoloc from producing

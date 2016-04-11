@@ -818,22 +818,28 @@ getThreeComponents = _DataModel.getThreeComponents
 def copy(*args):
   return _DataModel.copy(*args)
 copy = _DataModel.copy
+class DiffMerge(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, DiffMerge, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, DiffMerge, name)
+    __repr__ = _swig_repr
+    def __init__(self): 
+        this = _DataModel.new_DiffMerge()
+        try: self.this.append(this)
+        except: self.this = this
+    def setLoggingLevel(self, *args): return _DataModel.DiffMerge_setLoggingLevel(self, *args)
+    def showLog(self, *args): return _DataModel.DiffMerge_showLog(self, *args)
+    def find(self, *args): return _DataModel.DiffMerge_find(self, *args)
+    def diff(self, *args): return _DataModel.DiffMerge_diff(self, *args)
+    def merge(self, *args): return _DataModel.DiffMerge_merge(self, *args)
+    def validateReferences(self, *args): return _DataModel.DiffMerge_validateReferences(self, *args)
+    def mapReferences(self, *args): return _DataModel.DiffMerge_mapReferences(self, *args)
+    __swig_destroy__ = _DataModel.delete_DiffMerge
+    __del__ = lambda self : None;
+DiffMerge_swigregister = _DataModel.DiffMerge_swigregister
+DiffMerge_swigregister(DiffMerge)
 
-def find(*args):
-  return _DataModel.find(*args)
-find = _DataModel.find
-
-def diff(*args):
-  return _DataModel.diff(*args)
-diff = _DataModel.diff
-
-def validateReferences(*args):
-  return _DataModel.validateReferences(*args)
-validateReferences = _DataModel.validateReferences
-
-def mapReferences(*args):
-  return _DataModel.mapReferences(*args)
-mapReferences = _DataModel.mapReferences
 HORIZONTAL = _DataModel.HORIZONTAL
 ELLIPSE = _DataModel.ELLIPSE
 ELLIPSOID = _DataModel.ELLIPSOID
@@ -855,10 +861,6 @@ class EOriginUncertaintyDescriptionNames(_object):
     __del__ = lambda self : None;
 EOriginUncertaintyDescriptionNames_swigregister = _DataModel.EOriginUncertaintyDescriptionNames_swigregister
 EOriginUncertaintyDescriptionNames_swigregister(EOriginUncertaintyDescriptionNames)
-
-def merge(*args):
-  return _DataModel.merge(*args)
-merge = _DataModel.merge
 
 def EOriginUncertaintyDescriptionNames_name(*args):
   return _DataModel.EOriginUncertaintyDescriptionNames_name(*args)

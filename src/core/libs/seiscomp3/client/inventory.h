@@ -22,6 +22,7 @@
 #include <seiscomp3/client/api.h>
 
 #include <map>
+#include <set>
 
 
 namespace Seiscomp {
@@ -41,8 +42,14 @@ struct SC_CORE_CLIENT_API StationLocation {
 typedef std::vector<Seiscomp::DataModel::Station*> StationList;
 
 class SC_CORE_CLIENT_API Inventory {
+	public:
+		typedef std::set<std::string> TypeWhiteList;
+		typedef std::set<std::string> TypeBlackList;
+
+
 	private:
 		Inventory();
+
 
 	public:
 		static Inventory* Instance();
@@ -50,6 +57,9 @@ class SC_CORE_CLIENT_API Inventory {
 		void load(const char *filename) throw(std::exception);
 		void load(DataModel::DatabaseReader*);
 		void setInventory(DataModel::Inventory*);
+
+		void filter(const TypeWhiteList &typeWhitelist,
+		            const TypeWhiteList &typeBlacklist);
 
 		void loadStations(DataModel::DatabaseReader*);
 

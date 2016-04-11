@@ -6,7 +6,8 @@
 # (c) 2010 Mathias Hoffmann, GFZ Potsdam
 #
 #
-import genwrap as _genwrap
+#import genwrap as _genwrap
+import datetime
 from seiscomp.db.xmlio import inventory as _xmlio
 from seiscomp.db import DBError
 #
@@ -14,27 +15,76 @@ from seiscomp.db import DBError
 
 
 # ---------------------------------------------------------------------------------------
-class _StationReference(_genwrap.base_StationReference):
+class _StationReference(object):
+	__slots__ = (
+		"myStationGroup",
+		"object",
+		"stationID",
+		"last_modified",
+	)
+
 	def __init__(self, myStationGroup, stationID, args):
-		_genwrap.base_StationReference.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myStationGroup'] = myStationGroup
-		self.__dict__['stationID'] = stationID
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.stationID = ""
+		self.myStationGroup = myStationGroup
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.stationID = stationID
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _StationGroup(_genwrap.base_StationGroup):
+class _StationGroup(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"type",
+		"code",
+		"start",
+		"end",
+		"description",
+		"latitude",
+		"longitude",
+		"elevation",
+		"last_modified",
+		"stationReference",
+	)
+
 	def __init__(self, my, code, args):
-		_genwrap.base_StationGroup.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['code'] = code
-		self.__dict__['object'] = {}
-		self.__dict__['stationReference'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.type = None
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.description = ""
+		self.latitude = None
+		self.longitude = None
+		self.elevation = None
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+
+		self.stationReference = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_stationReference(self, stationID, **args):
 		if stationID in self.stationReference:
@@ -42,6 +92,7 @@ class _StationGroup(_genwrap.base_StationGroup):
 		obj = _StationReference(self, stationID, args)
 		self.stationReference[stationID] = obj
 		return obj
+
 	def remove_stationReference(self, stationID):
 		try:
 			del self.stationReference[stationID]
@@ -53,27 +104,82 @@ class _StationGroup(_genwrap.base_StationGroup):
 
 
 # ---------------------------------------------------------------------------------------
-class _AuxSource(_genwrap.base_AuxSource):
+class _AuxSource(object):
+	__slots__ = (
+		"myAuxDevice",
+		"object",
+		"name",
+		"description",
+		"unit",
+		"conversion",
+		"sampleRateNumerator",
+		"sampleRateDenominator",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, myAuxDevice, name, args):
-		_genwrap.base_AuxSource.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myAuxDevice'] = myAuxDevice
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.name = ""
+		self.description = ""
+		self.unit = ""
+		self.conversion = ""
+		self.sampleRateNumerator = None
+		self.sampleRateDenominator = None
+		self.remark = ""
+		self.myAuxDevice = myAuxDevice
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _AuxDevice(_genwrap.base_AuxDevice):
+class _AuxDevice(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"description",
+		"model",
+		"manufacturer",
+		"remark",
+		"last_modified",
+		"source",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_AuxDevice.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
-		self.__dict__['source'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.description = ""
+		self.model = ""
+		self.manufacturer = ""
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+		self.source = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_source(self, name, **args):
 		if name in self.source:
@@ -81,6 +187,7 @@ class _AuxDevice(_genwrap.base_AuxDevice):
 		obj = _AuxSource(self, name, args)
 		self.source[name] = obj
 		return obj
+
 	def remove_source(self, name):
 		try:
 			del self.source[name]
@@ -92,29 +199,94 @@ class _AuxDevice(_genwrap.base_AuxDevice):
 
 
 # ---------------------------------------------------------------------------------------
-class _SensorCalibration(_genwrap.base_SensorCalibration):
+class _SensorCalibration(object):
+	__slots__ = (
+		"mySensor",
+		"object",
+		"serialNumber",
+		"channel",
+		"start",
+		"end",
+		"gain",
+		"gainFrequency",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, mySensor, serialNumber, channel, start, args):
-		_genwrap.base_SensorCalibration.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['mySensor'] = mySensor
-		self.__dict__['serialNumber'] = serialNumber
-		self.__dict__['channel'] = channel
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.serialNumber = ""
+		self.channel = None
+		self.start = None
+		self.end = None
+		self.gain = None
+		self.gainFrequency = None
+		self.remark = ""
+		self.mySensor = mySensor
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.serialNumber = serialNumber
+		self.channel = channel
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Sensor(_genwrap.base_Sensor):
+class _Sensor(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"description",
+		"model",
+		"manufacturer",
+		"type",
+		"unit",
+		"lowFrequency",
+		"highFrequency",
+		"response",
+		"remark",
+		"last_modified",
+		"calibration",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_Sensor.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
-		self.__dict__['calibration'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.description = ""
+		self.model = ""
+		self.manufacturer = ""
+		self.type = ""
+		self.unit = ""
+		self.lowFrequency = None
+		self.highFrequency = None
+		self.response = ""
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+		self.calibration = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_calibration(self, serialNumber, channel, start, **args):
 		if serialNumber not in self.calibration:
@@ -126,6 +298,7 @@ class _Sensor(_genwrap.base_Sensor):
 		obj = _SensorCalibration(self, serialNumber, channel, start, args)
 		self.calibration[serialNumber][channel][start] = obj
 		return obj
+
 	def remove_calibration(self, serialNumber, channel, start):
 		try:
 			del self.calibration[serialNumber][channel][start]
@@ -141,70 +314,238 @@ class _Sensor(_genwrap.base_Sensor):
 
 
 # ---------------------------------------------------------------------------------------
-class _ResponsePAZ(_genwrap.base_ResponsePAZ):
+class _ResponsePAZ(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"type",
+		"gain",
+		"gainFrequency",
+		"normalizationFactor",
+		"normalizationFrequency",
+		"numberOfZeros",
+		"numberOfPoles",
+		"zeros",
+		"poles",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_ResponsePAZ.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.type = ""
+		self.gain = None
+		self.gainFrequency = None
+		self.normalizationFactor = None
+		self.normalizationFrequency = None
+		self.numberOfZeros = None
+		self.numberOfPoles = None
+		self.zeros = ""
+		self.poles = ""
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _ResponsePolynomial(_genwrap.base_ResponsePolynomial):
+class _ResponsePolynomial(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"gain",
+		"gainFrequency",
+		"frequencyUnit",
+		"approximationType",
+		"approximationLowerBound",
+		"approximationUpperBound",
+		"approximationError",
+		"numberOfCoefficients",
+		"coefficients",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_ResponsePolynomial.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.gain = None
+		self.gainFrequency = None
+		self.frequencyUnit = ""
+		self.approximationType = ""
+		self.approximationLowerBound = None
+		self.approximationUpperBound = None
+		self.approximationError = None
+		self.numberOfCoefficients = None
+		self.coefficients = ""
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _DataloggerCalibration(_genwrap.base_DataloggerCalibration):
+class _DataloggerCalibration(object):
+	__slots__ = (
+		"myDatalogger",
+		"object",
+		"serialNumber",
+		"channel",
+		"start",
+		"end",
+		"gain",
+		"gainFrequency",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, myDatalogger, serialNumber, channel, start, args):
-		_genwrap.base_DataloggerCalibration.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myDatalogger'] = myDatalogger
-		self.__dict__['serialNumber'] = serialNumber
-		self.__dict__['channel'] = channel
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.serialNumber = ""
+		self.channel = None
+		self.start = None
+		self.end = None
+		self.gain = None
+		self.gainFrequency = None
+		self.remark = ""
+		self.myDatalogger = myDatalogger
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.serialNumber = serialNumber
+		self.channel = channel
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Decimation(_genwrap.base_Decimation):
+class _Decimation(object):
+	__slots__ = (
+		"myDatalogger",
+		"object",
+		"sampleRateNumerator",
+		"sampleRateDenominator",
+		"analogueFilterChain",
+		"digitalFilterChain",
+		"last_modified",
+	)
+
 	def __init__(self, myDatalogger, sampleRateNumerator, sampleRateDenominator, args):
-		_genwrap.base_Decimation.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myDatalogger'] = myDatalogger
-		self.__dict__['sampleRateNumerator'] = sampleRateNumerator
-		self.__dict__['sampleRateDenominator'] = sampleRateDenominator
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.sampleRateNumerator = None
+		self.sampleRateDenominator = None
+		self.analogueFilterChain = ""
+		self.digitalFilterChain = ""
+		self.myDatalogger = myDatalogger
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.sampleRateNumerator = sampleRateNumerator
+		self.sampleRateDenominator = sampleRateDenominator
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Datalogger(_genwrap.base_Datalogger):
+class _Datalogger(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"description",
+		"digitizerModel",
+		"digitizerManufacturer",
+		"recorderModel",
+		"recorderManufacturer",
+		"clockModel",
+		"clockManufacturer",
+		"clockType",
+		"gain",
+		"maxClockDrift",
+		"remark",
+		"last_modified",
+		"calibration",
+		"decimation",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_Datalogger.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
-		self.__dict__['calibration'] = {}
-		self.__dict__['decimation'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.description = ""
+		self.digitizerModel = ""
+		self.digitizerManufacturer = ""
+		self.recorderModel = ""
+		self.recorderManufacturer = ""
+		self.clockModel = ""
+		self.clockManufacturer = ""
+		self.clockType = ""
+		self.gain = None
+		self.maxClockDrift = None
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+		self.calibration = {}
+		self.decimation = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_calibration(self, serialNumber, channel, start, **args):
 		if serialNumber not in self.calibration:
@@ -216,6 +557,7 @@ class _Datalogger(_genwrap.base_Datalogger):
 		obj = _DataloggerCalibration(self, serialNumber, channel, start, args)
 		self.calibration[serialNumber][channel][start] = obj
 		return obj
+
 	def remove_calibration(self, serialNumber, channel, start):
 		try:
 			del self.calibration[serialNumber][channel][start]
@@ -234,6 +576,7 @@ class _Datalogger(_genwrap.base_Datalogger):
 		obj = _Decimation(self, sampleRateNumerator, sampleRateDenominator, args)
 		self.decimation[sampleRateNumerator][sampleRateDenominator] = obj
 		return obj
+
 	def remove_decimation(self, sampleRateNumerator, sampleRateDenominator):
 		try:
 			del self.decimation[sampleRateNumerator][sampleRateDenominator]
@@ -247,57 +590,211 @@ class _Datalogger(_genwrap.base_Datalogger):
 
 
 # ---------------------------------------------------------------------------------------
-class _ResponseFIR(_genwrap.base_ResponseFIR):
+class _ResponseFIR(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"name",
+		"gain",
+		"decimationFactor",
+		"delay",
+		"correction",
+		"numberOfCoefficients",
+		"symmetry",
+		"coefficients",
+		"remark",
+		"last_modified",
+	)
+
 	def __init__(self, my, name, args):
-		_genwrap.base_ResponseFIR.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['name'] = name
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.name = ""
+		self.gain = None
+		self.decimationFactor = None
+		self.delay = None
+		self.correction = None
+		self.numberOfCoefficients = None
+		self.symmetry = ""
+		self.coefficients = ""
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.name = name
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _AuxStream(_genwrap.base_AuxStream):
+class _AuxStream(object):
+	__slots__ = (
+		"mySensorLocation",
+		"object",
+		"code",
+		"start",
+		"end",
+		"device",
+		"deviceSerialNumber",
+		"source",
+		"format",
+		"flags",
+		"restricted",
+		"last_modified",
+	)
+
 	def __init__(self, mySensorLocation, code, start, args):
-		_genwrap.base_AuxStream.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['mySensorLocation'] = mySensorLocation
-		self.__dict__['code'] = code
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.device = ""
+		self.deviceSerialNumber = ""
+		self.source = ""
+		self.format = ""
+		self.flags = ""
+		self.restricted = None
+		self.mySensorLocation = mySensorLocation
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Stream(_genwrap.base_Stream):
+class _Stream(object):
+	__slots__ = (
+		"mySensorLocation",
+		"object",
+		"code",
+		"start",
+		"end",
+		"datalogger",
+		"dataloggerSerialNumber",
+		"dataloggerChannel",
+		"sensor",
+		"sensorSerialNumber",
+		"sensorChannel",
+		"clockSerialNumber",
+		"sampleRateNumerator",
+		"sampleRateDenominator",
+		"depth",
+		"azimuth",
+		"dip",
+		"gain",
+		"gainFrequency",
+		"gainUnit",
+		"format",
+		"flags",
+		"restricted",
+		"shared",
+		"last_modified",
+	)
+
 	def __init__(self, mySensorLocation, code, start, args):
-		_genwrap.base_Stream.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['mySensorLocation'] = mySensorLocation
-		self.__dict__['code'] = code
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.datalogger = ""
+		self.dataloggerSerialNumber = ""
+		self.dataloggerChannel = None
+		self.sensor = ""
+		self.sensorSerialNumber = ""
+		self.sensorChannel = None
+		self.clockSerialNumber = ""
+		self.sampleRateNumerator = None
+		self.sampleRateDenominator = None
+		self.depth = None
+		self.azimuth = None
+		self.dip = None
+		self.gain = None
+		self.gainFrequency = None
+		self.gainUnit = ""
+		self.format = ""
+		self.flags = ""
+		self.restricted = None
+		self.shared = None
+		self.mySensorLocation = mySensorLocation
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _SensorLocation(_genwrap.base_SensorLocation):
+class _SensorLocation(object):
+	__slots__ = (
+		"myStation",
+		"object",
+		"publicID",
+		"code",
+		"start",
+		"end",
+		"latitude",
+		"longitude",
+		"elevation",
+		"last_modified",
+		"auxStream",
+		"stream",
+	)
+
 	def __init__(self, myStation, code, start, args):
-		_genwrap.base_SensorLocation.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myStation'] = myStation
-		self.__dict__['code'] = code
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
-		self.__dict__['auxStream'] = {}
-		self.__dict__['stream'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.latitude = None
+		self.longitude = None
+		self.elevation = None
+		self.myStation = myStation
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+		self.start = start
+
+		self.auxStream = {}
+		self.stream = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_auxStream(self, code, start, **args):
 		if code not in self.auxStream:
@@ -307,6 +804,7 @@ class _SensorLocation(_genwrap.base_SensorLocation):
 		obj = _AuxStream(self, code, start, args)
 		self.auxStream[code][start] = obj
 		return obj
+
 	def remove_auxStream(self, code, start):
 		try:
 			del self.auxStream[code][start]
@@ -323,6 +821,7 @@ class _SensorLocation(_genwrap.base_SensorLocation):
 		obj = _Stream(self, code, start, args)
 		self.stream[code][start] = obj
 		return obj
+
 	def remove_stream(self, code, start):
 		try:
 			del self.stream[code][start]
@@ -336,15 +835,64 @@ class _SensorLocation(_genwrap.base_SensorLocation):
 
 
 # ---------------------------------------------------------------------------------------
-class _Station(_genwrap.base_Station):
+class _Station(object):
+	__slots__ = (
+		"myNetwork",
+		"object",
+		"publicID",
+		"code",
+		"start",
+		"end",
+		"description",
+		"latitude",
+		"longitude",
+		"elevation",
+		"place",
+		"country",
+		"affiliation",
+		"type",
+		"archive",
+		"archiveNetworkCode",
+		"restricted",
+		"shared",
+		"remark",
+		"last_modified",
+		"sensorLocation",
+	)
+
 	def __init__(self, myNetwork, code, start, args):
-		_genwrap.base_Station.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myNetwork'] = myNetwork
-		self.__dict__['code'] = code
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
-		self.__dict__['sensorLocation'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.description = ""
+		self.latitude = None
+		self.longitude = None
+		self.elevation = None
+		self.place = ""
+		self.country = ""
+		self.affiliation = ""
+		self.type = ""
+		self.archive = ""
+		self.archiveNetworkCode = ""
+		self.restricted = None
+		self.shared = None
+		self.remark = ""
+		self.myNetwork = myNetwork
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+		self.start = start
+
+		self.sensorLocation = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_sensorLocation(self, code, start, **args):
 		if code not in self.sensorLocation:
@@ -355,6 +903,7 @@ class _Station(_genwrap.base_Station):
 		self.sensorLocation[code][start] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_sensorLocation(self, code, start):
 		try:
 			del self.sensorLocation[code][start]
@@ -368,15 +917,56 @@ class _Station(_genwrap.base_Station):
 
 
 # ---------------------------------------------------------------------------------------
-class _Network(_genwrap.base_Network):
+class _Network(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"code",
+		"start",
+		"end",
+		"description",
+		"institutions",
+		"region",
+		"type",
+		"netClass",
+		"archive",
+		"restricted",
+		"shared",
+		"remark",
+		"last_modified",
+		"station",
+	)
+
 	def __init__(self, my, code, start, args):
-		_genwrap.base_Network.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['code'] = code
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
-		self.__dict__['station'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.code = ""
+		self.start = None
+		self.end = None
+		self.description = ""
+		self.institutions = ""
+		self.region = ""
+		self.type = ""
+		self.netClass = ""
+		self.archive = ""
+		self.restricted = None
+		self.shared = None
+		self.remark = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.code = code
+		self.start = start
+
+		self.station = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_station(self, code, start, **args):
 		if code not in self.station:
@@ -387,6 +977,7 @@ class _Network(_genwrap.base_Network):
 		self.station[code][start] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_station(self, code, start):
 		try:
 			del self.station[code][start]
@@ -401,16 +992,38 @@ class _Network(_genwrap.base_Network):
 
 # ---------------------------------------------------------------------------------------
 class Inventory(object):
+	__slots__ = (
+		"object",
+		"publicID",
+		"last_modified",
+		"stationGroup",
+		"auxDevice",
+		"sensor",
+		"datalogger",
+		"responsePAZ",
+		"responseFIR",
+		"responsePolynomial",
+		"network",
+	)
+
 	def __init__(self):
-		self.__dict__['object'] = {}
-		self.__dict__['stationGroup'] = {}
-		self.__dict__['auxDevice'] = {}
-		self.__dict__['sensor'] = {}
-		self.__dict__['datalogger'] = {}
-		self.__dict__['responsePAZ'] = {}
-		self.__dict__['responseFIR'] = {}
-		self.__dict__['responsePolynomial'] = {}
-		self.__dict__['network'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.object = {}
+
+
+		self.stationGroup = {}
+		self.auxDevice = {}
+		self.sensor = {}
+		self.datalogger = {}
+		self.responsePAZ = {}
+		self.responseFIR = {}
+		self.responsePolynomial = {}
+		self.network = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_stationGroup(self, code, **args):
 		if code in self.stationGroup:
@@ -419,6 +1032,7 @@ class Inventory(object):
 		self.stationGroup[code] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_stationGroup(self, code):
 		try:
 			del self.stationGroup[code]
@@ -432,6 +1046,7 @@ class Inventory(object):
 		self.auxDevice[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_auxDevice(self, name):
 		try:
 			del self.auxDevice[name]
@@ -445,6 +1060,7 @@ class Inventory(object):
 		self.sensor[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_sensor(self, name):
 		try:
 			del self.sensor[name]
@@ -458,6 +1074,7 @@ class Inventory(object):
 		self.datalogger[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_datalogger(self, name):
 		try:
 			del self.datalogger[name]
@@ -471,6 +1088,7 @@ class Inventory(object):
 		self.responsePAZ[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_responsePAZ(self, name):
 		try:
 			del self.responsePAZ[name]
@@ -484,6 +1102,7 @@ class Inventory(object):
 		self.responseFIR[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_responseFIR(self, name):
 		try:
 			del self.responseFIR[name]
@@ -497,6 +1116,7 @@ class Inventory(object):
 		self.responsePolynomial[name] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_responsePolynomial(self, name):
 		try:
 			del self.responsePolynomial[name]
@@ -512,6 +1132,7 @@ class Inventory(object):
 		self.network[code][start] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_network(self, code, start):
 		try:
 			del self.network[code][start]

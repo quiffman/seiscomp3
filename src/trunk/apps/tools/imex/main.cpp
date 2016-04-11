@@ -37,9 +37,7 @@ using namespace Seiscomp;
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 int main(int argc, char* argv[])
 {
-	Client::Application::HandleSignals(false, false);
 	Applications::ImEx imex(argc, argv);
-
-	return imex.exec();
+	return imex();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

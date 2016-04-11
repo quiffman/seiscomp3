@@ -113,12 +113,12 @@ int ProjectedPick::count()
 
 
 GridPoint::GridPoint(double latitude, double longitude, double depth)
-	: Hypocenter(latitude,longitude,depth), _origin(new Origin(latitude,longitude,depth,0)), _radius(4), _dt(50), maxStaDist(180), _nmin(6), _nminPrelim(4)
+	: Hypocenter(latitude,longitude,depth), _radius(4), _dt(50), maxStaDist(180), _nmin(6), _nminPrelim(4), _origin(new Origin(latitude,longitude,depth,0))
 {
 }
 
 GridPoint::GridPoint(const Origin &origin)
-	: Hypocenter(origin.lat,origin.lon,origin.dep), _origin(new Origin(origin)), _radius(4), _dt(50), maxStaDist(180), _nmin(6), _nminPrelim(4)
+	: Hypocenter(origin.lat,origin.lon,origin.dep), _radius(4), _dt(50), maxStaDist(180), _nmin(6), _nminPrelim(4), _origin(new Origin(origin))
 {
 }
 

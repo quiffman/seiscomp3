@@ -43,7 +43,7 @@ INVENTORY_WAIT = 1
 INVENTORY_RETRY = 20
 LABEL = "WebDC"
 
-VERSION = "1.0 (2010.256)"
+VERSION = "1.0 (2012.048)"
 
 nettypes = [
     ("perm", "Permanent nets", True, None),

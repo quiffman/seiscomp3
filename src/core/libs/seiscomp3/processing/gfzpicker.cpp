@@ -112,16 +112,11 @@ maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 }
 
 
-
 }
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-GFZPicker::GFZPicker() {
-	setMinSNR(0.);
-	_config.signalBegin = -120;
-	_config.signalEnd = 20;
-}
+GFZPicker::GFZPicker() {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -130,9 +125,6 @@ GFZPicker::GFZPicker() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 GFZPicker::GFZPicker(const Core::Time& trigger)
  : Picker(trigger) {
-	setMinSNR(0.);
-	_config.signalBegin = -120;
-	_config.signalEnd = 20;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -141,6 +133,34 @@ GFZPicker::GFZPicker(const Core::Time& trigger)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 GFZPicker::~GFZPicker() {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool GFZPicker::setup(const Settings &settings) {
+	if ( !Picker::setup(settings) ) return false;
+
+	settings.getValue(_config.signalBegin, "picker.GFZ.signalBegin");
+	settings.getValue(_config.signalEnd, "picker.GFZ.signalEnd");
+	settings.getValue(_config.snrMin, "picker.GFZ.minSNR");
+
+	std::string filter;
+	settings.getValue(filter, "picker.GFZ.filter");
+	if ( !filter.empty() ) {
+		std::string error;
+		Filter *f = Filter::Create(filter, &error);
+		if ( f == NULL ) {
+			SEISCOMP_ERROR("failed to create filter '%s': %s",
+			               filter.c_str(), error.c_str());
+			return false;
+		}
+		setFilter(f);
+	}
+
+	return true;
+}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -191,7 +211,7 @@ bool GFZPicker::calculatePick(int ndata, const double *data,
 //	Math::Filtering::IIR::ButterworthBandpass<double> filter(3, f1, f2, _fsamp);
 	Filter *filter = new Math::Filtering::IIR::ButterworthBandpass<double>(3, f1, f2, _fsamp);
 //	filter.apply(tmp);
-	filter->apply(tmp);
+//	filter->apply(tmp);
 	delete filter;
 
 	int onset = onsetIndex-signalStartIndex;

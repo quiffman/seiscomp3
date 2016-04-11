@@ -725,7 +725,7 @@ class ArclinkManager(object):
                 continue
 
             server_list = sum([i.values() for i in route.arclink.itervalues()], [])
-            server_list.sort()
+            server_list.sort(key=lambda x: x.priority)
             arclink_addrs = []
             for server in server_list:
                 if _cmptime(server.start, item[5]) > 0 or \

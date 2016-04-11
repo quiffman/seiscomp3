@@ -27,6 +27,8 @@ SET(
 		recordstream/slconnection.cpp
 		recordstream/combined.cpp
 		recordstream/streamidx.cpp
+		recordstream/decimation.cpp
+		recordstream/remez/remez.c
 
 		gfarchive/helmberger.cpp
 		gfarchive/arclink.cpp

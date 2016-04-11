@@ -33,7 +33,7 @@ try:
 except ImportError:
     have_sqlobject = False
 
-VERSION = "1.0 (2010.256)"
+VERSION = "1.0 (2012.048)"
 
 class DumpDB(Client.Application):
     def __init__(self, argc, argv):

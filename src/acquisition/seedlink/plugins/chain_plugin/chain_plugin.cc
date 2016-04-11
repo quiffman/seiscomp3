@@ -52,7 +52,7 @@
 
 #include "schedule.h"
 
-#define MYVERSION "2.0 (2010.256)"
+#define MYVERSION "2.0 (2012.048)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/chain.xml"

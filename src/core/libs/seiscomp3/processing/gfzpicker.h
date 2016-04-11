@@ -40,6 +40,8 @@ class SC_CORE_PROCESSING_API GFZPicker : public Picker {
 	//  Public Interface
 	// ----------------------------------------------------------------------
 	public:
+		bool setup(const Settings &settings);
+
 		const std::string &methodID() const;
 
 

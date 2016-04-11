@@ -6,7 +6,8 @@
 # (c) 2010 Mathias Hoffmann, GFZ Potsdam
 #
 #
-import genwrap as _genwrap
+#import genwrap as _genwrap
+import datetime
 from seiscomp.db.xmlio import routing as _xmlio
 from seiscomp.db import DBError
 #
@@ -14,45 +15,111 @@ from seiscomp.db import DBError
 
 
 # ---------------------------------------------------------------------------------------
-class _RouteArclink(_genwrap.base_RouteArclink):
+class _RouteArclink(object):
+	__slots__ = (
+		"myRoute",
+		"object",
+		"address",
+		"start",
+		"end",
+		"priority",
+		"last_modified",
+	)
+
 	def __init__(self, myRoute, address, start, args):
-		_genwrap.base_RouteArclink.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myRoute'] = myRoute
-		self.__dict__['address'] = address
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.address = ""
+		self.start = None
+		self.end = None
+		self.priority = None
+		self.myRoute = myRoute
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.address = address
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _RouteSeedlink(_genwrap.base_RouteSeedlink):
+class _RouteSeedlink(object):
+	__slots__ = (
+		"myRoute",
+		"object",
+		"address",
+		"priority",
+		"last_modified",
+	)
+
 	def __init__(self, myRoute, address, args):
-		_genwrap.base_RouteSeedlink.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['myRoute'] = myRoute
-		self.__dict__['address'] = address
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.address = ""
+		self.priority = None
+		self.myRoute = myRoute
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.address = address
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Route(_genwrap.base_Route):
+class _Route(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"networkCode",
+		"stationCode",
+		"locationCode",
+		"streamCode",
+		"last_modified",
+		"arclink",
+		"seedlink",
+	)
+
 	def __init__(self, my, networkCode, stationCode, locationCode, streamCode, args):
-		_genwrap.base_Route.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['networkCode'] = networkCode
-		self.__dict__['stationCode'] = stationCode
-		self.__dict__['locationCode'] = locationCode
-		self.__dict__['streamCode'] = streamCode
-		self.__dict__['object'] = {}
-		self.__dict__['arclink'] = {}
-		self.__dict__['seedlink'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.networkCode = ""
+		self.stationCode = ""
+		self.locationCode = ""
+		self.streamCode = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.networkCode = networkCode
+		self.stationCode = stationCode
+		self.locationCode = locationCode
+		self.streamCode = streamCode
+
+		self.arclink = {}
+		self.seedlink = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_arclink(self, address, start, **args):
 		if address not in self.arclink:
@@ -62,6 +129,7 @@ class _Route(_genwrap.base_Route):
 		obj = _RouteArclink(self, address, start, args)
 		self.arclink[address][start] = obj
 		return obj
+
 	def remove_arclink(self, address, start):
 		try:
 			del self.arclink[address][start]
@@ -76,6 +144,7 @@ class _Route(_genwrap.base_Route):
 		obj = _RouteSeedlink(self, address, args)
 		self.seedlink[address] = obj
 		return obj
+
 	def remove_seedlink(self, address):
 		try:
 			del self.seedlink[address]
@@ -87,18 +156,46 @@ class _Route(_genwrap.base_Route):
 
 
 # ---------------------------------------------------------------------------------------
-class _Access(_genwrap.base_Access):
+class _Access(object):
+	__slots__ = (
+		"my",
+		"object",
+		"networkCode",
+		"stationCode",
+		"locationCode",
+		"streamCode",
+		"user",
+		"start",
+		"end",
+		"last_modified",
+	)
+
 	def __init__(self, my, networkCode, stationCode, locationCode, streamCode, user, start, args):
-		_genwrap.base_Access.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['networkCode'] = networkCode
-		self.__dict__['stationCode'] = stationCode
-		self.__dict__['locationCode'] = locationCode
-		self.__dict__['streamCode'] = streamCode
-		self.__dict__['user'] = user
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.networkCode = ""
+		self.stationCode = ""
+		self.locationCode = ""
+		self.streamCode = ""
+		self.user = ""
+		self.start = None
+		self.end = None
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.networkCode = networkCode
+		self.stationCode = stationCode
+		self.locationCode = locationCode
+		self.streamCode = streamCode
+		self.user = user
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
@@ -106,10 +203,26 @@ class _Access(_genwrap.base_Access):
 
 # ---------------------------------------------------------------------------------------
 class Routing(object):
+	__slots__ = (
+		"object",
+		"publicID",
+		"last_modified",
+		"route",
+		"access",
+	)
+
 	def __init__(self):
-		self.__dict__['object'] = {}
-		self.__dict__['route'] = {}
-		self.__dict__['access'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.object = {}
+
+
+		self.route = {}
+		self.access = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_route(self, networkCode, stationCode, locationCode, streamCode, **args):
 		if networkCode not in self.route:
@@ -124,6 +237,7 @@ class Routing(object):
 		self.route[networkCode][stationCode][locationCode][streamCode] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_route(self, networkCode, stationCode, locationCode, streamCode):
 		try:
 			del self.route[networkCode][stationCode][locationCode][streamCode]
@@ -152,6 +266,7 @@ class Routing(object):
 		obj = _Access(self, networkCode, stationCode, locationCode, streamCode, user, start, args)
 		self.access[networkCode][stationCode][locationCode][streamCode][user][start] = obj
 		return obj
+
 	def remove_access(self, networkCode, stationCode, locationCode, streamCode, user, start):
 		try:
 			del self.access[networkCode][stationCode][locationCode][streamCode][user][start]

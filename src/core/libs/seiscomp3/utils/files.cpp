@@ -79,6 +79,7 @@ bool createPath(const std::string &pathname) {
 			if ( slash != std::string::npos ) {
 				std::string prefix = pathname.substr(0, slash);
 				if ( !createPath(prefix) ) return false;
+				if ( slash == pathname.size() -1 ) return true;
 				return mkdir(pathname.c_str(), 0755) == 0;
 			}
 			else

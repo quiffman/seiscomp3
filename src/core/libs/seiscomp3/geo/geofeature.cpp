@@ -87,8 +87,8 @@ bool GeoFeature::contains(const Vertex &v) const {
 
 bool GeoFeature::contains(const Vertex& v, const Vertex *polygon,
                           size_t sides) {
-	// should not happen since when reading the BNA files the last point if it
-	// equals the first point
+	// should not happen since when reading the BNA files the last point is
+	// removed if it equals the first point
 	if ( polygon[0] == polygon[sides-1] )
 		--sides;
 

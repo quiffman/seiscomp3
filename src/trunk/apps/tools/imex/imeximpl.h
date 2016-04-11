@@ -19,6 +19,7 @@
 #include <map>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <seiscomp3/communication/protocol.h>
 #include <seiscomp3/communication/systemconnection.h>
@@ -128,6 +129,7 @@ class ImExImpl {
 		bool handleMessage(Core::Message* message);
 		void cleanUp();
 		void stop();
+		void wait();
 		std::string sinkName() const;
 		static ImExImpl* Create(ImEx* imex, const std::string& sinkName);
 		static RoutingTable CreateDefaultRoutingTable();
@@ -190,6 +192,8 @@ class ImExImpl {
 		Communication::SystemConnectionPtr    _sink;
 		ImEx*                                 _imex;
 		boost::shared_ptr<CriterionInterface> _criterion;
+		boost::thread                        *_thread0;
+		boost::thread                        *_thread1;
 
 		int  _sleepDuration;
 

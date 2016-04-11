@@ -32,7 +32,7 @@ IMPLEMENT_SC_CLASS_DERIVED(Setup, Object, "Setup");
 Setup::MetaObject::MetaObject(const Core::RTTI* rtti) : Seiscomp::Core::MetaObject(rtti) {
 	addProperty(Core::simpleProperty("name", "string", false, false, true, false, false, false, NULL, &Setup::setName, &Setup::name));
 	addProperty(Core::simpleProperty("parameterSetID", "string", false, false, false, true, false, false, NULL, &Setup::setParameterSetID, &Setup::parameterSetID));
-	addProperty(Core::simpleProperty("enabled", "bool", false, false, false, false, false, false, NULL, &Setup::setEnabled, &Setup::enabled));
+	addProperty(Core::simpleProperty("enabled", "boolean", false, false, false, false, false, false, NULL, &Setup::setEnabled, &Setup::enabled));
 }
 
 
@@ -84,6 +84,7 @@ bool SetupIndex::operator!=(const SetupIndex& idx) const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Setup::Setup() {
+	_enabled = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

@@ -135,7 +135,7 @@ CREATE TABLE Comment (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -184,37 +184,37 @@ CREATE TABLE CompositeTime (
 	year_lowerUncertainty INT UNSIGNED,
 	year_upperUncertainty INT UNSIGNED,
 	year_confidenceLevel DOUBLE UNSIGNED,
-	year_used INTEGER(1) NOT NULL DEFAULT 0,
+	year_used INTEGER(1) NOT NULL DEFAULT '0',
 	month_value INT,
 	month_uncertainty INT UNSIGNED,
 	month_lowerUncertainty INT UNSIGNED,
 	month_upperUncertainty INT UNSIGNED,
 	month_confidenceLevel DOUBLE UNSIGNED,
-	month_used INTEGER(1) NOT NULL DEFAULT 0,
+	month_used INTEGER(1) NOT NULL DEFAULT '0',
 	day_value INT,
 	day_uncertainty INT UNSIGNED,
 	day_lowerUncertainty INT UNSIGNED,
 	day_upperUncertainty INT UNSIGNED,
 	day_confidenceLevel DOUBLE UNSIGNED,
-	day_used INTEGER(1) NOT NULL DEFAULT 0,
+	day_used INTEGER(1) NOT NULL DEFAULT '0',
 	hour_value INT,
 	hour_uncertainty INT UNSIGNED,
 	hour_lowerUncertainty INT UNSIGNED,
 	hour_upperUncertainty INT UNSIGNED,
 	hour_confidenceLevel DOUBLE UNSIGNED,
-	hour_used INTEGER(1) NOT NULL DEFAULT 0,
+	hour_used INTEGER(1) NOT NULL DEFAULT '0',
 	minute_value INT,
 	minute_uncertainty INT UNSIGNED,
 	minute_lowerUncertainty INT UNSIGNED,
 	minute_upperUncertainty INT UNSIGNED,
 	minute_confidenceLevel DOUBLE UNSIGNED,
-	minute_used INTEGER(1) NOT NULL DEFAULT 0,
+	minute_used INTEGER(1) NOT NULL DEFAULT '0',
 	second_value DOUBLE,
 	second_uncertainty DOUBLE UNSIGNED,
 	second_lowerUncertainty DOUBLE UNSIGNED,
 	second_upperUncertainty DOUBLE UNSIGNED,
 	second_confidenceLevel DOUBLE UNSIGNED,
-	second_used INTEGER(1) NOT NULL DEFAULT 0,
+	second_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -330,7 +330,7 @@ CREATE TABLE MomentTensorStationContribution (
 	waveformID_locationCode CHAR,
 	waveformID_channelCode CHAR,
 	waveformID_resourceURI VARCHAR,
-	waveformID_used INTEGER(1) NOT NULL DEFAULT 0,
+	waveformID_used INTEGER(1) NOT NULL DEFAULT '0',
 	weight DOUBLE,
 	timeShift DOUBLE,
 	PRIMARY KEY(_oid),
@@ -384,7 +384,7 @@ CREATE TABLE MomentTensor (
 	scalarMoment_lowerUncertainty DOUBLE UNSIGNED,
 	scalarMoment_upperUncertainty DOUBLE UNSIGNED,
 	scalarMoment_confidenceLevel DOUBLE UNSIGNED,
-	scalarMoment_used INTEGER(1) NOT NULL DEFAULT 0,
+	scalarMoment_used INTEGER(1) NOT NULL DEFAULT '0',
 	tensor_Mrr_value DOUBLE,
 	tensor_Mrr_uncertainty DOUBLE UNSIGNED,
 	tensor_Mrr_lowerUncertainty DOUBLE UNSIGNED,
@@ -415,7 +415,7 @@ CREATE TABLE MomentTensor (
 	tensor_Mtp_lowerUncertainty DOUBLE UNSIGNED,
 	tensor_Mtp_upperUncertainty DOUBLE UNSIGNED,
 	tensor_Mtp_confidenceLevel DOUBLE UNSIGNED,
-	tensor_used INTEGER(1) NOT NULL DEFAULT 0,
+	tensor_used INTEGER(1) NOT NULL DEFAULT '0',
 	variance DOUBLE,
 	varianceReduction DOUBLE,
 	doubleCouple DOUBLE,
@@ -427,7 +427,7 @@ CREATE TABLE MomentTensor (
 	sourceTimeFunction_duration DOUBLE,
 	sourceTimeFunction_riseTime DOUBLE,
 	sourceTimeFunction_decayTime DOUBLE,
-	sourceTimeFunction_used INTEGER(1) NOT NULL DEFAULT 0,
+	sourceTimeFunction_used INTEGER(1) NOT NULL DEFAULT '0',
 	methodID VARCHAR NOT NULL,
 	method VARCHAR(64),
 	status VARCHAR(64),
@@ -442,7 +442,7 @@ CREATE TABLE MomentTensor (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -479,7 +479,7 @@ CREATE TABLE FocalMechanism (
 	nodalPlanes_nodalPlane1_rake_lowerUncertainty DOUBLE UNSIGNED,
 	nodalPlanes_nodalPlane1_rake_upperUncertainty DOUBLE UNSIGNED,
 	nodalPlanes_nodalPlane1_rake_confidenceLevel DOUBLE UNSIGNED,
-	nodalPlanes_nodalPlane1_used INTEGER(1) NOT NULL DEFAULT 0,
+	nodalPlanes_nodalPlane1_used INTEGER(1) NOT NULL DEFAULT '0',
 	nodalPlanes_nodalPlane2_strike_value DOUBLE,
 	nodalPlanes_nodalPlane2_strike_uncertainty DOUBLE UNSIGNED,
 	nodalPlanes_nodalPlane2_strike_lowerUncertainty DOUBLE UNSIGNED,
@@ -495,9 +495,9 @@ CREATE TABLE FocalMechanism (
 	nodalPlanes_nodalPlane2_rake_lowerUncertainty DOUBLE UNSIGNED,
 	nodalPlanes_nodalPlane2_rake_upperUncertainty DOUBLE UNSIGNED,
 	nodalPlanes_nodalPlane2_rake_confidenceLevel DOUBLE UNSIGNED,
-	nodalPlanes_nodalPlane2_used INTEGER(1) NOT NULL DEFAULT 0,
+	nodalPlanes_nodalPlane2_used INTEGER(1) NOT NULL DEFAULT '0',
 	nodalPlanes_preferredPlane INT,
-	nodalPlanes_used INTEGER(1) NOT NULL DEFAULT 0,
+	nodalPlanes_used INTEGER(1) NOT NULL DEFAULT '0',
 	principalAxes_tAxis_azimuth_value DOUBLE,
 	principalAxes_tAxis_azimuth_uncertainty DOUBLE UNSIGNED,
 	principalAxes_tAxis_azimuth_lowerUncertainty DOUBLE UNSIGNED,
@@ -543,8 +543,8 @@ CREATE TABLE FocalMechanism (
 	principalAxes_nAxis_length_lowerUncertainty DOUBLE UNSIGNED,
 	principalAxes_nAxis_length_upperUncertainty DOUBLE UNSIGNED,
 	principalAxes_nAxis_length_confidenceLevel DOUBLE UNSIGNED,
-	principalAxes_nAxis_used INTEGER(1) NOT NULL DEFAULT 0,
-	principalAxes_used INTEGER(1) NOT NULL DEFAULT 0,
+	principalAxes_nAxis_used INTEGER(1) NOT NULL DEFAULT '0',
+	principalAxes_used INTEGER(1) NOT NULL DEFAULT '0',
 	azimuthalGap DOUBLE UNSIGNED,
 	stationPolarityCount INT UNSIGNED,
 	misfit DOUBLE UNSIGNED,
@@ -561,7 +561,7 @@ CREATE TABLE FocalMechanism (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -588,18 +588,18 @@ CREATE TABLE Amplitude (
 	amplitude_lowerUncertainty DOUBLE UNSIGNED,
 	amplitude_upperUncertainty DOUBLE UNSIGNED,
 	amplitude_confidenceLevel DOUBLE UNSIGNED,
-	amplitude_used INTEGER(1) NOT NULL DEFAULT 0,
+	amplitude_used INTEGER(1) NOT NULL DEFAULT '0',
 	timeWindow_reference DATETIME,
 	timeWindow_reference_ms INTEGER,
 	timeWindow_begin DOUBLE,
 	timeWindow_end DOUBLE,
-	timeWindow_used INTEGER(1) NOT NULL DEFAULT 0,
+	timeWindow_used INTEGER(1) NOT NULL DEFAULT '0',
 	period_value DOUBLE,
 	period_uncertainty DOUBLE UNSIGNED,
 	period_lowerUncertainty DOUBLE UNSIGNED,
 	period_upperUncertainty DOUBLE UNSIGNED,
 	period_confidenceLevel DOUBLE UNSIGNED,
-	period_used INTEGER(1) NOT NULL DEFAULT 0,
+	period_used INTEGER(1) NOT NULL DEFAULT '0',
 	snr DOUBLE,
 	pickID VARCHAR NOT NULL,
 	waveformID_networkCode CHAR,
@@ -607,7 +607,7 @@ CREATE TABLE Amplitude (
 	waveformID_locationCode CHAR,
 	waveformID_channelCode CHAR,
 	waveformID_resourceURI VARCHAR,
-	waveformID_used INTEGER(1) NOT NULL DEFAULT 0,
+	waveformID_used INTEGER(1) NOT NULL DEFAULT '0',
 	filterID VARCHAR NOT NULL,
 	methodID VARCHAR NOT NULL,
 	scalingTime_value DATETIME,
@@ -616,7 +616,7 @@ CREATE TABLE Amplitude (
 	scalingTime_lowerUncertainty DOUBLE UNSIGNED,
 	scalingTime_upperUncertainty DOUBLE UNSIGNED,
 	scalingTime_confidenceLevel DOUBLE UNSIGNED,
-	scalingTime_used INTEGER(1) NOT NULL DEFAULT 0,
+	scalingTime_used INTEGER(1) NOT NULL DEFAULT '0',
 	magnitudeHint CHAR NOT NULL,
 	evaluationMode VARCHAR(64),
 	creationInfo_agencyID VARCHAR,
@@ -628,7 +628,7 @@ CREATE TABLE Amplitude (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -693,7 +693,7 @@ CREATE TABLE Magnitude (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -727,7 +727,7 @@ CREATE TABLE StationMagnitude (
 	waveformID_locationCode CHAR,
 	waveformID_channelCode CHAR,
 	waveformID_resourceURI VARCHAR,
-	waveformID_used INTEGER(1) NOT NULL DEFAULT 0,
+	waveformID_used INTEGER(1) NOT NULL DEFAULT '0',
 	creationInfo_agencyID VARCHAR,
 	creationInfo_agencyURI VARCHAR,
 	creationInfo_author VARCHAR,
@@ -737,7 +737,7 @@ CREATE TABLE StationMagnitude (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -776,17 +776,17 @@ CREATE TABLE Pick (
 	horizontalSlowness_lowerUncertainty DOUBLE UNSIGNED,
 	horizontalSlowness_upperUncertainty DOUBLE UNSIGNED,
 	horizontalSlowness_confidenceLevel DOUBLE UNSIGNED,
-	horizontalSlowness_used INTEGER(1) NOT NULL DEFAULT 0,
+	horizontalSlowness_used INTEGER(1) NOT NULL DEFAULT '0',
 	backazimuth_value DOUBLE,
 	backazimuth_uncertainty DOUBLE UNSIGNED,
 	backazimuth_lowerUncertainty DOUBLE UNSIGNED,
 	backazimuth_upperUncertainty DOUBLE UNSIGNED,
 	backazimuth_confidenceLevel DOUBLE UNSIGNED,
-	backazimuth_used INTEGER(1) NOT NULL DEFAULT 0,
+	backazimuth_used INTEGER(1) NOT NULL DEFAULT '0',
 	slownessMethodID VARCHAR NOT NULL,
 	onset VARCHAR(64),
 	phaseHint_code CHAR,
-	phaseHint_used INTEGER(1) NOT NULL DEFAULT 0,
+	phaseHint_used INTEGER(1) NOT NULL DEFAULT '0',
 	polarity VARCHAR(64),
 	evaluationMode VARCHAR(64),
 	evaluationStatus VARCHAR(64),
@@ -799,7 +799,7 @@ CREATE TABLE Pick (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -877,7 +877,7 @@ CREATE TABLE Event (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -924,7 +924,7 @@ CREATE TABLE Arrival (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -967,7 +967,7 @@ CREATE TABLE Origin (
 	depth_lowerUncertainty DOUBLE UNSIGNED,
 	depth_upperUncertainty DOUBLE UNSIGNED,
 	depth_confidenceLevel DOUBLE UNSIGNED,
-	depth_used INTEGER(1) NOT NULL DEFAULT 0,
+	depth_used INTEGER(1) NOT NULL DEFAULT '0',
 	depthType VARCHAR(64),
 	timeFixed INTEGER(1),
 	epicenterFixed INTEGER(1),
@@ -986,7 +986,7 @@ CREATE TABLE Origin (
 	quality_maximumDistance DOUBLE UNSIGNED,
 	quality_minimumDistance DOUBLE UNSIGNED,
 	quality_medianDistance DOUBLE UNSIGNED,
-	quality_used INTEGER(1) NOT NULL DEFAULT 0,
+	quality_used INTEGER(1) NOT NULL DEFAULT '0',
 	uncertainty_horizontalUncertainty DOUBLE UNSIGNED,
 	uncertainty_minHorizontalUncertainty DOUBLE UNSIGNED,
 	uncertainty_maxHorizontalUncertainty DOUBLE UNSIGNED,
@@ -997,9 +997,9 @@ CREATE TABLE Origin (
 	uncertainty_confidenceEllipsoid_majorAxisPlunge DOUBLE,
 	uncertainty_confidenceEllipsoid_majorAxisAzimuth DOUBLE,
 	uncertainty_confidenceEllipsoid_majorAxisRotation DOUBLE,
-	uncertainty_confidenceEllipsoid_used INTEGER(1) NOT NULL DEFAULT 0,
+	uncertainty_confidenceEllipsoid_used INTEGER(1) NOT NULL DEFAULT '0',
 	uncertainty_preferredDescription VARCHAR(64),
-	uncertainty_used INTEGER(1) NOT NULL DEFAULT 0,
+	uncertainty_used INTEGER(1) NOT NULL DEFAULT '0',
 	type VARCHAR(64),
 	evaluationMode VARCHAR(64),
 	evaluationStatus VARCHAR(64),
@@ -1012,7 +1012,7 @@ CREATE TABLE Origin (
 	creationInfo_modificationTime DATETIME,
 	creationInfo_modificationTime_ms INTEGER,
 	creationInfo_version VARCHAR,
-	creationInfo_used INTEGER(1) NOT NULL DEFAULT 0,
+	creationInfo_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1308,7 +1308,7 @@ CREATE TABLE AuxSource (
 	sampleRateNumerator INT UNSIGNED,
 	sampleRateDenominator INT UNSIGNED,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1334,7 +1334,7 @@ CREATE TABLE AuxDevice (
 	model VARCHAR NOT NULL,
 	manufacturer VARCHAR NOT NULL,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1362,7 +1362,7 @@ CREATE TABLE SensorCalibration (
 	gain DOUBLE UNSIGNED,
 	gainFrequency DOUBLE UNSIGNED,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1393,7 +1393,7 @@ CREATE TABLE Sensor (
 	highFrequency DOUBLE UNSIGNED,
 	response VARCHAR NOT NULL,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1423,11 +1423,11 @@ CREATE TABLE ResponsePAZ (
 	numberOfZeros TINYINT UNSIGNED,
 	numberOfPoles TINYINT UNSIGNED,
 	zeros_content BLOB,
-	zeros_used INTEGER(1) NOT NULL DEFAULT 0,
+	zeros_used INTEGER(1) NOT NULL DEFAULT '0',
 	poles_content BLOB,
-	poles_used INTEGER(1) NOT NULL DEFAULT 0,
+	poles_used INTEGER(1) NOT NULL DEFAULT '0',
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1458,9 +1458,9 @@ CREATE TABLE ResponsePolynomial (
 	approximationError DOUBLE UNSIGNED,
 	numberOfCoefficients SMALLINT UNSIGNED,
 	coefficients_content BLOB,
-	coefficients_used INTEGER(1) NOT NULL DEFAULT 0,
+	coefficients_used INTEGER(1) NOT NULL DEFAULT '0',
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1488,7 +1488,7 @@ CREATE TABLE DataloggerCalibration (
 	gain DOUBLE UNSIGNED,
 	gainFrequency DOUBLE UNSIGNED,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1512,9 +1512,9 @@ CREATE TABLE Decimation (
 	sampleRateNumerator INT UNSIGNED NOT NULL,
 	sampleRateDenominator INT UNSIGNED NOT NULL,
 	analogueFilterChain_content BLOB,
-	analogueFilterChain_used INTEGER(1) NOT NULL DEFAULT 0,
+	analogueFilterChain_used INTEGER(1) NOT NULL DEFAULT '0',
 	digitalFilterChain_content BLOB,
-	digitalFilterChain_used INTEGER(1) NOT NULL DEFAULT 0,
+	digitalFilterChain_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1547,7 +1547,7 @@ CREATE TABLE Datalogger (
 	gain DOUBLE UNSIGNED,
 	maxClockDrift DOUBLE UNSIGNED,
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1576,9 +1576,9 @@ CREATE TABLE ResponseFIR (
 	numberOfCoefficients SMALLINT UNSIGNED,
 	symmetry CHAR NOT NULL,
 	coefficients_content BLOB,
-	coefficients_used INTEGER(1) NOT NULL DEFAULT 0,
+	coefficients_used INTEGER(1) NOT NULL DEFAULT '0',
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1713,7 +1713,7 @@ CREATE TABLE Station (
 	restricted INTEGER(1),
 	shared INTEGER(1),
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1746,7 +1746,7 @@ CREATE TABLE Network (
 	restricted INTEGER(1),
 	shared INTEGER(1),
 	remark_content BLOB,
-	remark_used INTEGER(1) NOT NULL DEFAULT 0,
+	remark_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
@@ -1991,7 +1991,7 @@ CREATE TABLE ArclinkRequest (
 	summary_okLineCount INT UNSIGNED,
 	summary_totalLineCount INT UNSIGNED,
 	summary_averageTimeWindow INT UNSIGNED,
-	summary_used INTEGER(1) NOT NULL DEFAULT 0,
+	summary_used INTEGER(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)

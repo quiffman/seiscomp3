@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <libslink.h>
+#include "uthash.h"
 
 #define MAX_FILENAME_LEN 400
 #define DS_BUFSIZE (1000 * 512)
@@ -20,7 +21,7 @@ typedef struct DataStreamGroup_s
   char    filename[MAX_FILENAME_LEN];
   char    buf[DS_BUFSIZE];
   int     bp;
-  struct  DataStreamGroup_s *next;
+  UT_hash_handle hh;
 }
 DataStreamGroup;
 
@@ -34,7 +35,7 @@ typedef struct DataStream_s
   int     futurecont;
   char    futureinitflag;
   int     futureinit;
-  struct  DataStreamGroup_s *grouproot;
+  struct  DataStreamGroup_s *grouphash;
 }
 DataStream;
 

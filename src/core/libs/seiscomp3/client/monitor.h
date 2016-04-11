@@ -53,11 +53,13 @@ class SC_CORE_CLIENT_API RunningAverage {
 	private:
 		Core::Time          _first;
 		Core::Time          _last;
-		int                 _timeSpan;
+		size_t              _timeSpan;
+		double              _scale;
 		mutable
 		double              _shift;
 		mutable
 		std::vector<size_t> _bins;
+		size_t              _front;
 };
 
 

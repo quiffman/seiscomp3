@@ -19,6 +19,8 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <strings.h>
+
 
 using namespace Seiscomp::Core;
 
@@ -123,6 +125,32 @@ const std::string& toSQL(const std::string& str) {
 	return converted;
 }
 
+
+bool strtobool(bool &val, const char *str) {
+	int v;
+	if ( fromString(v, str) ) {
+		val = v != 0;
+		return true;
+	}
+
+	// Check for all 'true' options
+	if ( strcasecmp(str, "t") == 0 || strcasecmp(str, "true") == 0 ||
+	     strcasecmp(str, "y") == 0 || strcasecmp(str, "yes") == 0 ) {
+		val = true;
+		return true;
+	}
+
+	// Check for all 'false' options
+	if ( strcasecmp(str, "f") == 0 || strcasecmp(str, "false") == 0 ||
+	     strcasecmp(str, "n") == 0 || strcasecmp(str, "no") == 0 ) {
+		val = false;
+		return true;
+	}
+
+	return false;
+}
+
+
 }
 
 
@@ -217,6 +245,7 @@ Object* DatabaseIterator::fetch() const {
 	_reader->serializeObject(obj);
 
 	if ( !_reader->success() ) {
+		SEISCOMP_ERROR("DatabaseIterator: error while reading object of type '%s'", _rtti->className());
 		delete obj;
 		obj = NULL;
 		_reader->_db->endQuery();
@@ -987,7 +1016,11 @@ void DatabaseArchive::read(std::complex<double>& value) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void DatabaseArchive::read(bool& value) {
-	fromString(value, field());
+	if ( !strtobool(value, field()) ) {
+		SEISCOMP_ERROR("DB: error in result field %d: could not cast '%s' to bool",
+		               _fieldIndex, field());
+		setValidity(false);
+	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1132,7 +1165,7 @@ void DatabaseArchive::write(std::complex<double>& value) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void DatabaseArchive::write(bool value) {
-	writeAttrib(std::string(value?"1":"0"));
+	writeAttrib(std::string(value?"'1'":"'0'"));
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1783,7 +1816,7 @@ bool DatabaseArchive::locateObjectByName(const char* name, const char* targetCla
 			}
 			else if ( nullable ) {
 				_currentAttributeName = OBJECT_USED_POSTFIX;
-				write((int)1);
+				write((bool)true);
 			}
 		}
 		else {
@@ -1807,12 +1840,12 @@ bool DatabaseArchive::locateObjectByName(const char* name, const char* targetCla
 			// This column is named '[attributeName]_used' and contains
 			// either 0 or 1.
 			if ( nullable ) {
-				int used = 0;
+				bool used = false;
 				_currentAttributeName = OBJECT_USED_POSTFIX;
 				readAttrib();
 
 				if ( _field )
-					fromString(used, _field);
+					strtobool(used, _field);
 
 				if ( !used ) {
 					popAttribPrefix();
@@ -1862,7 +1895,7 @@ void DatabaseArchive::locateNullObjectByName(const char* name, const char* targe
 		if ( !isEmpty(targetClass) ) {
 			if ( !(hint() & DB_TABLE) ) {
 				_currentAttributeName = std::string(name) + ATTRIBUTE_SEPERATOR""OBJECT_USED_POSTFIX;
-				write((int)0);
+				write((bool)false);
 				return;
 			}
 			else

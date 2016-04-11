@@ -14,44 +14,150 @@ from seiscomp.db import DBError
 
 
 # ---------------------------------------------------------------------------------------
-class _QCLog(_genwrap.base_QCLog):
+class _QCLog(object):
+	__slots__ = (
+		"my",
+		"object",
+		"publicID",
+		"networkCode",
+		"stationCode",
+		"streamCode",
+		"locationCode",
+		"creatorID",
+		"created",
+		"start",
+		"end",
+		"message",
+		"last_modified",
+	)
+
 	def __init__(self, my, start, waveformID, args):
-		_genwrap.base_QCLog.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['start'] = start
-		self.__dict__['waveformID'] = waveformID
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.networkCode = ""
+		self.stationCode = ""
+		self.streamCode = ""
+		self.locationCode = ""
+		self.creatorID = ""
+		self.created = None
+		self.start = None
+		self.end = None
+		self.message = ""
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.start = start
+		self.waveformID = waveformID
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _WaveformQuality(_genwrap.base_WaveformQuality):
+class _WaveformQuality(object):
+	__slots__ = (
+		"my",
+		"object",
+		"networkCode",
+		"stationCode",
+		"streamCode",
+		"locationCode",
+		"creatorID",
+		"created",
+		"start",
+		"end",
+		"type",
+		"parameter",
+		"value",
+		"lowerUncertainty",
+		"upperUncertainty",
+		"windowLength",
+		"last_modified",
+	)
+
 	def __init__(self, my, start, waveformID, type, parameter, args):
-		_genwrap.base_WaveformQuality.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['start'] = start
-		self.__dict__['waveformID'] = waveformID
-		self.__dict__['type'] = type
-		self.__dict__['parameter'] = parameter
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.networkCode = ""
+		self.stationCode = ""
+		self.streamCode = ""
+		self.locationCode = ""
+		self.creatorID = ""
+		self.created = None
+		self.start = None
+		self.end = None
+		self.type = ""
+		self.parameter = ""
+		self.value = None
+		self.lowerUncertainty = None
+		self.upperUncertainty = None
+		self.windowLength = None
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.start = start
+		self.waveformID = waveformID
+		self.type = type
+		self.parameter = parameter
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
 
 
 # ---------------------------------------------------------------------------------------
-class _Outage(_genwrap.base_Outage):
+class _Outage(object):
+	__slots__ = (
+		"my",
+		"object",
+		"networkCode",
+		"stationCode",
+		"streamCode",
+		"locationCode",
+		"creatorID",
+		"created",
+		"start",
+		"end",
+		"last_modified",
+	)
+
 	def __init__(self, my, waveformID, start, args):
-		_genwrap.base_Outage.__init__(self)
-		self.__dict__.update(args)
-		self.__dict__['my'] = my
-		self.__dict__['waveformID'] = waveformID
-		self.__dict__['start'] = start
-		self.__dict__['object'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.networkCode = ""
+		self.stationCode = ""
+		self.streamCode = ""
+		self.locationCode = ""
+		self.creatorID = ""
+		self.created = None
+		self.start = None
+		self.end = None
+		self.my = my
+		self.object = {}
+
+		for (a, v) in args.iteritems():
+			self.__setattr__(a, v)
+
+		self.waveformID = waveformID
+		self.start = start
+
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 # ---------------------------------------------------------------------------------------
 
 
@@ -59,11 +165,28 @@ class _Outage(_genwrap.base_Outage):
 
 # ---------------------------------------------------------------------------------------
 class QualityControl(object):
+	__slots__ = (
+		"object",
+		"publicID",
+		"last_modified",
+		"log",
+		"waveformQuality",
+		"outage",
+	)
+
 	def __init__(self):
-		self.__dict__['object'] = {}
-		self.__dict__['log'] = {}
-		self.__dict__['waveformQuality'] = {}
-		self.__dict__['outage'] = {}
+		self.last_modified = datetime.datetime(1970, 1, 1, 0, 0, 0)
+		self.publicID = ""
+		self.object = {}
+
+
+		self.log = {}
+		self.waveformQuality = {}
+		self.outage = {}
+
+	def __setattr__(self, name, value):
+		object.__setattr__(self, name, value)
+		object.__setattr__(self, "last_modified", datetime.datetime.utcnow())
 
 	def insert_log(self, start, waveformID, **args):
 		if start not in self.log:
@@ -74,6 +197,7 @@ class QualityControl(object):
 		self.log[start][waveformID] = obj
 		self.object[obj.publicID] = obj
 		return obj
+
 	def remove_log(self, start, waveformID):
 		try:
 			del self.log[start][waveformID]
@@ -94,6 +218,7 @@ class QualityControl(object):
 		obj = _WaveformQuality(self, start, waveformID, type, parameter, args)
 		self.waveformQuality[start][waveformID][type][parameter] = obj
 		return obj
+
 	def remove_waveformQuality(self, start, waveformID, type, parameter):
 		try:
 			del self.waveformQuality[start][waveformID][type][parameter]
@@ -114,6 +239,7 @@ class QualityControl(object):
 		obj = _Outage(self, waveformID, start, args)
 		self.outage[waveformID][start] = obj
 		return obj
+
 	def remove_outage(self, waveformID, start):
 		try:
 			del self.outage[waveformID][start]

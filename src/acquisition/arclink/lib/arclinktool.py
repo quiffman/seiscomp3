@@ -17,7 +17,7 @@ import getpass
 from optparse import OptionParser
 from seiscomp.arclink.client import *
 
-VERSION = "1.0 (2010.256)"
+VERSION = "1.0 (2012.048)"
 
 arcl = Arclink()
 block = False

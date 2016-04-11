@@ -73,16 +73,24 @@ class ButterworthBandpass : public BiquadCascade<TYPE>
 		//_init = true;
 	}
 
-    private:
+    protected:
+	// configuration
 	int _order;
 	double _fmin, _fmax, _fsamp;
 
-    protected:
 	// initialization parameters
 	bool _init;
 	InitialTaper<TYPE> _taper;
 	int _gapLength;
 	TYPE _lastSample;
+};
+
+template<class TYPE>
+class ButterworthHighLowpass : public ButterworthBandpass<TYPE>
+{
+    public:
+	ButterworthHighLowpass(int order = 3, double fmin = 0.7, double fmax = 2.0, double fsamp=0);
+	virtual void setSamplingFrequency(double fsamp);
 };
 
 

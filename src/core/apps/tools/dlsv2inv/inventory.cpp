@@ -1181,13 +1181,7 @@ void Inventory::ProcessDatalogger(ChannelIdentifier& ci, DataModel::StreamPtr st
 {
 	SEISCOMP_DEBUG("Start processing datalogger information ");
 
-	pair<int,int> inrate;
-	if(ci.dec.size() != 0 && ci.dec[0].GetInputSampleRate() != 0)
-		inrate = float2rational(ci.dec[0].GetInputSampleRate());
-	else
-		inrate = make_pair(strm->sampleRateNumerator(), strm->sampleRateDenominator());
-
-	string dataloggerName = station_name + "." + ToString(inrate.first) + "HZ";
+	string dataloggerName = station_name + "." + ci.GetChannel().substr(1,1) + strip(ci.GetLocation());
 
 	DataModel::DataloggerPtr dlg = inventory()->datalogger(DataModel::DataloggerIndex(dataloggerName));
 	if(!dlg)

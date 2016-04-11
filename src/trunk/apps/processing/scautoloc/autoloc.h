@@ -388,7 +388,8 @@ class Autoloc3 {
 		bool _setDefaultDepth(Origin*);
 
 		bool _testDepthResolution(Origin*);
-		bool _tryDefaultDepth(Origin*);
+
+		bool _setTheRightDepth(Origin*);
 
 		// Determine whether the epicenter location requires the use of the default depth.
 		// This may be due to the epicenter located

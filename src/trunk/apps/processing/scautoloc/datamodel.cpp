@@ -43,7 +43,7 @@ Pick::Pick()
 }
 
 Pick::Pick(const Pick &other)
-	: id(other.id), net(other.net), sta(other.sta), loc(other.loc), cha(other.cha), time(other.time), amp(other.amp), per(other.per), snr(other.snr), status(other.status), normamp(other.normamp), xxl(other.xxl)
+	: id(other.id), net(other.net), sta(other.sta), loc(other.loc), cha(other.cha), time(other.time), amp(other.amp), per(other.per), snr(other.snr), normamp(other.normamp), status(other.status), xxl(other.xxl)
 {
 	setStation(other.station());
 }

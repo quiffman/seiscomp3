@@ -31,7 +31,7 @@ FrameworkVersion CurrentVersion;
 
 
 FrameworkVersion::FrameworkVersion() {
-	_text = "Zurich (2012.034)";
+	_text = "Zurich (2012.102)";
 }
 
 

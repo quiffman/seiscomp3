@@ -12,13 +12,13 @@
 
 
 
-#include <seiscomp3/math/deconvolution/transferfunction.h>
+#include <seiscomp3/math/restitution/transferfunction.h>
 #include <iostream>
 
 
 namespace Seiscomp {
 namespace Math {
-namespace Deconvolution {
+namespace Restitution {
 namespace FFT {
 
 

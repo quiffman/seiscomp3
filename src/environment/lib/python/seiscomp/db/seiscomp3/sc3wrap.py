@@ -73,7 +73,8 @@ class base_qclog(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -639,7 +640,8 @@ class base_qualitycontrol(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -676,16 +678,23 @@ class base_qualitycontrol(object):
         return obj
     def __get_qclog(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.QCLog.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.QCLog.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_qclog(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.qCLogCount()):
+                for i in xrange(self.obj.qCLogCount()):
+                    obj = self.obj.qCLog(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_qclog(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.QCLog.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.QCLog.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_qclog(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _qCLog = property(__get_qclog)
 
@@ -727,26 +736,33 @@ class base_qualitycontrol(object):
         return obj
     def __get_waveformquality(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.waveformQualityCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.waveformQuality(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.waveformQualityCount()):
+                for i in xrange(self.obj.waveformQualityCount()):
+                    obj = self.obj.waveformQuality(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_waveformquality(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.waveformQualityCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.waveformQuality(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_waveformquality(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_waveformquality(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_waveformquality(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_waveformquality(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _waveformQuality = property(__get_waveformquality)
 
@@ -776,26 +792,33 @@ class base_qualitycontrol(object):
         return obj
     def __get_outage(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.outageCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.outage(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.outageCount()):
+                for i in xrange(self.obj.outageCount()):
+                    obj = self.obj.outage(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_outage(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.outageCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.outage(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_outage(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_outage(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_outage(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_outage(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _outage = property(__get_outage)
 
@@ -869,7 +892,8 @@ class base_stationgroup(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -1023,26 +1047,33 @@ class base_stationgroup(object):
         return obj
     def __get_stationreference(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.stationReferenceCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.stationReference(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.stationReferenceCount()):
+                for i in xrange(self.obj.stationReferenceCount()):
+                    obj = self.obj.stationReference(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_stationreference(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.stationReferenceCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.stationReference(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_stationreference(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_stationreference(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_stationreference(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_stationreference(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _stationReference = property(__get_stationreference)
 
@@ -1221,7 +1252,8 @@ class base_auxdevice(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -1351,26 +1383,33 @@ class base_auxdevice(object):
         return obj
     def __get_auxsource(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.auxSourceCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.auxSource(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.auxSourceCount()):
+                for i in xrange(self.obj.auxSourceCount()):
+                    obj = self.obj.auxSource(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_auxsource(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.auxSourceCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.auxSource(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_auxsource(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_auxsource(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_auxsource(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_auxsource(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _auxSource = property(__get_auxsource)
 
@@ -1550,7 +1589,8 @@ class base_sensor(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -1769,26 +1809,33 @@ class base_sensor(object):
         return obj
     def __get_sensorcalibration(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.sensorCalibrationCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.sensorCalibration(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.sensorCalibrationCount()):
+                for i in xrange(self.obj.sensorCalibrationCount()):
+                    obj = self.obj.sensorCalibration(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_sensorcalibration(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.sensorCalibrationCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.sensorCalibration(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_sensorcalibration(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_sensorcalibration(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_sensorcalibration(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_sensorcalibration(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _sensorCalibration = property(__get_sensorcalibration)
 
@@ -1818,7 +1865,8 @@ class base_responsepaz(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -2023,7 +2071,8 @@ class base_responsepolynomial(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -2479,7 +2528,8 @@ class base_datalogger(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -2736,26 +2786,33 @@ class base_datalogger(object):
         return obj
     def __get_dataloggercalibration(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.dataloggerCalibrationCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.dataloggerCalibration(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.dataloggerCalibrationCount()):
+                for i in xrange(self.obj.dataloggerCalibrationCount()):
+                    obj = self.obj.dataloggerCalibration(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_dataloggercalibration(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.dataloggerCalibrationCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.dataloggerCalibration(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_dataloggercalibration(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_dataloggercalibration(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_dataloggercalibration(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_dataloggercalibration(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _dataloggerCalibration = property(__get_dataloggercalibration)
 
@@ -2775,26 +2832,33 @@ class base_datalogger(object):
         return obj
     def __get_decimation(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.decimationCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.decimation(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.decimationCount()):
+                for i in xrange(self.obj.decimationCount()):
+                    obj = self.obj.decimation(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_decimation(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.decimationCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.decimation(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_decimation(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_decimation(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_decimation(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_decimation(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _decimation = property(__get_decimation)
 
@@ -2824,7 +2888,8 @@ class base_responsefir(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -3581,7 +3646,8 @@ class base_sensorlocation(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -3723,26 +3789,33 @@ class base_sensorlocation(object):
         return obj
     def __get_auxstream(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.auxStreamCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.auxStream(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.auxStreamCount()):
+                for i in xrange(self.obj.auxStreamCount()):
+                    obj = self.obj.auxStream(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_auxstream(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.auxStreamCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.auxStream(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_auxstream(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_auxstream(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_auxstream(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_auxstream(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _auxStream = property(__get_auxstream)
 
@@ -3802,26 +3875,33 @@ class base_sensorlocation(object):
         return obj
     def __get_stream(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.streamCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.stream(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.streamCount()):
+                for i in xrange(self.obj.streamCount()):
+                    obj = self.obj.stream(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_stream(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.streamCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.stream(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_stream(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_stream(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_stream(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_stream(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _stream = property(__get_stream)
 
@@ -3851,7 +3931,8 @@ class base_station(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -4174,16 +4255,23 @@ class base_station(object):
         return obj
     def __get_sensorlocation(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.SensorLocation.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.SensorLocation.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_sensorlocation(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.sensorLocationCount()):
+                for i in xrange(self.obj.sensorLocationCount()):
+                    obj = self.obj.sensorLocation(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_sensorlocation(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.SensorLocation.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.SensorLocation.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_sensorlocation(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _sensorLocation = property(__get_sensorlocation)
 
@@ -4213,7 +4301,8 @@ class base_network(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -4495,16 +4584,23 @@ class base_network(object):
         return obj
     def __get_station(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.Station.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.Station.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_station(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.stationCount()):
+                for i in xrange(self.obj.stationCount()):
+                    obj = self.obj.station(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_station(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.Station.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.Station.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_station(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _station = property(__get_station)
 
@@ -4534,7 +4630,8 @@ class base_inventory(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -4575,16 +4672,23 @@ class base_inventory(object):
         return obj
     def __get_stationgroup(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.StationGroup.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.StationGroup.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_stationgroup(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.stationGroupCount()):
+                for i in xrange(self.obj.stationGroupCount()):
+                    obj = self.obj.stationGroup(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_stationgroup(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.StationGroup.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.StationGroup.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_stationgroup(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _stationGroup = property(__get_stationgroup)
 
@@ -4608,16 +4712,23 @@ class base_inventory(object):
         return obj
     def __get_auxdevice(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.AuxDevice.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.AuxDevice.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_auxdevice(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.auxDeviceCount()):
+                for i in xrange(self.obj.auxDeviceCount()):
+                    obj = self.obj.auxDevice(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_auxdevice(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.AuxDevice.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.AuxDevice.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_auxdevice(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _auxDevice = property(__get_auxdevice)
 
@@ -4651,16 +4762,23 @@ class base_inventory(object):
         return obj
     def __get_sensor(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.Sensor.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.Sensor.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_sensor(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.sensorCount()):
+                for i in xrange(self.obj.sensorCount()):
+                    obj = self.obj.sensor(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_sensor(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.Sensor.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.Sensor.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_sensor(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _sensor = property(__get_sensor)
 
@@ -4698,16 +4816,23 @@ class base_inventory(object):
         return obj
     def __get_datalogger(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.Datalogger.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.Datalogger.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_datalogger(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.dataloggerCount()):
+                for i in xrange(self.obj.dataloggerCount()):
+                    obj = self.obj.datalogger(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_datalogger(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.Datalogger.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.Datalogger.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_datalogger(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _datalogger = property(__get_datalogger)
 
@@ -4743,16 +4868,23 @@ class base_inventory(object):
         return obj
     def __get_responsepaz(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.ResponsePAZ.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.ResponsePAZ.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_responsepaz(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.responsePAZCount()):
+                for i in xrange(self.obj.responsePAZCount()):
+                    obj = self.obj.responsePAZ(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_responsepaz(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.ResponsePAZ.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.ResponsePAZ.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_responsepaz(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _responsePAZ = property(__get_responsepaz)
 
@@ -4784,16 +4916,23 @@ class base_inventory(object):
         return obj
     def __get_responsefir(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.ResponseFIR.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.ResponseFIR.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_responsefir(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.responseFIRCount()):
+                for i in xrange(self.obj.responseFIRCount()):
+                    obj = self.obj.responseFIR(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_responsefir(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.ResponseFIR.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.ResponseFIR.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_responsefir(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _responseFIR = property(__get_responsefir)
 
@@ -4829,16 +4968,23 @@ class base_inventory(object):
         return obj
     def __get_responsepolynomial(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.ResponsePolynomial.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.ResponsePolynomial.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_responsepolynomial(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.responsePolynomialCount()):
+                for i in xrange(self.obj.responsePolynomialCount()):
+                    obj = self.obj.responsePolynomial(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_responsepolynomial(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.ResponsePolynomial.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.ResponsePolynomial.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_responsepolynomial(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _responsePolynomial = property(__get_responsepolynomial)
 
@@ -4880,16 +5026,23 @@ class base_inventory(object):
         return obj
     def __get_network(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.Network.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.Network.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_network(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.networkCount()):
+                for i in xrange(self.obj.networkCount()):
+                    obj = self.obj.network(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_network(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.Network.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.Network.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_network(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _network = property(__get_network)
 
@@ -5074,7 +5227,8 @@ class base_route(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -5178,26 +5332,33 @@ class base_route(object):
         return obj
     def __get_routearclink(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.routeArclinkCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.routeArclink(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.routeArclinkCount()):
+                for i in xrange(self.obj.routeArclinkCount()):
+                    obj = self.obj.routeArclink(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_routearclink(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.routeArclinkCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.routeArclink(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_routearclink(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_routearclink(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_routearclink(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_routearclink(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _routeArclink = property(__get_routearclink)
 
@@ -5213,26 +5374,33 @@ class base_route(object):
         return obj
     def __get_routeseedlink(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.routeSeedlinkCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.routeSeedlink(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.routeSeedlinkCount()):
+                for i in xrange(self.obj.routeSeedlinkCount()):
+                    obj = self.obj.routeSeedlink(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_routeseedlink(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.routeSeedlinkCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.routeSeedlink(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_routeseedlink(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_routeseedlink(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_routeseedlink(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_routeseedlink(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _routeSeedlink = property(__get_routeseedlink)
 
@@ -5425,7 +5593,8 @@ class base_routing(object):
     last_modified = property(__get_last_modified)
 
     def __get_publicID(self):
-		return self.obj.publicID()
+        return self.obj.publicID()
+
     def __set_publicID(self, arg):
         if self.__get_publicID() != arg:
             self._needsUpdate = True
@@ -5450,16 +5619,23 @@ class base_routing(object):
         return obj
     def __get_route(self):
         list = []
-        # HACK to make last_modified usable ...
-        it = dbQuery.getObjects(self.obj, DataModel.Route.TypeInfo())
-        while it.get():
-            try:
-                obj = DataModel.Route.Cast(it.get())
-                obj.lastModified = it.lastModified()
-                list.append(base_route(obj))
-            except Core.ValueException, e:
-                print e.what()
-            it.step()
+        if dbQuery is None:
+            if (self.obj.routeCount()):
+                for i in xrange(self.obj.routeCount()):
+                    obj = self.obj.route(i)
+                    obj.lastModified = Core.Time.GMT()
+                    list.append(base_route(obj))
+        else:
+            # HACK to make last_modified usable ...
+            it = dbQuery.getObjects(self.obj, DataModel.Route.TypeInfo())
+            while it.get():
+                try:
+                    obj = DataModel.Route.Cast(it.get())
+                    obj.lastModified = it.lastModified()
+                    list.append(base_route(obj))
+                except Core.ValueException, e:
+                    print e.what()
+                it.step()
         return list
     _route = property(__get_route)
 
@@ -5489,26 +5665,33 @@ class base_routing(object):
         return obj
     def __get_access(self):
         list = []
-        # HACK to make last_modified usable ...
-        i = 0
-        objects_left = self.obj.accessCount()
-        while objects_left > 0:
-            try:
-                obj = self.obj.access(i)
-                try:
-                    obj.lastModified = self.obj.lastModified
+        if dbQuery is None:
+            if (self.obj.accessCount()):
+                for i in xrange(self.obj.accessCount()):
+                    obj = self.obj.access(i)
+                    obj.lastModified = Core.Time.GMT()
                     list.append(base_access(obj))
-                    objects_left -= 1
-                except AttributeError:
+        else:
+            # HACK to make last_modified usable ...
+            i = 0
+            objects_left = self.obj.accessCount()
+            while objects_left > 0:
+                try:
+                    obj = self.obj.access(i)
                     try:
-                        obj.lastModified = Core.Time.GMT()
+                        obj.lastModified = self.obj.lastModified
                         list.append(base_access(obj))
                         objects_left -= 1
-                    except:
-                        logs.debug("got " + repr(obj) + " in __get_access(), objects_left=" + str(objects_left))
-                i += 1
-            except Core.ValueException, e:
-                print e.what()
+                    except AttributeError:
+                        try:
+                            obj.lastModified = Core.Time.GMT()
+                            list.append(base_access(obj))
+                            objects_left -= 1
+                        except:
+                            logs.debug("got " + repr(obj) + " in __get_access(), objects_left=" + str(objects_left))
+                    i += 1
+                except Core.ValueException, e:
+                    print e.what()
         return list
     _access = property(__get_access)
 

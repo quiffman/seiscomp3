@@ -1,0 +1,9 @@
+SET(
+	CORE_MATH_RESTITUTION_HEADERS
+		types.h
+		fft.h
+		td.h
+		transferfunction.h
+)
+
+SC_LIB_INSTALL_HEADERS(CORE_MATH_RESTITUTION)

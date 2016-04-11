@@ -1,4 +1,4 @@
-SUBDIRS(filter deconvolution)
+SUBDIRS(filter restitution)
 
 SET(
 	CORE_MATH_SOURCES
@@ -28,8 +28,9 @@ SET(
 		filter/rmhp.cpp
 		filter/chainfilter.cpp
 		filter/seismometers.cpp
-		deconvolution/fft.cpp
-		deconvolution/transferfunction.cpp
+		restitution/fft.cpp
+		restitution/td.cpp
+		restitution/transferfunction.cpp
 )
 
 SET(

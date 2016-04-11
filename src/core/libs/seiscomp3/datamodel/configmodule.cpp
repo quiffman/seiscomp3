@@ -33,7 +33,7 @@ IMPLEMENT_SC_CLASS_DERIVED(ConfigModule, PublicObject, "ConfigModule");
 ConfigModule::MetaObject::MetaObject(const Core::RTTI* rtti) : Seiscomp::Core::MetaObject(rtti) {
 	addProperty(Core::simpleProperty("name", "string", false, false, false, false, false, false, NULL, &ConfigModule::setName, &ConfigModule::name));
 	addProperty(Core::simpleProperty("parameterSetID", "string", false, false, false, true, false, false, NULL, &ConfigModule::setParameterSetID, &ConfigModule::parameterSetID));
-	addProperty(Core::simpleProperty("enabled", "bool", false, false, false, false, false, false, NULL, &ConfigModule::setEnabled, &ConfigModule::enabled));
+	addProperty(Core::simpleProperty("enabled", "boolean", false, false, false, false, false, false, NULL, &ConfigModule::setEnabled, &ConfigModule::enabled));
 	addProperty(arrayObjectProperty("station", "ConfigStation", &ConfigModule::configStationCount, &ConfigModule::configStation, static_cast<bool (ConfigModule::*)(ConfigStation*)>(&ConfigModule::add), &ConfigModule::removeConfigStation, static_cast<bool (ConfigModule::*)(ConfigStation*)>(&ConfigModule::remove)));
 }
 
@@ -42,6 +42,7 @@ IMPLEMENT_METAOBJECT(ConfigModule)
 
 
 ConfigModule::ConfigModule() {
+	_enabled = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -61,6 +62,7 @@ ConfigModule::ConfigModule(const ConfigModule& other)
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ConfigModule::ConfigModule(const std::string& publicID)
  : PublicObject(publicID) {
+	_enabled = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

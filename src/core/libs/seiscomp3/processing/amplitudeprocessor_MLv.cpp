@@ -17,7 +17,7 @@
 #include <seiscomp3/processing/amplitudeprocessor_MLv.h>
 #include <seiscomp3/math/mean.h>
 #include <seiscomp3/math/filter/seismometers.h>
-#include <seiscomp3/math/deconvolution/fft.h>
+#include <seiscomp3/math/restitution/fft.h>
 
 
 using namespace Seiscomp::Math;
@@ -130,7 +130,7 @@ bool AmplitudeProcessor_MLv::setParameter(Capability cap, const std::string &val
 bool AmplitudeProcessor_MLv::deconvolveData(Response *resp,
                                             DoubleArray &data,
                                             int numberOfIntegrations) {
-	Math::Deconvolution::FFT::TransferFunctionPtr tf =
+	Math::Restitution::FFT::TransferFunctionPtr tf =
 		resp->getTransferFunction(numberOfIntegrations);
 
 	if ( tf == NULL ) {
@@ -138,11 +138,11 @@ bool AmplitudeProcessor_MLv::deconvolveData(Response *resp,
 		return false;
 	}
 
-	Math::Deconvolution::FFT::PolesAndZeros woodAnderson(
+	Math::Restitution::FFT::PolesAndZeros woodAnderson(
 		Math::SeismometerResponse::WoodAnderson(Math::Velocity)
 	);
 
-	Math::Deconvolution::FFT::TransferFunctionPtr cascade =
+	Math::Restitution::FFT::TransferFunctionPtr cascade =
 		*tf / woodAnderson;
 
 	// Remove linear trend
@@ -150,7 +150,7 @@ bool AmplitudeProcessor_MLv::deconvolveData(Response *resp,
 	Math::Statistics::computeLinearTrend(data.size(), data.typedData(), m, n);
 	Math::Statistics::detrend(data.size(), data.typedData(), m, n);
 
-	return Math::Deconvolution::transformFFT(data.size(), data.typedData(),
+	return Math::Restitution::transformFFT(data.size(), data.typedData(),
 	                                         _fsamp, cascade.get(),
 	                                         _config.respTaper, _config.respMinFreq, _config.respMaxFreq);
 }

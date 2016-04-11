@@ -336,28 +336,6 @@ ds_streamproc (DataStream *datastream, char *pathformat, SLMSrecord *msr,
       /* If not the last entry then it should be a directory */
       if ( fnptr->next != 0 )
 	{
-	  if ( access (filename, F_OK) )
-	    {
-	      if ( errno == ENOENT )
-		{
-		  sl_log (1, 1, "Creating directory: %s\n", filename);
-		  if (mkdir
-		      (filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
-		    {
-		      sl_log (2, 1, "ds_streamproc: mkdir(%s) %s\n", filename,
-			      strerror (errno));
-		      sl_strparse (NULL, NULL, &fnlist);
-		      return -1;
-		    }
-		}
-	      else
-		{
-		  sl_log (2, 0, "%s: access denied, %s\n", filename, strerror(errno));
-		  sl_strparse (NULL, NULL, &fnlist);
-		  return -1;
-		}
-	    }
-	  
 	  strncat (filename, "/", (sizeof(filename) - fnlen));
 	  fnlen++;
 	  
@@ -477,42 +455,25 @@ ds_getstream (DataStream *datastream, SLMSrecord *msr, int reclen,
 	      const char *defkey, char *filename,
 	      int nondefflags, const char *globmatch)
 {
-  DataStreamGroup *foundgroup  = NULL;
-  DataStreamGroup *searchgroup = NULL;
-  DataStreamGroup *prevgroup   = NULL;
-  time_t curtime;
+  DataStreamGroup *foundgroup = NULL;
   char *matchedfilename = 0;
+  static int closeidle_counter = 0;
   
-  searchgroup = datastream->grouproot;
-  curtime = time (NULL);
-  
-  /* Traverse the stream chain looking for matching streams */
-  while (searchgroup != NULL)
-    {
-      DataStreamGroup *nextgroup  = (DataStreamGroup *) searchgroup->next;
-      
-      if ( !strcmp (searchgroup->defkey, defkey) )
-	{
-	  sl_log (1, 3, "Found data stream entry for key %s\n", defkey);
-	  
-	  foundgroup = searchgroup;
-	  
-	  /* Keep ds_closeidle from closing this stream */
-	  if ( foundgroup->modtime > 0 )
-	    {
-	      foundgroup->modtime *= -1;
-	    }
+  HASH_FIND_STR(datastream->grouphash, defkey, foundgroup);
 
-	  break;
-	}
-      
-      prevgroup = searchgroup;
-      searchgroup = nextgroup;
+  if ( foundgroup )
+    {
+      sl_log (1, 3, "Found data stream entry for key %s\n", defkey);
+
+      /* Keep ds_closeidle from closing this stream */
+      if ( foundgroup->modtime > 0 )
+          foundgroup->modtime *= -1;
     }
-  
+
   /* If no matching stream entry was found but the format included
      non-defining flags, try to use globmatch to find a matching file
      and resurrect a stream entry */
+
   if ( foundgroup == NULL && nondefflags > 0 )
     {
       glob_t pglob;
@@ -551,6 +512,8 @@ ds_getstream (DataStream *datastream, SLMSrecord *msr, int reclen,
   /* If not found, create a stream entry */
   if ( foundgroup == NULL )
     {
+      time_t curtime = time (NULL);
+
       if ( matchedfilename )
 	sl_log (1, 2, "Resurrecting data stream entry for key %s\n", defkey);
       else
@@ -566,27 +529,14 @@ ds_getstream (DataStream *datastream, SLMSrecord *msr, int reclen,
       foundgroup->futureinitprint = datastream->futureinitflag;
       strncpy (foundgroup->filename, filename, sizeof(foundgroup->filename));
       foundgroup->bp = 0;
-      foundgroup->next = NULL;
-      
-      /* Set the stream root if this is the first entry */
-      if (datastream->grouproot == NULL)
-	{
-	  datastream->grouproot = foundgroup;
-	}
-      /* Otherwise add to the end of the chain */
-      else if (prevgroup != NULL)
-	{
-	  prevgroup->next = foundgroup;
-	}
-      else
-	{
-	  sl_log (2, 0, "stream chain is broken!\n");
-	  return NULL;
-	}
+
+      HASH_ADD_KEYPTR(hh, datastream->grouphash, foundgroup->defkey, strlen(foundgroup->defkey), foundgroup);
     }
   
   /* Close idle stream files */
-  ds_closeidle (datastream, datastream->idletimeout);
+  closeidle_counter = ( closeidle_counter + 1 ) % 100;
+  if ( ! closeidle_counter )
+      ds_closeidle (datastream, datastream->idletimeout);
   
   /* If no file is open, well, open it */
   if ( foundgroup->filed == 0 )
@@ -689,6 +639,57 @@ ds_openfile (DataStream *datastream, const char *filename)
   int idletimeout = datastream->idletimeout;
   int oret = 0;
   
+  SLstrlist *fnlist, *fnptr;
+  char dirname[MAX_FILENAME_LEN+1];
+  sl_strparse (filename, "/", &fnlist);
+  
+  fnptr = fnlist;
+  dirname[0] = '\0';
+  
+  /* Special case of an absolute path (first entry is empty) */
+  if ( *fnptr->element == '\0' )
+    {
+      strcat (dirname, "/");
+      fnptr = fnptr->next;
+    }
+  
+  while ( fnptr != 0 )
+    {
+      strncat (dirname, fnptr->element, (sizeof(dirname) - strlen(dirname)));
+
+      /* If not the last entry then it should be a directory */
+      if ( fnptr->next != 0 )
+	{
+	  if ( access (dirname, F_OK) )
+	    {
+	      if ( errno == ENOENT )
+		{
+		  sl_log (1, 1, "Creating directory: %s\n", dirname);
+		  if (mkdir
+		      (dirname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
+		    {
+		      sl_log (2, 1, "ds_streamproc: mkdir(%s) %s\n", dirname,
+			      strerror (errno));
+		      sl_strparse (NULL, NULL, &fnlist);
+		      return -1;
+		    }
+		}
+	      else
+		{
+		  sl_log (2, 0, "%s: access denied, %s\n", dirname, strerror(errno));
+		  sl_strparse (NULL, NULL, &fnlist);
+		  return -1;
+		}
+	    }
+	  
+	  strncat (dirname, "/", (sizeof(dirname) - strlen(dirname)));
+	}
+
+      fnptr = fnptr->next;
+    }
+
+  sl_strparse (NULL, NULL, &fnlist);
+  
   if ( (oret = open (filename, O_RDWR | O_CREAT | O_APPEND, 0644)) == -1 )
     {
       
@@ -756,69 +757,44 @@ ds_openfile (DataStream *datastream, const char *filename)
 static int
 ds_closeidle (DataStream *datastream, int idletimeout)
 {
+  DataStreamGroup *curgroup, *tmp;
   int count = 0;
-  DataStreamGroup *searchgroup = NULL;
-  DataStreamGroup *prevgroup   = NULL;
-  DataStreamGroup *nextgroup   = NULL;
   time_t curtime;
-  
-  searchgroup = datastream->grouproot;
+
   curtime = time (NULL);
 
   /* Traverse the stream chain */
-  while (searchgroup != NULL)
+  HASH_ITER(hh, datastream->grouphash, curgroup, tmp)
     {
-      nextgroup = searchgroup->next;
-      
-      if ( searchgroup->modtime > 0 && (curtime - searchgroup->modtime) > idletimeout )
+      if ( curgroup->modtime > 0 && (curtime - curgroup->modtime) > idletimeout )
 	{
-          if ( searchgroup->bp )
+          if ( curgroup->bp )
 	    {
-              sl_log (1, 3, "Writing data to data stream file %s\n", searchgroup->filename);
+              sl_log (1, 3, "Writing data to data stream file %s\n", curgroup->filename);
 
-	      if ( write (searchgroup->filed, searchgroup->buf, searchgroup->bp) != searchgroup->bp )
+	      if ( write (curgroup->filed, curgroup->buf, curgroup->bp) != curgroup->bp )
 	        {
 	          sl_log (2, 1,
 		          "ds_closeidle: failed to write record\n");
 	        }
 
-	      searchgroup->bp = 0;
+	      curgroup->bp = 0;
 	    }
 
-	  sl_log (1, 2, "Closing idle stream with key %s\n", searchgroup->defkey);
-	  
-	  /* Re-link the stream chain */
-	  if ( prevgroup != NULL )
-	    {
-	      if ( searchgroup->next != NULL )
-		prevgroup->next = searchgroup->next;
-	      else
-		prevgroup->next = NULL;
-	    }
-	  else
-	    {
-	      if ( searchgroup->next != NULL )
-		datastream->grouproot = searchgroup->next;
-	      else
-		datastream->grouproot = NULL;
-	    }
+	  sl_log (1, 2, "Closing idle stream with key %s\n", curgroup->defkey);
 	  
 	  /* Close the associated file */
-	  if ( close (searchgroup->filed) )
+	  if ( close (curgroup->filed) )
 	    sl_log (2, 0, "ds_closeidle(), closing data stream file, %s\n",
 		    strerror (errno));
 	  else
 	    count++;
-	  
-	  free (searchgroup->defkey); 
-	  free (searchgroup);
+
+          HASH_DELETE(hh, datastream->grouphash, curgroup);
+          
+	  free (curgroup->defkey); 
+	  free (curgroup);
 	}
-      else
-	{
-	  prevgroup = searchgroup;
-	}
-      
-      searchgroup = nextgroup;
     }
   
   return count;
@@ -834,37 +810,33 @@ ds_closeidle (DataStream *datastream, int idletimeout)
 static void
 ds_shutdown (DataStream *datastream)
 {
-  DataStreamGroup *curgroup = NULL;
-  DataStreamGroup *prevgroup = NULL;
+  DataStreamGroup *curgroup, *tmp;
 
-  curgroup = datastream->grouproot;
-
-  while ( curgroup != NULL )
+  HASH_ITER(hh, datastream->grouphash, curgroup, tmp)
     {
-      prevgroup = curgroup;
-      curgroup = curgroup->next;
-
-      if ( prevgroup->bp )
+      if ( curgroup->bp )
         {
-          sl_log (1, 3, "Writing data to data stream file %s\n", prevgroup->filename);
+          sl_log (1, 3, "Writing data to data stream file %s\n", curgroup->filename);
       
-          if ( write (prevgroup->filed, prevgroup->buf, prevgroup->bp) != prevgroup->bp )
+          if ( write (curgroup->filed, curgroup->buf, curgroup->bp) != curgroup->bp )
             {
               sl_log (2, 1,
                       "ds_shutdown: failed to write record\n");
             }
 
-          prevgroup->bp = 0;
+          curgroup->bp = 0;
         }
 
-      sl_log (1, 3, "Shutting down stream with key: %s\n", prevgroup->defkey);
+      sl_log (1, 3, "Shutting down stream with key: %s\n", curgroup->defkey);
 
-      if ( close (prevgroup->filed) )
+      if ( close (curgroup->filed) )
 	sl_log (2, 0, "ds_shutdown(), closing data stream file, %s\n",
 		strerror (errno));
       
-      free (prevgroup->defkey);
-      free (prevgroup);
+      HASH_DELETE(hh, datastream->grouphash, curgroup);
+      
+      free (curgroup->defkey);
+      free (curgroup);
     }
 }				/* End of ds_shutdown() */
 

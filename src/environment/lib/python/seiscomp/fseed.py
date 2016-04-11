@@ -1334,7 +1334,12 @@ class _Response4xFactory(object):
                 for f in stream_deci.digitalFilterChain.split():
                     obj = self.__inventory.object[f]
                     try:                              # Need decimationFactor for PAZ???
+                        if obj.decimationFactor == 0:
+                            logs.warning("decimation factor of FIR filter %s is 0, using 1" % (obj.name,))
+                            obj.decimationFactor = 1
+
                         input_rate *= obj.decimationFactor
+
                     except AttributeError:
                         pass
 
@@ -1639,7 +1644,12 @@ class _Response5xFactory(object):
                 for f in stream_deci.digitalFilterChain.split():
                     obj = self.__inventory.object[f]
                     try:                              # Need decimationFactor for PAZ???
+                        if obj.decimationFactor == 0:
+                            logs.warning("decimation factor of FIR filter %s is 0, using 1" % (obj.name,))
+                            obj.decimationFactor = 1
+
                         input_rate *= obj.decimationFactor
+
                     except AttributeError:
                         pass
 

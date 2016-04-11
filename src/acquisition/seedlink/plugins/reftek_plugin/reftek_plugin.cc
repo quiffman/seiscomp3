@@ -44,7 +44,7 @@ extern "C" {
 #include "plugin_exceptions.h"
 #include "diag.h"
 
-#define MYVERSION "1.2 (2010.256)"
+#define MYVERSION "1.2 (2012.048)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/plugins.ini"

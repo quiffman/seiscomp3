@@ -20,6 +20,7 @@
 #include <seiscomp3/datamodel/notifier.h>
 #include <seiscomp3/datamodel/object.h>
 #include <seiscomp3/datamodel/types.h>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -182,80 +183,141 @@ SC_CORE_DATAMODEL_API Object *copy(Object* obj);
 ///////////////////////////////////////////////////////////////////////////////
 // DataModel Diff
 ///////////////////////////////////////////////////////////////////////////////
+class SC_CORE_DATAMODEL_API DiffMerge {
+	public:
+		DiffMerge();
 
-/**
- * Scans a object tree for a particular node. Objects are compared on base of
- * their indexes, @see equalsIndex
- * @param tree object tree to scan
- * @param node item to search for
- * @return pointer to the item within the object tree or NULL if the node was
- * not found
- */
-SC_CORE_DATAMODEL_API Object*
-find(Object* tree, Object* node);
 
-/**
- * Recursively compares two objects and collects all differences.
- * The root element of one of the objects must be included in the other object
- * tree, @see find(o1, o2) 
- * @param o1 first object to compare
- * @param o2 second object to compare
- * @param diffList list to collect differences in
- * @return true if the diff could be performed, false if one object was null or
- * no common child object could be found
- * @throw TypeException if any type restriction is violated
- */
-SC_CORE_DATAMODEL_API bool
-diff(Object* o1, Object* o2, std::vector<NotifierPtr>& diffList);
+	public:
+		void setLoggingLevel(int level);
+		void showLog(std::ostream &os = std::cerr);
 
-/**
- * Recursively merges the node object (and its children) into the tree object.
- * The node must be part of the tree, @ref find(o1, o2). Properties of the node
- * object override properties of the tree.
- * @param tree main object to merge the node into
- * @param node object to be merged into the tree
- * @param idMap map that keeps track of any publicID attribute changes applied
- * during the merge
- * @return true if the merge could be performed, false if the node was not found
- * in the tree
- * @throw TypeException if any type restriction is violated
- */
-SC_CORE_DATAMODEL_API bool
-merge(Object* tree, Object* node, std::map<std::string, std::string>& idMap);
+		/**
+		 * Scans a object tree for a particular node. Objects are compared on base of
+		 * their indexes, @see equalsIndex
+		 * @param tree object tree to scan
+		 * @param node item to search for
+		 * @return pointer to the item within the object tree or NULL if the node was
+		 * not found
+		 */
+		Object *find(Object *tree, Object *node);
 
-/**
- * Merges all all objects in the vector in order of their appearance into the
- * mergeResult object, @ref merge(Object*, Object*). The mergeResult object must
- * be not null and must serve as a parent for the objects being merged. In a
- * subsequent processing step changes to publicIDs are applied to references,
- * @ref mapReferences.
- * @param mergeResult object to merge the vector into
- * @param objects vector of objects to merge
- * @return true if all objects could be merged successfully, else false.
- */
-SC_CORE_DATAMODEL_API bool
-merge(Object* mergeResult, const std::vector<Object*>& objects);
+		/**
+		 * Recursively compares two objects and collects all differences.
+		 * The root element of one of the objects must be included in the other object
+		 * tree, @see find(o1, o2)
+		 * @param o1 first object to compare
+		 * @param o2 second object to compare
+		 * @param diffList list to collect differences in
+		 * @return true if the diff could be performed, false if one object was null or
+		 * no common child object could be found
+		 * @throw TypeException if any type restriction is violated
+		 */
+		bool diff(Object *o1, Object *o2, std::vector<NotifierPtr> &diffList);
 
-/**
- * Validates the internal publicID references of the specified object. In a
- * first step all publicIDs are collected, then the object is traversed top-down
- * and each reference's value is searched in the publicID set.
- * @param o object to validate
- * @return true if all references point to an existing publicID, else false
- */
-SC_CORE_DATAMODEL_API bool
-validateReferences(Object* o);
+		/**
+		 * Recursively merges the node object (and its children) into the tree object.
+		 * The node must be part of the tree, @ref find(o1, o2). Properties of the node
+		 * object override properties of the tree.
+		 * @param tree main object to merge the node into
+		 * @param node object to be merged into the tree
+		 * @param idMap map that keeps track of any publicID attribute changes applied
+		 * during the merge
+		 * @return true if the merge could be performed, false if the node was not found
+		 * in the tree
+		 * @throw TypeException if any type restriction is violated
+		 */
+		bool merge(Object *tree, Object *node, std::map<std::string, std::string> &idMap);
 
-/**
- * Maps publicID references of the specified object. While the object is
- * traversed top-down, a lookup for each reference in the publicID map is
- * performed. If a matching entry is found the reference's value is updated.
- * @param o object which references should be mapped
- * @param map publicIDMap of deprecated to current publicIDs
- * @return number of mappings performed
- */
-SC_CORE_DATAMODEL_API size_t
-mapReferences(Object* o, const std::map<std::string, std::string> &publicIDMap);
+		/**
+		 * Merges all all objects in the vector in order of their appearance into the
+		 * mergeResult object, @ref merge(Object*, Object*). The mergeResult object must
+		 * be not null and must serve as a parent for the objects being merged. In a
+		 * subsequent processing step changes to publicIDs are applied to references,
+		 * @ref mapReferences.
+		 * @param mergeResult object to merge the vector into
+		 * @param objects vector of objects to merge
+		 * @return true if all objects could be merged successfully, else false.
+		 */
+		bool merge(Object *mergeResult, const std::vector<Object*> &objects);
+
+		/**
+		 * Validates the internal publicID references of the specified object. In a
+		 * first step all publicIDs are collected, then the object is traversed top-down
+		 * and each reference's value is searched in the publicID set.
+		 * @param o object to validate
+		 * @return true if all references point to an existing publicID, else false
+		 */
+		bool validateReferences(Object *o);
+
+		/**
+		 * Maps publicID references of the specified object. While the object is
+		 * traversed top-down, a lookup for each reference in the publicID map is
+		 * performed. If a matching entry is found the reference's value is updated.
+		 * @param o object which references should be mapped
+		 * @param map publicIDMap of deprecated to current publicIDs
+		 * @return number of mappings performed
+		 */
+		size_t mapReferences(Object *o, const std::map<std::string, std::string> &publicIDMap);
+
+
+	private:
+		std::string getPublicID(Object* o);
+		void diffRecursive(Object *o1, Object *o2, const std::string &o1ParentID,
+		                   std::vector<NotifierPtr> &diffList);
+
+		bool equalsIndex(Object *o1, Object *o2);
+		bool compareNonArrayProperty(const Core::MetaProperty* prop,
+		                             Object *o1, Object *o2);
+		void mergeRecursive(Object *o1, Object *o2,
+		                    std::map<std::string, std::string> &idMap);
+
+
+	private:
+		DEFINE_SMARTPOINTER(LogNode);
+		class LogNode: public Core::BaseObject {
+			private:
+				LogNode                 *_parent;
+				std::string              _title;
+				std::string              _padding;
+
+				// Logging level
+				// 2 Logs all (Default)
+				// 1 Logs only differences
+				// 0 Logs none - no messages are accepted
+				int                      _level;
+				std::vector<LogNodePtr>  _childs;
+				std::vector<std::string> _messages;
+
+				std::string o2t(Object *o);
+				void setParent(LogNode *n);
+				void add(std::string s1, std::string n);
+
+				template <class T>
+				std::string compare(T a, T b);
+
+				void reset ();
+			
+			public:
+				LogNode(Object* o1, int level);
+				LogNode(std::string title, int level);
+				
+			public:
+				template <class T>
+				void add(std::string title, T a, T b);
+
+				void add(std::string title, bool status, std::string comment);
+				void add(std::string title, Object *o1);
+				LogNodePtr add(LogNodePtr child);
+
+				void show(std::ostream &os);
+		};
+
+
+	private:
+		LogNodePtr _currentNode;
+		int        _logLevel;
+};
 
 
 } // of ns DataModel

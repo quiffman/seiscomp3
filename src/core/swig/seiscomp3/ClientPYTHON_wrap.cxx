@@ -3914,36 +3914,39 @@ namespace Swig {
 #define SWIGTYPE_p_TagType swig_types[484]
 #define SWIGTYPE_p_Tests swig_types[485]
 #define SWIGTYPE_p_Type swig_types[486]
-#define SWIGTYPE_p_ValueType swig_types[487]
-#define SWIGTYPE_p_Values swig_types[488]
-#define SWIGTYPE_p_allocator_type swig_types[489]
-#define SWIGTYPE_p_char swig_types[490]
-#define SWIGTYPE_p_char_type swig_types[491]
-#define SWIGTYPE_p_const_iterator swig_types[492]
-#define SWIGTYPE_p_difference_type swig_types[493]
-#define SWIGTYPE_p_double swig_types[494]
-#define SWIGTYPE_p_file_iterator swig_types[495]
-#define SWIGTYPE_p_fmtflags swig_types[496]
-#define SWIGTYPE_p_int_type swig_types[497]
-#define SWIGTYPE_p_iostate swig_types[498]
-#define SWIGTYPE_p_iterator swig_types[499]
-#define SWIGTYPE_p_long swig_types[500]
-#define SWIGTYPE_p_off_type swig_types[501]
-#define SWIGTYPE_p_openmode swig_types[502]
-#define SWIGTYPE_p_p_char swig_types[503]
-#define SWIGTYPE_p_pos_type swig_types[504]
-#define SWIGTYPE_p_seekdir swig_types[505]
-#define SWIGTYPE_p_size_t swig_types[506]
-#define SWIGTYPE_p_size_type swig_types[507]
-#define SWIGTYPE_p_state_type swig_types[508]
-#define SWIGTYPE_p_std__invalid_argument swig_types[509]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t swig_types[510]
-#define SWIGTYPE_p_std__vectorT_bool_std__allocatorT_bool_t_t swig_types[511]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[512]
-#define SWIGTYPE_p_traits_type swig_types[513]
-#define SWIGTYPE_p_value_type swig_types[514]
-static swig_type_info *swig_types[516];
-static swig_module_info swig_module = {swig_types, 515, 0, 0, 0, 0};
+#define SWIGTYPE_p_TypeBlackList swig_types[487]
+#define SWIGTYPE_p_TypeWhiteList swig_types[488]
+#define SWIGTYPE_p_ValueType swig_types[489]
+#define SWIGTYPE_p_Values swig_types[490]
+#define SWIGTYPE_p_allocator_type swig_types[491]
+#define SWIGTYPE_p_char swig_types[492]
+#define SWIGTYPE_p_char_type swig_types[493]
+#define SWIGTYPE_p_const_iterator swig_types[494]
+#define SWIGTYPE_p_difference_type swig_types[495]
+#define SWIGTYPE_p_double swig_types[496]
+#define SWIGTYPE_p_file_iterator swig_types[497]
+#define SWIGTYPE_p_fmtflags swig_types[498]
+#define SWIGTYPE_p_int_type swig_types[499]
+#define SWIGTYPE_p_iostate swig_types[500]
+#define SWIGTYPE_p_iterator swig_types[501]
+#define SWIGTYPE_p_long swig_types[502]
+#define SWIGTYPE_p_off_type swig_types[503]
+#define SWIGTYPE_p_openmode swig_types[504]
+#define SWIGTYPE_p_p_char swig_types[505]
+#define SWIGTYPE_p_pos_type swig_types[506]
+#define SWIGTYPE_p_seekdir swig_types[507]
+#define SWIGTYPE_p_size_t swig_types[508]
+#define SWIGTYPE_p_size_type swig_types[509]
+#define SWIGTYPE_p_state_type swig_types[510]
+#define SWIGTYPE_p_std__invalid_argument swig_types[511]
+#define SWIGTYPE_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t swig_types[512]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t swig_types[513]
+#define SWIGTYPE_p_std__vectorT_bool_std__allocatorT_bool_t_t swig_types[514]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[515]
+#define SWIGTYPE_p_traits_type swig_types[516]
+#define SWIGTYPE_p_value_type swig_types[517]
+static swig_type_info *swig_types[519];
+static swig_module_info swig_module = {swig_types, 518, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -12900,6 +12903,35 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Application_databaseURI(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Application_databaseURI",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_databaseURI" "', argument " "1"" of type '" "Seiscomp::Client::Application const *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  {
+    try {
+      result = (std::string *) &((Seiscomp::Client::Application const *)arg1)->databaseURI(); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Application_query(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
@@ -14826,7 +14858,7 @@ SWIGINTERN PyObject *_wrap_Application_addInputObjectLog__SWIG_0(PyObject *SWIGU
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *result = 0 ;
+  Seiscomp::Client::Application::ObjectLog *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:Application_addInputObjectLog",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
@@ -14858,7 +14890,7 @@ SWIGINTERN PyObject *_wrap_Application_addInputObjectLog__SWIG_0(PyObject *SWIGU
   }
   {
     try {
-      result = (Seiscomp::Client::ObjectMonitor::Log *)(arg1)->addInputObjectLog((std::string const &)*arg2,(std::string const &)*arg3); 
+      result = (Seiscomp::Client::Application::ObjectLog *)(arg1)->addInputObjectLog((std::string const &)*arg2,(std::string const &)*arg3); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -14884,7 +14916,7 @@ SWIGINTERN PyObject *_wrap_Application_addInputObjectLog__SWIG_1(PyObject *SWIGU
   int res2 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *result = 0 ;
+  Seiscomp::Client::Application::ObjectLog *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Application_addInputObjectLog",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
@@ -14905,7 +14937,7 @@ SWIGINTERN PyObject *_wrap_Application_addInputObjectLog__SWIG_1(PyObject *SWIGU
   }
   {
     try {
-      result = (Seiscomp::Client::ObjectMonitor::Log *)(arg1)->addInputObjectLog((std::string const &)*arg2); 
+      result = (Seiscomp::Client::Application::ObjectLog *)(arg1)->addInputObjectLog((std::string const &)*arg2); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -14982,7 +15014,7 @@ SWIGINTERN PyObject *_wrap_Application_addOutputObjectLog__SWIG_0(PyObject *SWIG
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *result = 0 ;
+  Seiscomp::Client::Application::ObjectLog *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:Application_addOutputObjectLog",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
@@ -15014,7 +15046,7 @@ SWIGINTERN PyObject *_wrap_Application_addOutputObjectLog__SWIG_0(PyObject *SWIG
   }
   {
     try {
-      result = (Seiscomp::Client::ObjectMonitor::Log *)(arg1)->addOutputObjectLog((std::string const &)*arg2,(std::string const &)*arg3); 
+      result = (Seiscomp::Client::Application::ObjectLog *)(arg1)->addOutputObjectLog((std::string const &)*arg2,(std::string const &)*arg3); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -15040,7 +15072,7 @@ SWIGINTERN PyObject *_wrap_Application_addOutputObjectLog__SWIG_1(PyObject *SWIG
   int res2 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *result = 0 ;
+  Seiscomp::Client::Application::ObjectLog *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:Application_addOutputObjectLog",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
@@ -15061,7 +15093,7 @@ SWIGINTERN PyObject *_wrap_Application_addOutputObjectLog__SWIG_1(PyObject *SWIG
   }
   {
     try {
-      result = (Seiscomp::Client::ObjectMonitor::Log *)(arg1)->addOutputObjectLog((std::string const &)*arg2); 
+      result = (Seiscomp::Client::Application::ObjectLog *)(arg1)->addOutputObjectLog((std::string const &)*arg2); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
@@ -15129,7 +15161,7 @@ fail:
 SWIGINTERN PyObject *_wrap_Application_logObject__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *arg2 = (Seiscomp::Client::ObjectMonitor::Log *) 0 ;
+  Seiscomp::Client::Application::ObjectLog *arg2 = (Seiscomp::Client::Application::ObjectLog *) 0 ;
   Seiscomp::Core::Time *arg3 = 0 ;
   size_t arg4 ;
   void *argp1 = 0 ;
@@ -15153,9 +15185,9 @@ SWIGINTERN PyObject *_wrap_Application_logObject__SWIG_0(PyObject *SWIGUNUSEDPAR
   arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__Client__RunningAverage, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Application_logObject" "', argument " "2"" of type '" "Seiscomp::Client::ObjectMonitor::Log *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Application_logObject" "', argument " "2"" of type '" "Seiscomp::Client::Application::ObjectLog *""'"); 
   }
-  arg2 = reinterpret_cast< Seiscomp::Client::ObjectMonitor::Log * >(argp2);
+  arg2 = reinterpret_cast< Seiscomp::Client::Application::ObjectLog * >(argp2);
   res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Seiscomp__Core__Time,  0  | 0);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Application_logObject" "', argument " "3"" of type '" "Seiscomp::Core::Time const &""'"); 
@@ -15187,7 +15219,7 @@ fail:
 SWIGINTERN PyObject *_wrap_Application_logObject__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
-  Seiscomp::Client::ObjectMonitor::Log *arg2 = (Seiscomp::Client::ObjectMonitor::Log *) 0 ;
+  Seiscomp::Client::Application::ObjectLog *arg2 = (Seiscomp::Client::Application::ObjectLog *) 0 ;
   Seiscomp::Core::Time *arg3 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15207,9 +15239,9 @@ SWIGINTERN PyObject *_wrap_Application_logObject__SWIG_1(PyObject *SWIGUNUSEDPAR
   arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Seiscomp__Client__RunningAverage, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Application_logObject" "', argument " "2"" of type '" "Seiscomp::Client::ObjectMonitor::Log *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Application_logObject" "', argument " "2"" of type '" "Seiscomp::Client::Application::ObjectLog *""'"); 
   }
-  arg2 = reinterpret_cast< Seiscomp::Client::ObjectMonitor::Log * >(argp2);
+  arg2 = reinterpret_cast< Seiscomp::Client::Application::ObjectLog * >(argp2);
   res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Seiscomp__Core__Time,  0  | 0);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Application_logObject" "', argument " "3"" of type '" "Seiscomp::Core::Time const &""'"); 
@@ -15289,8 +15321,8 @@ SWIGINTERN PyObject *_wrap_Application_logObject(PyObject *self, PyObject *args)
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Application_logObject'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    Seiscomp::Client::Application::logObject(Seiscomp::Client::ObjectMonitor::Log *,Seiscomp::Core::Time const &,size_t)\n"
-    "    Seiscomp::Client::Application::logObject(Seiscomp::Client::ObjectMonitor::Log *,Seiscomp::Core::Time const &)\n");
+    "    Seiscomp::Client::Application::logObject(Seiscomp::Client::Application::ObjectLog *,Seiscomp::Core::Time const &,size_t)\n"
+    "    Seiscomp::Client::Application::logObject(Seiscomp::Client::Application::ObjectLog *,Seiscomp::Core::Time const &)\n");
   return 0;
 }
 
@@ -20346,6 +20378,58 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Inventory_filter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Inventory *arg1 = (Seiscomp::Client::Inventory *) 0 ;
+  Seiscomp::Client::Inventory::TypeWhiteList *arg2 = 0 ;
+  Seiscomp::Client::Inventory::TypeWhiteList *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:Inventory_filter",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Inventory, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Inventory_filter" "', argument " "1"" of type '" "Seiscomp::Client::Inventory *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Inventory * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Inventory_filter" "', argument " "2"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Inventory_filter" "', argument " "2"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  arg2 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Inventory_filter" "', argument " "3"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Inventory_filter" "', argument " "3"" of type '" "Seiscomp::Client::Inventory::TypeWhiteList const &""'"); 
+  }
+  arg3 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp3);
+  {
+    try {
+      (arg1)->filter((Seiscomp::Client::Inventory::TypeWhiteList const &)*arg2,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg3); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Inventory_loadStations(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Inventory *arg1 = (Seiscomp::Client::Inventory *) 0 ;
@@ -21809,6 +21893,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Application_databaseType", _wrap_Application_databaseType, METH_VARARGS, (char *)"Application_databaseType(Application self) -> string"},
 	 { (char *)"Application_databaseParameters", _wrap_Application_databaseParameters, METH_VARARGS, (char *)"Application_databaseParameters(Application self) -> string"},
 	 { (char *)"Application_database", _wrap_Application_database, METH_VARARGS, (char *)"Application_database(Application self) -> DatabaseInterface"},
+	 { (char *)"Application_databaseURI", _wrap_Application_databaseURI, METH_VARARGS, (char *)"Application_databaseURI(Application self) -> string"},
 	 { (char *)"Application_query", _wrap_Application_query, METH_VARARGS, (char *)"Application_query(Application self) -> DatabaseQuery"},
 	 { (char *)"Application_recordStreamURL", _wrap_Application_recordStreamURL, METH_VARARGS, (char *)"Application_recordStreamURL(Application self) -> string"},
 	 { (char *)"Application_crashHandler", _wrap_Application_crashHandler, METH_VARARGS, (char *)"Application_crashHandler(Application self) -> string"},
@@ -21867,16 +21952,16 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Application_setShutdownMasterModule", _wrap_Application_setShutdownMasterModule, METH_VARARGS, (char *)"Application_setShutdownMasterModule(Application self, string module)"},
 	 { (char *)"Application_setShutdownMasterUsername", _wrap_Application_setShutdownMasterUsername, METH_VARARGS, (char *)"Application_setShutdownMasterUsername(Application self, string username)"},
 	 { (char *)"Application_addInputObjectLog", _wrap_Application_addInputObjectLog, METH_VARARGS, (char *)"\n"
-		"addInputObjectLog(string name, string channel = \"\") -> Log\n"
-		"Application_addInputObjectLog(Application self, string name) -> Log\n"
+		"addInputObjectLog(string name, string channel = \"\") -> ObjectLog\n"
+		"Application_addInputObjectLog(Application self, string name) -> ObjectLog\n"
 		""},
 	 { (char *)"Application_addOutputObjectLog", _wrap_Application_addOutputObjectLog, METH_VARARGS, (char *)"\n"
-		"addOutputObjectLog(string name, string channel = \"\") -> Log\n"
-		"Application_addOutputObjectLog(Application self, string name) -> Log\n"
+		"addOutputObjectLog(string name, string channel = \"\") -> ObjectLog\n"
+		"Application_addOutputObjectLog(Application self, string name) -> ObjectLog\n"
 		""},
 	 { (char *)"Application_logObject", _wrap_Application_logObject, METH_VARARGS, (char *)"\n"
-		"logObject(Log log, Time timestamp, size_t count = 1)\n"
-		"Application_logObject(Application self, Log log, Time timestamp)\n"
+		"logObject(ObjectLog log, Time timestamp, size_t count = 1)\n"
+		"Application_logObject(Application self, ObjectLog log, Time timestamp)\n"
 		""},
 	 { (char *)"Application_Instance", _wrap_Application_Instance, METH_VARARGS, (char *)"Application_Instance() -> Application"},
 	 { (char *)"Application_HandleSignals", _wrap_Application_HandleSignals, METH_VARARGS, (char *)"Application_HandleSignals(bool termination, bool crash)"},
@@ -21991,6 +22076,7 @@ static PyMethodDef SwigMethods[] = {
 		"Inventory_load(Inventory self, DatabaseReader arg1)\n"
 		""},
 	 { (char *)"Inventory_setInventory", _wrap_Inventory_setInventory, METH_VARARGS, (char *)"Inventory_setInventory(Inventory self, Inventory arg1)"},
+	 { (char *)"Inventory_filter", _wrap_Inventory_filter, METH_VARARGS, (char *)"Inventory_filter(Inventory self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist)"},
 	 { (char *)"Inventory_loadStations", _wrap_Inventory_loadStations, METH_VARARGS, (char *)"Inventory_loadStations(Inventory self, DatabaseReader arg1)"},
 	 { (char *)"Inventory_stationLocation", _wrap_Inventory_stationLocation, METH_VARARGS, (char *)"\n"
 		"Inventory_stationLocation(Inventory self, string networkCode, string stationCode, \n"
@@ -22929,7 +23015,7 @@ static swig_type_info _swigt__p_Seiscomp__Client__Notification = {"_p_Seiscomp__
 static swig_type_info _swigt__p_Seiscomp__Client__ObjectMonitor = {"_p_Seiscomp__Client__ObjectMonitor", "Seiscomp::Client::ObjectMonitor *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Client__ObjectMonitor__Tests__const_iterator = {"_p_Seiscomp__Client__ObjectMonitor__Tests__const_iterator", "Seiscomp::Client::ObjectMonitor::Tests::const_iterator *|Seiscomp::Client::ObjectMonitor::const_iterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Client__PluginRegistry = {"_p_Seiscomp__Client__PluginRegistry", "Seiscomp::Client::PluginRegistry *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_Seiscomp__Client__RunningAverage = {"_p_Seiscomp__Client__RunningAverage", "Seiscomp::Client::RunningAverage *|Seiscomp::Client::ObjectMonitor::Log *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Client__RunningAverage = {"_p_Seiscomp__Client__RunningAverage", "Seiscomp::Client::RunningAverage *|Seiscomp::Client::ObjectMonitor::Log *|Seiscomp::Client::Application::ObjectLog *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Client__StationLocation = {"_p_Seiscomp__Client__StationLocation", "Seiscomp::Client::StationLocation *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Client__StreamApplication = {"_p_Seiscomp__Client__StreamApplication", "Seiscomp::Client::StreamApplication *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Communication__Connection = {"_p_Seiscomp__Communication__Connection", "Seiscomp::Communication::Connection *", 0, 0, (void*)0, 0};
@@ -23391,6 +23477,8 @@ static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__string_t = {"_p_Seisc
 static swig_type_info _swigt__p_TagType = {"_p_TagType", "TagType *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Tests = {"_p_Tests", "Tests *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Type = {"_p_Type", "Type *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_TypeBlackList = {"_p_TypeBlackList", "TypeBlackList *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_TypeWhiteList = {"_p_TypeWhiteList", "TypeWhiteList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_ValueType = {"_p_ValueType", "ValueType *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Values = {"_p_Values", "Values *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
@@ -23414,6 +23502,7 @@ static swig_type_info _swigt__p_size_t = {"_p_size_t", "std::streamsize *|size_t
 static swig_type_info _swigt__p_size_type = {"_p_size_type", "size_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_state_type = {"_p_state_type", "state_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__invalid_argument = {"_p_std__invalid_argument", "std::invalid_argument *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t = {"_p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t", "std::set< std::string,std::less< std::string >,std::allocator< std::string > > *|Seiscomp::Client::Inventory::TypeWhiteList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t = {"_p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t", "Seiscomp::Client::StationList *|std::vector< Seiscomp::DataModel::Station *,std::allocator< Seiscomp::DataModel::Station * > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_bool_std__allocatorT_bool_t_t = {"_p_std__vectorT_bool_std__allocatorT_bool_t_t", "std::vector< bool,std::allocator< bool > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_swig__SwigPyIterator = {"_p_swig__SwigPyIterator", "swig::SwigPyIterator *", 0, 0, (void*)0, 0};
@@ -23908,6 +23997,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_TagType,
   &_swigt__p_Tests,
   &_swigt__p_Type,
+  &_swigt__p_TypeBlackList,
+  &_swigt__p_TypeWhiteList,
   &_swigt__p_ValueType,
   &_swigt__p_Values,
   &_swigt__p_allocator_type,
@@ -23931,6 +24022,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_size_type,
   &_swigt__p_state_type,
   &_swigt__p_std__invalid_argument,
+  &_swigt__p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,
   &_swigt__p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t,
   &_swigt__p_std__vectorT_bool_std__allocatorT_bool_t_t,
   &_swigt__p_swig__SwigPyIterator,
@@ -24425,6 +24517,8 @@ static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__string_t[] = {  {&_sw
 static swig_cast_info _swigc__p_TagType[] = {  {&_swigt__p_TagType, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Tests[] = {  {&_swigt__p_Tests, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Type[] = {  {&_swigt__p_Type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_TypeBlackList[] = {  {&_swigt__p_TypeBlackList, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_TypeWhiteList[] = {  {&_swigt__p_TypeWhiteList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_ValueType[] = {  {&_swigt__p_ValueType, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Values[] = {  {&_swigt__p_Values, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -24448,6 +24542,7 @@ static swig_cast_info _swigc__p_size_t[] = {  {&_swigt__p_size_t, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_size_type[] = {  {&_swigt__p_size_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_state_type[] = {  {&_swigt__p_state_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__invalid_argument[] = {  {&_swigt__p_std__invalid_argument, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t[] = {  {&_swigt__p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t[] = {  {&_swigt__p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_bool_std__allocatorT_bool_t_t[] = {  {&_swigt__p_std__vectorT_bool_std__allocatorT_bool_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_swig__SwigPyIterator[] = {  {&_swigt__p_swig__SwigPyIterator, 0, 0, 0},{0, 0, 0, 0}};
@@ -24942,6 +25037,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_TagType,
   _swigc__p_Tests,
   _swigc__p_Type,
+  _swigc__p_TypeBlackList,
+  _swigc__p_TypeWhiteList,
   _swigc__p_ValueType,
   _swigc__p_Values,
   _swigc__p_allocator_type,
@@ -24965,6 +25062,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_size_type,
   _swigc__p_state_type,
   _swigc__p_std__invalid_argument,
+  _swigc__p_std__setT_std__string_std__lessT_std__string_t_std__allocatorT_std__string_t_t,
   _swigc__p_std__vectorT_Seiscomp__DataModel__Station_p_std__allocatorT_Seiscomp__DataModel__Station_p_t_t,
   _swigc__p_std__vectorT_bool_std__allocatorT_bool_t_t,
   _swigc__p_swig__SwigPyIterator,

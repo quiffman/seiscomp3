@@ -305,13 +305,13 @@ class SyncNettab(Client.Application):
 
                 if self.output_inventory:
                     logs.info("writing inventory to " + self.output_inventory)
-                    inv = GInventory()
+                    inv = SC3Inventory(DataModel.Inventory())
                     nettab.update_inventory(instdb, inv)
                     inv.save_xml(self.output_inventory, instr = 2)
 
                 if self.output_routing:
                     logs.info("writing access rules and routing data to " + self.output_routing)
-                    rtn = GRouting()
+                    inv = SC3Routing(DataModel.Routing())
                     nettab.update_access(rtn)
                     rtn.save_xml(self.output_routing, use_access = True)
 
@@ -320,14 +320,13 @@ class SyncNettab(Client.Application):
                     inv = SC3Inventory(DataModel.Inventory())
                     nettab.update_inventory(instdb, inv)
                     vol = SEEDVolume(inv, "WebDC", "SeisComP SEED Volume", resp_dict=False)
-                    vol_end = datetime.datetime.utcnow()
 
                     for net in sum([i.values() for i in inv.network.itervalues()], []):
                         for sta in sum([i.values() for i in net.station.itervalues()], []):
                             for loc in sum([i.values() for i in sta.sensorLocation.itervalues()], []):
                                   for strm in sum([i.values() for i in loc.stream.itervalues()], []):
                                        try:
-                                           vol.add_chan(net.code, sta.code, loc.code, strm.code, strm.start, vol_end)
+                                           vol.add_chan(net.code, sta.code, loc.code, strm.code, strm.start, strm.end)
 
                                        except SEEDError, e:
                                            print "Error (%s,%s,%s,%s):" % (net.code, sta.code, loc.code, strm.code), str(e)
