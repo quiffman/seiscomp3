@@ -1,0 +1,138 @@
+#!/bin/bash
+
+if [ -z "$SEISCOMP_ROOT" ]; then
+    echo "SEISCOMP_ROOT is not defined"
+    exit 1
+fi
+
+pkgname="diskmon"
+PKGROOT="$SEISCOMP_ROOT/$pkgname"
+
+if ! cd "$PKGROOT"; then
+    echo "Cannot change directory to $PKGROOT"
+    exit 1
+fi
+
+if [ ! -r "$SEISCOMP_ROOT/lib/env.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/env.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/env.sh"
+
+if [ ! -r "$SEISCOMP_ROOT/lib/keyutils.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/keyutils.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/keyutils.sh"
+
+global_cfg="$(GetTemplate global.cfg)"
+if [ ! -r "$global_cfg" ]; then
+    echo "Cannot read $PKGROOT/$global_cfg!"
+    exit 1
+fi
+
+export PATH="$PKGROOT/bin:$PATH"
+
+KEY_VERSION="2.5"
+
+_init_keys() {
+    mkdir -p key
+
+    DF_TRESHOLD="95"
+    DF_NOTIFY=""
+}
+
+_edit_globals() {
+    _init_keys
+    
+    if [ -f "key/global" ]; then
+        source key/global
+    fi
+
+    Ask DF_TRESHOLD "Disk usage threshold in per cent" "$DF_TRESHOLD"
+    Ask DF_NOTIFY "List of e-mail addresses to notify" "$DF_NOTIFY"
+
+    OutputKeys $global_cfg >key/global
+}
+
+_check_diskspace() {
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    mkdir -p status
+
+    if [ -n "$DF_NOTIFY" ]; then
+        MSG="$(df | awk -v max="$DF_TRESHOLD" '{ if ( $5 > max ) print $0 }')"
+        if [ "$(echo "$MSG" | wc -l)" -gt 1 ]; then
+            if [ ! -f "status/msg_sent" ]; then
+                {
+                    echo "The followings disks at $(hostname) are nearly full:"
+                    echo
+                    echo "$MSG"
+                } | mail -s "disk nearly full" $DF_NOTIFY
+
+                touch "status/msg_sent"
+            fi
+        else
+            rm -f "status/msg_sent"
+        fi
+    fi
+}
+
+action="$1"
+shift
+
+case "$action" in
+    start)
+        echo "enabling diskspace monitoring"
+        exit 0
+        ;;
+    stop)
+        echo "disabling diskspace monitoring"
+        exit 0
+        ;;
+    check)
+        echo "diskspace monitoring is enabled"
+        _check_diskspace
+        exit 0
+        ;;
+    get_attributes)
+        echo "globals"
+        exit 0
+        ;;
+    edit_globals)
+        if [ $# -eq 0 ]; then
+            _edit_globals
+            exit 0
+        fi
+        ;;
+    edit_profile)
+        if [ $# -eq 1 ]; then
+            exit 0
+        fi
+        ;;
+    edit_station)
+        if [ $# -eq 2 ]; then
+            exit 0
+        fi
+        ;;
+    write_conf)
+        exit 0
+        ;;
+    setup)
+        exit 0
+        ;;
+    print_crontab)
+        exit 0
+        ;;
+esac
+
+echo "Error: $pkgname config hook called with invalid arguments"
+exit 1
+

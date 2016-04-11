@@ -1,0 +1,22 @@
+SET(AMP_TARGET scamp)
+
+SET(
+	AMP_SOURCES
+		main.cpp
+		amptool.cpp
+		util.cpp
+)
+
+
+SET(
+	AMP_HEADERS
+		amptool.h
+		util.h
+)
+
+
+INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+
+SC_ADD_EXECUTABLE(AMP ${AMP_TARGET})
+SC_LINK_LIBRARIES_INTERNAL(${AMP_TARGET} processing)

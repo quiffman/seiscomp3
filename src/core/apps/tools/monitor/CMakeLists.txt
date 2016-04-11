@@ -1,0 +1,26 @@
+SET(SCM_TARGET scm)
+
+SET(
+    SCM_HEADERS
+    monitor.h
+)
+
+SET(
+    SCM_SOURCES
+    monitor.cpp
+    main.cpp
+)
+
+
+INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
+
+SUBDIRS(
+	seiscomp3
+	plugins
+)
+
+
+SC_ADD_EXECUTABLE(SCM ${SCM_TARGET})
+SC_LINK_LIBRARIES_INTERNAL(${SCM_TARGET} client mplugin)

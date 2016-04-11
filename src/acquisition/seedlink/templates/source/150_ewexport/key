@@ -1,0 +1,4 @@
+SOURCE_DESC="Earthworm export server (TCP/IP)"
+SOURCE_ATTR="tcp,raw,instance_per_address"
+SOURCE_MSG=""
+SPROC="stream_20"

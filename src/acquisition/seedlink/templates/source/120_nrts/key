@@ -1,0 +1,10 @@
+SOURCE_DESC="IRIS/IDA NRTS (TCP/IP)"
+SOURCE_ATTR="tcp,raw,instance_per_address"
+SOURCE_MSG="By default all stations/streams are requested from the NRTS server,
+even those that are not configured in SeisComP. That is a waste of
+bandwith, so editing $PKGROOT/templates/source/nrts/seedlink_plugin.tpl
+(adding -m option to nrts_plugin) or creating a custom data source under
+$PKGROOT/templates/source/ is recommended"
+SRCADDR="idahub.ucsd.edu"
+SRCPORT="39136"
+SPROC="nrts"

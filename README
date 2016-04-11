@@ -1,0 +1,13 @@
+Dependencies:
+ - libxml2-devel
+ - libboost-devel
+ - libspread-devel 4.0
+ - libmseed
+ - libspread
+ - rlog-devel
+ - libf2c
+
+* Compiling seiscomp3
+
+type:
+    make -f Makefile.cvs

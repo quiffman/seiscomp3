@@ -1,0 +1,124 @@
+<?xml version="1.0" standalone="yes"?>
+<streams>
+  <proc name="nrts_common">
+    <tree>
+      <input name="00ENE" channel="NE" location="00" rate="100"/>
+      <input name="00ENN" channel="NN" location="00" rate="100"/>
+      <input name="00ENZ" channel="NZ" location="00" rate="100"/>
+      <node stream="E"/>
+    </tree>
+    <tree>
+      <input name="00SHE" channel="HE" location="00" rate="40"/>
+      <input name="00SHN" channel="HN" location="00" rate="40"/>
+      <input name="00SHZ" channel="HZ" location="00" rate="40"/>
+      <input name="00SLE" channel="LE" location="00" rate="40"/>
+      <input name="00SLN" channel="LN" location="00" rate="40"/>
+      <input name="00SLZ" channel="LZ" location="00" rate="40"/>
+      <node stream="S"/>
+    </tree>
+    <tree>
+      <input name="20BHE" channel="HE" location="20" rate="40"/>
+      <input name="20BHN" channel="HN" location="20" rate="40"/>
+      <input name="20BHZ" channel="HZ" location="20" rate="40"/>
+      <input name="10BH1" channel="H1" location="10" rate="40"/>
+      <input name="10BH2" channel="H2" location="10" rate="40"/>
+      <input name="10BHE" channel="HE" location="10" rate="40"/>
+      <input name="10BHN" channel="HN" location="10" rate="40"/>
+      <input name="10BHZ" channel="HZ" location="10" rate="40"/>
+      <input name="10BL1" channel="L1" location="10" rate="40"/>
+      <input name="10BL2" channel="L2" location="10" rate="40"/>
+      <input name="10BLE" channel="LE" location="10" rate="40"/>
+      <input name="10BLN" channel="LN" location="10" rate="40"/>
+      <input name="10BLZ" channel="LZ" location="10" rate="40"/>
+      <input name="00BH1" channel="H1" location="00" rate="20"/>
+      <input name="00BH2" channel="H2" location="00" rate="20"/>
+      <input name="00BHE" channel="HE" location="00" rate="20"/>
+      <input name="00BHN" channel="HN" location="00" rate="20"/>
+      <input name="00BHZ" channel="HZ" location="00" rate="20"/>
+      <node stream="B"/>
+    </tree>
+    <tree>
+      <input name="10LHE" channel="HE" location="10" rate="1"/>
+      <input name="10LHN" channel="HN" location="10" rate="1"/>
+      <input name="10LHZ" channel="HZ" location="10" rate="1"/>
+      <input name="00LH1" channel="H1" location="00" rate="1"/>
+      <input name="00LH2" channel="H2" location="00" rate="1"/>
+      <input name="00LHE" channel="HE" location="00" rate="1"/>
+      <input name="00LHN" channel="HN" location="00" rate="1"/>
+      <input name="00LHZ" channel="HZ" location="00" rate="1"/>
+      <input name="00LNE" channel="NE" location="00" rate="1"/>
+      <input name="00LNN" channel="NN" location="00" rate="1"/>
+      <input name="00LNZ" channel="NZ" location="00" rate="1"/>
+      <node stream="L"/>
+    </tree>
+    <tree>
+      <input name="  PHA" channel="HA" location="" rate="1"/>
+      <input name="  PLE" channel="LE" location="" rate="1"/>
+      <input name="  PLL" channel="LL" location="" rate="1"/>
+      <input name="  PPS" channel="PS" location="" rate="1"/>
+      <node stream="P"/>
+    </tree>
+    <tree>
+      <input name="00VAE" channel="AE" location="00" rate="1/10"/>
+      <input name="00VAN" channel="AN" location="00" rate="1/10"/>
+      <input name="00VGZ" channel="GZ" location="00" rate="1/10"/>
+      <input name="00VH1" channel="H1" location="00" rate="1/10"/>
+      <input name="00VH2" channel="H2" location="00" rate="1/10"/>
+      <input name="00VHE" channel="HE" location="00" rate="1/10"/>
+      <input name="00VHN" channel="HN" location="00" rate="1/10"/>
+      <input name="00VHZ" channel="HZ" location="00" rate="1/10"/>
+      <input name="00VM1" channel="M1" location="00" rate="1/10"/>
+      <input name="00VM2" channel="M2" location="00" rate="1/10"/>
+      <input name="00VME" channel="ME" location="00" rate="1/10"/>
+      <input name="00VMN" channel="MN" location="00" rate="1/10"/>
+      <input name="00VMZ" channel="MZ" location="00" rate="1/10"/>
+      <input name="00VSA" channel="SA" location="00" rate="1/10"/>
+      <input name="00VSB" channel="SB" location="00" rate="1/10"/>
+      <input name="00VSC" channel="SC" location="00" rate="1/10"/>
+      <input name="10VHE" channel="HE" location="10" rate="1/10"/>
+      <input name="10VHN" channel="HN" location="10" rate="1/10"/>
+      <input name="10VHZ" channel="HZ" location="10" rate="1/10"/>
+      <input name="10VMU" channel="MU" location="10" rate="1/10"/>
+      <input name="10VMV" channel="MV" location="10" rate="1/10"/>
+      <input name="10VMW" channel="MW" location="10" rate="1/10"/>
+      <input name="  VE1" channel="E1" location="" rate="1/10"/>
+      <input name="  VE2" channel="E2" location="" rate="1/10"/>
+      <node stream="V"/>
+    </tree>
+  </proc>
+
+  <proc name="nrts">
+    <using proc="nrts_common"/>
+    <tree>
+      <input name="00WDI" channel="DI" location="00" rate="1"/>
+      <input name="00WDO" channel="DO" location="00" rate="1/2"/>
+      <node stream="W"/>
+    </tree>
+  </proc>
+
+  <proc name="nrts_bfo">
+    <using proc="nrts_common"/>
+    <tree>
+      <input name="00WDI" channel="DI" location="00" rate="1/10"/>
+      <input name="00WDO" channel="DO" location="00" rate="1/10"/>
+      <node stream="W"/>
+    </tree>
+    <tree>
+      <input name="00UGZ" channel="GZ" location="00" rate="1/10"/>
+      <node stream="U"/>
+    </tree>
+  </proc>
+  
+  <proc name="nrts_xpl">
+    <tree>
+      <input name="  EW" channel="W" location="" rate="1"/>
+      <node stream="E"/>
+    </tree>
+    <tree>
+      <input name="  NS" channel="S" location="" rate="1"/>
+      <input name="  NW" channel="W" location="" rate="1"/>
+      <node stream="N"/>
+    </tree>
+  </proc>
+</streams>
+

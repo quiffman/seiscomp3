@@ -1,0 +1,760 @@
+#!/bin/bash
+
+if [ -z "$SEISCOMP_ROOT" ]; then
+    echo "SEISCOMP_ROOT is not defined"
+    exit 1
+fi
+
+pkgname="acquisition"
+PKGROOT="$SEISCOMP_ROOT/$pkgname"
+
+if ! cd "$PKGROOT"; then
+    echo "Cannot change directory to $PKGROOT"
+    exit 1
+fi
+
+if [ ! -r "$SEISCOMP_ROOT/lib/env.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/env.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/env.sh"
+
+if [ ! -r "$SEISCOMP_ROOT/lib/keyutils.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/keyutils.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/keyutils.sh"
+
+global_cfg="$(GetTemplate global.cfg)"
+if [ ! -r "$global_cfg" ]; then
+    echo "Cannot read $PKGROOT/$global_cfg!"
+    exit 1
+fi
+
+station_cfg="$(GetTemplate station.cfg)"
+if [ ! -r "$station_cfg" ]; then
+    echo "Cannot read $PKGROOT/$station_cfg!"
+    exit 1
+fi
+
+tmpkey_cfg="$(GetTemplate tmpkey.cfg)"
+if [ ! -r "$tmpkey_cfg" ]; then
+    echo "Cannot read $PKGROOT/$tmpkey_cfg!"
+    exit 1
+fi
+
+export PATH="$PKGROOT/bin:$PATH"
+
+KEY_VERSION="2.5"
+
+SED=sed
+gsed -e p </dev/null >/dev/null 2>&1 && SED=gsed
+
+grepq() {
+    grep "$@" >/dev/null
+}
+
+_init_keys() {
+    source "$SEISCOMP_ROOT/key/global"
+    if [ "$CONFIG_STYLE" = arclink ]; then
+        SEEDLINK="no"
+    else
+        SEEDLINK="yes"
+    fi
+
+    mkdir -p key
+
+    DIGISERV="no"
+    SLARCHIVE="no"
+    MSRTSIMUL="no"
+    UDPBASE="5500"
+    SOURCE=""
+    SOURCE_DESC=""
+    SOURCE_ATTR=""
+    SOURCE_MSG=""
+    SRCADDR=""
+    SRCPORT=""
+    SRCADDR2=""
+    SRCPORT2=""
+    SPROC=""
+    SLOT=""
+    UDPPORT="auto"
+    COMPORT=""
+    BAUDRATE=""
+    COMPORT2=""
+    BAUDRATE2=""
+    TERMPORT=""
+    SERIAL=""
+    AUTH=""
+    DIAL="no"
+    DIAL_UPTIME="900"
+    DIAL_SCHEDULE="0,30 * * * *"
+    SELECTORS=""
+    TRIG="no"
+    ARCH_SELECTORS=""
+    ARCH_KEEP="30"
+    ACCESS=""
+}
+
+_edit_globals() {
+    _init_keys
+
+    if [ -f "key/global" ]; then
+        source key/global
+    fi
+
+    if [ "$CONFIG_STYLE" != simple ]; then
+        AskYN SEEDLINK "Enable local SeedLink" "$SEEDLINK"
+
+        if [ "$SEEDLINK" = yes ]; then
+            #AskYN DIGISERV "Enable Digiserv (required for triggering)" "$DIGISERV"
+            
+            clients_digiserv="yes"
+            if [ "$LOCALSOURCE" != digiserv ]; then
+                clients_digiserv="no"
+            fi
+            
+            if [ "$DIGISERV" = yes ]; then
+                AskYN clients_digiserv "Connect local clients to Digiserv instead of SeedLink" "$clients_digiserv"
+            fi
+
+            LOCALSOURCE=seedlink
+            if [ "$clients_digiserv" = yes ]; then
+                LOCALSOURCE=digiserv
+            fi
+        else
+            DIGISERV="no"
+            LOCALSOURCE=remote
+        fi
+
+        Ask SLARCHIVE "Enable slarchive" "$SLARCHIVE"
+        Ask MSRTSIMUL "Enable real-time simulation" "$MSRTSIMUL"
+        #Ask UDPBASE "First local UDP port (Q330)" "$UDPBASE"
+    else
+        SEEDLINK="yes"
+        DIGISERV="no"
+        LOCALSOURCE=seedlink
+    fi
+    
+    OutputKeys $global_cfg >key/global
+}
+
+_select_source() {
+    if [ "$(echo $(GetTemplate source)/*)" = "$(GetTemplate source)/*" ]; then
+        echo "Cannot find datasource definitions"
+        exit 1
+    fi
+        
+    n=0
+    cursrc="$SOURCE"
+    selsrc=0
+    echo
+    for s in $(GetTemplate source)/[0-9]*; do
+        src[n]="${s##*/}"
+        if [ "$cursrc" = "$(echo ${src[n]} | $SED -e 's/^[0-9]*_//')" ]; then
+            selsrc="$n"
+        fi
+
+        (
+            source "$s/key"
+            if [ $n -le 9 ]; then
+                echo " $n) $SOURCE_DESC"
+            else
+                echo "$n) $SOURCE_DESC"
+            fi
+        )
+
+        n=$((n+1))
+    done
+
+    Ask selsrc "Data source" "$selsrc"
+    SOURCE="$(echo "${src[$((selsrc))]}" | $SED -e 's/^[0-9]*_//')"
+    srcdir="$(GetTemplate source)/${src[$((selsrc))]}"
+    source "$srcdir/key"
+    echo "Selected $SOURCE_DESC"
+}        
+    
+_edit_keys() {
+    _init_keys
+
+    if [ ! -f "$SEISCOMP_ROOT/key/global" ]; then
+        echo "Cannot find $SEISCOMP_ROOT/key/global"
+        return
+    fi
+
+    source "$SEISCOMP_ROOT/key/global"
+    
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    if [ -f "$keyfile" ]; then
+        source "$keyfile"
+    fi
+
+    prevsrc="$SOURCE"
+    
+    if [ "$SEEDLINK" = yes ]; then
+        _select_source
+
+        if [ "$prevsrc" = "$SOURCE" -a -f "$keyfile" ]; then
+            source "$keyfile"
+        fi
+    
+        if echo $SOURCE_ATTR | grepq "\<chain\>"; then
+            Ask SRCADDR "IP address or hostname" "$SRCADDR"
+            Ask SRCPORT "TCP port" "$SRCPORT"
+
+            seedlink_mode=0
+            if [ "$DIAL" = yes ]; then
+                seedlink_mode=1
+            fi
+            
+            echo
+            echo "0) Real-time"
+            echo "1) Dial-up"
+            Ask seedlink_mode "SeedLink mode" "$seedlink_mode"
+
+            if [ "$seedlink_mode" = 1 ]; then
+                DIAL="yes"
+                Ask DIAL_SCHEDULE "Dial-up schedule" "$DIAL_SCHEDULE"
+                Ask DIAL_UPTIME "Uptime" "$DIAL_UPTIME"
+            else
+                DIAL="no"
+            fi
+
+            Ask SELECTORS "Stream selectors" "$SELECTORS"
+        
+        elif echo $SOURCE_ATTR | grepq "\<q330\>"; then
+            Ask SRCADDR "IP address of Q330" "$SRCADDR"
+            Ask SRCPORT "Base UDP port of Q330" "$SRCPORT"
+            Ask SLOT "Q330 dataport (1-4)" "$SLOT"
+            Ask SERIAL "Q330 serial number" "$SERIAL"
+            Ask AUTH "Q330 auth code" "$AUTH"
+            Ask UDPPORT "Base UDP port on the SeisComP" "$UDPPORT"
+
+        elif echo $SOURCE_ATTR | grepq "\<reftek\>"; then
+            Ask SRCADDR "IP address or hostname of RTPD" "$SRCADDR"
+            Ask SRCPORT "TCP port of RTPD" "$SRCPORT"
+            Ask UNIT "Unit ID" "$UNIT"
+            UNIT="$(echo $UNIT | tr '[:lower:]' '[:upper:]')"
+
+        elif echo $SOURCE_ATTR | grepq "\<tcp\>"; then
+            Ask SRCADDR "IP address or hostname" "$SRCADDR"
+            Ask SRCPORT "TCP port" "$SRCPORT"
+            
+        elif echo $SOURCE_ATTR | grepq "\<serial\>"; then
+            Ask COMPORT "Data port of digitizer" "${COMPORT}"
+            Ask BAUDRATE "Baud rate of digitizer" "${BAUDRATE}"
+        fi
+
+        if echo $SOURCE_ATTR | grepq "\<udp\>"; then
+            Ask SRCPORT "Local UDP port" "$UDPPORT"
+        fi
+        
+        if echo $SOURCE_ATTR | grepq "\<terminal\>"; then
+            Ask TERMPORT "Terminal port" "/dev/terminal"
+        fi
+
+        if echo $SOURCE_ATTR | grepq "\<serialws\>"; then
+            Ask COMPORT2 "Data port of weather station" "${COMPORT2}"
+            Ask BAUDRATE2 "Baud rate of weather station" "${BAUDRATE2}"
+        fi
+
+        if echo $SOURCE_ATTR | grepq "\<wago\>"; then
+            Ask SRCADDR2 "IP address of WAGO" "${SRCADDR2}"
+            Ask SRCPORT2 "TCP port of WAGO" "${SRCPORT2}"
+            Ask WAGO_CHAN "List of WAGO channels" "$WAGO_CHAN"
+        fi
+
+        if [ ! -z "$SOURCE_MSG" ]; then
+            echo
+            echo -e "$SOURCE_MSG"
+            echo
+        fi
+        
+        if echo $SOURCE_ATTR | grepq "\<raw\>"; then
+            Ask SPROC "Stream processing scheme" "$SPROC"
+            echo
+            echo "Make sure that your actual digitizer/DAS setup matches the stream"
+            echo "processing scheme \"$SPROC\" in streams.xml!"
+            echo
+        fi
+        
+        if [ "$DIGISERV" = yes ]; then
+            AskYN TRIG "Triggered streams" "$TRIG"
+            if [ "$TRIG" = yes ]; then
+                echo
+                echo "Make sure that autopick is enabled!"
+                echo "By default HH* and HN* streams are triggered. This can be changed in"
+                echo "$srcdir/chain_digiserv_station_trig.tpl"
+                echo "Note that triggered streams are independent of the stream which is"
+                echo "used for detection by autopick."
+                echo
+            fi
+        fi
+    else
+        SOURCE=""
+        Ask SRCADDR "IP address or hostname" "$SRCADDR"
+        Ask SRCPORT "TCP port" "$SRCPORT"
+    fi
+
+    if [ "$SLARCHIVE" = yes ]; then
+        if [ "$CONFIG_STYLE" != simple ]; then
+            Ask ARCH_SELECTORS "Archive selectors" "$ARCH_SELECTORS"
+        fi
+
+        Ask ARCH_KEEP "Number of days to keep archived data" "$ARCH_KEEP"
+    fi
+
+    Ask ACCESS "SeedLink access restriction (space separated list of IP/netmask)" "$ACCESS"
+
+    OutputKeys $station_cfg >$keyfile
+}
+
+_get_keys() {
+    pkg="$1"
+    profile="$(echo "$PACKAGES" | $SED -e "s/.*\<$pkg\>\(:\([^ ]*\)\)\?.*/\2/")"
+    
+    if [ -z "$profile" ]; then
+        keyfile="$SEISCOMP_ROOT/$pkg/key/station_${NET}_${STATION}"
+    else
+        keyfile="$SEISCOMP_ROOT/$pkg/key/profile_$profile"
+    fi
+
+    if [ -f "$keyfile" ]; then
+        source "$keyfile"
+        return 0
+    fi
+
+    return 1
+}
+
+_get_source() {
+    srcidx="$(echo $(GetTemplate source)/[0-9]* "" | $SED -e "s/\/[0-9]*_$SOURCE .*//" | wc -c)"
+
+    if [ -n "${srcdir_cache[$srcidx]}" ]; then
+        SOURCE_ATTR="${SOURCE_ATTR_cache[$srcidx]}"
+        srcdir="${srcdir_cache[$srcidx]}"
+    else
+        SOURCE_ATTR=""
+        srcdir=""
+        for s in $(GetTemplate source)/[0-9]*$SOURCE; do
+            src="$(echo "${s##*/}" | $SED -e 's/^[0-9]*_//')"
+            if [ "$src" = "$SOURCE" ]; then
+                SOURCE_ATTR="$( (source "$s"/key; echo $SOURCE_ATTR) )"
+                srcdir="$s"
+                break
+            fi
+        done
+
+        SOURCE_ATTR_cache[$srcidx]="$SOURCE_ATTR"
+        srcdir_cache[$srcidx]="$srcdir"
+    fi
+}
+
+_write_conf() {
+    LoadConfig "$global_cfg" "$tmpkey_cfg"
+
+    INSTALL_SPROC="no"
+    INSTALL_TRIGGER="no"
+    DAEMON_OPT=""
+
+    _init_keys
+    
+    if [ ! -f "$SEISCOMP_ROOT/key/global" ]; then
+        echo "Cannot find $SEISCOMP_ROOT/key/global"
+        return
+    fi
+
+    source "$SEISCOMP_ROOT/key/global"
+    
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    if [ "$SYSLOG" = yes ]; then
+        DAEMON_OPT="-D"
+    fi
+    
+    rm -rf config/*
+    rm -rf operator/*
+    mkdir -p config/store
+
+    nstat=0
+    for n in $SEISCOMP_ROOT/key/network_*; do
+        if [ "$n" = "$SEISCOMP_ROOT/key/network_*" ]; then
+            echo "No networks defined"
+            break
+        fi
+        
+        NET="${n##*_}"
+        source $n
+
+        echo "+ network $NET_DESC"
+        
+        for s in $SEISCOMP_ROOT/key/station_${NET}_*; do
+            if [ "$s" = "$SEISCOMP_ROOT/key/station_${NET}_*" ]; then
+                echo "No stations defined for network $NET"
+                break
+            fi
+
+            STATION="${s##*_}"
+            source $s
+
+            echo "  + station $STAT_DESC"
+
+            if echo $PACKAGES | grepq "\<$pkgname\>"; then
+                if ! _get_keys $pkgname; then
+                    echo "    - cannot find $keyfile"
+                    continue
+                fi
+            else
+                echo "    - $pkgname not enabled for ${NET}_${STATION}"
+                continue
+            fi
+
+            if [ "$SEEDLINK" = yes -a "$DIGISERV" = yes -a "$TRIG" = yes ]; then
+                if echo $PACKAGES | grepq "\<autopick\>"; then
+                    if ! _get_keys autopick; then
+                        echo "    - cannot find $keyfile"
+                        continue
+                    fi
+                else
+                    echo "    - autopick not enabled for ${NET}_${STATION} - disabling trigger"
+                    TRIG="no"
+                fi
+            fi
+
+            statext=0
+            STATID="$STATION"
+            while [ -f config/rc_$STATID ]; do
+                statext=$((statext+1))
+                STATID="${STATION}${statext}"
+            done
+
+            if [ "$UDPPORT" = "auto" ]; then
+                UDPPORT="$((2 * nstat + UDPBASE))"
+            fi
+            
+            CHAIN_XML="chain.xml"
+            if [ "$DIGISERV" = yes ]; then
+                CHAIN_XML="chain_digiserv.xml"
+            fi    
+           
+            if [ "$SEEDLINK" = yes ]; then
+                if [ -z "$SOURCE" ]; then
+                    SOURCE="chain"
+                    DIAL="no"
+                fi
+            
+                if [ "$MSRTSIMUL" = no ]; then
+                    _get_source
+
+                    if [ -z "$srcdir" ]; then
+                        echo "    - cannot find data source $SOURCE"
+                        continue
+                    fi
+                    
+                    if echo $SOURCE_ATTR | grepq "\<wago\>"; then
+                        chan_used="$(echo $WAGO_CHAN $(seq 256) | sed -e 's/,/ /g' | cut -d ' ' -f 1-256)"
+                        for c in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do
+                            eval SID_$c="$(eval echo \$\{chan_used%$c *\} | wc -w)"
+                        done
+                    fi
+                    
+                    if echo $SOURCE_ATTR | grepq "\<chain\>"; then
+                        if [ "$DIAL" = yes ]; then
+                            OutputFile $srcdir/chain_dialup_group.tpl > \
+                              config/store/chain_dialup_"$STATID"
+                        else
+                            OutputFile $srcdir/chain_realtime_station.tpl > \
+                              config/store/chain_realtime_"$SRCADDR":"$SRCPORT"_"$STATID"
+                        fi
+
+                        OutputFile $(GetTemplate seedlink_plugin.tpl) > config/store/seedlink_plugin_chain
+                      
+                    elif echo $SOURCE_ATTR | grepq "\<instance_per_station\>"; then
+                        OutputFile $srcdir/plugins.ini.tpl > config/store/plugins.ini_$STATID
+                        OutputFile $srcdir/seedlink_plugin.tpl > config/store/seedlink_plugin_$STATID
+
+                    elif echo $SOURCE_ATTR | grepq "\<instance_per_address\>"; then
+                        ext="$(ls config/store/plugins.ini_${SOURCE}_* 2>/dev/null | wc -w)"
+                        PLUGINID="$SOURCE$((ext))"
+
+                        if [ ! -f "config/store/plugins.ini_${SOURCE}_${SRCADDR}:${SRCPORT}" ]; then
+                            OutputFile $srcdir/plugins.ini.tpl > config/store/plugins.ini_${SOURCE}_${SRCADDR}:${SRCPORT}
+                            OutputFile $srcdir/seedlink_plugin.tpl > config/store/seedlink_plugin_${SOURCE}_${SRCADDR}:${SRCPORT}
+                        fi
+
+                    else
+                        OutputFile $srcdir/plugins.ini.tpl > config/store/plugins.ini_$SOURCE
+                        OutputFile $srcdir/seedlink_plugin.tpl > config/store/seedlink_plugin_$SOURCE
+                    fi
+
+                    OutputFile $srcdir/seedlink_station.tpl > config/store/seedlink_station_$STATID
+                else
+                    SPROC=none
+                    OutputFile $(GetTemplate seedlink_station.tpl) > config/store/seedlink_station_$STATID
+                fi
+
+            elif [ ! -z "$SOURCE" ]; then
+                _get_source
+                if ! echo $SOURCE_ATTR | grepq "\<chain\>"; then
+                    echo "    - seedlink not enabled - cannot use foreign station ${NET}_${STATION}"
+                    continue
+                fi
+            fi
+
+            if [ "$DIGISERV" = yes ]; then
+                OutputKeys $tmpkey_cfg >config/store/tmpkey_$STATID
+            fi
+            
+            if [ "$SPROC" != none ]; then
+                INSTALL_SPROC="yes"
+            fi
+
+            if [ "$TRIG" = yes ]; then
+                INSTALL_TRIGGER="yes"
+            fi
+            
+            if [ "$LOCALSOURCE" = seedlink ]; then
+                SRCADDR=127.0.0.1
+                SRCPORT="$SEEDLINK_PORT"
+            elif [ "$LOCALSOURCE" = digiserv ]; then
+                SRCADDR=127.0.0.1
+                SRCPORT="$DIGISERV_PORT"
+            fi
+    
+            if [ "$SLARCHIVE" = yes ]; then
+                echo "${NET} ${STATION} ${ARCH_SELECTORS}" >>"config/slarchive_${SRCADDR}_${SRCPORT}"
+            fi
+            
+            OutputFile $(GetTemplate rc_station.tpl) > config/rc_$STATID
+            nstat=$((nstat + 1))
+        done
+    done
+
+    if [ "$SEEDLINK" = yes ]; then
+        mkdir -p seedlink
+
+        INI="seedlink"
+        CHAIN_XML="chain.xml"
+        LOCALPORT="$SEEDLINK_PORT"
+
+        if [ "$DIGISERV" = yes ]; then
+            mkdir -p digiserv
+
+            SRCADDR=127.0.0.1
+            SRCPORT="$DIGISERV_PORT"
+            CHAIN_XML="chain_seedlink.xml"
+            OutputFile $(GetTemplate chain_head.tpl) > config/$CHAIN_XML
+            OutputFile $(GetTemplate chain_digiserv_group.tpl) >> config/$CHAIN_XML
+            OutputFile $(GetTemplate seedlink_head.tpl) > config/${INI}.ini
+            OutputFile $(GetTemplate seedlink_plugin.tpl) >> config/${INI}.ini
+
+            if [ "$INSTALL_TRIGGER" = yes ]; then
+                OutputFile $(GetTemplate trigger_head.tpl) > config/trigger.ini
+            fi
+
+            for k in config/store/tmpkey_*; do
+                STATID="${k##*_}"
+                source "$k"
+                _get_source
+                if [ "$TRIG" = yes ]; then
+                    OutputFile $srcdir/chain_digiserv_station_trig.tpl >> config/$CHAIN_XML
+                    OutputFile $(GetTemplate trigger_station.tpl) >> config/trigger.ini
+                else
+                    OutputFile $srcdir/chain_digiserv_station.tpl >> config/$CHAIN_XML
+                fi
+
+                OutputFile $(GetTemplate seedlink_station.tpl) >> config/${INI}.ini
+            done
+            
+            echo "  </group>" >> config/$CHAIN_XML
+            echo "</chain>" >> config/$CHAIN_XML
+
+            if [ "$INSTALL_TRIGGER" = yes ]; then
+                FixLines config/$CHAIN_XML TRIG
+            else
+                RemoveLines config/$CHAIN_XML TRIG
+            fi
+
+            FixLines config/$CHAIN_XML SLNK
+            RemoveLines config/${INI}.ini SPROC
+
+            INI="digiserv"
+            CHAIN_XML="chain_digiserv.xml"
+            LOCALPORT="$DIGISERV_PORT"
+        fi
+
+        OutputFile $(GetTemplate chain_head.tpl) > config/$CHAIN_XML
+
+        if [ "$(echo config/store/chain_realtime_*)" != "config/store/chain_realtime_*" ]; then
+            CHAIN_ADDR_LIST=$(for f in config/store/chain_realtime_*; do
+                echo $f | $SED -e 's/^config\/store\/chain_realtime_\([^_]*\).*/\1/g'
+            done | sort | uniq)
+
+            for addr in $CHAIN_ADDR_LIST; do
+                SRCADDR="$(echo $addr | cut -d ':' -f 1)"
+                SRCPORT="$(echo $addr | cut -d ':' -f 2)"
+
+                OutputFile $(GetTemplate chain_realtime_group.tpl) >> config/$CHAIN_XML
+                cat config/store/chain_realtime_${addr}_* >> config/$CHAIN_XML
+                echo "  </group>" >> config/$CHAIN_XML
+            done
+        fi
+
+        if [ "$(echo config/store/chain_dialup_*)" != "config/store/chain_dialup_*" ]; then
+            cat config/store/chain_dialup_* >> config/$CHAIN_XML
+        fi
+
+        echo "</chain>" >> config/$CHAIN_XML
+        if [ "$DIGISERV" = yes ]; then
+            RemoveLines config/$CHAIN_XML SLNK
+        else
+            FixLines config/$CHAIN_XML SLNK
+        fi
+
+        RemoveLines config/$CHAIN_XML TRIG
+
+        OutputFile $(GetTemplate ${INI}_head.tpl) > config/${INI}.ini
+        cat config/store/seedlink_plugin_* >> config/${INI}.ini
+        cat config/store/seedlink_station_* >> config/${INI}.ini
+
+        if [ "$INSTALL_SPROC" = yes ]; then
+            FixLines config/${INI}.ini SPROC
+        else
+            RemoveLines config/${INI}.ini SPROC
+        fi
+
+        if [ "$MSRTSIMUL" = yes ]; then
+            FixLines config/${INI}.ini RTSIM
+        else
+            RemoveLines config/${INI}.ini RTSIM
+        fi
+        
+        cat config/store/plugins.ini_* > config/plugins.ini 2>/dev/null
+    fi
+
+    rm -rf config/store
+
+    mkdir -p log
+    mkdir -p operator
+    #mkdir -p python
+    mkdir -p status
+    mkdir -p seq-backup
+    mkdir -p "$SDS_PATH"
+
+    OutputFile $(GetTemplate filters.fir) > config/filters.fir
+    OutputFile $(GetTemplate streams.xml) > config/streams.xml
+    OutputFile $(GetTemplate scream2sl.map) > config/scream2sl.map
+    OutputFile $(GetTemplate win2sl.map) > config/win2sl.map
+    #OutputFile $(GetTemplate trigger_ext.py.tpl) > python/trigger_ext.py
+    OutputFile $(GetTemplate crontab.tpl) > operator/crontab
+
+    if [ "$SLARCHIVE" = yes ]; then
+        FixLines operator/crontab SLARC
+    else
+        RemoveLines operator/crontab SLARC
+    fi
+
+    OutputFile $(GetTemplate acq_ctrl.tpl) > operator/acq_ctrl
+
+    if [ "$SEEDLINK" = yes ]; then
+        if [ "$SYSLOG" = yes ]; then
+            FixLines operator/acq_ctrl SLKD
+            RemoveLines operator/acq_ctrl SLNK
+        else
+            FixLines operator/acq_ctrl SLNK
+            RemoveLines operator/acq_ctrl SLKD
+        fi
+    else
+        RemoveLines operator/acq_ctrl SLNK
+        RemoveLines operator/acq_ctrl SLKD
+    fi
+
+    if [ "$DIGISERV" = yes ]; then
+        if [ "$SYSLOG" = yes ]; then
+            FixLines operator/acq_ctrl DGSD
+            RemoveLines operator/acq_ctrl DIGS
+        else
+            FixLines operator/acq_ctrl DIGS
+            RemoveLines operator/acq_ctrl DGSD
+        fi
+    else
+        RemoveLines operator/acq_ctrl DIGS
+        RemoveLines operator/acq_ctrl DGSD
+    fi
+
+    chmod 755 operator/acq_ctrl
+
+    OutputFile $(GetTemplate purge_datafiles.tpl) >operator/purge_datafiles
+    chmod 755 operator/purge_datafiles
+
+    OutputFile $(GetTemplate backup_seqfiles.tpl) >operator/backup_seqfiles
+    chmod 755 operator/backup_seqfiles
+}
+
+action="$1"
+shift
+
+case "$action" in
+    start|stop|check)
+        operator/acq_ctrl $action
+        exit $?
+        ;;
+    get_attributes)
+        echo "globals,profile,station"
+        exit 0
+        ;;
+    edit_globals)
+        if [ $# -eq 0 ]; then
+            _edit_globals
+            exit 0
+        fi
+        ;;
+    edit_profile)
+        if [ $# -eq 1 ]; then
+            NET="NET"
+            STATION="STN"
+            keyfile="key/profile_$1"
+            _edit_keys
+            exit 0
+        fi
+        ;;
+    edit_station)
+        if [ $# -eq 2 ]; then
+            NET="$1"
+            STATION="$2"
+            keyfile="key/station_$1_$2"
+            _edit_keys
+            exit 0
+        fi
+        ;;
+    write_conf)
+        _write_conf
+        exit 0
+        ;;
+    setup)
+        exit 0
+        ;;
+    print_crontab)
+        if [ -f "operator/crontab" ]; then
+            cat operator/crontab
+        fi
+        exit 0
+        ;;
+esac
+
+echo "Error: $pkgname config hook called with invalid arguments"
+exit 1
+

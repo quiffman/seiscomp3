@@ -1,0 +1,24 @@
+SET(SCIMEX_TARGET scimex)
+
+SET(
+    SCIMEX_HEADERS
+    imeximpl.h
+    imex.h
+    imexmessage.h
+    criterion.h
+    imexscdm051.h
+)
+
+SET(
+    SCIMEX_SOURCES
+    imex.cpp
+    imeximpl.cpp
+    imexmessage.cpp
+    criterion.cpp
+	imexscdm051.cpp
+	main.cpp
+)
+
+SC_ADD_EXECUTABLE(SCIMEX ${SCIMEX_TARGET})
+TARGET_LINK_LIBRARIES(${SCIMEX_TARGET} ${Boost_thread_LIBRARIES})
+SC_LINK_LIBRARIES_INTERNAL(${SCIMEX_TARGET} client log utils datamodel)

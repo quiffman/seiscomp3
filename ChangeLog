@@ -1,0 +1,3 @@
+2006/09/04
+- included new scheme from Andres (FloatArray, ComplexArray)
+  => classes have to be generated again to avoid compile errors

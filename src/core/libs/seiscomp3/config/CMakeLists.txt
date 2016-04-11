@@ -1,0 +1,25 @@
+SET(
+	CORE_CONFIG_SOURCES
+		config.cpp
+		symboltable.cpp
+		environment.cpp
+)
+
+SET(
+	CORE_CONFIG_HEADERS
+		config.h
+		symboltable.h
+		exceptions.h
+		environment.h
+)
+
+ADD_DEFINITIONS(-DSEISCOMP3_ROOT=\\\""${SC3_PACKAGE_INSTALL_PREFIX}"\\\")
+ADD_DEFINITIONS(-DSEISCOMP3_SHARE_DIR=\\\""share"\\\")
+ADD_DEFINITIONS(-DSEISCOMP_CONFIG_DIR=\\\""etc"\\\")
+
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+
+SC_ADD_LIBRARY(CORE_CONFIG config)
+SC_LIB_LINK_LIBRARIES_INTERNAL(config core log utils)
+#SC_LIB_LINK_LIBRARIES(config ${LIBXML2_LIBRARIES})
+SC_LIB_INSTALL_HEADERS(CORE_CONFIG)

@@ -1,0 +1,6 @@
+SOURCE_DESC="Earth Data PS2400/PS6-24 digitizer (firmware >= 2.23; TCP/IP)"
+SOURCE_ATTR="tcp,raw,instance_per_station"
+SOURCE_MSG=""
+SRCADDR=""
+SRCPORT="1411"
+SPROC="edata_100"

@@ -1,0 +1,5 @@
+SOURCE_DESC="LISS server (TCP/IP)"
+SOURCE_ATTR="tcp,instance_per_station"
+SOURCE_MSG=""
+SRCADDR="$STATION.$NET.liss.org"
+SRCPORT="4000"

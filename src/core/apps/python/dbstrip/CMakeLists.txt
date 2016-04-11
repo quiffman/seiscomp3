@@ -1,0 +1,8 @@
+SET(DBSTRIP_TARGET scdbstrip-mysql)
+
+SET(
+	DBSTRIP_FILES
+		scdbstrip-mysql.py
+)
+
+SC_ADD_PYTHON_EXECUTABLE(DBSTRIP)

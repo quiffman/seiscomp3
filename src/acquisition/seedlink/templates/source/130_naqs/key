@@ -1,0 +1,6 @@
+SOURCE_DESC="NAQS server (TCP/IP)"
+SOURCE_ATTR="tcp,raw,instance_per_address"
+SOURCE_MSG=""
+SRCADDR="127.0.0.1"
+SRCPORT="28000"
+SPROC="naqs"

@@ -1,0 +1,14 @@
+IF (COMPONENT_ENVIRONMENT)
+	SET(env_dir env)
+ENDIF (COMPONENT_ENVIRONMENT)
+
+SUBDIRS(apps ${env_dir})
+
+INSTALL(
+	DIRECTORY
+		templates
+		lib
+	DESTINATION
+		arclink
+	PATTERN ".svn" EXCLUDE
+)

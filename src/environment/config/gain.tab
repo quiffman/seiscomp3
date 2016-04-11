@@ -1,0 +1,226 @@
+TITAN-3XT       *               *         429000.0
+TITAN-6NT       *               *         210500.0
+PS6-SC          *              V*              1.568e6
+PS6-SC          *               *              0.392e6
+PS6-VHL         *               *              0.392e6
+PS6-HG          *              V*              4.0e6
+PS6-HG          *               *              1.0e6
+PS6-Log         *               *              1.0e6
+DM24/ES         *               *         308642.0
+DM24            *               *         392157.0
+MK6-1           *               *        3355443.0
+MK6-2           *               *        3355443.0
+K2              k2drgr1         *Z           548.0
+K2              k2drgr1         *N           571.0
+K2              k2drgr1         *E           539.0
+K2              *               *         335540.0
+HDR24/N         *               *         788033.0
+HDR24-SC        *              V*        3152132.0
+HDR24-SC        *               *         788033.0
+Orion           *               *         392157.0
+Trident/N       *               *         419430.0
+EUROPA-T        *               *        6666700.0
+Q380-U          *              V*        1640000.0
+Q380-U          *              U*        1640000.0
+Q380-U          *               *         410000.0
+Q380-M          *              V*        1640000.0
+Q380-M          *              U*        1640000.0
+Q380-M          *               *         410000.0
+Q380-IU         *              L*        1677720.0
+Q380-IU         *              V*        6710880.0
+Q380-IU         *              U*        6710880.0
+Q380-IU         *               *         419430.0
+Q380-IM         *              L*        1677720.0
+Q380-IM         *              V*        6710880.0
+Q380-IM         *              U*        6710880.0
+Q380-IM         *               *         419430.0
+Q4120-U         *              V*        1640000.0
+Q4120-U         *              U*        1640000.0
+Q4120-U         *               *         410000.0
+Q4120-M         *              V*        1640000.0
+Q4120-M         *              U*        1640000.0
+Q4120-M         *               *         410000.0
+Q330            *               *         419430.0
+Q330/N          *               *         419430.0
+Q330/HR         *              ?H?       1677720.0
+Q330/HR         *              ?L?        419430.0
+Q330-SC         *              V*        1677720.0
+Q330-SC         *              U*        1677720.0
+Q330-SC         *               *         419430.0
+Q330-SC/HR      *              VH?       6710880.0
+Q330-SC/HR      *              VL?       1677720.0
+Q330-SC/HR      *              UH?       6710880.0
+Q330-SC/HR      *              UL?       1677720.0
+Q330-SC/HR      *               *        1677720.0
+Q52K            *              L*        1600000.0
+Q52K            *              V*        6400000.0
+Q52K            *              U*        6400000.0
+Q52K            *               *         400000.0
+Gaia            *               *         840336.0
+PR2400          *               *              1.0e6
+SEDIS-III       *               *           7282.0
+SEDIS-IV        *               *              1.165e6
+DR24            *              V*        1064334.4
+DR24            *               *         266083.6
+PDAS-100        *               *     2147483648.0
+PDAS-100/LG     *               *         209715.2
+SEMS/HG         *               *              4.22e6
+SEMS            *               *              1.6e6
+PCM5800         *               *              1.0e6
+REFTEK-72A      *               *         524384.0
+REFTEK-130      *               *         629121.0
+LS-7000         *              V*        1636660.0
+LS-7000         *               *         409165.0
+Lynx            *               *         404040.0
+
+# Sensor calibrations
+STS-1/VBB       S1isp1          *Z          2550.0
+STS-1/VBB       S1isp1          *N          2324.0
+STS-1/VBB       S1isp1          *E          2292.0
+STS-1/VBB       S1kbs1          *Z          2596.0
+STS-1/VBB       S1kbs1          *N          2336.0
+STS-1/VBB       S1kbs1          *E          2400.0
+STS-1/VBB       S1kmbo1         *Z          2452.0
+STS-1/VBB       S1kmbo1         *N          2312.0
+STS-1/VBB       S1kmbo1         *E          2332.0
+STS-1/VBB       S1kmbo2         *Z          1572.0
+STS-1/VBB       S1kmbo2         *N          2312.0
+STS-1/VBB       S1kmbo2         *E          2332.0
+STS-1/VBB       S1lvc1          *Z          2566.0
+STS-1/VBB       S1lvc1          *N          2292.0
+STS-1/VBB       S1lvc1          *E          2314.0
+STS-1/VBB       S1pmg1          *Z          2514.0
+STS-1/VBB       S1pmg1          *N          2270.0
+STS-1/VBB       S1pmg1          *E          2262.0
+STS-1/VBB       S1sfj1          *Z          2472.0
+STS-1/VBB       S1sfj1          *N          2312.0
+STS-1/VBB       S1sfj1          *E          2314.0
+STS-1/VBB       S1cop           *Z          2222.0
+STS-1/VBB       S1cop           *N          2186.0
+STS-1/VBB       S1cop           *E          2252.0
+CMG-3T/HG       GTpmg1          *Z          20066.0
+CMG-3T/HG       GTpmg1          *N          19510.0
+CMG-3T/HG       GTpmg1          *E          20244.0
+CMG-3T/HG       GTlvc1          *Z          19968.0
+CMG-3T/HG       GTlvc1          *N          20016.0
+CMG-3T/HG       GTlvc1          *E          20068.0
+
+# Special gains
+STS-2/N         yyyy/20000      *           20000.0
+KS2000/100      yyyy/550        *             550.0
+CMG-3T/120      yyyy/3000       *            3000.0
+CMG-3ESP/120    yyyy/1500       *            1500.0
+
+# KOERI
+CMG-DM24        *               *         392157.0
+
+CMG-3T/120      T3W28           *Z          2966.0
+CMG-3T/120      T3W28           *N          2975.0
+CMG-3T/120      T3W28           *E          2973.0
+CMG-3T/120      T3W96           *Z          2956.0
+CMG-3T/120      T3W96           *N          2994.0
+CMG-3T/120      T3W96           *E          2973.0
+CMG-3T/120      *               *           3000.0
+
+CMG-40T/30      T4949           *Z          1587.0
+CMG-40T/30      T4949           *N          1595.0
+CMG-40T/30      T4949           *E          1599.0
+CMG-40T/30      *               *           1600.0
+
+CMG-3T/120      T3V84           *Z          2949.0
+CMG-3T/120      T3V84           *N          2955.0
+CMG-3T/120      T3V84           *E          2963.0
+CMG-3T/120      *               *           3000.0
+CMG-3T/360      *               *           3000.0
+
+CMG-3SP/30      T3G51           *Z          2990.0
+CMG-3SP/30      T3G51           *N          3022.0
+CMG-3SP/30      T3G51           *E          2983.0
+CMG-3SP/30      T3G53           *Z          2957.0
+CMG-3SP/30      T3G53           *N          2982.0
+CMG-3SP/30      T3G53           *E          2976.0
+
+CMG-3ESP/30     *               *           3000.0
+CMG-3ESP/60     *               *           3000.0
+CMG-3ESPC/30    *               *           3000.0
+CMG-3ESPC/120   *               *           3000.0
+
+CMG-6T/30       *               *           1600.0
+
+CMG-3T          *               *           1500.0
+CMG40T/ES       *               *           4050.0
+
+# Sensor type: VBB
+Trillium-120    *               *           1201.0
+BBVS-120        *               *           2000.0
+BBVS-60         *               *           2000.0
+CMG-3T/100      *               *           1500.0
+CMG-3T/120      *               *           1500.0
+CMG-3T/120F     *               *           1500.0
+STS-1/VBB       *               *           2400.0
+STS-2/N         *               *           1500.0
+STS-2N          *               *           1500.0
+STS-2/G1        *               *           1500.0
+STS-2/G2        *               *           1500.0
+STS-2/G3        *               *           1500.0
+STS-2/HG        *               *          20000.0
+STS-2/CZ        *               *           1500.0
+
+# Sensor type: BB
+Trillium-40     *               *            800.0
+KS2000/100      *               *           2000.0
+KS2000/120      *               *           2000.0
+CMG-3ESP/120    *               *           2000.0
+CMG-3ESP/90     *               *           2000.0
+CMG-3ESP/60     *               *           2000.0
+CMG-3ESP/60F    *               *           2000.0
+CMG-3ESP/30     *               *           2000.0
+CMG-40T/30      *               *            800.0
+SKD             *               *            210.0
+LE-3D/20        *               *           1000.0
+TSJ             *               *           1000.0
+
+# Sensor type: SP
+LE-3D/1         *               *            400.0
+LE-3D/5         *               *            400.0
+L4-3D           *               *            170.0
+L4-3D/BO        *               *            190.0
+S13/BO          *               *            270.0
+GS13/BO         *               *           2000.0
+SKM-3/CZ        *               *            220.0
+SKM-3/SK        *               *             75.0
+SM-3/CZ         *               *            220.0
+SM-3/SK         *               *           1300.0
+
+# Sensor type: SM
+FBA-EST/1.25    *               *              0.1274
+FBA-EST/2.0     *               *              0.2038
+FBA-EST/2.5     *               *              0.2548
+FBA-EST/10.0    *               *              1.0194
+FBA23           *               *              0.2548
+
+# Sensor type: OBS
+CME4011         *               *           2000.0
+SM-6            *               *             28.8
+
+# Dummies
+OBS/Kiel        *               *           2000.0
+OBH/Kiel        *               *           2000.0
+GDAS1           *               *              1.0e6
+BlueBoxII_40sps *               *              1.0e6
+BlueBoxII_20sps *               *              1.0e6
+
+# CTBTO
+IM_ASAR_SH * * 1.7e+10
+IM_ASAR_BH * * 1.6e+10
+IM_BOSA_BH * * 7.4e+9
+IM_BOSA_SH * * 1.2e+10
+IM_CMAR_BH * * 2.5e+10
+IM_CMAR_SH * * 1.7e+10
+IM_MKAR_BH * * 2.5e+10
+IM_MKAR_SH * * 1.5e+10
+IM_MK32_SH * * 7.5e+9
+IM_SONM_SH * * 9.4e+09
+IM_STKA_BH * * 2.5e+10
+IM_WRA_BH  * * 2.0e+10
+

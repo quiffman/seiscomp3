@@ -1,0 +1,13 @@
+SUBDIRS(
+	archivetool
+	bulletin
+	procalert
+	proclatency
+	voicealert
+	eplog
+	evtls
+	evtlog
+	evtstreams
+	sendorigin
+	sohlog
+)

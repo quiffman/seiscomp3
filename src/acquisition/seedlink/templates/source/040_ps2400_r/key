@@ -1,0 +1,6 @@
+SOURCE_DESC="Earth Data PS2400/PS6-24 digitizer (firmware >= 2.23; RS-232)"
+SOURCE_ATTR="serial,raw,instance_per_station"
+SOURCE_MSG=""
+COMPORT="/dev/data"
+BAUDRATE="115200"
+SPROC="edata_100"

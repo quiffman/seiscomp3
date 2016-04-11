@@ -1,0 +1,6 @@
+SOURCE_DESC="WIN server (UDP/IP)"
+SOURCE_ATTR="udp,raw,instance_per_address"
+SOURCE_MSG="Please edit $PKGROOT/templates/win2sl.map
+This file maps WIN channel IDs to station and channel names"
+SRCPORT="18000"
+SPROC="generic_100"

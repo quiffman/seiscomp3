@@ -1,0 +1,8 @@
+SET(EVTLS_TARGET scevtls)
+
+SET(
+	EVTLS_FILES
+		scevtls.py
+)
+
+SC_ADD_PYTHON_EXECUTABLE(EVTLS)

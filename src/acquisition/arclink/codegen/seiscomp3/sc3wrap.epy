@@ -1,0 +1,327 @@
+## ***************************************************************************** 
+## sc3wrap.epy: cheetah template file
+##
+## generates seiscomp3-based inventory and routing wrapper python code
+##
+## (c) 2008 Mathias Hoffmann, GFZ Potsdam
+##
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the
+## Free Software Foundation; either version 2, or (at your option) any later
+## version. For more information, see http://www.gnu.org/
+## *****************************************************************************
+##
+## 2008.042
+##
+# package: $rootElement
+class base_${classInfo.Name.lower}(object):
+    def __init__(self, obj):
+        self.obj = obj
+        self._needsUpdate = False
+
+    def _sync_update(self):
+        if self._needsUpdate:
+            self.obj.lastModified = Core.Time.GMT()
+            self.obj.update()
+            self._needsUpdate = False
+
+    def _delete(self):
+        self.obj.detach()
+
+    def __get_last_modified(self):
+        ##return datetime.strptime(self.obj.lastModified.toString("%Y-%m-%dT%H:%M:%SZ"), "%Y-%m-%dT%H:%M:%SZ")
+        return datetime.datetime(
+            *(time.strptime(
+                self.obj.lastModified.toString("%Y-%m-%dT%H:%M:%SZ"),
+                "%Y-%m-%dT%H:%M:%SZ")[0:6]
+            )
+        )    
+    last_modified = property(__get_last_modified)
+##
+#if $classInfo.isPublicType()
+
+    def __get_publicID(self):
+		return self.obj.publicID()
+    def __set_publicID(self, arg):
+        if self.__get_publicID() != arg:
+            self._needsUpdate = True
+        self.obj.setPublicID(arg)
+    publicID = property(__get_publicID,__set_publicID)
+#end if
+
+##
+#if $classInfo.hasAttributes
+#for $attribute in $classInfo.getAttributes()
+#if $attribute.Name() != "lastModified"
+##
+    #if $config.translateReturnAttrib($attribute, True) == "Seiscomp::Core::Time"
+    def __get_${attribute.Name()}(self):
+        #if attribute.isOptional()
+        # optional Attribute
+        #end if
+        try: # @return: $config.translateReturnAttrib($attribute, True)
+            ##return datetime.strptime(self.obj.${attribute.Name()}().toString("%Y-%m-%dT%H:%M:%SZ"), "%Y-%m-%dT%H:%M:%SZ")
+            return datetime.datetime(
+                *(time.strptime(
+                    self.obj.${attribute.Name()}().toString("%Y-%m-%dT%H:%M:%SZ"), 
+                    "%Y-%m-%dT%H:%M:%SZ")[0:6]
+                 )
+            )
+                
+            ###
+    #elif $config.translateReturnAttrib($attribute, True) == "Blob"
+    def __get_${attribute.Name()}(self):
+        #if attribute.isOptional()
+        # optional Attribute
+        #end if
+        try: # @return: $config.translateReturnAttrib($attribute, True)
+            B = self.obj.${attribute.Name()}()
+            return B.content()
+            ##
+    #elif $config.translateReturnAttrib($attribute, True) == "RealArray"
+    def __get_${attribute.Name()}(self):
+        #if attribute.isOptional()
+        # optional Attribute
+        #end if
+        try: # @return: $config.translateReturnAttrib($attribute, True)
+            return RealArray2str(self.obj.${attribute.Name()}().content())
+            ##  
+    #elif $config.translateReturnAttrib($attribute, True) == "ComplexArray"
+    def __get_${attribute.Name()}(self):
+        #if attribute.isOptional()
+        # optional Attribute
+        #end if
+        try: # @return: $config.translateReturnAttrib($attribute, True)
+            return ComplexArray2str(self.obj.${attribute.Name()}().content())
+            ##
+    #elif $config.translateReturnAttrib($attribute, True) == "WaveformStreamID"
+    def __get_networkCode(self):
+        try:
+            return self.obj.waveformID().networkCode()
+        except Core.ValueException:
+            return None
+    def __get_stationCode(self):
+        try:
+            return self.obj.waveformID().stationCode()
+        except Core.ValueException:
+            return None
+    def __get_streamCode(self):
+        try:
+            return self.obj.waveformID().channelCode()
+        except Core.ValueException:
+            return None
+    def __get_locationCode(self):
+        try:
+            return self.obj.waveformID().locationCode()
+    #else
+    def __get_${attribute.Name()}(self):
+        #if attribute.isOptional()
+        # optional Attribute
+        #end if
+        try: # @return: $config.translateReturnAttrib($attribute, True)
+            return self.obj.${attribute.Name()}()
+            ##
+    #end if
+        except Core.ValueException:
+            return None
+##
+    #if $config.translateReturnAttrib($attribute, True) == "Seiscomp::Core::Time"
+    def __set_${attribute.Name()}(self, arg):
+        value = None
+        if arg is not None:
+            try: value = Core.Time.FromString(str(arg), "%Y-%m-%d %H:%M:%S")
+            except: pass
+        if str(self.__get_${attribute.Name()}()) != str(arg):
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "bool"
+    def __set_${attribute.Name()}(self, arg):
+        try: value = bool(arg)
+        except: value = None
+        if self.__get_${attribute.Name()}() != value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "Blob"
+    def __set_${attribute.Name()}(self, arg):
+        try:
+            if isinstance(arg, unicode):
+                value = arg.encode("utf-8", "replace")
+            else:
+                value = str(arg)
+            blob = DataModel.Blob()
+            if value:
+                blob.setContent(value)
+        except Exception, e:
+            logs.error(str(e))
+            return
+        if self.__get_${attribute.Name()}() != value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(blob)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "double"
+    def __set_${attribute.Name()}(self, arg):
+        try: value = float(arg)
+        except: value = None
+        if self.__get_${attribute.Name()}() != value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "const std::string&"
+    def __set_${attribute.Name()}(self, arg):
+        try:
+            if isinstance(arg, unicode):
+                value = arg.encode("utf-8", "replace")
+            else:
+                value = str(arg)
+        except Exception, e:
+            logs.error(str(e))
+            return
+        if self.__get_${attribute.Name()}() != value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "RealArray"
+    def __set_${attribute.Name()}(self, arg):
+        try: value = str2RealArray(arg)
+        except: value = None
+        ret = self.__get_${attribute.Name()}()
+        if not str2RealArray(ret) == value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "ComplexArray"
+    def __set_${attribute.Name()}(self, arg):
+        try: value = str2ComplexArray(arg)
+        except: value = None
+        ret = self.__get_${attribute.Name()}()
+        if  not str2ComplexArray(ret) == value:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(value)
+        ##
+    #elif $config.translateReturnAttrib($attribute, True) == "WaveformStreamID"
+    def __set_networkCode(self, arg):
+        if self.__get_networkCode() != arg:
+            self._needsUpdate = True
+        self.obj.waveformID().setNetworkCode(arg)
+    def __set_stationCode(self, arg):
+        if self.__get_stationCode() != arg:
+            self._needsUpdate = True
+        self.obj.waveformID().setStationCode(arg)
+    def __set_streamCode(self, arg):
+        if self.__get_streamCode() != arg:
+            self._needsUpdate = True
+        self.obj.waveformID().setChannelCode(arg)
+    def __set_locationCode(self, arg):
+        if self.__get_locationCode() != arg:
+            self._needsUpdate = True
+        self.obj.waveformID().setLocationCode(arg)
+    #else
+    def __set_${attribute.Name()}(self, arg):
+        if self.__get_${attribute.Name()}() != arg:
+            self._needsUpdate = True
+        self.obj.set${attribute.CapitalizedName()}(arg)
+        ##
+    #end if
+    #if $config.translateReturnAttrib($attribute, True) == "WaveformStreamID"
+    networkCode = property(__get_networkCode, __set_networkCode)
+    stationCode = property(__get_stationCode, __set_stationCode)
+    streamCode = property(__get_streamCode, __set_streamCode)
+    locationCode = property(__get_locationCode, __set_locationCode)
+    #else
+    ${config.translatePublicMember(attribute.oName())} = property(__get_${attribute.Name()}, __set_${attribute.Name()})
+    #end if
+##
+#end if
+
+#end for
+
+#end if
+#if $classInfo.hasElements() or $classInfo.hasParent()
+#if $classInfo.hasElements
+#for $child in $classInfo.getElements()
+    def _new_${child.Name.lower}(self, **args):
+        #if $child.isPublicType() and not $child.isRootElement()
+        publicID = args.get("publicID")
+        if publicID and DataModel.${child.Name}.Find(publicID): publicID = None
+        if publicID: obj = DataModel.${child.Name}.Create(publicID)
+        else: obj = DataModel.${child.Name}.Create()
+        #else
+        try: obj = DataModel.${child.Name}()
+        except KeyError: pass
+        #end if
+        ##obj.setLastModified(Core.Time.GMT())
+        #set $attributeList = $child.getAttributes()
+        #set $indexName = $child.Name() + "Index"
+        #for $attribute in $attributeList
+        #if $child.isIndexAttribute($attribute)
+        #if $config.translateReturnAttrib($attribute, True) == "Seiscomp::Core::Time"
+        try: obj.set${attribute.CapitalizedName()}(Core.Time.FromString(str(args["$attribute.oName"]), "%Y-%m-%d %H:%M:%S"))
+        except KeyError: pass
+        #else
+        try: obj.set${attribute.CapitalizedName()}(args["$attribute.oName"])
+        except KeyError: pass
+        #end if
+        #else
+        #if $config.translateReturnAttrib($attribute, True) == "Seiscomp::Core::Time"
+        try:
+            if args["$attribute.oName"] is None:
+                obj.set${attribute.CapitalizedName()}(None)
+            else:
+                obj.set${attribute.CapitalizedName()}(Core.Time.FromString(str(args["$attribute.oName"]), "%Y-%m-%d %H:%M:%S"))
+        except KeyError: pass
+        #else
+        try: obj.set${attribute.CapitalizedName()}(args["$attribute.oName"])
+        except KeyError: pass
+        #end if
+        #end if
+        #end for
+        if not self.obj.add(obj):
+            print "seiscomp3.DataModel.${classInfo.Name}: error adding ${child.Name}"
+        return obj
+    def __get_${child.Name.lower}(self):
+        list = []
+        ##print dbQuery.getObjectCount(self.obj, DataModel.${child.Name}.TypeInfo())
+        # HACK to make last_modified usable ...
+        #if $child.isPublicType()
+        ## only works with PublicObjects!!!!!
+        it = dbQuery.getObjects(self.obj, DataModel.${child.Name}.TypeInfo())
+        while it.get():
+            try:
+                obj = DataModel.${child.Name}.Cast(it.get())
+                obj.lastModified = it.lastModified()
+                list.append(base_${child.Name.lower}(obj))
+                ##print "${child.Name}", obj.lastModified
+            except Core.ValueException, e:
+                print e.what()
+            it.step()
+        #else
+        ## use lastModified of self
+        i = 0
+        objects_left = self.obj.${config.translatePublicMember($child.Name())}Count()
+        while objects_left > 0:
+            try:
+                obj = self.obj.${config.translatePublicMember($child.Name())}(i)
+                try:
+                    obj.lastModified = self.obj.lastModified
+                    list.append(base_${child.Name.lower}(obj))
+                    objects_left -= 1
+                except AttributeError:
+                    try:
+                        obj.lastModified = Core.Time.GMT()
+                        list.append(base_${child.Name.lower}(obj))
+                        objects_left -= 1
+                    except:
+                        logs.debug("got " + repr(obj) + " in __get_${child.Name.lower}(), objects_left=" + str(objects_left))
+                i += 1
+            except Core.ValueException, e:
+                print e.what()
+        #end if
+        return list
+    _${config.translatePublicMember($child.oName)} = property(__get_${child.Name.lower})
+
+#end for
+
+#end if
+#end if

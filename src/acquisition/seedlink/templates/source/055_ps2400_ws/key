@@ -1,0 +1,8 @@
+SOURCE_DESC="Earth Data PS6-24 (RS-232) + Lacrosse 2300 weather station (RS-232)"
+SOURCE_ATTR="serial,serialws,raw,instance_per_station"
+SOURCE_MSG=""
+COMPORT="/dev/data"
+COMPORT2="/dev/weatherstation"
+BAUDRATE="115200"
+BAUDRATE2="9600"
+SPROC="edata_100+ws"

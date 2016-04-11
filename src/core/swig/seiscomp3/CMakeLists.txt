@@ -1,0 +1,107 @@
+INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+
+IF (MSEED_FOUND)
+    ADD_DEFINITIONS(-DHAVE_MSEED)
+    INCLUDE_DIRECTORIES(${LIBMSEED_INCLUDE_DIR})
+ENDIF (MSEED_FOUND)
+
+IF (COMPONENT_ESSENTIALS_NUMPY_SUPPORT)
+	MESSAGE(STATUS "Adding support for Python NumPy")
+	ADD_DEFINITIONS(-DHAVE_NUMPY)
+	INCLUDE_DIRECTORIES(${PYTHON_NUMPY_INCLUDE_DIR})
+ENDIF (COMPONENT_ESSENTIALS_NUMPY_SUPPORT)
+
+SET(
+	WRAPPER_MODULES
+		Core
+		Logging
+		Config
+		IO
+		Communication
+		DataModel
+		Math
+		Client
+		Utils
+		Seismology
+		helpers
+)
+
+
+SET(WRAPPER_MODULE_Core_EXTRA_SC_LIBS core)
+SET(WRAPPER_MODULE_Logging_EXTRA_SC_LIBS log)
+SET(WRAPPER_MODULE_Config_EXTRA_SC_LIBS config)
+SET(WRAPPER_MODULE_IO_EXTRA_SC_LIBS io)
+SET(WRAPPER_MODULE_Communication_EXTRA_SC_LIBS communication)
+SET(WRAPPER_MODULE_DataModel_EXTRA_SC_LIBS datamodel)
+SET(WRAPPER_MODULE_Math_EXTRA_SC_LIBS math)
+SET(WRAPPER_MODULE_Client_EXTRA_SC_LIBS client)
+SET(WRAPPER_MODULE_Utils_EXTRA_SC_LIBS utils)
+SET(WRAPPER_MODULE_Seismology_EXTRA_SC_LIBS seismology)
+
+SET(WRAPPER_MODULE_helpers_EXTRA_FILES helpers.cpp)
+SET(WRAPPER_MODULE_helpers_EXTRA_SC_LIBS core io datamodel)
+
+FOREACH (wrapper_module ${WRAPPER_MODULES})
+	SET(
+		${wrapper_module}_SOURCES
+			${wrapper_module}PYTHON_wrap.cxx
+			${WRAPPER_MODULE_${wrapper_module}_EXTRA_FILES}
+	)
+	ADD_LIBRARY(_${wrapper_module} MODULE ${${wrapper_module}_SOURCES})
+	SET_TARGET_PROPERTIES(_${wrapper_module} PROPERTIES PREFIX "")
+	TARGET_LINK_LIBRARIES(_${wrapper_module} ${PYTHON_LIBRARIES})
+	TARGET_LINK_LIBRARIES(_${wrapper_module} ${WRAPPER_MODULE_${wrapper_module}_EXTRA_LIBS})
+	SC_LINK_LIBRARIES_INTERNAL(_${wrapper_module} ${WRAPPER_MODULE_${wrapper_module}_EXTRA_SC_LIBS})
+ENDFOREACH (wrapper_module)
+
+SC_SWIG_GET_MODULE_PATH(_module_path)
+
+IF( NOT _WIN32 AND NOT MACOSX )
+	INSTALL(
+		FILES
+			__init__.py.unix
+		RENAME
+			__init__.py
+		DESTINATION
+			${_module_path}
+	)
+ELSE( NOT _WIN32 AND NOT MACOSX )
+	INSTALL(
+		FILES
+			__init__.py
+		DESTINATION
+			${_module_path}
+	)
+ENDIF(NOT _WIN32 AND NOT MACOSX )
+
+FOREACH (wrapper_module ${WRAPPER_MODULES})
+	INSTALL(
+		TARGETS _${wrapper_module}
+		LIBRARY DESTINATION ${_module_path}
+	)
+
+	INSTALL(
+		FILES ${CMAKE_CURRENT_SOURCE_DIR}/${wrapper_module}.py
+		DESTINATION ${_module_path}
+	)
+
+	INSTALL(
+		FILES ${CMAKE_CURRENT_BINARY_DIR}/${swig_module}.pyc
+		DESTINATION ${_module_path}
+		OPTIONAL
+	)
+
+	INSTALL(
+		FILES ${CMAKE_CURRENT_BINARY_DIR}/${swig_module}.pyo
+		DESTINATION ${_module_path}
+		OPTIONAL
+	)
+
+	ADD_CUSTOM_COMMAND(
+		TARGET _${wrapper_module}
+		POST_BUILD
+		COMMAND ${CMAKE_SOURCE_DIR}/py-compile ARGS --destdir ${CMAKE_CURRENT_BINARY_DIR} ${wrapper_module}.py
+	)
+ENDFOREACH (wrapper_module)

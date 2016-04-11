@@ -1,0 +1,8 @@
+SET(
+    DBTOOL_SOURCES
+	main.cpp
+)
+
+SC_ADD_EXECUTABLE(DBTOOL scdb)
+SC_LINK_LIBRARIES_INTERNAL(scdb client utils)
+

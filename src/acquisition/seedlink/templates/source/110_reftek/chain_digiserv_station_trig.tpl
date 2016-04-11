@@ -1,0 +1,1 @@
+../../chain_digiserv_station_trig.tpl

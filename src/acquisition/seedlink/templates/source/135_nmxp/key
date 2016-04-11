@@ -1,0 +1,6 @@
+SOURCE_DESC="NAQS server (TCP/IP) using nmxptool"
+SOURCE_ATTR="tcp,raw,instance_per_address"
+SOURCE_MSG="Download nmxptool from http://mednet.rm.ingv.it/nmxptool.php"
+SRCADDR="127.0.0.1"
+SRCPORT="28000"
+SPROC="naqs"

@@ -1,0 +1,6 @@
+SOURCE_DESC="Lennartz M24 digitizer (RS-232)"
+SOURCE_ATTR="serial,raw,instance_per_station"
+SOURCE_MSG=""
+COMPORT="/dev/data"
+BAUDRATE="38400"
+SPROC="lennartz_100"

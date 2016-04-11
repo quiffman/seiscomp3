@@ -1,0 +1,399 @@
+#!/bin/bash
+
+if [ -z "$SEISCOMP_ROOT" ]; then
+    echo "SEISCOMP_ROOT is not defined"
+    exit 1
+fi
+
+pkgname="trunk"
+PKGROOT="$SEISCOMP_ROOT/$pkgname"
+
+if ! cd "$PKGROOT"; then
+    echo "Cannot change directory to $PKGROOT"
+    exit 1
+fi
+
+if [ ! -r "$SEISCOMP_ROOT/lib/env.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/env.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/env.sh"
+
+if [ ! -r "$SEISCOMP_ROOT/lib/keyutils.sh" ]; then
+    echo "Cannot read $SEISCOMP_ROOT/lib/keyutils.sh"
+    exit 1
+fi
+
+source "$SEISCOMP_ROOT/lib/keyutils.sh"
+
+global_cfg="$(GetTemplate global.cfg)"
+if [ ! -r "$global_cfg" ]; then
+    echo "Cannot read $PKGROOT/$global_cfg!"
+    exit 1
+fi
+
+station_cfg="$(GetTemplate station.cfg)"
+if [ ! -r "$station_cfg" ]; then
+    echo "Cannot read $PKGROOT/$station_cfg!"
+    exit 1
+fi
+
+export PATH="$PKGROOT/bin:$PKGROOT/sbin:$PATH"
+
+KEY_VERSION="2.5"
+SC3_USER_BIN="scadmin scbulletin scdb scesv scevtls scm scmm scmv scolv scqc scqcv scquery scrttv scxmldump sync_dlsv dlsv2inv"
+
+SED=sed
+gsed -e p </dev/null >/dev/null 2>&1 && SED=gsed
+
+NOHUP=nohup
+newtask </dev/null >/dev/null 2>&1 && NOHUP=newtask
+
+killwait() {
+    kill $(cat "$2")
+    if ! waitlock $1 "$2"; then
+        echo "timeout exceeded"
+        kill -9 $(cat "$2")
+        return 1
+    fi
+
+    return 0
+}
+
+_init_keys() {
+    source "$SEISCOMP_ROOT/key/global"
+    if [ "$CONFIG_STYLE" = advanced ]; then
+        SC3_CLIENTS="scevent scmag scamp scautopick scautoloc scqc scevtlog"
+        UPDATE_INVENTORY="yes"
+    else
+        SC3_CLIENTS=""
+        UPDATE_INVENTORY="no"
+    fi
+
+    mkdir -p key
+
+    AGENCY=""
+    DATACENTER=""
+    EVENT_PREFIX=""
+    SC3_LOGLEVEL="2"
+    MASTER="yes"
+    MASTER_ADDR="localhost:4803"
+    DB_DRIVER="mysql"
+    DB_READ_CONNECTION="sysop:sysop@localhost/seiscomp3"
+    _DB_WRITE_CONNECTION="sysop:sysop@localhost/seiscomp3"
+    RECORDSTREAM_SERVICE="slink"
+    RECORDSTREAM_SOURCE="localhost:18000"
+    QC_OFFLINE="no"
+    DETEC_STREAM="BH"
+    DETEC_LOCID=""
+    DETEC_FILTER="RMHP(10)>>ITAPER(30)>>BW(4,0.7,2)>>STALTA(2,80)"
+    TRIG_ON="3"
+    TRIG_OFF="1.5"
+    TIME_CORR="-0.8"
+}
+
+_edit_globals() {
+    _init_keys
+    
+    if [ -f "key/global" ]; then
+        source key/global
+    fi
+
+    Ask AGENCY "Agency ID" "$AGENCY"
+    test -z "$DATACENTER" && DATACENTER="$AGENCY"
+    Ask DATACENTER "Datacenter ID" "$DATACENTER"
+    test -z "$EVENT_PREFIX" && EVENT_PREFIX="$(echo $AGENCY | tr '[:upper:]' '[:lower:]')"
+    Ask EVENT_PREFIX "Prefix of event ID" "$EVENT_PREFIX"
+    Ask SC3_CLIENTS "Client list" "$SC3_CLIENTS"
+    Ask SC3_LOGLEVEL "Log level" "$SC3_LOGLEVEL"
+    AskYN MASTER "Enable local master" "$MASTER"
+    Ask MASTER_ADDR "Address of master" "$MASTER_ADDR"
+    Ask DB_DRIVER "Database type" "$DB_DRIVER"
+    Ask DB_READ_CONNECTION "Database read connection" "$DB_READ_CONNECTION"
+    Ask _DB_WRITE_CONNECTION "Database write connection (only applicable to local master)" "$_DB_WRITE_CONNECTION"
+    Ask RECORDSTREAM_SERVICE "Recordstream service" "$RECORDSTREAM_SERVICE"
+    Ask RECORDSTREAM_SOURCE "Recordstream source" "$RECORDSTREAM_SOURCE"
+    Ask UPDATE_INVENTORY "Update inventory (set to 'no' if using sync_dlsv)" "$UPDATE_INVENTORY"
+    Ask QC_OFFLINE "Run scqc as a daily cronjob" "$QC_OFFLINE"
+    
+    OutputKeys $global_cfg >key/global
+}
+
+_edit_keys() {
+    _init_keys
+    
+    if [ -f "$keyfile" ]; then
+        source "$keyfile"
+    fi
+
+    echo "Selecting data stream for autopick"
+    Ask DETEC_STREAM "Stream code (without component code)" "$DETEC_STREAM"
+    Ask DETEC_LOCID "Location code" "$DETEC_LOCID"
+    Ask DETEC_FILTER "Filter" "$DETEC_FILTER"
+    Ask TRIG_ON "Trigger on level" "$TRIG_ON"
+    Ask TRIG_OFF "Trigger off level" "$TRIG_OFF"
+    Ask TIME_CORR "Trigger time correction" "$TIME_CORR"
+
+    OutputKeys $station_cfg >$keyfile
+}
+
+_get_keys() {
+    pkg="$1"
+    profile="$(echo "$PACKAGES" | $SED -e "s/.*\<$pkg\>\(:\([^ ]*\)\)\?.*/\2/")"
+    
+    if [ -z "$profile" ]; then
+        keyfile="$SEISCOMP_ROOT/$pkg/key/station_${NET}_${STATION}"
+    else
+        keyfile="$SEISCOMP_ROOT/$pkg/key/profile_$profile"
+    fi
+
+    if [ -f "$keyfile" ]; then
+        source "$keyfile"
+        return 0
+    fi
+
+    return 1
+}
+
+_get_flags() {
+    echo -n "-D"
+    if [ "$SYSLOG" = yes ]; then
+        echo -n "s"
+    fi
+}
+
+_start_core() {
+    if [ ! -f "$SEISCOMP_ROOT/key/global" ]; then
+        echo "Cannot find $SEISCOMP_ROOT/key/global"
+        return
+    fi
+
+    source "$SEISCOMP_ROOT/key/global"
+    
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    mkdir -p log
+    mkdir -p status
+
+    if [ "$MASTER" = no ]; then
+        return
+    fi
+
+    if trylock status/spread.pid; then
+        echo "starting spread"
+        $NOHUP run_with_lock status/spread.pid spread -n localhost -c "$PKGROOT/etc/spread.conf" >>log/spread.log 2>&1 &
+        sleep 2
+    else
+        echo "spread is already running"
+    fi
+
+    if trylock status/scmaster.pid; then
+        echo "starting scmaster"
+        scmaster $(_get_flags) -l status/scmaster.pid -H 'localhost:4803' >>log/scmaster.log 2>&1
+        sleep 2
+    else
+        echo "scmaster is already running"
+    fi
+}
+
+_stop_core() {
+    if trylock status/scmaster.pid; then
+        echo "scmaster is not running"
+    else
+        echo "shutting down scmaster"
+        killwait 10 status/scmaster.pid
+    fi
+
+    if trylock status/spread.pid; then
+        echo "spread is not running"
+    else
+        echo "shutting down spread"
+        killwait 10 status/spread.pid
+    fi
+}
+
+_start_clients() {
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    for client in $SC3_CLIENTS; do
+        if trylock status/$client.pid; then
+            echo "starting $client"
+            $client $(_get_flags) -l status/$client.pid >>log/$client.log 2>&1
+        else
+            echo "$client is already running"
+        fi
+    done
+}
+
+_stop_clients() {
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    for client in $SC3_CLIENTS; do
+        if trylock status/$client.pid; then
+            echo "$client is not running"
+        else
+            echo "shutting down $client"
+            killwait 10 status/$client.pid
+        fi
+    done
+}
+
+_write_conf() {
+    LoadConfig "$global_cfg" "$station_cfg"
+
+    _init_keys
+    
+    if [ ! -f "$SEISCOMP_ROOT/key/global" ]; then
+        echo "Cannot find $SEISCOMP_ROOT/key/global"
+        return
+    fi
+
+    source "$SEISCOMP_ROOT/key/global"
+    
+    if [ ! -f "key/global" ]; then
+        echo "Cannot find $PKGROOT/key/global"
+        return
+    fi
+
+    source "key/global"
+
+    rm -rf config/*
+    rm -rf operator/*
+    mkdir -p config
+    mkdir -p operator
+
+    OutputFile $(GetTemplate scglobal.tpl) >config/global.cfg
+    OutputFile $(GetTemplate scmaster.tpl) >config/scmaster.cfg
+    OutputFile $(GetTemplate scevent.tpl) >config/scevent.cfg
+    OutputFile $(GetTemplate crontab.tpl) >operator/crontab
+    OutputFile $(GetTemplate runscqc.tpl) >operator/runscqc
+    chmod a+x operator/runscqc
+
+    if [ "$QC_OFFLINE" = yes ]; then
+        OutputFile $(GetTemplate scqc_offline.tpl) >config/scqc.cfg
+        FixLines operator/crontab QC
+    else
+        :>config/scqc.cfg
+        RemoveLines operator/crontab QC
+    fi
+
+    if [ "$MASTER" = yes ]; then
+        _start_core
+
+        echo "updating database"
+        python "$PKGROOT/share/db/update.py" --console 1
+    fi
+}
+
+_setup() {
+    AskYN DBINIT "Initialize MySQL database on localhost" "yes"
+    if [ "$DBINIT" = yes ]; then
+        trap 'stty echo' EXIT
+        stty -echo
+        Ask DBPASS "MySQL root password (not echoed)"
+        echo
+        stty echo
+        trap '' EXIT
+        if [ -n "$DBPASS" ]; then
+            DBPASS="-p$DBPASS"
+        fi
+        mysql -u root "$DBPASS" -e "
+            CREATE DATABASE seiscomp3 CHARACTER SET utf8 COLLATE utf8_bin;
+            GRANT ALL ON seiscomp3.* TO 'sysop'@'localhost' IDENTIFIED BY 'sysop';
+            GRANT ALL ON seiscomp3.* TO 'sysop'@'%' IDENTIFIED BY 'sysop';
+            USE seiscomp3;
+            source share/db/mysql.sql;
+        "
+    fi
+
+    LoadConfig "$global_cfg"
+
+    OutputFile $(GetTemplate env.sh.tpl) >>$SEISCOMP_ROOT/lib/env.sh
+
+    ( if cd "$SEISCOMP_ROOT/bin"; then
+        for f in $SC3_USER_BIN; do
+            rm -f $f
+            if [ -f "$PKGROOT/bin/$f" ]; then
+                rm -f $f
+                echo "creating $SEISCOMP_ROOT/bin/$f"
+                REAL_BIN="$PKGROOT/bin/$f"
+                ( cd "$PKGROOT"; OutputFile "$(GetTemplate wrapper.tpl)" ) >$f
+                chmod a+x $f
+            fi
+        done
+    fi )
+}
+
+action="$1"
+shift
+
+case "$action" in
+    start|check)
+        _start_core
+        _start_clients
+        exit 0
+        ;;
+    stop)
+        _stop_clients
+        _stop_core
+        exit 0
+        ;;
+    get_attributes)
+        echo "globals,profile,station,advanced"
+        exit 0
+        ;;
+    edit_globals)
+        if [ $# -eq 0 ]; then
+            _edit_globals
+            exit 0
+        fi
+        ;;
+    edit_profile)
+        if [ $# -eq 1 ]; then
+            keyfile="key/profile_$1"
+            _edit_keys
+            exit 0
+        fi
+        ;;
+    edit_station)
+        if [ $# -eq 2 ]; then
+            keyfile="key/station_$1_$2"
+            _edit_keys
+            exit 0
+        fi
+        ;;
+    write_conf)
+        _write_conf
+        exit 0
+        ;;
+    setup)
+        _setup
+        exit 0
+        ;;
+    print_crontab)
+        if [ -f "operator/crontab" ]; then
+            cat operator/crontab
+        fi
+        exit 0
+        ;;
+esac
+
+echo "Error: $pkgname config hook called with invalid arguments"
+exit 1
+
