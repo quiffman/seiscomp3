@@ -21,7 +21,7 @@
 
 using namespace Seiscomp;
 
-IMPLEMENT_SC_ABSTRACT_CLASS(Record, "Record");
+IMPLEMENT_SC_ABSTRACT_CLASS(Record, "CoreRecord");
 IMPLEMENT_INTERFACE_FACTORY(Record, SC_CORE_CORE_API);
 
 
@@ -67,7 +67,7 @@ Record& Record::operator=(const Record &rec) {
 }
 
 
-std::string Record::networkCode() const {
+const std::string &Record::networkCode() const {
 	return _net;
 }
 
@@ -77,7 +77,7 @@ void Record::setNetworkCode(std::string net) {
 }
 
 
-std::string Record::stationCode() const {
+const std::string &Record::stationCode() const {
 	return _sta;
 }
 
@@ -87,7 +87,7 @@ void Record::setStationCode(std::string sta) {
 }
 
 
-std::string Record::locationCode() const {
+const std::string &Record::locationCode() const {
 	return _loc;
 }
 
@@ -97,7 +97,7 @@ void Record::setLocationCode(std::string loc) {
 }
 
 
-std::string Record::channelCode() const {
+const std::string &Record::channelCode() const {
 	return _cha;
 }
 

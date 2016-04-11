@@ -250,20 +250,19 @@ class DatalessReader(object):
 
         except KeyError:
             self.__net = self.__inv.add_network(network_code, network_desc)
-
-            if self.__net:
-                print "+ network", network_desc
+            print "+ network", network_desc
         
         try:
             self.__sta = self.__net.station[stat_code]
+            if start_date <= self.__sta.start_date:
+                return
 
         except KeyError:
-            self.__sta = self.__net.add_station(stat_code, latitude, longitude,
-                elevation, site_name, start_date, end_date)
+            print "  + station", site_name
 
-            if self.__sta:
-                print "  + station", site_name
-        
+        self.__sta = self.__net.add_station(stat_code, latitude, longitude,
+            elevation, site_name, start_date, end_date)
+
     def __proc_blk52(self, p):
         loc_id = p.read(2).strip()
         chan_id = p.read(3).strip()
@@ -298,9 +297,7 @@ class DatalessReader(object):
             logs.error("Cannot find instrument name in abbreviation dictionary")
             instr_name = ""
         
-        if self.__sta and (not end_date or end_date > datetime.datetime.utcnow()):
-            self.__sta.add_channel(loc_id, chan_id, local_depth, azimuth, dip,
-                sample_rate, instr_name, start_date, end_date)
+        if self.__sta and self.__sta.add_channel(loc_id, chan_id, local_depth, azimuth, dip, sample_rate, instr_name, start_date, end_date):
 
             self.__ignore_chan = False
 
@@ -313,8 +310,8 @@ class DatalessReader(object):
         unit_key = int(p.read(3))
 
         if stage != 1:
-		    return
-		
+            return
+
         try:
             unit_name = self.__unit[unit_key]
 
@@ -485,6 +482,7 @@ class Station(object):
         self.instrument = {}
         self.gain = {}
         self.__last_chan = None
+        self.channel_end_date = {}
 
     def __cmp__(self, other):
         return cmp(self.code, other.code)
@@ -492,6 +490,19 @@ class Station(object):
     def add_channel(self, location, channel, depth, azimuth, dip, sample_rate, instrument_name, start_date, end_date):
         self.__last_chan = None
 
+        try:
+            if self.channel_end_date[(location, channel)] is None:
+                return False
+
+            if end_date is not None and \
+                end_date <= self.channel_end_date[(location, channel)]:
+                return False
+
+        except KeyError:
+            pass
+
+        self.channel_end_date[(location, channel)] = end_date
+        
         #if start_date > self.start_date:
         #    self.start_date = start_date
         
@@ -504,6 +515,7 @@ class Station(object):
         instrument.add_stream(channel[0], sample_rate)
         instrument.add_component(channel[2], azimuth, dip)
         self.__last_chan = (channel, location)
+        return True
 
     def set_gain(self, gain):
         if self.__last_chan:
@@ -527,14 +539,8 @@ class Network(object):
         return cmp(self.code, other.code)
     
     def add_station(self, code, latitude, longitude, elevation, description, start_date, end_date):
-        station = self.station.get(code)
-        if station and start_date < station.start_date:
-                return None
-
-        elif not station or start_date > station.start_date:
-            station = Station(code, latitude, longitude, elevation, description, start_date)
-            self.station[code] = station
-
+        station = Station(code, latitude, longitude, elevation, description, start_date)
+        self.station[code] = station
         return station
 
 class Inventory(object):

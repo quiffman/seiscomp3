@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <functional>
+#include <algorithm>
 #include <numeric>
 #include <math.h>
 #include <seiscomp3/core/typedarray.h>
@@ -145,7 +146,12 @@ void TypedArray<T>::resize(int size) {
 
 template<typename T>
 void TypedArray<T>::clear() {
-        _data.clear();
+	_data.clear();
+}
+
+template<typename T>
+void TypedArray<T>::fill(const T &v) {
+	std::fill(_data.begin(), _data.end(), v);
 }
 
 template<typename T>
@@ -169,6 +175,19 @@ void TypedArray<T>::append(const Array *array) {
 template<typename T>
 void TypedArray<T>::append(int size, const T* data) {
 	_data.insert(_data.end(), data, data + size);
+}
+
+template<typename T>
+void TypedArray<T>::prepend(const Array *array) {
+	if (array->dataType() == dispatchType<T>())
+		_data.insert(_data.begin(),static_cast<const TypedArray<T> *>(array)->begin(),static_cast<const TypedArray<T> *>(array)->end());
+	else
+		std::cerr << "Can not concatenate arrays of different types.\n";
+}
+
+template<typename T>
+void TypedArray<T>::prepend(int size, const T* data) {
+	_data.insert(_data.begin(), data, data + size);
 }
 
 template<typename T>

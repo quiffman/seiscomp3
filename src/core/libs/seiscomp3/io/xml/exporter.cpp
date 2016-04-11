@@ -51,9 +51,10 @@ class NamespaceCollector : public OutputHandler {
 				handler->put(obj, tag->name.c_str(), tag->ns.c_str(), this);
 		}
 
-		void openElement(const char *name, const char *ns) {
+		bool openElement(const char *name, const char *ns) {
 			if ( ns && *ns != '\0' )
 				namespaces.insert(std::string(ns));
+			return true;
 		}
 
 		void addAttribute(const char *name, const char *ns, const char *value) {
@@ -140,21 +141,7 @@ void Exporter::setRootName(std::string h) {
 }
 
 
-bool Exporter::put(std::streambuf* buf, Core::BaseObject *obj) {
-	if ( buf == NULL ) return false;
-	if ( obj == NULL ) return false;
-
-	_lastTagState = 0;
-	_tagOpen = false;
-	_firstElement = true;
-	_indent = 0;
-
-	_ostr.rdbuf(buf);
-
-	_ostr << xmlHeader;
-	if ( !_headerNode.empty() )
-		_ostr << "<" << _headerNode << ">";
-
+void Exporter::collectNamespaces(Core::BaseObject *obj) {
 	NamespaceCollector nsc;
 	nsc.typemap = _typemap;
 	nsc.handle(obj, "", "", NULL);
@@ -170,6 +157,25 @@ bool Exporter::put(std::streambuf* buf, Core::BaseObject *obj) {
 
 		_namespaces[*it] = prefix;
 	}
+}
+
+
+bool Exporter::put(std::streambuf* buf, Core::BaseObject *obj) {
+	if ( buf == NULL ) return false;
+	if ( obj == NULL ) return false;
+
+	_lastTagState = 0;
+	_tagOpen = false;
+	_firstElement = true;
+	_indent = 0;
+
+	_ostr.rdbuf(buf);
+
+	_ostr << xmlHeader;
+	if ( !_headerNode.empty() )
+		_ostr << "<" << _headerNode << ">";
+
+	collectNamespaces(obj);
 
 	handle(obj, "", "", NULL);
 
@@ -177,7 +183,7 @@ bool Exporter::put(std::streambuf* buf, Core::BaseObject *obj) {
 		_ostr << std::endl << "</" << _headerNode << ">";
 	_ostr << std::endl;
 
-	return true;
+	return _ostr.good();
 }
 
 
@@ -202,7 +208,7 @@ void Exporter::handle(Core::BaseObject *obj, const char *defaultTag, const char 
 }
 
 
-void Exporter::openElement(const char *name, const char *ns) {
+bool Exporter::openElement(const char *name, const char *ns) {
 	if ( _tagOpen ) {
 		_ostr << ">";
 		_tagOpen = false;
@@ -243,6 +249,8 @@ void Exporter::openElement(const char *name, const char *ns) {
 	_lastTagState = 1;
 	_indent += _indentation;
 	_tagOpen = true;
+
+	return _ostr.good();
 }
 
 

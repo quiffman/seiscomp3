@@ -238,13 +238,14 @@ void Application::removeProcessors(const std::string& networkCode,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Application::removeProcessor(Processing::WaveformProcessor *wp) {
 	for ( ProcessorMap::iterator it = _processors.begin();
-	      it != _processors.end(); ++it )
+	      it != _processors.end(); )
 	{
 		if ( it->second.get() == wp ) {
 			SEISCOMP_DEBUG("Removed processor from stream %s", it->first.c_str());
-			_processors.erase(it);
-			break;
+			_processors.erase(it++);
 		}
+		else
+			++it;
 	}
 
 	for ( StationProcessors::iterator it = _stationProcessors.begin();

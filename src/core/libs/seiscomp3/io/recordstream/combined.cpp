@@ -234,6 +234,7 @@ std::istream& CombinedConnection::stream() {
 		if ( !is.eof() )
 			return is;
 		else {
+			_arclink->close();
 			_useArclink = false;
 			SEISCOMP_DEBUG("start %d Seedlink requests", (int)_nSeedlinkStreams);
 		}

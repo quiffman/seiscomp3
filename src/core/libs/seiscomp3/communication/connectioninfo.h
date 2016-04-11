@@ -197,6 +197,7 @@ class SC_CORE_COMMUNICATION_API ConnectionInfo {
 	// Private Interface
 	// ------------------------------------------------------------------
 	private:
+		bool stop();
 		unsigned long pid();
 		const std::string& hostname();
 		const std::string& programName();

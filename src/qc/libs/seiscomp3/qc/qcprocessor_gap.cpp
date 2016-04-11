@@ -27,10 +27,10 @@ QcProcessorGap::QcProcessorGap()
     : QcProcessor() {}
 
 bool QcProcessorGap::setState(const Record *record, const DoubleArray &data) {
-    if (_lastRecord && record->samplingFrequency() > 0) {
+    if (_stream.lastRecord && record->samplingFrequency() > 0) {
         try {
-            double diff = (double)(record->startTime() - _lastRecord->endTime());
-		
+            double diff = (double)(record->startTime() - _stream.lastRecord->endTime());
+
             if (diff >= (0.5 / record->samplingFrequency())) {
                 _qcp->parameter = diff;
                 return true;

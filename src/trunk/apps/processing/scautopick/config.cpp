@@ -135,6 +135,9 @@ void Picker::Config::init(const Client::Application *app) {
 	try { pickerType = app->configGetString("picker"); }
 	catch ( ... ) {}
 
+	try { secondaryPickerType = app->configGetString("spicker"); }
+	catch ( ... ) {}
+
 	try { sendDetections = app->configGetBool("sendDetections"); }
 	catch ( ... ) {}
 }

@@ -533,7 +533,7 @@ class ArclinkManager(object):
 
             if expanded:
                 for x in expanded:
-                    content.append(x + (constraints, blacklist))
+                    content.append(x + (constraints, blacklist.copy()))
             
             else:
                 logs.warning("no match for %d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" % \
@@ -738,27 +738,18 @@ class ArclinkManager(object):
                 else:
                     arclink_addrs.append(alias)
             
-            if self.__myaddr in arclink_addrs:
-                if self.__myaddr not in req_route:
-                    req_route[self.__myaddr] = request.new()
-                    
-                req_route[self.__myaddr].add(*item)
+            for addr in arclink_addrs:
+                if addr not in blacklist:
+                    if addr not in req_route:
+                        req_route[addr] = request.new()
+
+                    req_route[addr].add(*item)
+                    break
             else:
-                for (addr, req) in req_route.iteritems():
-                    if addr in arclink_addrs:
-                        req.add(*item)
-                        break
-                else:
-                    for addr in arclink_addrs:
-                        if addr not in blacklist:
-                            req_route[addr] = request.new()
-                            req_route[addr].add(*item)
-                            break
-                    else:
-                        if req_fail is None:
-                            req_fail = request.new()
-                            
-                        req_fail.add(*item)
+                if req_fail is None:
+                    req_fail = request.new()
+                    
+                req_fail.add(*item)
 
         for (addr, req) in req_route.items():
             usr_pwd = self.__pwtable.get(addr)

@@ -40,7 +40,7 @@ class SC_CORE_IO_API OutputHandler {
 
 		virtual void handle(Core::BaseObject *, const char *tag, const char *ns, NodeHandler * = NULL) = 0;
 
-		virtual void openElement(const char *name, const char *ns) = 0;
+		virtual bool openElement(const char *name, const char *ns) = 0;
 		virtual void addAttribute(const char *name, const char *ns, const char *value) = 0;
 		virtual void closeElement(const char *name, const char *ns) = 0;
 

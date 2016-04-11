@@ -523,7 +523,18 @@ class StationWrapper(object):
 
         for i in xrange(station.sensorLocationCount()):
             loc = station.sensorLocation(i)
+            try:
+                l = self.__loc[loc.code()]
+                if l.start() > loc.start():
+                    continue
+
+            except KeyError:
+                pass
+
             self.__loc[loc.code()] = loc
+            for (loc_code, stream_code) in self.streams.keys():
+                if loc_code == loc.code():
+                    del self.streams[(loc_code, stream_code)]
 
             for j in xrange(loc.streamCount()):
                 stream = loc.stream(j)

@@ -227,13 +227,13 @@ bool AmplitudeProcessor::setParameter(Capability cap, const std::string &value) 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void AmplitudeProcessor::reprocess(OPT(double) searchBegin,
                                    OPT(double) searchEnd) {
-	if ( _lastRecord ) {
+	if ( _stream.lastRecord ) {
 		_searchBegin = searchBegin;
 		_searchEnd = searchEnd;
 
 		// Force recomputation of noise amplitude and noise offset
 		_noiseAmplitude = Core::None;
-		process(_lastRecord.get());
+		process(_stream.lastRecord.get());
 
 		// Reset search window again
 		_searchBegin = _searchEnd = Core::None;
@@ -269,7 +269,7 @@ void AmplitudeProcessor::process(const Record *record, const DoubleArray &) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void AmplitudeProcessor::process(const Record *record) {
 	// Sampling frequency has not been set yet
-	if ( _fsamp == 0.0 )
+	if ( _stream.fsamp == 0.0 )
 		return;
 
 	int n = (int)_data.size();
@@ -283,8 +283,8 @@ void AmplitudeProcessor::process(const Record *record) {
 	double dts2 = dt0 + _config.signalEnd;
 
 	// Noise indicies
-	int ni1 = int(dtn1*_fsamp+0.5);
-	int ni2 = int(dtn2*_fsamp+0.5);
+	int ni1 = int(dtn1*_stream.fsamp+0.5);
+	int ni2 = int(dtn2*_stream.fsamp+0.5);
 
 	if ( ni1 < 0 || ni2 < 0 ) {
 		SEISCOMP_INFO("Noise data not available -> abort");
@@ -303,8 +303,8 @@ void AmplitudeProcessor::process(const Record *record) {
 	// these are the offsets of the beginning and end
 	// of the signal window relative to the start of
 	// the continuous record in samples
-	int i1 = int(dts1*_fsamp+0.5);
-	int i2 = int(dts2*_fsamp+0.5);
+	int i1 = int(dts1*_stream.fsamp+0.5);
+	int i2 = int(dts2*_stream.fsamp+0.5);
 
 	//int progress = int(100.*(n-i1)/(i2-i1));
 	int progress = int(100.*(dt1-dts1)/(dts2-dts1));
@@ -377,8 +377,8 @@ void AmplitudeProcessor::process(const Record *record) {
 		else
 			dtsw2 = dts2;
 
-		int si1 = int(dtsw1*_fsamp+0.5);
-		int si2 = int(dtsw2*_fsamp+0.5);
+		int si1 = int(dtsw1*_stream.fsamp+0.5);
+		int si2 = int(dtsw2*_stream.fsamp+0.5);
 
 		si1 = std::max(si1, i1);
 		si2 = std::min(si2, i2);
@@ -414,15 +414,15 @@ void AmplitudeProcessor::process(const Record *record) {
 
 		_lastAmplitude = res.amplitude.value;
 
-		double dt = index.index / _fsamp;
-		res.period /= _fsamp;
+		double dt = index.index / _stream.fsamp;
+		res.period /= _stream.fsamp;
 
 		if ( index.begin > index.end ) std::swap(index.begin, index.end);
 
 		// Update status information
 		res.time.reference = dataTimeWindow().startTime() + Core::TimeSpan(dt);
-		res.time.begin = index.begin / _fsamp;
-		res.time.end = index.end / _fsamp;
+		res.time.begin = index.begin / _stream.fsamp;
+		res.time.end = index.end / _stream.fsamp;
 
 		if ( progress >= 100 ) {
 			setStatus(Finished, 100.);
@@ -441,7 +441,7 @@ void AmplitudeProcessor::process(const Record *record) {
 bool AmplitudeProcessor::handleGap(Filter *filter, const Core::TimeSpan& span,
                                    double lastSample, double nextSample,
                                    size_t missingSamples) {
-	if ( _lastSampleTime+span < timeWindow().startTime() ) {
+	if ( _stream.dataTimeWindow.endTime()+span < timeWindow().startTime() ) {
 		// Save trigger, because reset will unset it
 		Core::Time t = _trigger;
 		reset();
@@ -540,7 +540,7 @@ bool AmplitudeProcessor::deconvolveData(Response *resp, DoubleArray &data,
 	Math::Statistics::computeLinearTrend(data.size(), data.typedData(), m, n);
 	Math::Statistics::detrend(data.size(), data.typedData(), m, n);
 
-	return resp->deconvolveFFT(data, _fsamp, _config.respTaper,
+	return resp->deconvolveFFT(data, _stream.fsamp, _config.respTaper,
 	                           _config.respMinFreq, _config.respMaxFreq,
 	                           numberOfIntegrations);
 }
@@ -683,8 +683,8 @@ void AmplitudeProcessor::setHint(ProcessingHint hint, double value) {
 					computeTimeWindow();
 					// When we are already finished, make sure the current amplitude
 					// will be send immediately
-					if ( _trigger + Core::TimeSpan(_config.signalEnd) <= dataTimeWindow().endTime() && _lastRecord )
-						process(_lastRecord.get());
+					if ( _trigger + Core::TimeSpan(_config.signalEnd) <= dataTimeWindow().endTime() && _stream.lastRecord )
+						process(_stream.lastRecord.get());
 				}
 			}
 			break;
@@ -732,14 +732,14 @@ const DoubleArray *AmplitudeProcessor::processedData(Component comp) const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void AmplitudeProcessor::writeData() const {
-	if ( !_lastRecord ) return;
+	if ( !_stream.lastRecord ) return;
 
 	const DoubleArray *data = processedData((Component)_usedComponent);
 	if ( data == NULL ) return;
 
- 	std::ofstream of((_lastRecord->streamID() + "-" + type() + ".data").c_str());
+ 	std::ofstream of((_stream.lastRecord->streamID() + "-" + type() + ".data").c_str());
 
-	of << "#sampleRate: " << _lastRecord->samplingFrequency() << std::endl;
+	of << "#sampleRate: " << _stream.lastRecord->samplingFrequency() << std::endl;
 
 	for ( int i = 0; i < data->size(); ++i )
 		of << i << "\t" << (*data)[i] << std::endl;

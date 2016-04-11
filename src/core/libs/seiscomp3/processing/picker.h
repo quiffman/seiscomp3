@@ -52,6 +52,8 @@ class SC_CORE_PROCESSING_API Picker : public TimeWindowProcessor {
 			double        timeUpperUncertainty;
 			double        timeWindowBegin;
 			double        timeWindowEnd;
+			OPT(double)   slowness;
+			OPT(double)   backAzimuth;
 		};
 
 		typedef boost::function<void (const Picker*,
@@ -123,7 +125,7 @@ class SC_CORE_PROCESSING_API Picker : public TimeWindowProcessor {
 		               double lastSample, double nextSample,
 		               size_t missingSamples);
 
-		//! This method is called when an amplitude has to be published
+		//! This method is called when a pick has to be published
 		void emitPick(const Result &result);
 
 

@@ -27,7 +27,6 @@ IMPLEMENT_SC_CLASS_DERIVED(QcProcessorSpike, QcProcessor, "QcProcessorSpike");
 
 QcProcessorSpike::QcProcessorSpike() 
     : QcProcessor() {
-    _lastSample = 0.0;
     _initFilter = false; // should we use filtered data ?
 }
 
@@ -36,13 +35,13 @@ QcProcessorSpike::~QcProcessorSpike() {}
 bool QcProcessorSpike::feed(const Record *record) {
     if (_initFilter)
         _setFilter(record->samplingFrequency());
-	
+
     return WaveformProcessor::feed(record);
 }
 
 void QcProcessorSpike::_setFilter(double fsamp) {
     _initFilter = false;
-	
+
     Math::Filtering::InPlaceFilter<double>* f =
         new Math::Filtering::IIR::ButterworthHighpass<double>(2, (fsamp / 2.0) * 0.8);
 
@@ -71,10 +70,10 @@ bool QcProcessorSpike::setState(const Record *rec, const DoubleArray &data) {
     
     for (int i = 0; i < size; i++) {
         
-        if (i != 0) _lastSample = data[i-1];
+        if (i != 0) _stream.lastSample = data[i-1];
         
         if (i < size -1) {
-            p1 = (_lastSample-mean) - (data[i]-mean);
+            p1 = (_stream.lastSample-mean) - (data[i]-mean);
             p2 = (data[i]-mean) - (data[i+1]-mean);
         }
         else p1 = p2 = 0.0;
@@ -86,7 +85,7 @@ bool QcProcessorSpike::setState(const Record *rec, const DoubleArray &data) {
         }
     }
 
-    _lastSample = data[size-1];    
+    _stream.lastSample = data[size-1];
 
     if (!spikes.empty()) {
         _qcp->parameter = spikes;

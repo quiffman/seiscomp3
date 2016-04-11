@@ -172,7 +172,7 @@ bool GeoFeatureSet::readBNAHeader(std::ifstream& infile, std::string& segment,
 		rank = atoi(tmpStr.substr(5, tmpStr.length()-5).c_str());
 	}
 	else {
-		SEISCOMP_WARNING("Invalid rank found, setting to 1");
+		SEISCOMP_DEBUG("No rank found, setting to 1");
 		rank = 1;
 	}
 
@@ -257,6 +257,7 @@ bool GeoFeatureSet::readBNAFile(const std::string& filename,
 		++lineNum;
 
 		if ( !readBNAHeader(infile, segment, rank, points, isClosed) ) {
+			if ( infile.eof() ) break;
 			SEISCOMP_WARNING("error reading BNA header in file %s at line %i",
 			                 filename.c_str(), lineNum);
 			continue;

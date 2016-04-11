@@ -67,6 +67,13 @@ except AttributeError:
     _newclass = 0
 
 
+try:
+    import weakref
+    weakref_proxy = weakref.proxy
+except:
+    weakref_proxy = lambda x: x
+
+
 import Communication
 import Core
 import DataModel

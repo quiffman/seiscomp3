@@ -71,7 +71,7 @@ struct ModbusResponse
     u_int8_t unit_id;
     u_int8_t function;
     u_int8_t bc_ex;
-    be_u_int16_t data[NCHAN];
+    be_int16_t data[NCHAN];
   } PACKED;
 
 //*****************************************************************************
@@ -84,15 +84,16 @@ class OutputChannelEx: public OutputChannel
   {
   public:
     const double realscale;
+    const double realoffset;
     const string realunit;
     const int precision;
     
     OutputChannelEx(const string &channel_name, const string &station_name,
-      int max_zeros, double scale,
-      double realscale_init, const string &realunit_init, int precision_init):
+      int max_zeros, double scale, double realscale_init,
+      double realoffset_init, const string &realunit_init, int precision_init):
       OutputChannel(channel_name, station_name, max_zeros, scale),
-      realscale(realscale_init), realunit(realunit_init),
-      precision(precision_init) {}
+      realscale(realscale_init), realoffset(realoffset_init),
+      realunit(realunit_init), precision(precision_init) {}
   };
 
 class ModbusProtocol: public Proto
@@ -126,7 +127,8 @@ class ModbusProtocol: public Proto
 
     void attach_output_channel(const string &source_id,
       const string &channel_name, const string &station_name,
-      double scale, double realscale, const string &realunit, int precision);
+      double scale, double realscale, double realoffset,
+      const string &realunit, int precision);
     void flush_channels();
     void start();
   };
@@ -140,7 +142,8 @@ void ModbusProtocol::alarm_handler(int sig)
 
 void ModbusProtocol::attach_output_channel(const string &source_id,
   const string &channel_name, const string &station_name,
-  double scale, double realscale, const string &realunit, int precision)
+  double scale, double realscale, double realoffset, const string &realunit,
+  int precision)
   {
     int n;
     char *tail;
@@ -157,7 +160,7 @@ void ModbusProtocol::attach_output_channel(const string &source_id,
         throw PluginADInUse(source_id, modbus_channels[n]->channel_name);
 
     modbus_channels[n] = new OutputChannelEx(channel_name, station_name,
-      dconf.zero_sample_limit, scale, realscale, realunit, precision);
+      dconf.zero_sample_limit, scale, realscale, realoffset, realunit, precision);
 
     if(n < minchan) minchan = n;
 
@@ -306,9 +309,9 @@ void ModbusProtocol::handle_response()
                 seed_log << ";" << setprecision(modbus_channels[n]->precision);
 
                 if(modbus_channels[n]->realscale < 0)
-                    seed_log << resp.data[n - minchan];
+                    seed_log << (resp.data[n - minchan] - modbus_channels[n]->realoffset);
                 else
-                    seed_log << resp.data[n - minchan] * modbus_channels[n]->realscale;
+                    seed_log << (resp.data[n - minchan] * modbus_channels[n]->realscale - modbus_channels[n]->realoffset);
                 seed_log << modbus_channels[n]->realunit;
               }
 
@@ -335,7 +338,7 @@ void ModbusProtocol::send_request()
     req.length = 6;
     req.unit_id = 1;
     req.function = 4;
-    req.reference = minchan;
+    req.reference = dconf.baseaddr + minchan;
     req.word_count = maxchan - minchan + 1;
 
     if(writen(fd, &req, sizeof(ModbusRequest)) < 0)

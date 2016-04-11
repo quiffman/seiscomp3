@@ -20392,6 +20392,7 @@ SWIGINTERN PyObject *_wrap_Inventory_filter(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:Inventory_filter",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Inventory, 0 |  0 );
@@ -20417,13 +20418,13 @@ SWIGINTERN PyObject *_wrap_Inventory_filter(PyObject *SWIGUNUSEDPARM(self), PyOb
   arg3 = reinterpret_cast< Seiscomp::Client::Inventory::TypeWhiteList * >(argp3);
   {
     try {
-      (arg1)->filter((Seiscomp::Client::Inventory::TypeWhiteList const &)*arg2,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg3); 
+      result = (int)(arg1)->filter((Seiscomp::Client::Inventory::TypeWhiteList const &)*arg2,(Seiscomp::Client::Inventory::TypeWhiteList const &)*arg3); 
     }
     catch (Swig::DirectorException &e) {
       SWIG_fail; 
     }
   }
-  resultobj = SWIG_Py_Void();
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -22076,7 +22077,7 @@ static PyMethodDef SwigMethods[] = {
 		"Inventory_load(Inventory self, DatabaseReader arg1)\n"
 		""},
 	 { (char *)"Inventory_setInventory", _wrap_Inventory_setInventory, METH_VARARGS, (char *)"Inventory_setInventory(Inventory self, Inventory arg1)"},
-	 { (char *)"Inventory_filter", _wrap_Inventory_filter, METH_VARARGS, (char *)"Inventory_filter(Inventory self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist)"},
+	 { (char *)"Inventory_filter", _wrap_Inventory_filter, METH_VARARGS, (char *)"Inventory_filter(Inventory self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist) -> int"},
 	 { (char *)"Inventory_loadStations", _wrap_Inventory_loadStations, METH_VARARGS, (char *)"Inventory_loadStations(Inventory self, DatabaseReader arg1)"},
 	 { (char *)"Inventory_stationLocation", _wrap_Inventory_stationLocation, METH_VARARGS, (char *)"\n"
 		"Inventory_stationLocation(Inventory self, string networkCode, string stationCode, \n"

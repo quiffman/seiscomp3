@@ -67,6 +67,13 @@ except AttributeError:
     _newclass = 0
 
 
+try:
+    import weakref
+    weakref_proxy = weakref.proxy
+except:
+    weakref_proxy = lambda x: x
+
+
 class SwigPyIterator(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPyIterator, name, value)
@@ -477,9 +484,17 @@ class CachePopCallback(_object):
     __swig_destroy__ = _DataModel.delete_CachePopCallback
     __del__ = lambda self : None;
     def __init__(self): 
-        this = _DataModel.new_CachePopCallback()
+        if self.__class__ == CachePopCallback:
+            _self = None
+        else:
+            _self = self
+        this = _DataModel.new_CachePopCallback(_self, )
         try: self.this.append(this)
         except: self.this = this
+    def __disown__(self):
+        self.this.disown()
+        _DataModel.disown_CachePopCallback(self)
+        return weakref_proxy(self)
 CachePopCallback_swigregister = _DataModel.CachePopCallback_swigregister
 CachePopCallback_swigregister(CachePopCallback)
 
@@ -8296,6 +8311,7 @@ class DatabaseQuery(DatabaseReader):
     def getEvents(self, *args): return _DataModel.DatabaseQuery_getEvents(self, *args)
     def getOrigins(self, *args): return _DataModel.DatabaseQuery_getOrigins(self, *args)
     def getOriginsDescending(self, *args): return _DataModel.DatabaseQuery_getOriginsDescending(self, *args)
+    def getFocalMechanismsDescending(self, *args): return _DataModel.DatabaseQuery_getFocalMechanismsDescending(self, *args)
     def getEventPickIDs(self, *args): return _DataModel.DatabaseQuery_getEventPickIDs(self, *args)
     def getEventPickIDsByWeight(self, *args): return _DataModel.DatabaseQuery_getEventPickIDsByWeight(self, *args)
     def getEventPicks(self, *args): return _DataModel.DatabaseQuery_getEventPicks(self, *args)

@@ -91,10 +91,11 @@ struct DigitizerConfig
     int unlock_tq;
     int nbundles;              // HRD-24
     string soh_log_dir;        // HRD-24
+    int baseaddr;              // Modbus
 
     DigitizerConfig(): port_bps(0), checksum_used(0), use_pctime_if_no_gps(0),
       lsb(8), statusinterval(0), time_offset(0), zero_sample_limit(-1),
-      default_tq(0), unlock_tq(10), nbundles(59) {}
+      default_tq(0), unlock_tq(10), nbundles(59), baseaddr(0) {}
   };
 
 //*****************************************************************************
@@ -120,7 +121,8 @@ class Proto
   public:
     virtual void attach_output_channel(const string &source_id,
       const string &channel_name, const string &station_name,
-      double scale, double realscale, const string &realunit, int precision) =0;
+      double scale, double realscale, double realoffset,
+      const string &realunit, int precision) =0;
     virtual void flush_channels() =0;
     virtual void start() =0;
     virtual ~Proto() {}

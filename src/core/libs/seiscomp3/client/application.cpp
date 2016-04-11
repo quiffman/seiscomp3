@@ -1573,7 +1573,9 @@ bool Application::init() {
 			}
 		}
 
-		Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		int filtered = Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		if ( filtered > 0 )
+			SEISCOMP_INFO("Filtered %d stations by type", filtered);
 	}
 	else if ( _enableLoadStations ) {
 		if ( !_inventoryDBFilename.empty() ) {
@@ -1598,7 +1600,9 @@ bool Application::init() {
 			}
 		}
 
-		Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		int filtered = Inventory::Instance()->filter(_inventoryTypeWhiteList, _inventoryTypeBlackList);
+		if ( filtered > 0 )
+			SEISCOMP_INFO("Filtered %d stations by type", filtered);
 	}
 
 	if ( _exitRequested )

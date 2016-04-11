@@ -52,7 +52,7 @@ class TimeDomain : public Filtering::InPlaceFilter<TYPE> {
 	protected:
 		// configuration
 		double c0, c1, c2;
-		double fsamp;
+		double fsamp, dt;
 		double gain;
 
 	private:

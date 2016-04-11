@@ -130,15 +130,21 @@ BinaryArchive::~BinaryArchive() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool BinaryArchive::open(const char* file) {
 	close();
-	std::filebuf* fb = new std::filebuf;
 
-	if ( fb->open(file, std::ios::in | std::ios::binary) == NULL ) {
-		delete fb;
-		return false;
+	if ( !strcmp(file, "-") ) {
+		_buf = std::cin.rdbuf();
+		_deleteOnClose = false;
 	}
+	else {
+		std::filebuf* fb = new std::filebuf;
+		if ( fb->open(file, std::ios::in | std::ios::binary) == NULL ) {
+			delete fb;
+			return false;
+		}
 
-	_buf = fb;
-	_deleteOnClose = true;
+		_buf = fb;
+		_deleteOnClose = true;
+	}
 
 	return Seiscomp::Core::Archive::open(NULL);
 }

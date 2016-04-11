@@ -77,14 +77,16 @@ class MWSProtocol: public Proto
 
     void attach_output_channel(const string &source_id,
       const string &channel_name, const string &station_name,
-      double scale, double realscale, const string &realunit, int precision);
+      double scale, double realscale, double realoffset,
+      const string &realunit, int precision);
     void flush_channels();
     void start();
   };
 
 void MWSProtocol::attach_output_channel(const string &source_id,
   const string &channel_name, const string &station_name,
-  double scale, double realscale, const string &realunit, int precision)
+  double scale, double realscale, double realoffset, const string &realunit,
+  int precision)
   {
     map<string, rc_ptr<OutputChannel> >::iterator it;
     if((it = mws_channels.find(source_id)) != mws_channels.end())

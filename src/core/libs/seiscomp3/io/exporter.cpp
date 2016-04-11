@@ -25,6 +25,47 @@ IMPLEMENT_INTERFACE_FACTORY(Seiscomp::IO::Exporter, SC_CORE_IO_API);
 namespace Seiscomp {
 namespace IO {
 
+namespace {
+
+template <int N>
+struct SinkBuf : std::streambuf {
+	SinkBuf(ExportSink *s) : sink(s) {
+		setp(out, out + N);
+	}
+
+	~SinkBuf() { sync(); }
+
+	virtual int overflow(int c) {
+		if ( traits_type::eq_int_type(traits_type::eof(), c))
+			return traits_type::eof();
+
+		if ( sync() )
+			return traits_type::eof();
+
+		traits_type::assign(*pptr(), traits_type::to_char_type(c));
+		pbump(1);
+
+		return traits_type::not_eof(c);
+	}
+
+	virtual int sync() {
+		if ( pbase() == pptr() ) return 0;
+
+		int bytes = pptr() - pbase();
+		int res = sink->write(pbase(), bytes);
+		// Reset put pointer
+		setp(out, out + N);
+		return res == bytes ? 0 : -1;
+	}
+
+	ExportSink *sink;
+	char        out[N];
+};
+
+
+}
+
+
 IMPLEMENT_SC_ABSTRACT_CLASS(Exporter, "Exporter");
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -43,6 +84,15 @@ Exporter::Exporter() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Exporter::~Exporter() {
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Exporter *Exporter::Create(const char *type) {
+	return ExporterFactory::Create(type);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -85,6 +135,16 @@ bool Exporter::write(std::string filename, Core::BaseObject *obj) {
 	}
 
 	return put(std::cout.rdbuf(), obj);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Exporter::write(ExportSink *sink, Core::BaseObject *obj) {
+	SinkBuf<512> buf(sink);
+	return write(&buf, obj);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

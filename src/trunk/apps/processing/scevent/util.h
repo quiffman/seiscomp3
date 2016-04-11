@@ -69,6 +69,9 @@ int definingPhaseCount(const DataModel::Origin *origin);
 double rms(const DataModel::Origin *origin);
 
 template <typename T>
+bool isRejected(T *obj);
+
+template <typename T>
 Core::Time created(T *obj);
 
 DataModel::EventDescription *eventRegionDescription(DataModel::Event *ev);
@@ -91,6 +94,17 @@ Core::Time created(T *obj) {
 	}
 	catch ( ... ) {
 		return Core::Time();
+	}
+}
+
+
+template <typename T>
+bool isRejected(T *obj) {
+	try {
+		return obj->evaluationStatus() == DataModel::REJECTED;
+	}
+	catch ( ... ) {
+		return false;
 	}
 }
 

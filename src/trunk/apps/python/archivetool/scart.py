@@ -482,16 +482,16 @@ archiveDirectory = "./"
 for flag, arg in opts:
     if   flag == "-t":  tmin, tmax = map(str2time, arg.split("~"))
     elif flag == "-E":  endtime = True
-    elif flag in ("-h", "--help"):    usage(exitcode=0)
-    elif flag in ("--stdout"):        stdout = True
-    elif flag in ("-v", "--verbose"): verbose = True
-    elif flag in ("-d", "--dump"):    dump = True
-    elif flag in ("-l", "--list"):    listFile = arg
-    elif flag in ("-s", "--sort"):    sort = True
-    elif flag in ("-m", "--modify"):  modifyTime = True
-    elif flag in ("--speed"):         speed = float(arg)
-    elif flag in ("--files"):         filePoolSize = int(arg)
-    elif flag in ("--test"):          test = True
+    elif flag in ["-h", "--help"]:    usage(exitcode=0)
+    elif flag in ["--stdout"]:        stdout = True
+    elif flag in ["-v", "--verbose"]: verbose = True
+    elif flag in ["-d", "--dump"]:    dump = True
+    elif flag in ["-l", "--list"]:    listFile = arg
+    elif flag in ["-s", "--sort"]:    sort = True
+    elif flag in ["-m", "--modify"]:  modifyTime = True
+    elif flag in ["--speed"]:         speed = float(arg)
+    elif flag in ["--files"]:         filePoolSize = int(arg)
+    elif flag in ["--test"]:          test = True
     elif flag == "-I":                recordURL = arg
     elif flag == "-n":                networks = arg
     elif flag == "-c":                channels = arg

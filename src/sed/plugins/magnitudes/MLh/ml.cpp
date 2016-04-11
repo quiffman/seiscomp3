@@ -21,7 +21,7 @@
 #include "ml.h"
 #include <seiscomp3/logging/log.h>
 #include <seiscomp3/core/strings.h>
-#include <seiscomp3/processing/amplitudeprocessor_MLv.h>
+#include <seiscomp3/processing/amplitudes/MLv.h>
 #include <seiscomp3/processing/magnitudeprocessor.h>
 #include <seiscomp3/seismology/magnitudes.h>
 #include <seiscomp3/math/filter/seismometers.h>
@@ -41,6 +41,8 @@
 
 #define MAG_TYPE "MLh"
 
+
+using namespace std;
 
 using namespace Seiscomp;
 using namespace Seiscomp::Processing;
@@ -216,7 +218,7 @@ class AmplitudeProcessor_ML : public AmplitudeProcessor {
 		}
 
 		// Sets the value for a given capability
-		bool setParameter(Capability cap, const std::string &value) {
+		bool setParameter(Capability cap, const string &value) {
 			if ( cap == Combiner ) {
 				if ( value == "Min" ) {
 					_combiner = Minimum;
@@ -513,7 +515,7 @@ public:
         bool nomag;
     };
 
-    std::list<param_struct> list_of_parametersets;
+    list<param_struct> list_of_parametersets;
     param_struct selected_parameterset;
 
     MagnitudeProcessor_ML() : MagnitudeProcessor(MAG_TYPE) {}
@@ -535,7 +537,7 @@ public:
     }
 
 
-    std::string amplitudeType() const {
+    string amplitudeType() const {
         return MAG_TYPE;
     }
 
@@ -560,15 +562,15 @@ private:
     // create a C++ list of structs containing all configured
     // parameter sets.
     // run this once at program start
-    bool initParameters(std::list<param_struct> &paramlist, const std::string &params) {
-        std::string paramset, range_str,minrange_str;
-        std::string A_str, B_str;
+    bool initParameters(list<param_struct> &paramlist, const string &params) {
+        string paramset, range_str,minrange_str;
+        string A_str, B_str;
 
         // for each parameter set
-        std::istringstream iss_params(params);
+        istringstream iss_params(params);
         while ( getline(iss_params,paramset,';') ) {
             // extract the parameters from this parameter set
-            std::istringstream iss_paramset(paramset);
+            istringstream iss_paramset(paramset);
             iss_paramset >> range_str;
             iss_paramset >> A_str;
 
@@ -609,7 +611,7 @@ private:
 
     // select the right parameter set for a given distance. init_parameters() must
     // have been called before using this function.
-    param_struct selectParameters(double distance, const std::list<param_struct> &paramlist) {
+    param_struct selectParameters(double distance, const list<param_struct> &paramlist) {
         double last_dist = 1000000; // arbitrary number larger than any expected distance;
         param_struct selected_parameters;
 
@@ -619,7 +621,7 @@ private:
         selected_parameters.A=0;
         selected_parameters.B=0;
 
-        std::list<param_struct>::const_iterator paramit;
+        list<param_struct>::const_iterator paramit;
         for ( paramit = paramlist.begin(); paramit != paramlist.end(); ++paramit ) {
             if ( (paramit->dist < last_dist) && (paramit->dist >= distance) ) {
                 selected_parameters = *paramit;

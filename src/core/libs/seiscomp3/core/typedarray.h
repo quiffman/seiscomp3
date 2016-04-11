@@ -94,6 +94,9 @@ class TypedArray : public Array {
 		//! Drops all elements.
 		void clear();
 
+		//! Sets all values to v
+		void fill(const T &v);
+
 		//! Sets the element at a given index
 		void set(int index, T v);
 
@@ -105,6 +108,17 @@ class TypedArray : public Array {
 
 		//! Concatenates the given array to this array.
 		void append(int size, const T* data);
+
+		//! Concatenates this array to the fiven array and store the result
+		//! in this array.
+		void prepend(const Array *array);
+
+		//! Concatenates this array to the fiven array and store the result
+		//! in this array.
+		void prepend(int size, const T* data);
+
+		//! Returns the slice m...n-1 of the array
+		TypedArray<T>* slice(int m, int n) const;
 
 		//! Returns an iterator to the first element of the array
 		iterator begin();
@@ -118,8 +132,9 @@ class TypedArray : public Array {
 		//! Returns an const_iterator just past the end of the array
 		const_iterator end() const;
 
-		//! Returns the slice m...n-1 of the array
-		TypedArray<T>* slice(int m, int n) const;
+		const DataArray &impl() const { return _data; }
+		DataArray &impl() { return _data; }
+
 
 	protected:
 		DataArray _data;

@@ -134,7 +134,7 @@ class Bulletin(object):
                 txt += "      %s: %s" % (evtdtype, evtd.text())
 
             if extra:
-                try: txt += "    Creation time          %s\n" % evt.creationInfo().creationTime().toString("%Y-%m-%d %H:%M:%S")
+                try: txt += "\n    Creation time          %s\n" % evt.creationInfo().creationTime().toString("%Y-%m-%d %H:%M:%S")
                 except: pass
             txt += "\n"
             preferredMagnitudeID = evt.preferredMagnitudeID()

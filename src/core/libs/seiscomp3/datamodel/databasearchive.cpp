@@ -683,7 +683,6 @@ Object* DatabaseArchive::queryObject(const Seiscomp::Core::RTTI& classType,
 	}
 
 	if ( !_db->fetchRow() ) {
-		SEISCOMP_DEBUG("empty result set");
 		_db->endQuery();
 		return NULL;
 	}

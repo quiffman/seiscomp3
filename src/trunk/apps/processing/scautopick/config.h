@@ -138,6 +138,9 @@ class Config {
 		// The picker type to use
 		std::string pickerType;
 
+		// The secondary picker type to use
+		std::string secondaryPickerType;
+
 		// Send detections as well if a picker is configured?
 		bool        sendDetections;
 

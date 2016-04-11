@@ -484,6 +484,7 @@ class ChannelDef: public CfgElement
     string source_id;
     double scale;
     double realscale;
+    double realoffset;
     string realunit;
     int precision;
     set<string> channels_defined;
@@ -546,6 +547,7 @@ try
     source_id = name;
     scale = -1.0;
     realscale = -1.0;
+    realoffset = 0;
     realunit = "";
     precision = 2;
 
@@ -554,6 +556,7 @@ try
     atts->add_item(StringAttribute("source_id", source_id));
     atts->add_item(FloatAttribute("scale", scale));
     atts->add_item(FloatAttribute("realscale", realscale));
+    atts->add_item(FloatAttribute("realoffset", realoffset));
     atts->add_item(StringAttribute("realunit", realunit));
     atts->add_item(IntAttribute("precision", precision, 0, 10));
     return atts;
@@ -574,7 +577,7 @@ try
       }
 
     proto->attach_output_channel(source_id, chanid, statid, scale,
-      realscale, realunit, precision);
+      realscale, realoffset, realunit, precision);
 
     channels_defined.insert(chanid);
   }
@@ -601,10 +604,11 @@ void configure_plugin(const string &config_file)
     atts->add_item(IntAttribute("time_offset", dconf.time_offset));
     atts->add_item(IntAttribute("zero_sample_limit", dconf.zero_sample_limit,
       -1, 5, IntAttribute::lower_bound));
-    atts->add_item(IntAttribute("default_tq", dconf.default_tq, 0, 100));
+    atts->add_item(IntAttribute("default_tq", dconf.default_tq, -1, 100));
     atts->add_item(IntAttribute("unlock_tq", dconf.unlock_tq, -1, 100));
     atts->add_item(IntAttribute("bundles", dconf.nbundles, 1, 59));
     atts->add_item(StringAttribute("soh_log_dir", dconf.soh_log_dir));
+    atts->add_item(IntAttribute("baseaddr", dconf.baseaddr, 0, 65535));
 
     rc_ptr<CfgElementMap> elms = new CfgElementMap;
     elms->add_item(ChannelDef("channel"));

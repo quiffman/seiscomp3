@@ -23,6 +23,23 @@ using namespace Seiscomp;
 using namespace Seiscomp::IO;
 
 
+struct MSEEDLogger {
+	MSEEDLogger() {
+		ms_loginit(MSEEDLogger::print, "[libmseed] ", MSEEDLogger::diag, "[libmseed] ERR: ");
+	}
+
+	static void print(char *msg) {
+		SEISCOMP_DEBUG("%s", msg);
+	}
+	static void diag(char *msg) {
+		SEISCOMP_INFO("%s", msg);
+	}
+};
+
+
+static MSEEDLogger __logger__;
+
+
 IMPLEMENT_SC_CLASS_DERIVED(MSeedRecord, Record, "MSeedRecord");
 REGISTER_RECORD(MSeedRecord, "mseed");
 

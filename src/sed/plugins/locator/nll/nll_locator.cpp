@@ -1027,6 +1027,7 @@ Origin* NLLocator::relocate(const Origin* origin) throw(Core::GeneralException) 
 	}
 
 	PickList picks;
+
 	for ( size_t i = 0; i < origin->arrivalCount(); ++i ) {
 		double weight = 1.0;
 		try {
@@ -1035,9 +1036,26 @@ Origin* NLLocator::relocate(const Origin* origin) throw(Core::GeneralException) 
 		}
 		catch ( ... ) {}
 
-		Pick *pick = getPick(origin->arrival(i));
-		if ( pick != NULL )
+		PickPtr pick = getPick(origin->arrival(i));
+		if ( pick != NULL ) {
+			try {
+				// Phase definition of arrival and pick different?
+				if ( pick->phaseHint().code() != origin->arrival(i)->phase().code() ) {
+					PickPtr np = new Pick(*pick);
+					np->setPhaseHint(origin->arrival(i)->phase());
+					pick = np;
+				}
+			}
+			catch ( ... ) {
+				// Pick has no phase hint?
+				PickPtr np = new Pick(*pick);
+				np->setPhaseHint(origin->arrival(i)->phase());
+				pick = np;
+			}
+
 			picks.push_back(WeightedPick(pick,weight));
+
+		}
 		else {
 			if ( emptyProfile ) _currentProfile = NULL;
 

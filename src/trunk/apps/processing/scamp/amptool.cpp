@@ -71,6 +71,7 @@ bool AmpTool::CompareWaveformStreamID::operator()(
 AmpTool::AmpTool(int argc, char **argv) : StreamApplication(argc, argv) {
 	_fExpiry = 1.0; // one hour cache initially
 	_fetchMissingAmplitudes = true;
+	_minWeight = 0.5;
 
 	setAutoApplyNotifierEnabled(true);
 	setInterpretNotifierEnabled(true);
@@ -150,6 +151,9 @@ bool AmpTool::initConfiguration() {
 		_amplitudeTypes.insert(amplitudes.begin(), amplitudes.end());
 	}
 	catch (...) {}
+
+	try { _minWeight = configGetDouble("amptool.minimumPickWeight"); }
+	catch ( ... ) {}
 
 	_dumpRecords = commandline().hasOption("dump-records");
 
@@ -359,7 +363,7 @@ void AmpTool::process(Origin *origin) {
 
 		double weight = Private::arrivalWeight(arr);
 
-		if ( Private::shortPhaseName(arr->phase().code()) != 'P' || weight < 0.5 ) {
+		if ( Private::shortPhaseName(arr->phase().code()) != 'P' || weight < _minWeight ) {
 			SEISCOMP_INFO("Ignoring pick '%s' weight=%.1f phase=%s",
 			              pickID.c_str(), weight, arr->phase().code().c_str());
 			continue;

@@ -15,7 +15,6 @@
 #define _SEISCOMP_SEISMOMETERS_H_
 
 #include <complex>
-using namespace std;
 
 #include<seiscomp3/math/filter/biquad.h>
 

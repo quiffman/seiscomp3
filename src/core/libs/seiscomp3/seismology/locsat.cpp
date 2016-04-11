@@ -527,7 +527,7 @@ DataModel::Origin* LocSAT::loc2Origin(Internal::Loc* loc){
 		arrival->setPickID(Core::toString(i));
 
 		if (loc->locator_errors[i].arid != 0 ||
-		    ! strcmp(loc->assoc[i].timedef, "n") ){
+		    !strcmp(loc->assoc[i].timedef, "n") ){
 			arrival->setWeight(0.0);
 // 			SEISCOMP_DEBUG("arrival %d : setting weight to 0.0 -  because it was not used in locsat", i);
 		}
@@ -562,6 +562,17 @@ DataModel::Origin* LocSAT::loc2Origin(Internal::Loc* loc){
 			}
 		}
 
+		// Populate horizontal slowness residual
+		if ( loc->assoc[i].slores > -990. ) {
+			arrival->setHorizontalSlownessResidual(loc->assoc[i].slores);
+			arrival->setHorizontalSlownessUsed(true);
+		}
+
+		// Populate backazimuth residual
+		if ( loc->assoc[i].azres > -990. ) {
+			arrival->setBackazimuthResidual(loc->assoc[i].azres);
+			arrival->setBackazimuthUsed(true);
+		}
 
 		if ( !origin->add(arrival.get()) )
 			SEISCOMP_DEBUG("arrival not added for some reason");

@@ -317,7 +317,7 @@ bool ClassHandler::get(Core::BaseObject *obj, void *n) {
 
 
 bool ClassHandler::put(Core::BaseObject *obj, const char *tag, const char *ns, OutputHandler *output) {
-	output->openElement(tag, ns);
+	if ( !output->openElement(tag, ns) ) return false;
 
 	for ( MemberList::iterator it = attributes.begin();
 	      it != attributes.end(); ++it ) {

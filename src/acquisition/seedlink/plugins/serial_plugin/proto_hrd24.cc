@@ -198,14 +198,16 @@ class HRD24Protocol: public Proto
       
     void attach_output_channel(const string &source_id,
       const string &channel_name, const string &station_name,
-      double scale, double realscale, const string &realunit, int precision);
+      double scale, double realscale, double realoffset,
+      const string &realunit, int precision);
     void flush_channels();
     void start();
   };
 
 void HRD24Protocol::attach_output_channel(const string &source_id,
   const string &channel_name, const string &station_name,
-  double scale, double realscale, const string &realunit, int precision)
+  double scale, double realscale, double realoffset, const string &realunit,
+  int precision)
   {
     int n;
     char *tail;

@@ -303,7 +303,7 @@ std::string EncryptPasswordHandle::findPassword(std::string username, bool cancr
 			if (strs.size () != 2) {
 				throw EncryptError("format error on password file");
 			} else {
-				if ((strs[0].size () == username.size ()) && (username.compare (0, username.size (), strs[0]) == 0)) {
+				if (boost::iequals(strs[0], username)) {
 					InputFile.close ();
 					return decrypt(strs[1]);
 				}

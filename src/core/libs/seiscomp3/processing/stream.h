@@ -16,6 +16,7 @@
 
 
 #include <seiscomp3/core/baseobject.h>
+#include <seiscomp3/core/timewindow.h>
 #include <seiscomp3/processing/sensor.h>
 
 
@@ -61,6 +62,8 @@ class SC_CORE_PROCESSING_API Stream : public Core::BaseObject {
 
 
 	public:
+		Core::TimeWindow epoch;
+
 		double      gain;
 		std::string gainUnit;
 		double      azimuth;

@@ -261,6 +261,8 @@ bool EventTool::initConfiguration() {
 		_config.delayFilter.evaluationMode = mode;
 	} catch (...) {}
 
+	try { _config.delayPrefFocMech = configGetInt("eventAssociation.delayPrefFocMech"); } catch (...) {}
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -297,6 +299,7 @@ bool EventTool::init() {
 	_config.magTypes.push_back("mb");
 
 	_config.delayTimeSpan = 0;
+	_config.delayPrefFocMech = 0;
 
 	if ( !Application::init() ) return false;
 
@@ -312,7 +315,7 @@ bool EventTool::init() {
 	_outputOriginRef = addOutputObjectLog("originref", primaryMessagingGroup());
 	_outputFMRef = addOutputObjectLog("focmechref", primaryMessagingGroup());
 
-	if ( _config.delayTimeSpan > 0 )
+	if ( _config.delayTimeSpan > 0 || _config.delayPrefFocMech > 0 )
 		enableTimer(DELAY_CHECK_INTERVAL);
 
 	_cache.setTimeSpan(TimeSpan(_fExpiry*3600.));
@@ -427,7 +430,7 @@ void EventTool::handleMessage(Core::Message *msg) {
 		bool delayed = false;
 		for ( DelayBuffer::reverse_iterator dit = _delayBuffer.rbegin();
 		      dit != _delayBuffer.rend(); ++dit ) {
-			if ( dit->first == it->get() ) {
+			if ( dit->obj == it->get() ) {
 				delayed = true;
 				break;
 			}
@@ -474,20 +477,21 @@ void EventTool::handleTimeout() {
 	// First pass: decrease delay time and try to associate
 	for ( DelayBuffer::iterator it = _delayBuffer.begin();
 	      it != _delayBuffer.end(); ) {
-		it->second -= DELAY_CHECK_INTERVAL;
-		if ( it->second <= 0 ) {
-			OriginPtr org = Origin::Cast(it->first);
+		it->timeout -= DELAY_CHECK_INTERVAL;
+		if ( it->timeout <= 0 ) {
+			OriginPtr org = Origin::Cast(it->obj);
 			if ( org ) {
 				SEISCOMP_LOG(_infoChannel, "Processing delayed origin %s",
 				             org->publicID().c_str());
 				associateOrigin(org.get(), true);
 			}
-
-			FocalMechanismPtr fm = FocalMechanism::Cast(it->first);
-			if ( fm ) {
-				SEISCOMP_LOG(_infoChannel, "Processing delayed focalmechanism %s",
-				             fm->publicID().c_str());
-				associateFocalMechanism(fm.get());
+			else {
+				FocalMechanismPtr fm = FocalMechanism::Cast(it->obj);
+				if ( fm ) {
+					SEISCOMP_LOG(_infoChannel, "Processing delayed focalmechanism %s",
+					             fm->publicID().c_str());
+					associateFocalMechanism(fm.get());
+				}
 			}
 
 			it = _delayBuffer.erase(it);
@@ -499,12 +503,20 @@ void EventTool::handleTimeout() {
 	// Second pass: flush pending origins (if possible)
 	for ( DelayBuffer::iterator it = _delayBuffer.begin();
 	      it != _delayBuffer.end(); ) {
-		OriginPtr org = Origin::Cast(it->first);
+		OriginPtr org = Origin::Cast(it->obj);
 		EventInformationPtr info;
 		if ( org ) {
 			SEISCOMP_LOG(_infoChannel, "Processing delayed origin %s",
 			             org->publicID().c_str());
 			info = associateOrigin(org.get(), false);
+		}
+		else {
+			FocalMechanismPtr fm = FocalMechanism::Cast(it->obj);
+			if ( fm ) {
+				SEISCOMP_LOG(_infoChannel, "Processing delayed focalmechanism %s",
+				             fm->publicID().c_str());
+				info = associateFocalMechanism(fm.get());
+			}
 		}
 
 		// Has been associated
@@ -513,6 +525,43 @@ void EventTool::handleTimeout() {
 		else
 			++it;
 	}
+
+	// Third pass: check pending event updates
+	for ( DelayEventBuffer::iterator it = _delayEventBuffer.begin();
+	      it != _delayEventBuffer.end(); ) {
+		it->timeout -= DELAY_CHECK_INTERVAL;
+		if ( it->timeout <= 0 ) {
+			if ( it->reason == SetPreferredFM ) {
+				SEISCOMP_LOG(_infoChannel, "Handling pending event update for %s", it->id.c_str());
+				EventInformationPtr info = cachedEvent(it->id);
+				if ( !info ) {
+					info = new EventInformation(&_cache, &_config, query(), it->id);
+					if ( !info->event ) {
+						SEISCOMP_ERROR("event %s not found", it->id.c_str());
+						SEISCOMP_LOG(_infoChannel, "Skipped delayed preferred FM update, "
+						             "event %s not found in database", it->id.c_str());
+					}
+					else {
+						info->loadAssocations(query());
+						cacheEvent(info);
+						Notifier::Enable();
+						updatePreferredFocalMechanism(info.get());
+						Notifier::Disable();
+					}
+				}
+				else {
+					Notifier::Enable();
+					updatePreferredFocalMechanism(info.get());
+					Notifier::Disable();
+				}
+			}
+
+			it = _delayEventBuffer.erase(it);
+		}
+		else
+			++it;
+	}
+
 
 	// Clean up event cache
 	cleanUpEventCache();
@@ -542,6 +591,22 @@ void EventTool::cleanUpEventCache() {
 		else
 			++it;
 	}
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool EventTool::hasDelayedEvent(const std::string &publicID,
+                                DelayReason reason) const {
+	DelayEventBuffer::const_iterator it;
+	for ( it = _delayEventBuffer.begin(); it != _delayEventBuffer.end(); ++it ) {
+		if ( publicID == it->id && reason == it->reason )
+			return true;
+	}
+
+	return false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -2788,10 +2853,49 @@ void EventTool::choosePreferred(EventInformation *info, DataModel::FocalMechanis
 	               info->event->publicID().c_str(),
 	               fm->publicID().c_str());
 
+	if ( _config.delayPrefFocMech > 0 ) {
+		if ( !info->preferredOrigin ) {
+			SEISCOMP_DEBUG("No preferred origins set for event %s, cannot compute delay time, ignoring focal mechanism %s",
+			               info->event->publicID().c_str(), fm->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "No preferred origins set for event %s, cannot compute delay time, ignoring focal mechanism %s",
+			             info->event->publicID().c_str(), fm->publicID().c_str());
+			return;
+		}
+
+		Core::Time minTime = info->preferredOrigin->time().value() + Core::TimeSpan(_config.delayPrefFocMech,0);
+		Core::Time now = Core::Time::GMT();
+
+		//SEISCOMP_LOG(_infoChannel, "Time to reach to set focal mechanism preferred is %s, now is %s",
+		//             minTime.toString("%FT%T").c_str(), now.toString("%FT%T").c_str());
+
+		if ( minTime > now ) {
+			int secs = (minTime - now).seconds() + 1;
+			SEISCOMP_DEBUG("Setting preferred focal mechanism needs "
+			               "to be delayed by config, still %d secs to go for event %s",
+			               secs, info->event->publicID().c_str());
+			SEISCOMP_LOG(_infoChannel, "Setting preferred focal mechanism needs "
+			             "to be delayed by config, still %d secs to go for event %s",
+			             secs, info->event->publicID().c_str());
+
+			if ( !hasDelayedEvent(info->event->publicID(), SetPreferredFM) )
+				_delayEventBuffer.push_back(DelayedEventUpdate(info->event->publicID(), secs, SetPreferredFM));
+
+			return;
+		}
+	}
+
 	bool update = false;
 
 	if ( !info->preferredFocalMechanism ) {
 		if ( isAgencyIDAllowed(objectAgencyID(fm)) || info->constraints.fixFocalMechanism(fm) ) {
+			if ( isRejected(fm) ) {
+				SEISCOMP_DEBUG("%s: skip setting first preferredFocalMechanismID, '%s' is rejected",
+				               info->event->publicID().c_str(), fm->publicID().c_str());
+				SEISCOMP_LOG(_infoChannel, "FocalMechanism %s has not been set preferred: status is REJECTED",
+				             fm->publicID().c_str());
+				return;
+			}
+
 			info->event->setPreferredFocalMechanismID(fm->publicID());
 
 			info->preferredFocalMechanism = fm;
@@ -2820,6 +2924,13 @@ void EventTool::choosePreferred(EventInformation *info, DataModel::FocalMechanis
 	else if ( info->preferredFocalMechanism->publicID() != fm->publicID() ) {
 		SEISCOMP_DEBUG("... checking whether focalmechanism %s can become preferred",
 		               fm->publicID().c_str());
+
+		if ( isRejected(fm) ) {
+			SEISCOMP_DEBUG("... skipping potential preferred focalmechanism, status is REJECTED");
+			SEISCOMP_LOG(_infoChannel, "FocalMechanism %s has not been set preferred in event %s: status is REJECTED",
+			             fm->publicID().c_str(), info->event->publicID().c_str());
+			return;
+		}
 
 		// Fixed focalmechanism => check if the passed focalmechanism is the fixed one
 		if ( info->constraints.fixedFocalMechanism() ) {

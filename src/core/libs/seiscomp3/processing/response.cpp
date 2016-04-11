@@ -78,8 +78,8 @@ bool Response::deconvolveFFT(FloatArray &inout, double fsamp,
                              double cutoff,
                              double min_freq, double max_freq,
                              int numberOfIntegrations) {
-	return deconvolveFFT(inout.size(), inout.typedData(), fsamp, cutoff,
-	                     min_freq, max_freq, numberOfIntegrations);
+	return deconvolveFFT(inout.size(), inout.typedData(), fsamp,
+	                     cutoff, min_freq, max_freq, numberOfIntegrations);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -91,8 +91,8 @@ bool Response::deconvolveFFT(DoubleArray &inout, double fsamp,
                              double cutoff,
                              double min_freq, double max_freq,
                              int numberOfIntegrations) {
-	return deconvolveFFT(inout.size(), inout.typedData(), fsamp, cutoff,
-	                     min_freq, max_freq, numberOfIntegrations);
+	return deconvolveFFT(inout.size(), inout.typedData(), fsamp,
+	                     cutoff, min_freq, max_freq, numberOfIntegrations);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

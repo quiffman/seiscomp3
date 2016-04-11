@@ -19,10 +19,13 @@
 #include <seiscomp3/processing/application.h>
 #include <seiscomp3/processing/detector.h>
 #include <seiscomp3/processing/picker.h>
+#include <seiscomp3/processing/secondarypicker.h>
 #include <seiscomp3/processing/amplitudeprocessor.h>
 
 #include <seiscomp3/datamodel/pick.h>
 #include <seiscomp3/datamodel/stationmagnitude.h>
+
+#include <list>
 
 #include "config.h"
 #include "stationconfig.h"
@@ -56,8 +59,21 @@ class App : public Processing::Application {
 
 
 	private:
-		bool initProcessor(Processing::WaveformProcessor *proc,
+		// Initializes a single component of a processor.
+		bool initComponent(Processing::WaveformProcessor *proc,
 		                   Processing::WaveformProcessor::Component comp,
+		                   const Core::Time &time,
+		                   const std::string &streamID,
+		                   const std::string &networkCode,
+		                   const std::string &stationCode,
+		                   const std::string &locationCode,
+		                   const std::string &channelCode,
+		                   bool metaDataRequired);
+
+		// Initializes a processor which can use multiple components. This
+		// method calls initComponent for each requested component.
+		bool initProcessor(Processing::WaveformProcessor *proc,
+		                   Processing::WaveformProcessor::StreamComponent comp,
 		                   const Core::Time &time,
 		                   const std::string &streamID,
 		                   const std::string &networkCode,
@@ -73,6 +89,7 @@ class App : public Processing::Application {
 		                  const std::string &channelCode,
 		                  const Core::Time &time);
 
+		void addSecondaryPicker(const Core::Time &onset, const Record *rec);
 		void addAmplitudeProcessor(Processing::AmplitudeProcessorPtr proc,
 		                           const Record *rec,
 		                           const std::string& pickID);
@@ -89,6 +106,9 @@ class App : public Processing::Application {
 		void emitPPick(const Processing::Picker *,
 		               const Processing::Picker::Result &);
 
+		void emitSPick(const Processing::SecondaryPicker *,
+		               const Processing::SecondaryPicker::Result &);
+
 		void emitAmplitude(const Processing::AmplitudeProcessor *ampProc,
 		                   const Processing::AmplitudeProcessor::Result &res);
 
@@ -97,16 +117,33 @@ class App : public Processing::Application {
 		typedef std::map<std::string, Processing::StreamPtr> StreamMap;
 		typedef std::map<std::string, DataModel::PickPtr> PickMap;
 
-		StreamMap     _streams;
-		Config        _config;
-		PickMap       _lastPicks;
+		typedef Processing::WaveformProcessor TWProc;
 
-		StringSet     _streamIDs;
+		struct ProcEntry {
+			ProcEntry(const Core::Time &t, TWProc *p)
+			: dataEndTime(t), proc(p) {}
 
-		StationConfig _stationConfig;
+			Core::Time  dataEndTime;
+			TWProc     *proc;
+		};
 
-		ObjectLog    *_logPicks;
-		ObjectLog    *_logAmps;
+		typedef std::list<ProcEntry>  ProcList;
+		typedef std::map<std::string, ProcList> ProcMap;
+		typedef std::map<TWProc*, std::string> ProcReverseMap;
+
+		StreamMap      _streams;
+		Config         _config;
+		PickMap        _lastPicks;
+
+		ProcMap        _runningStreamProcs;
+		ProcReverseMap _procLookup;
+
+		StringSet      _streamIDs;
+
+		StationConfig  _stationConfig;
+
+		ObjectLog     *_logPicks;
+		ObjectLog     *_logAmps;
 };
 
 

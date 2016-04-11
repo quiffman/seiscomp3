@@ -329,6 +329,15 @@ class SC_CORE_DATAMODEL_API DatabaseQuery : public DatabaseReader {
 		DatabaseIterator getOriginsDescending(const std::string& eventID);
 
 		/**
+		 * Returns focal mechanisms for a given event ordered by
+		 * creation date
+		 * the youngest first.
+		 * @param eventID The ID of the event
+		 * @return An iterator to iterate over the focal mechanisms
+		 */
+		DatabaseIterator getFocalMechanismsDescending(const std::string& eventID);
+
+		/**
 		 * Returns the pickID's of all origins of an event with
 		 * given publicID
 		 * @param publicID The event's publicID (eventID)

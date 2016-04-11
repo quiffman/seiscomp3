@@ -21,7 +21,6 @@
 #include <seiscomp3/processing/application.h>
 #include <seiscomp3/processing/response.h>
 #include <seiscomp3/processing/sensor.h>
-#include <seiscomp3/processing/amplitudeprocessors.h>
 
 #include <seiscomp3/math/geo.h>
 #include <seiscomp3/math/filter.h>
@@ -60,6 +59,14 @@ char statusFlag(const Seiscomp::DataModel::Pick* pick) {
 	}
 	catch ( ... ) {}
 	return 'A';
+}
+
+
+bool contains(const Seiscomp::Core::TimeWindow &tw, const Seiscomp::Core::Time &time) {
+	if ( !time.valid() ) return false;
+	if ( tw.startTime().valid() && tw.endTime().valid() )
+		return tw.contains(time);
+	return !tw.startTime().valid() || time >= tw.startTime();
 }
 
 
@@ -191,7 +198,6 @@ void App::createCommandLineDescription() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool App::validateParameters() {
 	_config.init(commandline());
-
 	setMessagingEnabled(!_config.offline);
 	bool disableDB = commandline().hasOption("db-disable") ||
 	                 (_config.offline && !_config.calculateAmplitudes) ||
@@ -281,6 +287,17 @@ bool App::init() {
 	if ( _config.staConfFile != "" && !_stationConfig.read(_config.staConfFile) )
 		return false;
 
+	bool acquireAllComponents = false;
+	if ( !_config.secondaryPickerType.empty() ) {
+		SecondaryPickerPtr proc = SecondaryPickerFactory::Create(_config.secondaryPickerType.c_str());
+		if ( proc == NULL ) {
+			SEISCOMP_ERROR("Unknown secondary picker: %s", _config.secondaryPickerType.c_str());
+			return false;
+		}
+
+		if ( proc->usedComponent() != WaveformProcessor::Vertical )
+			acquireAllComponents = true;
+	}
 
 	Core::Time now = Core::Time::GMT();
 
@@ -306,22 +323,53 @@ bool App::init() {
 
 		string channel = it->second.channel;
 		char compCode = 'Z';
+		bool isFixedChannel = channel.size() > 2;
 
-		if ( loc ) {
-			DataModel::Stream *stream = DataModel::getVerticalComponent(loc, it->second.channel.c_str(), now);
-			if ( stream )
-				channel = stream->code();
+		DataModel::ThreeComponents chan;
+
+		if ( loc )
+			DataModel::getThreeComponents(chan, loc, it->second.channel.substr(0,2).c_str(), now);
+
+		DataModel::Stream *compZ = chan.comps[DataModel::ThreeComponents::Vertical];
+		DataModel::Stream *compN = chan.comps[DataModel::ThreeComponents::FirstHorizontal];
+		DataModel::Stream *compE = chan.comps[DataModel::ThreeComponents::SecondHorizontal];
+
+		if ( !isFixedChannel ) {
+			if ( compZ )
+				channel = compZ->code();
 			else
 				channel += compCode;
 		}
-		else
-			channel += compCode;
 
 		std::string streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + channel;
+
+		SEISCOMP_INFO("Adding detection channel %s", streamID.c_str());
+
 		_streamIDs.insert(streamID);
 
 		recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, channel);
+
+		if ( acquireAllComponents ) {
+			if ( compZ ) {
+				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compZ->code();
+				if ( _streamIDs.find(streamID) == _streamIDs.end() )
+					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compZ->code());
+			}
+
+			if ( compN ) {
+				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compN->code();
+				if ( _streamIDs.find(streamID) == _streamIDs.end() )
+					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compN->code());
+			}
+
+			if ( compE ) {
+				streamID = it->first.first + "." + it->first.second + "." + it->second.locCode + "." + compE->code();
+				if ( _streamIDs.find(streamID) == _streamIDs.end() )
+					recordStream()->addStream(it->first.first, it->first.second, it->second.locCode, compE->code());
+			}
+		}
 	}
+
 
 	std::string logAmplTypes;
 	for ( StringSet::iterator it = _config.amplitudeList.begin();
@@ -414,7 +462,7 @@ void App::updateObject(const string& parentID, DataModel::Object* o) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool App::initProcessor(Processing::WaveformProcessor *proc,
+bool App::initComponent(Processing::WaveformProcessor *proc,
                         Processing::WaveformProcessor::Component comp,
                         const Core::Time &time,
                         const std::string &streamID,
@@ -424,8 +472,8 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
                         const std::string &channelCode,
                         bool metaDataRequired) {
 	StreamMap::iterator it = _streams.find(streamID);
-	if ( it != _streams.end() ) {
-		proc->streamConfig(comp) = *(it->second.get());
+	if ( it != _streams.end() && contains(it->second->epoch, time) ) {
+		proc->streamConfig(comp) = *it->second;
 		if ( proc->streamConfig(comp).gain == 0.0 && metaDataRequired ) {
 			SEISCOMP_ERROR("No gain for stream %s", streamID.c_str());
 			return false;
@@ -433,23 +481,194 @@ bool App::initProcessor(Processing::WaveformProcessor *proc,
 	}
 	else {
 		// Load sensor, responses usw.
-		Processing::StreamPtr proc_stream = new Processing::Stream;
-		_streams[streamID] = proc_stream;
+		Processing::StreamPtr stream = new Processing::Stream;
+		_streams[streamID] = stream;
 
-		proc_stream->init(networkCode, stationCode, locationCode, channelCode, time);
-		if ( (proc_stream->gain == 0.0) && metaDataRequired ) {
+		stream->init(networkCode, stationCode, locationCode, channelCode, time);
+		if ( (stream->gain == 0.0) && metaDataRequired ) {
 			SEISCOMP_ERROR("No gain for stream %s", streamID.c_str());
 			return false;
 		}
 
-		proc->streamConfig(comp) = *proc_stream;
+		proc->streamConfig(comp) = *stream;
+	}
+
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool App::initProcessor(Processing::WaveformProcessor *proc,
+                        Processing::WaveformProcessor::StreamComponent comp,
+                        const Core::Time &time,
+                        const std::string &streamID,
+                        const std::string &networkCode,
+                        const std::string &stationCode,
+                        const std::string &locationCode,
+                        const std::string &channelCode,
+                        bool metaDataRequired) {
+	switch ( comp ) {
+		case Processing::WaveformProcessor::Vertical:
+			if ( !initComponent(proc,
+			                    Processing::WaveformProcessor::VerticalComponent,
+			                    time, streamID, networkCode, stationCode,
+			                    locationCode, channelCode, metaDataRequired) )
+				return false;
+			break;
+
+		case Processing::WaveformProcessor::FirstHorizontal:
+			if ( !initComponent(proc,
+			                    Processing::WaveformProcessor::FirstHorizontalComponent,
+			                    time, streamID, networkCode, stationCode,
+			                    locationCode, channelCode, metaDataRequired) )
+				return false;
+			break;
+
+		case Processing::WaveformProcessor::SecondHorizontal:
+			if ( !initComponent(proc,
+			                    Processing::WaveformProcessor::SecondHorizontalComponent,
+			                    time, streamID, networkCode, stationCode,
+			                    locationCode, channelCode, metaDataRequired) )
+				return false;
+			break;
+
+		case Processing::WaveformProcessor::Horizontal:
+		{
+			// Find the two horizontal components of given location code
+			DataModel::ThreeComponents chans;
+			string streamID1, streamID2;
+			string channelCode1, channelCode2;
+
+			DataModel::SensorLocation *loc =
+				Client::Inventory::Instance()->getSensorLocation(
+					networkCode, stationCode, locationCode, time
+				);
+
+			if ( loc == NULL ) {
+				SEISCOMP_ERROR("%s.%s: location code '%s' not found",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str());
+				return false;
+			}
+
+			// Extract the first two characters of the channel code
+			DataModel::getThreeComponents(chans, loc, channelCode.substr(0, 2).c_str(), time);
+			if ( chans.comps[DataModel::ThreeComponents::FirstHorizontal] != NULL ) {
+				channelCode1 = chans.comps[DataModel::ThreeComponents::FirstHorizontal]->code();
+				streamID1 = networkCode + "." + stationCode + "." +
+				            locationCode + "." + channelCode1;
+			}
+			else {
+				SEISCOMP_ERROR("%s.%s.%s.%s: 1st horizontal component not available",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
+				return false;
+			}
+
+			if ( chans.comps[DataModel::ThreeComponents::SecondHorizontal] != NULL ) {
+				channelCode2 = chans.comps[DataModel::ThreeComponents::SecondHorizontal]->code();
+				streamID2 = networkCode + "." + stationCode + "." +
+				            locationCode + "." + channelCode2;
+			}
+			else {
+				SEISCOMP_ERROR("%s.%s.%s.%s: 2nd horizontal component not available",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
+				return false;
+			}
+
+			if ( !initComponent(proc, Processing::WaveformProcessor::FirstHorizontalComponent,
+			                    time, streamID1, networkCode, stationCode,
+			                    locationCode, channelCode1, metaDataRequired) ||
+			     !initComponent(proc, Processing::WaveformProcessor::SecondHorizontalComponent,
+			                    time, streamID2, networkCode, stationCode,
+			                    locationCode, channelCode2, metaDataRequired) )
+				return false;
+			break;
+		}
+
+		case Processing::WaveformProcessor::Any:
+		{
+			// Find the all three components of given location code
+			DataModel::ThreeComponents chans;
+			string streamID0, streamID1, streamID2;
+			string channelCode0, channelCode1, channelCode2;
+
+			DataModel::SensorLocation *loc =
+				Client::Inventory::Instance()->getSensorLocation(
+					networkCode, stationCode, locationCode, time
+				);
+
+			if ( loc == NULL ) {
+				SEISCOMP_ERROR("%s.%s: location code '%s' not found",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str());
+				return false;
+			}
+
+			// Extract the first two characters of the channel code
+			DataModel::getThreeComponents(chans, loc, channelCode.substr(0, 2).c_str(), time);
+			if ( chans.comps[DataModel::ThreeComponents::Vertical] != NULL ) {
+				channelCode0 = chans.comps[DataModel::ThreeComponents::Vertical]->code();
+				streamID0 = networkCode + "." + stationCode + "." +
+				            locationCode + "." + channelCode0;
+			}
+			else if ( metaDataRequired ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: 1st horizontal component not available",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
+				return false;
+			}
+
+			if ( chans.comps[DataModel::ThreeComponents::FirstHorizontal] != NULL ) {
+				channelCode1 = chans.comps[DataModel::ThreeComponents::FirstHorizontal]->code();
+				streamID1 = networkCode + "." + stationCode + "." +
+				            locationCode + "." + channelCode1;
+			}
+			else if ( metaDataRequired ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: 1st horizontal component not available",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
+				return false;
+			}
+
+			if ( chans.comps[DataModel::ThreeComponents::SecondHorizontal] != NULL ) {
+				channelCode2 = chans.comps[DataModel::ThreeComponents::SecondHorizontal]->code();
+				streamID2 = networkCode + "." + stationCode + "." +
+				            locationCode + "." + channelCode2;
+			}
+			else if ( metaDataRequired ) {
+				SEISCOMP_ERROR("%s.%s.%s.%s: 2nd horizontal component not available",
+				               networkCode.c_str(), stationCode.c_str(),
+				               locationCode.c_str(), channelCode.substr(0,2).c_str());
+				return false;
+			}
+
+			if ( !initComponent(proc, Processing::WaveformProcessor::VerticalComponent,
+			                    time, streamID0, networkCode, stationCode,
+			                    locationCode, channelCode0, metaDataRequired) ||
+			     !initComponent(proc, Processing::WaveformProcessor::FirstHorizontalComponent,
+			                    time, streamID1, networkCode, stationCode,
+			                    locationCode, channelCode1, metaDataRequired) ||
+			     !initComponent(proc, Processing::WaveformProcessor::SecondHorizontalComponent,
+			                    time, streamID2, networkCode, stationCode,
+			                    locationCode, channelCode2, metaDataRequired) )
+				return false;
+			break;
+		}
+
+		default:
+			break;
 	}
 
 	const StreamConfig *sc = _stationConfig.get(&configuration(), configModuleName(),
-	                                            networkCode, stationCode);
+		                                        networkCode, stationCode);
 	return proc->setup(Settings(configModuleName(), networkCode, stationCode,
-	                   locationCode, channelCode, &configuration(),
-	                   sc?sc->parameters.get():NULL));
+	                            locationCode, channelCode, &configuration(),
+	                            sc?sc->parameters.get():NULL));
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -508,7 +727,7 @@ bool App::initDetector(const string &streamID,
 	if ( _config.calculateAmplitudes )
 		detector->setAmplitudePublishFunction(boost::bind(&App::emitAmplitude, this, _1, _2));
 
-	if ( !initProcessor(detector.get(), (WaveformProcessor::Component)detector->usedComponent(),
+	if ( !initProcessor(detector.get(), detector->usedComponent(),
 	                    time, streamID, networkCode, stationCode, locationCode, channelCode, false) )
 		return false;
 
@@ -552,6 +771,117 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 	SEISCOMP_INFO("%s:%s: %s", rec->streamID().c_str(),
 	                           wp->className(),
 	                           ss.str().c_str());
+
+	// If its a secondary processor remove it from the tracked item list
+	ProcReverseMap::iterator pit = _procLookup.find(wp);
+	if ( pit == _procLookup.end() ) return;
+
+	ProcMap::iterator mit = _runningStreamProcs.find(pit->second);
+
+	_procLookup.erase(pit);
+
+	if ( mit == _runningStreamProcs.end() ) return;
+
+	ProcList &list = mit->second;
+	for ( ProcList::iterator it = list.begin(); it != list.end(); ++it ) {
+		if ( it->proc == wp ) {
+			list.erase(it);
+			break;
+		}
+	}
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
+	// Add secondary picker
+	SecondaryPickerPtr proc = SecondaryPickerFactory::Create(_config.secondaryPickerType.c_str());
+	if ( proc == NULL ) {
+		SEISCOMP_WARNING("Could not create secondary picker: %s", _config.secondaryPickerType.c_str());
+		this->exit(1);
+		return;
+	}
+
+	SecondaryPicker::Trigger trigger;
+	trigger.onset = onset;
+	proc->setTrigger(trigger);
+	proc->setPublishFunction(boost::bind(&App::emitSPick, this, _1, _2));
+
+	if ( !initProcessor(proc.get(), proc->usedComponent(),
+	                    onset, rec->streamID(),
+	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), true) )
+		return;
+
+	switch ( proc->usedComponent() ) {
+		case Processing::WaveformProcessor::Vertical:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::VerticalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::FirstHorizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::SecondHorizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::Horizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::Any:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::VerticalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+	}
+
+
+	ProcList &list = _runningStreamProcs[rec->streamID()];
+
+	// Check for secondary procs that are still running but where the
+	// end time is before onset and remove them
+	// ...
+	for ( ProcList::iterator it = list.begin(); it != list.end(); ) {
+		if ( it->dataEndTime <= onset ) {
+			SEISCOMP_INFO("Remove expired running processor on %s",
+			              rec->streamID().c_str());
+
+			// Remove processor from application
+			removeProcessor(it->proc);
+
+			// Remove its reverse lookup
+			ProcReverseMap::iterator pit = _procLookup.find(it->proc);
+			if ( pit != _procLookup.end() ) _procLookup.erase(pit);
+
+			// Remove it from the run list
+			it = list.erase(it);
+		}
+		else
+			++it;
+	}
+
+	// Register the secondary procs running on the verticals
+	list.push_back(ProcEntry(proc->safetyTimeWindow().endTime(), proc.get()));
+	_procLookup[proc.get()] = rec->streamID();
+
+	SEISCOMP_DEBUG("Number of processors: %lu", (unsigned long)processorCount());
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -560,7 +890,7 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void App::addAmplitudeProcessor(AmplitudeProcessorPtr proc,
-                                const Record *rec, const string& pickID) {
+                                const Record *rec, const string &pickID) {
 	proc->setPublishFunction(boost::bind(&App::emitAmplitude, this, _1, _2));
 	proc->setReferencingPickID(pickID);
 
@@ -569,13 +899,47 @@ void App::addAmplitudeProcessor(AmplitudeProcessorPtr proc,
 		return;
 	}
 
-	if ( !initProcessor(proc.get(), (WaveformProcessor::Component)proc->usedComponent(),
+	if ( !initProcessor(proc.get(), proc->usedComponent(),
 	                    proc->trigger(), rec->streamID(),
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), true) )
 		return;
 
-	addProcessor(rec->networkCode(), rec->stationCode(),
-	             rec->locationCode(), rec->channelCode(), proc.get());
+	switch ( proc->usedComponent() ) {
+		case Processing::WaveformProcessor::Vertical:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::VerticalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::FirstHorizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::SecondHorizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::Horizontal:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+		case Processing::WaveformProcessor::Any:
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::VerticalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::FirstHorizontalComponent).code(),
+			             proc.get());
+			addProcessor(rec->networkCode(), rec->stationCode(),
+			             rec->locationCode(), proc->streamConfig(Processing::WaveformProcessor::SecondHorizontalComponent).code(),
+			             proc.get());
+			break;
+	}
 
 	if ( _config.amplitudeUpdateList.find(proc->type()) != _config.amplitudeUpdateList.end() )
 		proc->setUpdateEnabled(true);
@@ -602,7 +966,7 @@ void App::emitTrigger(const Processing::Detector *pickProc,
 	proc->setMargin(60.);
 	proc->setPublishFunction(boost::bind(&App::emitPPick, this, _1, _2));
 
-	if ( !initProcessor(proc.get(), (WaveformProcessor::Component)proc->usedComponent(),
+	if ( !initProcessor(proc.get(), proc->usedComponent(),
 	                    time, rec->streamID(),
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), false) )
 		return;
@@ -702,7 +1066,7 @@ void App::emitPPick(const Processing::Picker *proc,
 		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
 	}
 
-	SEISCOMP_DEBUG("Emit pick %s", pick->publicID().c_str());
+	SEISCOMP_DEBUG("Emit P pick %s", pick->publicID().c_str());
 	logObject(_logPicks, now);
 	logObject(_logAmps, now);
 
@@ -722,6 +1086,9 @@ void App::emitPPick(const Processing::Picker *proc,
 		}
 	}
 
+	if ( !_config.secondaryPickerType.empty() )
+		addSecondaryPicker(res.time, res.record);
+
 	if ( _config.calculateAmplitudes ) {
 		for ( StringSet::iterator it = _config.amplitudeList.begin();
 		      it != _config.amplitudeList.end(); ++it ) {
@@ -731,6 +1098,72 @@ void App::emitPPick(const Processing::Picker *proc,
 			proc->setTrigger(res.time);
 			addAmplitudeProcessor(proc.get(), res.record, pick->publicID());
 		}
+	}
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void App::emitSPick(const Processing::SecondaryPicker *proc,
+                    const Processing::SecondaryPicker::Result &res) {
+	std::string pickID = res.time.toString("%Y%m%d.%H%M%S.%2f-") + _config.secondaryPickerType +
+	                     "-" + res.record->streamID();
+	DataModel::PickPtr pick = DataModel::Pick::Create(pickID);
+	if ( !pick ) {
+		SEISCOMP_WARNING("Duplicate pick %s ignored", pickID.c_str());
+		return;
+	}
+
+	Core::Time now = Core::Time::GMT();
+	DataModel::CreationInfo ci;
+	ci.setCreationTime(now);
+	ci.setAgencyID(agencyID());
+	ci.setAuthor(author());
+	pick->setCreationInfo(ci);
+
+	DataModel::TimeQuantity pickTime(res.time);
+	if ( res.timeLowerUncertainty >= 0 && res.timeUpperUncertainty >= 0 &&
+	     res.timeLowerUncertainty == res.timeUpperUncertainty )
+		pickTime.setUncertainty(res.timeUpperUncertainty);
+	else {
+		if ( res.timeLowerUncertainty >= 0 )
+			pickTime.setLowerUncertainty(res.timeLowerUncertainty);
+		if ( res.timeUpperUncertainty >= 0 )
+			pickTime.setUpperUncertainty(res.timeUpperUncertainty);
+	}
+
+	pick->setTime(pickTime);
+	pick->setMethodID(proc->methodID());
+	pick->setEvaluationMode(DataModel::EvaluationMode(DataModel::AUTOMATIC));
+	pick->setPhaseHint(DataModel::Phase(res.phaseCode));
+	pick->setWaveformID(DataModel::WaveformStreamID(
+		res.record->networkCode(),
+		res.record->stationCode(),
+		res.record->locationCode(),
+		res.record->channelCode(),
+		"")
+	);
+
+	if ( !isMessagingEnabled() ) {
+		printf("%s %-2s %-6s %-3s %-2s %6.1f %10.3f %4.1f %c %s\n",
+		       res.time.toString("%Y-%m-%d %H:%M:%S.%1f").c_str(),
+		       res.record->networkCode().c_str(), res.record->stationCode().c_str(),
+		       res.record->channelCode().c_str(),
+		       res.record->locationCode().empty()?"__":res.record->locationCode().c_str(),
+		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
+	}
+
+	SEISCOMP_DEBUG("Emit S pick %s", pick->publicID().c_str());
+	logObject(_logPicks, now);
+
+	if ( connection() && !_config.test ) {
+		// Send pick
+		DataModel::NotifierPtr n = new DataModel::Notifier("EventParameters", DataModel::OP_ADD, pick.get());
+		DataModel::NotifierMessagePtr m = new DataModel::NotifierMessage;
+		m->attach(n.get());
+		connection()->send(m.get());
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -780,7 +1213,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 		       pick->publicID().c_str());
 	}
 
-	SEISCOMP_DEBUG("Emit pick %s", pick->publicID().c_str());
+	SEISCOMP_DEBUG("Emit trigger %s", pick->publicID().c_str());
 	logObject(_logPicks, now);
 
 	if ( connection() && !_config.test ) {
@@ -789,6 +1222,9 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 		m->attach(n.get());
 		connection()->send(m.get());
 	}
+
+	if ( !_config.secondaryPickerType.empty() )
+		addSecondaryPicker(time, rec);
 
 	if ( _config.calculateAmplitudes ) {
 		for ( StringSet::iterator it = _config.amplitudeList.begin();

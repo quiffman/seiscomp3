@@ -21,7 +21,7 @@ namespace Core {
 template <typename T>
 inline std::string toString(const T& v) {
 	std::ostringstream os;
-	os.precision(8);
+	os.precision(10);
 	os << v;
 	return os.str();
 }
@@ -30,13 +30,13 @@ inline std::string toString(const T& v) {
 template <typename T>
 inline std::string toString(const std::complex<T>& v) {
 	std::ostringstream os;
-	os << "(" << v.real() << "," << v.imag() << ")";
+	os << "(" << toString(v.real()) << "," << toString(v.imag()) << ")";
 	return os.str();
 }
 
 template <typename ENUMTYPE, ENUMTYPE END, typename NAMES>
 std::string toString(const Enum<ENUMTYPE, END, NAMES>& value) {
-	    return value.toString();
+	return value.toString();
 }
 
 template <typename T>

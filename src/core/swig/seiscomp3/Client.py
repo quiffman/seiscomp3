@@ -1239,7 +1239,7 @@ class Inventory(_object):
         return _Client.Inventory_setInventory(self, *args)
 
     def filter(self, *args):
-        """filter(self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist)"""
+        """filter(self, TypeWhiteList typeWhitelist, TypeWhiteList typeBlacklist) -> int"""
         return _Client.Inventory_filter(self, *args)
 
     def loadStations(self, *args):

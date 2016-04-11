@@ -234,8 +234,8 @@ extern int	setup_tttables ();
 #define	STRIKE_MIN	0.0
 #define	STRIKE_MAX	360.0
 
-#define	MAXTBD		181
-#define	MAXTBZ		20
+#define	MAXTBD		301
+#define	MAXTBZ		50
 #define	MAX(x,y)	(((x) > (y)) ? (x) : (y))
 #define	MIN(x,y)	(((x) < (y)) ? (x) : (y))
 
@@ -496,7 +496,7 @@ int	new_num_phase_types;
 	                "setup_tttables: Error opening travel-time tables");
 			return (TTerror2);
 		}
-		else if (ierr = 2)
+		else if (ierr == 2)
 		{
 			fprintf (stderr,
 	                "setup_tttables: Error reading travel-time tables: Unexpected E-O-F");

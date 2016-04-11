@@ -80,6 +80,8 @@ struct Config {
 
 	EventFilter     delayFilter;
 	int             delayTimeSpan;
+
+	int             delayPrefFocMech;
 };
 
 

@@ -72,6 +72,10 @@ class EventTool : public Application {
 			PicksAndLocation
 		};
 
+		enum DelayReason {
+			SetPreferredFM
+		};
+
 		bool handleJournalEntry(DataModel::JournalEntry *);
 
 		EventInformationPtr associateOriginCheckDelay(DataModel::Origin *);
@@ -123,6 +127,9 @@ class EventTool : public Application {
 		void updateEvent(DataModel::Event *ev, bool = true);
 		void cleanUpEventCache();
 
+		bool hasDelayedEvent(const std::string &publicID,
+		                     DelayReason reason) const;
+
 
 	private:
 		struct TodoEntry {
@@ -150,8 +157,25 @@ class EventTool : public Application {
 		typedef std::map<std::string, EventInformationPtr> EventMap;
 		typedef std::set<TodoEntry> TodoList;
 
-		typedef std::pair<DataModel::PublicObjectPtr, int> DelayedObject;
+		struct DelayedObject {
+			DelayedObject(const DataModel::PublicObjectPtr &o, int t)
+			: obj(o), timeout(t){}
+
+			DataModel::PublicObjectPtr obj;
+			int timeout;
+		};
+
+		struct DelayedEventUpdate {
+			DelayedEventUpdate(const std::string &eid, int t, DelayReason r)
+			: id(eid), timeout(t), reason(r) {}
+
+			std::string id;
+			int timeout;
+			DelayReason reason;
+		};
+
 		typedef std::list<DelayedObject> DelayBuffer;
+		typedef std::list<DelayedEventUpdate> DelayEventBuffer;
 		typedef std::set<std::string> IDSet;
 
 		typedef std::map<std::string, EventProcessorPtr> EventProcessors;
@@ -174,6 +198,7 @@ class EventTool : public Application {
 		TodoList                      _realUpdates;
 		IDSet                         _originBlackList;
 		DelayBuffer                   _delayBuffer;
+		DelayEventBuffer              _delayEventBuffer;
 
 		Logging::Channel             *_infoChannel;
 		Logging::Output              *_infoOutput;

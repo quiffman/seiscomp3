@@ -14,7 +14,10 @@
 #define SEISCOMP_COMPONENT WaveformProcessor
 
 #include <seiscomp3/processing/waveformprocessor.h>
+#include <seiscomp3/processing/waveformoperator.h>
 #include <seiscomp3/logging/log.h>
+
+#include <boost/bind.hpp>
 
 
 namespace Seiscomp {
@@ -28,9 +31,28 @@ IMPLEMENT_SC_ABSTRACT_CLASS(WaveformProcessor, "WaveformProcessor");
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+WaveformProcessor::StreamState::StreamState()
+: lastSample(0), neededSamples(0), receivedSamples(0), initialized(false),
+  fsamp(0.0), filter(NULL) {
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+WaveformProcessor::StreamState::~StreamState() {
+	if ( filter != NULL ) delete filter;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 WaveformProcessor::WaveformProcessor(const Core::TimeSpan &initTime,
                                      const Core::TimeSpan &gapThreshold)
- : _filter(NULL), _enabled(true),
+ : _enabled(true),
    _initTime(initTime), _gapThreshold(gapThreshold), _usedComponent(Vertical) {
 
 	_gapTolerance = 0.;
@@ -45,7 +67,6 @@ WaveformProcessor::WaveformProcessor(const Core::TimeSpan &initTime,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 WaveformProcessor::~WaveformProcessor() {
 	close();
-	if ( _filter ) delete _filter;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -72,8 +93,21 @@ const Stream &WaveformProcessor::streamConfig(Component c) const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WaveformProcessor::setFilter(Filter *filter) {
-	if ( _filter ) delete _filter;
-	_filter = filter;
+	if ( _stream.filter ) delete _stream.filter;
+	_stream.filter = filter;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void WaveformProcessor::setOperator(WaveformOperator *op) {
+	if ( _operator ) _operator->setStoreFunc(WaveformOperator::StoreFunc());
+
+	_operator = op;
+
+	if ( _operator ) _operator->setStoreFunc(boost::bind(&WaveformProcessor::store, this, _1));
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -100,22 +134,17 @@ const Core::TimeSpan &WaveformProcessor::gapTolerance() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WaveformProcessor::reset() {
-	if ( _filter )
-		setFilter(_filter->clone());
+	Filter *tmp = _stream.filter;
 
-	_lastRecord = NULL;
-	_fsamp = 0.0;
-	_dataTimeWindow = Core::TimeWindow();
-	_lastSampleTime = Core::Time();
-	_lastSample = 0;
+	_stream = StreamState();
 
-	_receivedSamples = 0;
-	_neededSamples = 0;
+	if ( tmp != NULL ) {
+		_stream.filter = tmp->clone();
+		delete tmp;
+	}
 
 	_status = WaitingForData;
 	_statusValue = 0.;
-
-	_initialized = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -153,7 +182,7 @@ bool WaveformProcessor::isGapInterpolationEnabled() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Core::TimeWindow WaveformProcessor::dataTimeWindow() const {
-	return _dataTimeWindow;
+	return _stream.dataTimeWindow;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -162,7 +191,7 @@ Core::TimeWindow WaveformProcessor::dataTimeWindow() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const Record *WaveformProcessor::lastRecord() const {
-	return _lastRecord.get();
+	return _stream.lastRecord.get();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -171,9 +200,9 @@ const Record *WaveformProcessor::lastRecord() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WaveformProcessor::initFilter(double fsamp) {
-	_fsamp = fsamp;
-	_neededSamples = static_cast<size_t>(_initTime * _fsamp + 0.5);
-	if ( _filter ) _filter->setSamplingFrequency(fsamp);
+	_stream.fsamp = fsamp;
+	_stream.neededSamples = static_cast<size_t>(_initTime * _stream.fsamp + 0.5);
+	if ( _stream.filter ) _stream.filter->setSamplingFrequency(fsamp);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -182,7 +211,7 @@ void WaveformProcessor::initFilter(double fsamp) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 double WaveformProcessor::samplingFrequency() const {
-	return _fsamp;
+	return _stream.fsamp;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -190,21 +219,36 @@ double WaveformProcessor::samplingFrequency() const {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool WaveformProcessor::feed(const Record *record) {
+bool WaveformProcessor::feed(const Record *rec) {
+	if ( !_operator ) return store(rec);
+	Status stat = _operator->feed(rec);
+	if ( stat > Terminated ) {
+		setStatus(stat, -1);
+		return false;
+	}
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool WaveformProcessor::store(const Record *record) {
 	if ( _status > InProgress ) return false;
 	if ( record->data() == NULL ) return false;
 
 	DoubleArrayPtr arr = (DoubleArray*)record->data()->copy(Array::DOUBLE);
 
-	if ( _lastRecord ) {
-		if ( record == _lastRecord ) return false;
+	if ( _stream.lastRecord ) {
+		if ( record == _stream.lastRecord ) return false;
 
-		Core::TimeSpan gap = record->startTime() - _lastSampleTime - Core::TimeSpan(0,1);
+		Core::TimeSpan gap = record->startTime() - _stream.dataTimeWindow.endTime() - Core::TimeSpan(0,1);
 		double gapSecs = (double)gap;
 
 		if ( gap > _gapThreshold ) {
-			size_t gapsize = static_cast<size_t>(ceil(_fsamp * gapSecs));
-			bool handled = handleGap(_filter, gap, _lastSample, (*arr)[0], gapsize);
+			size_t gapsize = static_cast<size_t>(ceil(_stream.fsamp * gapSecs));
+			bool handled = handleGap(_stream.filter, gap, _stream.lastSample, (*arr)[0], gapsize);
 			if ( handled )
 				SEISCOMP_DEBUG("[%s] detected gap of %.6f secs or %lu samples (handled)",
 				               record->streamID().c_str(), (double)gap, (unsigned long)gapsize);
@@ -216,21 +260,21 @@ bool WaveformProcessor::feed(const Record *record) {
 			}
 		}
 		else if ( gapSecs < 0 ) {
-			size_t gapsize = static_cast<size_t>(ceil(-_fsamp * gapSecs));
+			size_t gapsize = static_cast<size_t>(ceil(-_stream.fsamp * gapSecs));
 			if ( gapsize > 1 ) return false;
 		}
 
 		// update the received data timewindow
-		_dataTimeWindow.setEndTime(record->endTime());
+		_stream.dataTimeWindow.setEndTime(record->endTime());
 	}
 
 	// NOTE: Do not use else here, because lastRecord can be set NULL
 	//       when calling reset() in handleGap(...)
-	if ( !_lastRecord ) {
+	if ( !_stream.lastRecord ) {
 		initFilter(record->samplingFrequency());
 
 		// update the received data timewindow
-		_dataTimeWindow = record->timeWindow();
+		_stream.dataTimeWindow = record->timeWindow();
 		/*
 		std::cerr << "Received first record for " << record->streamID() << ", "
 		          << className() << " [" << record->startTime().iso() << " - " << record->endTime().iso() << std::endl;
@@ -240,23 +284,21 @@ bool WaveformProcessor::feed(const Record *record) {
 	// Fill the values and do the actual filtering
 	fill(arr->size(), arr->typedData());
 
-	if ( !_initialized ) {
-		if ( _receivedSamples > _neededSamples ) {
+	if ( !_stream.initialized ) {
+		if ( _stream.receivedSamples > _stream.neededSamples ) {
 			//_initialized = true;
 			process(record, *arr);
 			// NOTE: To allow derived classes to notice modification of the variable 
 			//       _initialized, it is necessary to set this after calling process.
-			_initialized = true;
+			_stream.initialized = true;
 		}
 	}
 	else
 		// Call process to cause a derived processor to work on the data.
 		process(record, *arr);
 
-	_lastRecord = record;
-
-	_lastSampleTime = record->endTime();
-	_lastSample = (*arr)[arr->size()-1];
+	_stream.lastRecord = record;
+	_stream.lastSample = (*arr)[arr->size()-1];
 
 	return true;
 }
@@ -301,8 +343,8 @@ Core::BaseObject *WaveformProcessor::userData() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WaveformProcessor::fill(size_t n, double *samples) {
-	_receivedSamples += n;
-	if ( _filter ) _filter->apply(n, samples);
+	_stream.receivedSamples += n;
+	if ( _stream.filter ) _stream.filter->apply(n, samples);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

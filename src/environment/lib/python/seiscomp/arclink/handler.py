@@ -701,7 +701,7 @@ class _WaveformRequest(_Request):
                     for acc_strm in acc_loc.itervalues():
                         for acc_user in acc_strm.itervalues():
                             for acc in acc_user.itervalues():
-                                if self.__user.endswith(acc.user) and \
+                                if self.__user.upper().endswith(acc.user.upper()) and \
                                     start_time >= acc.start and \
                                     (acc.end is None or end_time <= acc.end):
                                     return True

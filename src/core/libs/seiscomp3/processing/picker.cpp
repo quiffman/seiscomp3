@@ -159,7 +159,7 @@ bool Picker::calculatePick(int n, const double *data,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Picker::process(const Record *record, const DoubleArray &) {
 	// Sampling frequency has not been set yet
-	if ( _fsamp == 0.0 ) {
+	if ( _stream.fsamp == 0.0 ) {
 		terminate();
 		return;
 	}
@@ -179,11 +179,11 @@ void Picker::process(const Record *record, const DoubleArray &) {
 	double snr = -1;
 
 	// Calculate data array indicies of requested time window
-	int i1 = int(dt1*_fsamp);
-	int i2 = int(dt2*_fsamp);
+	int i1 = int(dt1*_stream.fsamp);
+	int i2 = int(dt2*_stream.fsamp);
 
 	// Calculate the initial trigger time
-	int triggerIdx = relTriggerTime*_fsamp;
+	int triggerIdx = relTriggerTime*_stream.fsamp;
 	int lowerUncertainty = -1;
 	int upperUncertainty = -1;
 
@@ -193,7 +193,7 @@ void Picker::process(const Record *record, const DoubleArray &) {
 		return;
 	}
 
-	Core::Time pickTime = dataTimeWindow().startTime() + Core::TimeSpan(triggerIdx/_fsamp);
+	Core::Time pickTime = dataTimeWindow().startTime() + Core::TimeSpan(triggerIdx/_stream.fsamp);
 
 	// Debug: print the time difference between the pick and the initial trigger
 	SEISCOMP_DEBUG("Picker::process repick result: dt=%.3f  snr=%.2f",
@@ -205,8 +205,8 @@ void Picker::process(const Record *record, const DoubleArray &) {
 		res.record = record;
 		res.snr = snr;
 		res.time = pickTime;
-		res.timeLowerUncertainty = (double)lowerUncertainty / _fsamp;
-		res.timeUpperUncertainty = (double)upperUncertainty / _fsamp;
+		res.timeLowerUncertainty = (double)lowerUncertainty / _stream.fsamp;
+		res.timeUpperUncertainty = (double)upperUncertainty / _stream.fsamp;
 		res.timeWindowBegin = (double)(timeWindow().startTime() - pickTime);
 		res.timeWindowEnd = (double)(timeWindow().endTime() - pickTime);
 		emitPick(res);
@@ -221,11 +221,11 @@ void Picker::process(const Record *record, const DoubleArray &) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Picker::writeData() {
-	if ( !_lastRecord ) return;
+	if ( !_stream.lastRecord ) return;
 
-	std::ofstream of((_lastRecord->streamID() + "-postpick.data").c_str());
+	std::ofstream of((_stream.lastRecord->streamID() + "-postpick.data").c_str());
 
-	of << "#sampleRate: " << _lastRecord->samplingFrequency() << std::endl;
+	of << "#sampleRate: " << _stream.lastRecord->samplingFrequency() << std::endl;
 
 	for ( int i = 0; i < continuousData().size(); ++i )
 		of << i << "\t" << continuousData()[i] << std::endl;

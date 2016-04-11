@@ -42,6 +42,7 @@ TimeDomain<TYPE>::TimeDomain()
 {
 	bandpass = 0;
 	fsamp = 0;
+	dt = 0;
 	init();
 }
 
@@ -87,9 +88,9 @@ void TimeDomain<TYPE>::apply(int n, TYPE *inout)
 	// Double-integration *after* bandpas filtering, see Kanamori & Rivera (2008)
 	for (int i=0; i<n; i++) {
 		// cause a delay of one sample (half a sample per integration)
-		cumsum1 += inout[i];
+		cumsum1 += inout[i]*dt;
 		inout[i] = cumsum2;
-		cumsum2 += cumsum1;
+		cumsum2 += cumsum1*dt;
 	}
 
 	// FIXME: We still observe about half a sample of delay compared to
@@ -113,7 +114,10 @@ template<class TYPE>
 void TimeDomain<TYPE>::setSamplingFrequency(double _fsamp)
 {
 	fsamp = _fsamp;
-	if ( _fsamp>0 ) init();
+	if ( _fsamp>0 ) {
+		dt = 1.0 / fsamp;
+		init();
+	}
 
 	if ( bandpass && _fsamp > 0 )
 		bandpass->setSamplingFrequency(_fsamp);

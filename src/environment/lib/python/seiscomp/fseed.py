@@ -1856,8 +1856,12 @@ class _Channel(object):
         #if sample_rate != rate:
         #    print digi.name, netcfg.code, statcfg.code, strmcfg.code, "expected sample rate", sample_rate, "actual", rate
         
-        self.__sens_blk = _Blockette58(gain = sens,
-            gain_freq = sens_freq)
+        #self.__sens_blk = _Blockette58(gain = sens,
+        #    gain_freq = sens_freq)
+
+        # Use overall gain from inventory
+        self.__sens_blk = _Blockette58(gain = strmcfg.gain,
+            gain_freq = strmcfg.gainFrequency)
 
     def __cmp__(self, other):
         if(self.__id < other.__id):

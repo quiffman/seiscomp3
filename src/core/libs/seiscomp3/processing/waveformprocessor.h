@@ -28,6 +28,7 @@ namespace Seiscomp {
 namespace Processing {
 
 
+DEFINE_SMARTPOINTER(WaveformOperator);
 DEFINE_SMARTPOINTER(WaveformProcessor);
 
 
@@ -109,6 +110,10 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 				MissingGain,
 				//! Response missing
 				MissingResponse,
+				//! Sampling frequency does not match. Either records of
+				//! one trace have different sampling frequencies or
+				//! the sampling frequencies of different channels do not match.
+				InvalidSamplingFreq,
 				//! No associated value yet (error code?)
 				Error
 			),
@@ -127,6 +132,7 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 				"missing orientation",
 				"missing gain",
 				"missing response",
+				"invalid sampling frequency",
 				"error"
 			)
 		);
@@ -151,7 +157,11 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 		//! Call this method in derived classes to make sure
 		//! the filters samplingFrequency will be set correctly
 		//! The feed method filters the data according to the
-		//! set filter and calls process
+		//! set filter and calls process.
+		//! NOTE: This method does not distinguish between different
+		//!       channelcodes. Its just feeds what it gets into the
+		//!       data array. If multiple channels need to be combined
+		//!       this method must be reimplemented.
 		virtual bool feed(const Record *record);
 
 		//! Convenience function to feed a whole record sequence into
@@ -175,6 +185,10 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 
 		//! Sets the filter to apply 
 		virtual void setFilter(Filter *filter);
+
+		//! Sets a operator for all fed records. An operator sits between
+		//! feed and store.
+		void setOperator(WaveformOperator *pipe);
 
 		//! The gain is input unit -> sensor unit
 		Stream &streamConfig(Component c);
@@ -250,12 +264,16 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 		virtual void disabled() {}
 		virtual void enabled() {}
 
-		//! Virtual method that must be used in derived classes to analyse a datastream.
+		//! Virtual method that must be used in derived classes to analyse
+		//! a datastream.
 		//! It gives the raw record and the filtered data array as parameter.
-		virtual void process(const Record *record, const DoubleArray &filteredData) = 0;
+		virtual void process(const Record *record,
+		                     const DoubleArray &filteredData) = 0;
 
 		//! Handles gaps. Returns whether the gap has been handled or not.
-		virtual bool handleGap(Filter *filter, const Core::TimeSpan&, double lastSample, double nextSample, size_t missingSamples);
+		virtual bool handleGap(Filter *filter, const Core::TimeSpan&,
+		                       double lastSample, double nextSample,
+		                       size_t missingSamples);
 
 		virtual void fill(size_t n, double *samples);
 
@@ -263,40 +281,65 @@ class SC_CORE_PROCESSING_API WaveformProcessor : public Processor {
 
 
 	// ----------------------------------------------------------------------
+	//  Private interface
+	// ----------------------------------------------------------------------
+	private:
+		bool store(const Record *rec);
+
+
+	// ----------------------------------------------------------------------
 	//  Members
 	// ----------------------------------------------------------------------
 	protected:
-		Filter          *_filter;
+		//! Describes the current state of a component (e.g. Z or N)
+		struct StreamState {
+			StreamState();
+			~StreamState();
 
-		RecordCPtr       _lastRecord;
-		bool             _enabled;
+			//! Value of the last sample
+			double            lastSample;
 
-		double           _fsamp;
+			//! Number of samples required to finish initialization
+			size_t            neededSamples;
+			//! Number of samples already received
+			size_t            receivedSamples;
+			//! Initialization state
+			bool              initialized;
 
-		Core::TimeSpan   _initTime;
+			//! The last received record on this component
+			RecordCPtr        lastRecord;
+			//! The complete processed data time window so far
+			Core::TimeWindow  dataTimeWindow;
 
-		Core::TimeWindow _dataTimeWindow;
+			//! The sampling frequency of the component
+			double            fsamp;
+			//! The filter (if used)
+			Filter           *filter;
+		};
 
-		Core::Time       _lastSampleTime;
-		double           _lastSample;
+		bool                        _enabled;
 
-		Core::TimeSpan   _gapThreshold; /* threshold to recognize a gap */
-		Core::TimeSpan   _gapTolerance; /* gap length to tolerate */
+		Core::TimeSpan              _initTime;
 
-		bool             _enableGapInterpolation; /* default: false */
+		//! threshold to recognize a gap
+		Core::TimeSpan              _gapThreshold;
+		//! gap length to tolerate
+		Core::TimeSpan              _gapTolerance;
 
-		size_t           _receivedSamples;
-		size_t           _neededSamples;
+		//! default: false
+		bool                        _enableGapInterpolation;
 
-		bool             _initialized;
+		StreamState                 _stream;
 
-		StreamComponent  _usedComponent; /* default: vertical */
-		Stream           _streamConfig[3];
+		//! default: vertical
+		StreamComponent             _usedComponent;
+		Stream                      _streamConfig[3];
 
 
 	private:
-		Status           _status;
-		double           _statusValue;
+		Status                      _status;
+		double                      _statusValue;
+		WaveformOperatorPtr         _operator;
 
 		mutable Core::BaseObjectPtr _userData;
 };

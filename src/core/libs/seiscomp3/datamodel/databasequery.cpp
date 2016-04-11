@@ -57,7 +57,7 @@ OPT(double) DatabaseQuery::getComponentGain(const std::string& network_code,
 	if ( !validInterface() ) return Seiscomp::Core::None;
 
 	std::string query;
-	query += "select Stream." + _T("gain") + " from Network,Station,Stream,SensorLocation where Station._parent_oid=Network._oid and SensorLocation._parent_oid=Station._oid and Stream._parent_oid=SensorLocation._oid and Network." + _T("start") + "<='";
+	query += "select Stream." + _T("gain") + " from Station,Stream,Network,SensorLocation where SensorLocation._parent_oid=Station._oid and Station._parent_oid=Network._oid and Stream._parent_oid=SensorLocation._oid and Network." + _T("start") + "<='";
 	query += toString(time);
 	query += "' and (Network." + _T("end") + ">='";
 	query += toString(time);
@@ -103,7 +103,7 @@ Station* DatabaseQuery::getStation(const std::string& network_code,
 	if ( !validInterface() ) return NULL;
 
 	std::string query;
-	query += "select PStation." + _T("publicID") + ",Station.* from Network,Station,PublicObject as PStation where Station._parent_oid=Network._oid and Station._oid=PStation._oid and Network." + _T("start") + "<='";
+	query += "select PStation." + _T("publicID") + ",Station.* from Station,PublicObject as PStation,Network where Station._parent_oid=Network._oid and Station._oid=PStation._oid and Network." + _T("start") + "<='";
 	query += toString(time);
 	query += "' and (Network." + _T("end") + ">='";
 	query += toString(time);
@@ -129,7 +129,7 @@ Event* DatabaseQuery::getEvent(const std::string& originID) {
 	if ( !validInterface() ) return NULL;
 
 	std::string query;
-	query += "select PEvent." + _T("publicID") + ",Event.* from OriginReference,Event,PublicObject as PEvent where OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and OriginReference." + _T("originID") + "='";
+	query += "select PEvent." + _T("publicID") + ",Event.* from Event,PublicObject as PEvent,OriginReference where OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and OriginReference." + _T("originID") + "='";
 	query += toString(originID);
 	query += "'";
 
@@ -161,7 +161,7 @@ Event* DatabaseQuery::getEventForFocalMechanism(const std::string& focalMechanis
 	if ( !validInterface() ) return NULL;
 
 	std::string query;
-	query += "select PEvent." + _T("publicID") + ",Event.* from FocalMechanismReference,Event,PublicObject as PEvent where FocalMechanismReference._parent_oid=Event._oid and Event._oid=PEvent._oid and FocalMechanismReference." + _T("focalMechanismID") + "='";
+	query += "select PEvent." + _T("publicID") + ",Event.* from Event,PublicObject as PEvent,FocalMechanismReference where FocalMechanismReference._parent_oid=Event._oid and Event._oid=PEvent._oid and FocalMechanismReference." + _T("focalMechanismID") + "='";
 	query += toString(focalMechanismID);
 	query += "'";
 
@@ -228,7 +228,7 @@ DatabaseIterator DatabaseQuery::getAmplitudesForOrigin(const std::string& origin
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select PAmplitude." + _T("publicID") + ",Amplitude.* from Origin,PublicObject as POrigin,Arrival,Amplitude,PublicObject as PAmplitude where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Origin._oid=POrigin._oid and Amplitude._oid=PAmplitude._oid and POrigin." + _T("publicID") + "='";
+	query += "select PAmplitude." + _T("publicID") + ",Amplitude.* from Amplitude,PublicObject as PAmplitude,Origin,PublicObject as POrigin,Arrival where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Amplitude._oid=PAmplitude._oid and Origin._oid=POrigin._oid and POrigin." + _T("publicID") + "='";
 	query += toString(originID);
 	query += "'";
 
@@ -244,7 +244,7 @@ DatabaseIterator DatabaseQuery::getOriginsForAmplitude(const std::string& amplit
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select POrigin." + _T("publicID") + ",Origin.* from Amplitude,PublicObject as PAmplitude,Arrival,Origin,PublicObject as POrigin where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Amplitude._oid=PAmplitude._oid and Origin._oid=POrigin._oid and PAmplitude." + _T("publicID") + "='";
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Amplitude,PublicObject as PAmplitude,Origin,PublicObject as POrigin,Arrival where Arrival." + _T("pickID") + "=Amplitude." + _T("pickID") + " and Arrival._parent_oid=Origin._oid and Amplitude._oid=PAmplitude._oid and Origin._oid=POrigin._oid and PAmplitude." + _T("publicID") + "='";
 	query += toString(amplitudeID);
 	query += "'";
 
@@ -276,7 +276,7 @@ DatabaseIterator DatabaseQuery::getPicks(const std::string& originID) {
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select PPick." + _T("publicID") + ",Pick.* from Origin,PublicObject as POrigin,Arrival,Pick,PublicObject as PPick where Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and Arrival._parent_oid=Origin._oid and Origin._oid=POrigin._oid and Pick._oid=PPick._oid and POrigin." + _T("publicID") + "='";
+	query += "select PPick." + _T("publicID") + ",Pick.* from Pick,PublicObject as PPick,Origin,PublicObject as POrigin,Arrival where Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and Arrival._parent_oid=Origin._oid and Pick._oid=PPick._oid and Origin._oid=POrigin._oid and POrigin." + _T("publicID") + "='";
 	query += toString(originID);
 	query += "'";
 
@@ -537,7 +537,7 @@ DatabaseIterator DatabaseQuery::getPreferredOrigins(Seiscomp::Core::Time startTi
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select POrigin." + _T("publicID") + ",Origin.* from Origin,PublicObject as POrigin,Event where POrigin." + _T("publicID") + "=Event." + _T("preferredOriginID") + " and Origin._oid=POrigin._oid and Origin." + _T("time_value") + ">='";
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Event,Origin,PublicObject as POrigin where POrigin." + _T("publicID") + "=Event." + _T("preferredOriginID") + " and Origin._oid=POrigin._oid and Origin." + _T("time_value") + ">='";
 	query += toString(startTime);
 	query += "' and Origin." + _T("time_value") + "<='";
 	query += toString(endTime);
@@ -580,7 +580,7 @@ DatabaseIterator DatabaseQuery::getEvents(Seiscomp::Core::Time startTime,
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select PEvent." + _T("publicID") + ",Event.* from Origin,PublicObject as POrigin,Event,PublicObject as PEvent where POrigin." + _T("publicID") + "=Event." + _T("preferredOriginID") + " and Origin._oid=POrigin._oid and Event._oid=PEvent._oid and Origin." + _T("time_value") + ">='";
+	query += "select PEvent." + _T("publicID") + ",Event.* from Event,PublicObject as PEvent,Origin,PublicObject as POrigin where POrigin." + _T("publicID") + "=Event." + _T("preferredOriginID") + " and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and Origin." + _T("time_value") + ">='";
 	query += toString(startTime);
 	query += "' and Origin." + _T("time_value") + "<='";
 	query += toString(endTime);
@@ -598,7 +598,7 @@ DatabaseIterator DatabaseQuery::getOrigins(const std::string& eventID) {
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select POrigin." + _T("publicID") + ",Origin.* from Event,PublicObject as PEvent,OriginReference,Origin,PublicObject as POrigin where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Event,PublicObject as PEvent,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
 	query += toString(eventID);
 	query += "' order by Origin." + _T("creationInfo_creationTime") + " asc";
 
@@ -614,7 +614,7 @@ DatabaseIterator DatabaseQuery::getOriginsDescending(const std::string& eventID)
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select POrigin." + _T("publicID") + ",Origin.* from Event,PublicObject as PEvent,OriginReference,Origin,PublicObject as POrigin where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
+	query += "select POrigin." + _T("publicID") + ",Origin.* from Event,PublicObject as PEvent,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
 	query += toString(eventID);
 	query += "' order by Origin." + _T("creationInfo_creationTime") + " desc";
 
@@ -626,11 +626,27 @@ DatabaseIterator DatabaseQuery::getOriginsDescending(const std::string& eventID)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DatabaseIterator DatabaseQuery::getFocalMechanismsDescending(const std::string& eventID) {
+	if ( !validInterface() ) return DatabaseIterator();
+
+	std::string query;
+	query += "select PFocalMechanism." + _T("publicID") + ",FocalMechanism.* from Event,PublicObject as PEvent,FocalMechanism,PublicObject as PFocalMechanism,FocalMechanismReference where FocalMechanismReference." + _T("focalMechanismID") + "=PFocalMechanism." + _T("publicID") + " and FocalMechanismReference._parent_oid=Event._oid and Event._oid=PEvent._oid and FocalMechanism._oid=PFocalMechanism._oid and PEvent." + _T("publicID") + "='";
+	query += toString(eventID);
+	query += "' order by FocalMechanism." + _T("creationInfo_creationTime") + " desc";
+
+	return getObjectIterator(query, FocalMechanism::TypeInfo());
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DatabaseIterator DatabaseQuery::getEventPickIDs(const std::string& publicID) {
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(Arrival." + _T("pickID") + ") from Event,PublicObject as PEvent,OriginReference,Origin,PublicObject as POrigin,Arrival where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
+	query += "select distinct(Arrival." + _T("pickID") + ") from Event,PublicObject as PEvent,Arrival,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
 	query += toString(publicID);
 	query += "'";
 
@@ -647,7 +663,7 @@ DatabaseIterator DatabaseQuery::getEventPickIDsByWeight(const std::string& publi
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(Arrival." + _T("pickID") + ") from Event,PublicObject as PEvent,Arrival,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and (Arrival." + _T("weight") + ">'";
+	query += "select distinct(Arrival." + _T("pickID") + ") from OriginReference,Event,PublicObject as PEvent,Origin,PublicObject as POrigin,Arrival where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Origin._oid=POrigin._oid and (Arrival." + _T("weight") + ">'";
 	query += toString(weight);
 	query += "' or Arrival." + _T("weight") + " is null) and PEvent." + _T("publicID") + "='";
 	query += toString(publicID);
@@ -665,7 +681,7 @@ DatabaseIterator DatabaseQuery::getEventPicks(const std::string& eventID) {
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(PPick." + _T("publicID") + "),Pick.* from Event,PublicObject as PEvent,OriginReference,Pick,PublicObject as PPick,Origin,PublicObject as POrigin,Arrival where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Pick._oid=PPick._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
+	query += "select distinct(PPick." + _T("publicID") + "),Pick.* from Event,PublicObject as PEvent,Pick,PublicObject as PPick,Arrival,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Pick._oid=PPick._oid and Origin._oid=POrigin._oid and PEvent." + _T("publicID") + "='";
 	query += toString(eventID);
 	query += "'";
 
@@ -682,7 +698,7 @@ DatabaseIterator DatabaseQuery::getEventPicksByWeight(const std::string& publicI
 	if ( !validInterface() ) return DatabaseIterator();
 
 	std::string query;
-	query += "select distinct(PPick." + _T("publicID") + "),Pick.* from Event,PublicObject as PEvent,Arrival,Pick,PublicObject as PPick,Origin,PublicObject as POrigin,OriginReference where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Pick._oid=PPick._oid and Origin._oid=POrigin._oid and (Arrival." + _T("weight") + ">'";
+	query += "select distinct(PPick." + _T("publicID") + "),Pick.* from OriginReference,Event,PublicObject as PEvent,Pick,PublicObject as PPick,Origin,PublicObject as POrigin,Arrival where OriginReference." + _T("originID") + "=POrigin." + _T("publicID") + " and Arrival." + _T("pickID") + "=PPick." + _T("publicID") + " and OriginReference._parent_oid=Event._oid and Arrival._parent_oid=Origin._oid and Event._oid=PEvent._oid and Pick._oid=PPick._oid and Origin._oid=POrigin._oid and (Arrival." + _T("weight") + ">'";
 	query += toString(weight);
 	query += "' or Arrival." + _T("weight") + " is null) and PEvent." + _T("publicID") + "='";
 	query += toString(publicID);

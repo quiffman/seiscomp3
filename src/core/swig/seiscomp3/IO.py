@@ -67,6 +67,13 @@ except AttributeError:
     _newclass = 0
 
 
+try:
+    import weakref
+    weakref_proxy = weakref.proxy
+except:
+    weakref_proxy = lambda x: x
+
+
 class SwigPyIterator(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPyIterator, name, value)
@@ -517,6 +524,30 @@ def Importer_ConstCast(*args):
   return _IO.Importer_ConstCast(*args)
 Importer_ConstCast = _IO.Importer_ConstCast
 
+class ExportSink(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, ExportSink, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, ExportSink, name)
+    __repr__ = _swig_repr
+    __swig_destroy__ = _IO.delete_ExportSink
+    __del__ = lambda self : None;
+    def write(self, *args): return _IO.ExportSink_write(self, *args)
+    def __init__(self): 
+        if self.__class__ == ExportSink:
+            _self = None
+        else:
+            _self = self
+        this = _IO.new_ExportSink(_self, )
+        try: self.this.append(this)
+        except: self.this = this
+    def __disown__(self):
+        self.this.disown()
+        _IO.disown_ExportSink(self)
+        return weakref_proxy(self)
+ExportSink_swigregister = _IO.ExportSink_swigregister
+ExportSink_swigregister(ExportSink)
+
 class Exporter(Core.BaseObject):
     __swig_setmethods__ = {}
     for _s in [Core.BaseObject]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
@@ -538,6 +569,8 @@ class Exporter(Core.BaseObject):
     if _newclass:ConstCast = staticmethod(_IO.Exporter_ConstCast)
     __swig_destroy__ = _IO.delete_Exporter
     __del__ = lambda self : None;
+    __swig_getmethods__["Create"] = lambda x: _IO.Exporter_Create
+    if _newclass:Create = staticmethod(_IO.Exporter_Create)
     def setFormattedOutput(self, *args): return _IO.Exporter_setFormattedOutput(self, *args)
     def setIndent(self, *args): return _IO.Exporter_setIndent(self, *args)
     def write(self, *args): return _IO.Exporter_write(self, *args)
@@ -559,6 +592,10 @@ Exporter_Cast = _IO.Exporter_Cast
 def Exporter_ConstCast(*args):
   return _IO.Exporter_ConstCast(*args)
 Exporter_ConstCast = _IO.Exporter_ConstCast
+
+def Exporter_Create(*args):
+  return _IO.Exporter_Create(*args)
+Exporter_Create = _IO.Exporter_Create
 
 class XMLArchive(Core.GenericArchive):
     __swig_setmethods__ = {}

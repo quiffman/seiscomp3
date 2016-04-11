@@ -20,6 +20,7 @@ from seiscomp3 import Core, Client, DataModel, Logging
 try:
     from seiscomp.db.seiscomp3 import sc3wrap
     from seiscomp.db.seiscomp3.inventory import Inventory as SC3Inventory
+    from seiscomp.db.seiscomp3.routing import Routing as SC3Routing
     have_sc3wrap = True
 
 except ImportError:
@@ -28,16 +29,18 @@ except ImportError:
 try:
     import sqlobject
     from seiscomp.db.sqlobject.inventory import Inventory as SOInventory
+    from seiscomp.db.sqlobject.routing import Routing as SORouting
     have_sqlobject = True
 
 except ImportError:
     have_sqlobject = False
 
-VERSION = "1.0 (2012.048)"
+VERSION = "1.1 (2012.165)"
 
 class DumpDB(Client.Application):
     def __init__(self, argc, argv):
         Client.Application.__init__(self, argc, argv)
+        self.routingMode = False
     
         self.use_sc3db = have_sc3wrap
         self.db_url = None
@@ -59,6 +62,7 @@ class DumpDB(Client.Application):
         self.commandline().addGroup("ArcLink")
         self.commandline().addIntOption("ArcLink", "use-sc3db", "use SC3 messaging/database", have_sc3wrap)
         self.commandline().addStringOption("ArcLink", "db-url", "database URL (sqlobject only)")
+        self.commandline().addOption("ArcLink", "routing", "dump routing instead of inventory")
         
     def validateParameters(self):
         try:
@@ -71,6 +75,9 @@ class DumpDB(Client.Application):
             if not have_sc3wrap and not have_sqlobject:
                 print >>sys.stderr, "Neither SC3 nor sqlobject support is available"
                 return False
+
+            if self.commandline().hasOption("routing"):
+                self.routingMode = True
 
             if self.use_sc3db:
                 if not have_sc3wrap:
@@ -114,20 +121,30 @@ class DumpDB(Client.Application):
                 sc3wrap.dbQuery = self.query()
                 DataModel.Notifier.Enable()
                 DataModel.Notifier.SetCheckEnabled(False)
-                self.inv = SC3Inventory(self.query().loadInventory())
+                if not self.routingMode:
+                    self.inv = SC3Inventory(self.query().loadInventory())
+                else:
+                    self.rtn = SC3Routing(self.query().loadRouting())
             
             else:
                 connection = sqlobject.connectionForURI(self.db_url)
                 sqlobject.sqlhub.processConnection = connection
-                self.inv = SOInventory()
+                if not self.routingMode:
+                    self.inv = SOInventory()
+                else:
+                    self.rtn = SORouting()
 
-            self.inv.load_stations("*")
-            self.inv.load_stations("*", "*")
-            self.inv.load_stations("*", "*", "*")
-            self.inv.load_stations("*", "*", "*", "*")
-            self.inv.load_instruments()
-            self.inv.save_xml(self.output_file, instr=2)
-            
+            if not self.routingMode:
+                self.inv.load_stations("*")
+                self.inv.load_stations("*", "*")
+                self.inv.load_stations("*", "*", "*")
+                self.inv.load_stations("*", "*", "*", "*")
+                self.inv.load_instruments()
+                self.inv.save_xml(self.output_file, instr=2)
+            else:
+                self.rtn.load_routes("*", "*")
+                self.rtn.save_xml(self.output_file)
+
         except Exception:
             logs.print_exc()
             return False

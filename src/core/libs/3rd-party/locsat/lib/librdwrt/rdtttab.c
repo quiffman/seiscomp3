@@ -87,6 +87,7 @@ char	*froot,				/* Size [ca. 1024] 	 	 	      */
 		*tflt;
 	char	filnam[1024],	/* ["root" + "." + "postname" + NULL] */
 		**s2ptr;		/* Temporary array pointer	      */
+	char	readtemp[128];
 	FILE	*opf, *fopen();
 
 
@@ -201,7 +202,8 @@ char	*froot,				/* Size [ca. 1024] 	 	 	      */
 
 			for (tflt = temp_tt, i = 0; i < ntbdx & !err; ++i)
 			{
-				if (fscanf (opf, "%f", &tempval) != 1)
+				fgets(readtemp, 127, opf);
+				if (sscanf (readtemp, "%f", &tempval) != 1)
 				{
 					READ_E1("travel-time value");
 					err = 2;

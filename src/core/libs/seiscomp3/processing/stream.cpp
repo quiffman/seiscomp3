@@ -18,6 +18,7 @@
 #include <seiscomp3/client/inventory.h>
 #include <seiscomp3/logging/log.h>
 
+#include <iostream>
 
 namespace Seiscomp {
 namespace Processing  {
@@ -45,6 +46,9 @@ void Stream::init(const std::string &networkCode,
                   const Core::Time &time) {
 	gain = 0.0;
 	setCode(channelCode);
+	epoch = Core::TimeWindow();
+
+	double gainFreq = -1.0;
 
 	Client::Inventory *inv = Client::Inventory::Instance();
 	if ( !inv ) return;
@@ -52,8 +56,17 @@ void Stream::init(const std::string &networkCode,
 	DataModel::Stream *stream = inv->getStream(networkCode, stationCode, locationCode, channelCode, time);
 	if ( !stream ) return;
 
+	epoch.setStartTime(stream->start());
+	try { epoch.setEndTime(stream->end()); }
+	catch ( ... ) {}
+
 	try {
 		gain = stream->gain();
+	}
+	catch ( ... ) {}
+
+	try {
+		gainFreq = stream->gainFrequency();
 	}
 	catch ( ... ) {}
 
@@ -107,6 +120,62 @@ void Stream::init(const std::string &networkCode,
 					proc_response->convertFromHz();
 
 				proc_sensor->setResponse(proc_response.get());
+			}
+		}
+
+		ResponsePtr proc_resp = proc_sensor->response();
+		if ( gainFreq > 0 && proc_resp ) {
+			Math::Restitution::FFT::TransferFunctionPtr tf =
+				proc_resp->getTransferFunction();
+
+			if ( tf ) {
+				// Compute response at gain frequency
+				Math::Complex r;
+				tf->evaluate(&r, 1, &gainFreq);
+
+				double scale = 1.0 / abs(r);
+
+				/*
+				std::cerr << networkCode << "." << stationCode << "."
+				          << locationCode << "." << channelCode << ": "
+				          << "gain scale: " << scale
+				          << " at " << gainFreq << "Hz"
+				          << std::endl;
+				*/
+
+				// NOTE: The following block tries to find the maximum
+				//       response and use it as the response of the
+				//       plateau. But this doesn't work reliable in praxis
+				//       that we rely on a properly configured normalization
+				//       factor.
+				/*
+				// Assume a default sampling frequency of 100 Hz
+				double fsamp = 100.0;
+				try {
+					fsamp = (double)stream->sampleRateNumerator() /
+					        (double)stream->sampleRateDenominator();
+				}
+				catch ( ... ) {}
+
+				double nyquistFreq = fsamp * 0.5;
+				double logNyquistFreq = log10(nyquistFreq);
+				double lf = -3;
+				double maxResp = 0;
+				while ( lf < logNyquistFreq ) {
+					double f = pow10(lf);
+					tf->evaluate(&r, 1, &f);
+					double a = abs(r);
+					if ( a > maxResp ) maxResp = a;
+					lf += 0.1;
+				}
+
+				if ( maxResp > 0 ) {
+					//std::cerr << " plateau response: " << maxResp << std::endl;
+					scale *= maxResp;
+				}
+				*/
+
+				gain *= scale;
 			}
 		}
 	}

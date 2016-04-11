@@ -67916,9 +67916,9 @@
   </City>
   <City countryID="es" category="N">
     <name>Plasencia</name>
-    <latitude>+43.17</latitude>
-    <longitude>-2.42</longitude>
-    <population>35700</population>
+    <latitude>+40.0294</latitude>
+    <longitude>-6.0926</longitude>
+    <population>39928</population>
   </City>
   <City countryID="fr" category="N">
     <name>Massy</name>

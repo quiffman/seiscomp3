@@ -825,12 +825,7 @@ DataModel::SensorLocationPtr Inventory::InsertSensorLocation(ChannelIdentifier& 
 	loc->setStart(loc_start);
 
 	int year = 0, year_today = 0;
-	Core::Time t;
-	if(ci.GetEndDate().empty())
-		t = Core::Time(2100, 1, 1, 0, 0, 0);
-	else
-		t = GetTime(ci.GetEndDate());
-	t.get(&year);
+	loc_end.get(&year);
 	Core::Time::GMT().get(&year_today);
 
 	if(year > 1970 && year <= year_today)
@@ -858,12 +853,7 @@ void Inventory::UpdateSensorLocation(ChannelIdentifier& ci, DataModel::SensorLoc
 	SEISCOMP_DEBUG("Update sensor location information (%s)", ci.GetChannel().c_str());
 
 	int year = 0, year_today = 0;
-	Core::Time t;
-	if(ci.GetEndDate().empty())
-		t = Core::Time(2100, 1, 1, 0, 0, 0);
-	else
-		t = GetTime(ci.GetEndDate());
-	t.get(&year);
+	loc_end.get(&year);
 	Core::Time::GMT().get(&year_today);
 
 	if(year > 1970 && year <= year_today)
@@ -1196,7 +1186,7 @@ DataModel::DataloggerPtr Inventory::InsertDatalogger(ChannelIdentifier& ci, Data
 	dlg->setDescription(name);
 	dlg->setMaxClockDrift(drift);
 
-	dlg->setGain(0.0);
+	dlg->setGain(1.0);
 
 	if(ci.rc.size() > 0)
 	{
@@ -1223,6 +1213,25 @@ DataModel::DataloggerPtr Inventory::InsertDatalogger(ChannelIdentifier& ci, Data
 			}
 		}
 	}
+	else
+	{
+			for(unsigned int j=0; j< ci.rpz.size(); j++)
+			{
+					if(ci.rpz[j].GetNumberOfPoles() == 0 && ci.rpz[j].GetNumberOfZeros() == 0)
+					{
+							for(unsigned int i=0; i< ci.csg.size(); i++)
+							{
+									if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[j].GetStageSequenceNumber())
+									{
+
+										dlg->setGain(fabs(ci.csg[i].GetSensitivityGain()));
+										break;
+									}
+							}
+
+					}
+			}
+	}
 
 	inventory()->add(dlg.get());
 
@@ -1245,7 +1254,7 @@ void Inventory::UpdateDatalogger(ChannelIdentifier& ci, DataModel::DataloggerPtr
 
 	dlg->setMaxClockDrift(drift);
 
-	dlg->setGain(0.0);
+	dlg->setGain(1.0);
 
 	if(ci.rc.size() > 0)
 	{
@@ -1271,6 +1280,25 @@ void Inventory::UpdateDatalogger(ChannelIdentifier& ci, DataModel::DataloggerPtr
 				}
 			}
 		}
+	}
+	else
+	{
+			for(unsigned int j=0; j< ci.rpz.size(); j++)
+			{
+					if(ci.rpz[j].GetNumberOfPoles() == 0 && ci.rpz[j].GetNumberOfZeros() == 0)
+					{
+							for(unsigned int i=0; i< ci.csg.size(); i++)
+							{
+									if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[j].GetStageSequenceNumber())
+									{
+
+										dlg->setGain(fabs(ci.csg[i].GetSensitivityGain()));
+										break;
+									}
+							}
+
+					}
+			}
 	}
 
 	dlg->update();
@@ -1377,7 +1405,7 @@ void Inventory::InsertDataloggerCalibration(ChannelIdentifier& ci, DataModel::Da
 		cal->setEnd(Core::None);
 	}
 
-	cal->setGain(0.0);
+	cal->setGain(1.0);
 	cal->setGainFrequency(0.0);
 
 	if(ci.rc.size() > 0)
@@ -1405,6 +1433,25 @@ void Inventory::InsertDataloggerCalibration(ChannelIdentifier& ci, DataModel::Da
 				}
 			}
 		}
+	}
+	else
+	{
+			for(unsigned int j=0; j< ci.rpz.size(); j++)
+			{
+					if(ci.rpz[j].GetNumberOfPoles() == 0 && ci.rpz[j].GetNumberOfZeros() == 0)
+					{
+							for(unsigned int i=0; i< ci.csg.size(); i++)
+							{
+									if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[j].GetStageSequenceNumber())
+									{
+
+										cal->setGain(fabs(ci.csg[i].GetSensitivityGain()));
+										break;
+									}
+							}
+
+					}
+			}
 	}
 
 	dlg->add(cal.get());
@@ -1429,7 +1476,7 @@ void Inventory::UpdateDataloggerCalibration(ChannelIdentifier& ci, DataModel::Da
 		cal->setEnd(Core::None);
 	}
 
-	cal->setGain(0.0);
+	cal->setGain(1.0);
 	cal->setGainFrequency(0.0);
 
 	if(ci.rc.size() > 0)
@@ -1457,6 +1504,25 @@ void Inventory::UpdateDataloggerCalibration(ChannelIdentifier& ci, DataModel::Da
 				}
 			}
 		}
+	}
+	else
+	{
+			for(unsigned int j=0; j< ci.rpz.size(); j++)
+			{
+					if(ci.rpz[j].GetNumberOfPoles() == 0 && ci.rpz[j].GetNumberOfZeros() == 0)
+					{
+							for(unsigned int i=0; i< ci.csg.size(); i++)
+							{
+									if(ci.csg[i].GetStageSequenceNumber() == ci.rpz[j].GetStageSequenceNumber())
+									{
+
+										cal->setGain(fabs(ci.csg[i].GetSensitivityGain()));
+										break;
+									}
+							}
+
+					}
+			}
 	}
 
 	cal->update();

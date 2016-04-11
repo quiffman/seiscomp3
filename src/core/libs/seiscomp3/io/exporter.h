@@ -26,6 +26,12 @@ namespace Seiscomp {
 namespace IO {
 
 
+struct SC_CORE_IO_API ExportSink {
+	virtual ~ExportSink() {}
+	virtual int write(const char *data, int size) { return 0; }
+};
+
+
 DEFINE_SMARTPOINTER(Exporter);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -55,18 +61,24 @@ class SC_CORE_IO_API Exporter : public Core::BaseObject {
 	//  Public interface
 	// ------------------------------------------------------------------
 	public:
+		static Exporter *Create(const char *type);
+
 		void setFormattedOutput(bool enable);
 		void setIndent(int);
 
 		bool write(std::streambuf* buf, Core::BaseObject *);
 		bool write(std::string filename, Core::BaseObject *);
 
+		//! Converts the object using the Sink interface to write
+		//! the data.
+		bool write(ExportSink *sink, Core::BaseObject *);
+
 
 	// ------------------------------------------------------------------
 	//  Protected interface
 	// ------------------------------------------------------------------
 	protected:
-		//! Interface method that must be implemented by real importers.
+		//! Interface method that must be implemented by real exporters.
 		virtual bool put(std::streambuf* buf, Core::BaseObject *) = 0;
 
 

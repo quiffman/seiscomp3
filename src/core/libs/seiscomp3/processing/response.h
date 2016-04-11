@@ -55,18 +55,18 @@ class SC_CORE_PROCESSING_API Response : public Core::BaseObject {
 		                   int numberOfIntegrations = 0);
 
 		bool deconvolveFFT(int n, double *inout, double fsamp,
-		                   double min_freq, double max_freq,
 		                   double cutoff,
+		                   double min_freq, double max_freq,
 		                   int numberOfIntegrations = 0);
 
 		bool deconvolveFFT(FloatArray &inout, double fsamp,
-		                   double min_freq, double max_freq,
 		                   double cutoff,
+		                   double min_freq, double max_freq,
 		                   int numberOfIntegrations = 0);
 
 		bool deconvolveFFT(DoubleArray &inout, double fsamp,
-		                   double min_freq, double max_freq,
 		                   double cutoff,
+		                   double min_freq, double max_freq,
 		                   int numberOfIntegrations = 0);
 
 		//! Returns a transfer function that can be used to deconvolve the

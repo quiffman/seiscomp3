@@ -178,6 +178,24 @@ bool ConnectionInfo::start()
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool ConnectionInfo::stop()
+{
+	// No need to lock, the mutex is already locked by the calling
+	// method.
+
+	if ( !_isRunning ) return false;
+
+	_isRunning = false;
+	_timer.stop();
+
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 std::string ConnectionInfo::info(const SystemConnection* con)
 {
 	if (!con)
@@ -255,14 +273,19 @@ void ConnectionInfo::registerConnection(SystemConnection* con, boost::mutex* mut
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool ConnectionInfo::unregisterConnection(SystemConnection* con)
 {
+	boost::mutex::scoped_lock lk(_mutex);
+
 	for ( size_t i = 0; i < _systemConnections.size(); ++i ) {
 		if ( _systemConnections[i] == con ) {
-				boost::mutex::scoped_lock lk(_mutex);
-				_systemConnections.erase(_systemConnections.begin() + i);
-				_systemConnectionsMutexes.erase(_systemConnectionsMutexes.begin() + i);
-				return true;
+			_systemConnections.erase(_systemConnections.begin() + i);
+			_systemConnectionsMutexes.erase(_systemConnectionsMutexes.begin() + i);
+			return true;
 		}
 	}
+
+	if ( _systemConnections.empty() && _networkInterfaces.empty() )
+		stop();
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -285,14 +308,19 @@ void ConnectionInfo::registerConnection(NetworkInterface* ni, boost::mutex* mute
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool ConnectionInfo::unregisterConnection(NetworkInterface* ni)
 {
+	boost::mutex::scoped_lock lk(_mutex);
+
 	for ( size_t i = 0; i < _networkInterfaces.size(); ++i ) {
-			if ( _networkInterfaces[i] == ni ) {
-					boost::mutex::scoped_lock lk(_mutex);
-					_networkInterfaces.erase(_networkInterfaces.begin() + i);
-					_networkInterfacesMutexes.erase(_networkInterfacesMutexes.begin() + i);
-					return true;
-			}
+		if ( _networkInterfaces[i] == ni ) {
+			_networkInterfaces.erase(_networkInterfaces.begin() + i);
+			_networkInterfacesMutexes.erase(_networkInterfacesMutexes.begin() + i);
+			return true;
+		}
 	}
+
+	if ( _systemConnections.empty() && _networkInterfaces.empty() )
+		stop();
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -30,9 +30,9 @@ void QcProcessorOutage::setThreshold(int threshold) {
 }
 
 bool QcProcessorOutage::setState(const Record *record, const DoubleArray &data) {
-    if (_lastRecord) {
+    if (_stream.lastRecord) {
         try {
-            Core::Time lastRecEnd = _lastRecord->endTime();
+            Core::Time lastRecEnd = _stream.lastRecord->endTime();
             Core::Time curRecStart = record->startTime();                      
             double diff = 0.0;
 

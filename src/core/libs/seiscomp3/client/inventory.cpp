@@ -314,9 +314,11 @@ void Inventory::loadStations(DataModel::DatabaseReader* reader) {
 }
 
 
-void Inventory::filter(const TypeWhiteList &typeWhitelist,
-                       const TypeWhiteList &typeBlacklist) {
-	if ( !_inventory ) return;
+int Inventory::filter(const TypeWhiteList &typeWhitelist,
+                      const TypeWhiteList &typeBlacklist) {
+	int filtered = 0;
+
+	if ( !_inventory ) return filtered;
 
 	for ( size_t n = 0; n < _inventory->networkCount(); ) {
 		DataModel::Network *net = _inventory->network(n);
@@ -326,6 +328,7 @@ void Inventory::filter(const TypeWhiteList &typeWhitelist,
 		if ( !(typeWhitelist.empty()?true:typeWhitelist.find(net_type) != typeWhitelist.end()) ||
 		     !(typeBlacklist.empty()?true:typeBlacklist.find(net_type) == typeBlacklist.end()) ) {
 			_inventory->removeNetwork(n);
+			filtered += net->stationCount();
 			continue;
 		}
 
@@ -342,10 +345,14 @@ void Inventory::filter(const TypeWhiteList &typeWhitelist,
 				continue;
 			}
 
+			++filtered;
+
 			// Remove station
 			net->removeStation(s);
 		}
 	}
+
+	return filtered;
 }
 
 

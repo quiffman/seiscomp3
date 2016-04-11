@@ -60,25 +60,25 @@ class SC_CORE_CORE_API Record : public Seiscomp::Core::BaseObject {
 	Record& operator=(const Record& seismo);
 	
 	//! Returns the network code
-	std::string networkCode() const;
+	const std::string &networkCode() const;
 	
 	//! Sets the network code
 	virtual void setNetworkCode(std::string net);
 	
 	//! Returns the station code
-	std::string stationCode() const;
+	const std::string &stationCode() const;
 	
 	//! Sets the station code
 	virtual void setStationCode(std::string sta);
 	
 	//! Returns the location code
-	std::string locationCode() const;
+	const std::string &locationCode() const;
 	
 	//! Sets the location code
 	virtual void setLocationCode(std::string loc);
 	
 	//! Returns the channel code
-	std::string channelCode() const;
+	const std::string &channelCode() const;
 	
 	//! Sets the channel code
 	virtual void setChannelCode(std::string cha);

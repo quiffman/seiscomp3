@@ -1,3 +1,5 @@
+SUBDIRS(amplitudes magnitudes picker secondarypicker operator)
+
 SET(
 	CORE_PROCESSING_SOURCES
 		parameters.cpp
@@ -9,33 +11,42 @@ SET(
 		timewindowprocessor.cpp
 		application.cpp
 		streambuffer.cpp
-		mBc.cpp
-		mwp.c
+		waveformoperator.cpp
 
 		detector.cpp
 		picker.cpp
-		gfzpicker.cpp
-		araicpicker.cpp
-		bkpicker.cpp
-		picker_ppick.cpp
-		amplitudeprocessor_MLv.cpp
-		amplitudeprocessor_ML.cpp
-		amplitudeprocessor_mb.cpp
-		amplitudeprocessor_m_B.cpp
-		amplitudeprocessor_mBc.cpp
- 		amplitudeprocessor_Mwp.cpp
-		amplitudeprocessor_msbb.cpp
-		amplitudeprocessor_Mjma.cpp
+		secondarypicker.cpp
 		amplitudeprocessor.cpp
-		magnitudeprocessor_MLv.cpp
-		magnitudeprocessor_ML.cpp
-		magnitudeprocessor_mb.cpp
-		magnitudeprocessor_m_B.cpp
-		magnitudeprocessor_mBc.cpp
-		magnitudeprocessor_Mwp.cpp
-		magnitudeprocessor_msbb.cpp
-		magnitudeprocessor_Mjma.cpp
 		magnitudeprocessor.cpp
+
+		amplitudes/MLv.cpp
+		amplitudes/ML.cpp
+		amplitudes/mb.cpp
+		amplitudes/m_B.cpp
+		amplitudes/mBc.cpp
+		amplitudes/mBc_measure.cpp
+		amplitudes/Mwp.cpp
+		amplitudes/mwp_utils.c
+		amplitudes/msbb.cpp
+		amplitudes/Mjma.cpp
+
+		magnitudes/MLv.cpp
+		magnitudes/ML.cpp
+		magnitudes/mb.cpp
+		magnitudes/m_B.cpp
+		magnitudes/mBc.cpp
+		magnitudes/Mwp.cpp
+		magnitudes/msbb.cpp
+		magnitudes/Mjma.cpp
+
+		picker/gfz.cpp
+		picker/araic.cpp
+		picker/bk.cpp
+		picker/bk_ppick.cpp
+
+		secondarypicker/S_l2.cpp
+
+		operator/pipe.cpp
 )
 
 SET(
@@ -49,30 +60,13 @@ SET(
 		timewindowprocessor.h
 		application.h
 		streambuffer.h
+		waveformoperator.h
 
 		detector.h
 		picker.h
-		gfzpicker.h
-		araicpicker.h
-		bkpicker.h
+		secondarypicker.h
 		amplitudeprocessor.h
-		amplitudeprocessors.h
-		amplitudeprocessor_MLv.h
-		amplitudeprocessor_ML.h
-		amplitudeprocessor_mb.h
-		amplitudeprocessor_m_B.h
-		amplitudeprocessor_Mwp.h
-		amplitudeprocessor_msbb.h
-		amplitudeprocessor_Mjma.h
-		magnitudeprocessors.h
 		magnitudeprocessor.h
-		magnitudeprocessor_MLv.h
-		magnitudeprocessor_ML.h
-		magnitudeprocessor_mb.h
-		magnitudeprocessor_m_B.h
-		magnitudeprocessor_Mwp.h
-		magnitudeprocessor_msbb.h
-		magnitudeprocessor_Mjma.h
 )
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})

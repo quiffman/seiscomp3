@@ -327,61 +327,36 @@ bool isWhitespace(const std::string& str) {
 }
 
 
-bool wildcmp(const char *wild, const char *str) {
-	int slen = strlen(str);
-	int wlen = strlen(wild);
+bool wildcmp(const char *pat, const char *str) {
+	const char *s, *p;
+	bool star = false;
 
-	// if the compare string is too short, we're done
-	int reqLen = 0;
-	for (int i = 0; i < wlen; ++i)
-		if (wild[i] != '*')
-		++reqLen;
+loopStart:
+	for ( s = str, p = pat; *s; ++s, ++p ) {
+		switch ( *p ) {
+			case '?':
+				break;
+			case '*':
+				star = true;
+				str = s, pat = p;
+				do { ++pat; } while (*pat == '*');
+				if ( !*pat ) return true;
+				goto loopStart;
+			default:
+				if ( *s != *p )
+					goto starCheck;
+				break;
+		} /* endswitch */
+	} /* endfor */
 
-	if (slen < reqLen)
-		return false;
+	while (*p == '*') ++p;
 
-	// length is okay; now we do the comparing
-	int w = 0, s = 0;
+	return (!*p);
 
-	for (; s < slen && w < wlen; ++s, ++w) {
-		// chars match; keep going
-		if (wild[w] == str[s]) continue;
-
-		// if we hit a '?' just go to the next char in both `str` and `wild`
-		if (wild[w] == '?') continue;
-
-		// we hit an unlimited wildcard
-		if (wild[w] == '*') {
-		// if it's the last char in the string, we're done
-		if ((w + 1) == wlen)
-			return true;
-
-		bool ret = true;
-
-		// for each remaining character in `wild`
-		while (++w < wlen && ret) {
-
-			// for each remaining character in `str`
-			for (int i = 0; i < (slen - s); ++i) {
-			// if the char is the same as the current `wild` char
-			if (str[s + i] == wild[w]) {
-				// compare from these points on
-				ret = wildcmp(wild + w, str + s + i);
-				// if successful, we're done
-				if (ret)
-				return true;
-			}
-			}
-		}
-
-		return ret;
-		}
-		// didn't hit a wildcard and chars don't match; failure
-		else
-		return false;
-	}
-
-	return /*(w >= wlen || ((w + 1) == wlen && wild[w] == _T('*'))) &&*/ s >= slen;
+starCheck:
+	if ( !star ) return false;
+	++str;
+	goto loopStart;
 }
 
 

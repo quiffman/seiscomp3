@@ -38,12 +38,13 @@ try:
 except ImportError:
     have_sqlobject = False
 
-VERSION = "1.0 (2012.048)"
+VERSION = "1.1 (2012.165)"
 
 class FillDB(Client.Application):
     def __init__(self, argc, argv):
         Client.Application.__init__(self, argc, argv)
     
+        self.routingMode = False
         self.use_sc3db = have_sc3wrap
         self.db_url = None
         self.seedlink_addr = None
@@ -68,11 +69,15 @@ class FillDB(Client.Application):
         self.commandline().addStringOption("ArcLink", "db-url", "database URL (sqlobject only)")
         self.commandline().addStringOption("ArcLink", "arclink", "public arclink address for routing")
         self.commandline().addStringOption("ArcLink", "seedlink", "public seedlink address for routing")
-        
+        self.commandline().addOption("ArcLink", "routing", "fill routing instead of inventory")
+	
     def validateParameters(self):
         try:
             if self.commandline().hasOption("use-sc3db"):
                 self.use_sc3db = self.commandline().optionInt("use-sc3db")
+
+            if self.commandline().hasOption("routing"):
+                self.routingMode = True
 
             if self.commandline().hasOption("db-url"):
                 self.db_url = self.commandline().optionString("db-url")
@@ -186,11 +191,18 @@ class FillDB(Client.Application):
             self.inv.load_stations("*", "*", "*")
             self.inv.load_stations("*", "*", "*", "*")
             self.inv.load_instruments()
-            self.inv.load_xml(self.input_file)
-            self.inv.flush()
+            if not self.routingMode:
+                self.inv.load_xml(self.input_file)
+                self.inv.flush()
+            else:
+                self.rtn.load_xml(self.input_file)
+                self.rtn.flush()
 
             if self.use_sc3db:
-                self.send_notifiers("INVENTORY")
+                if not self.routingMode:
+                    self.send_notifiers("INVENTORY")
+                else:
+                    self.send_notifiers("ROUTING")
 
         except Exception:
             logs.print_exc()

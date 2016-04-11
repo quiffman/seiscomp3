@@ -51,6 +51,8 @@ class SC_CORE_IO_API Exporter : public IO::Exporter, public OutputHandler {
 		//! If empty no header is used.
 		void setRootName(std::string);
 
+		virtual void collectNamespaces(Core::BaseObject *);
+
 		//! Interface method that must be implemented by real exporters.
 		virtual bool put(std::streambuf* buf, Core::BaseObject *);
 
@@ -60,7 +62,7 @@ class SC_CORE_IO_API Exporter : public IO::Exporter, public OutputHandler {
 	// ------------------------------------------------------------------
 	private:
 		void handle(Core::BaseObject *, const char *tag, const char *ns, NodeHandler *);
-		void openElement(const char *name, const char *ns);
+		bool openElement(const char *name, const char *ns);
 		void addAttribute(const char *name, const char *ns, const char *value);
 		void closeElement(const char *name, const char *ns);
 
@@ -74,6 +76,7 @@ class SC_CORE_IO_API Exporter : public IO::Exporter, public OutputHandler {
 		typedef std::map<std::string, std::string> NamespaceMap;
 
 		NamespaceMap _defaultNsMap;
+		NamespaceMap _namespaces;
 
 
 	private:
@@ -84,8 +87,6 @@ class SC_CORE_IO_API Exporter : public IO::Exporter, public OutputHandler {
 		int          _indent;
 		bool         _tagOpen;
 		bool         _firstElement;
-
-		NamespaceMap _namespaces;
 };
 
 

@@ -122,6 +122,7 @@ class AmpTool : public Seiscomp::Client::StreamApplication {
 		StreamMap                  _streams;
 		double                     _fExpiry;
 		double                     _fetchMissingAmplitudes;
+		double                     _minWeight;
 		std::string                _originID;
 
 		AmplitudeTypeList          _registeredAmplitudeTypes;

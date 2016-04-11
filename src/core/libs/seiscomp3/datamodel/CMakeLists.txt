@@ -12,6 +12,7 @@ SET(
 	CORE_DATAMODEL_SOURCES
 		exchange/trunk.cpp
 		exchange/scdm051.cpp
+		exchange/quakeml/xml.cpp
 		${CORE_DATAMODEL_GENERATED_SOURCES}
 		databasearchive.cpp
 		messages.cpp
