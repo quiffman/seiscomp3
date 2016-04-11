@@ -124,7 +124,7 @@ bool MemberNodeHandler::get(Core::BaseObject *obj, void *n, NodeHandler *h) {
 		if ( tag.empty() )
 			throw Core::ValueException("invalid value in CDATA: non optional member");
 		else
-			throw Core::ValueException(std::string("invalid value in ") + tag + ": non optional member");
+			throw Core::ValueException(std::string("invalid value '") + h->content(n) + "' in " + tag + ": non optional member");
 	}
 
 	return false;

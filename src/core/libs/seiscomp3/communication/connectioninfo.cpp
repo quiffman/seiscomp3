@@ -584,10 +584,13 @@ void ConnectionInfo::calculateCpuUsage()
 			int result = 0;
 			if ( _systemConnectionsMutexes[i] != NULL ) {
 				boost::mutex::scoped_lock lk(*_systemConnectionsMutexes[i]);
-				result = _systemConnections[i]->send("STATUS_GROUP", &msg);
+				if ( _systemConnections[i]->isConnected() )
+					result = _systemConnections[i]->send("STATUS_GROUP", &msg);
 			}
-			else
-				result = _systemConnections[i]->send("STATUS_GROUP", &msg);
+			else {
+				if ( _systemConnections[i]->isConnected() )
+					result = _systemConnections[i]->send("STATUS_GROUP", &msg);
+			}
 
 			if ( result != Core::Status::SEISCOMP_SUCCESS )
 				SEISCOMP_DEBUG("Sending Statusmessage to STATUS_GROUP failed with status: %s", Core::Status::StatusToStr(result));
@@ -608,10 +611,13 @@ void ConnectionInfo::calculateCpuUsage()
 			SEISCOMP_DEBUG("Sending Statusmessage to: %s", _networkInterfaces[i]->privateGroup().c_str());
 			if ( _networkInterfacesMutexes[i] != NULL ) {
 				boost::mutex::scoped_lock lk(*_networkInterfacesMutexes[i]);
-				_networkInterfaces[i]->send(_networkInterfaces[i]->privateGroup(), msg.type(), &msg, false);
+				if ( _networkInterfaces[i]->isConnected() )
+					_networkInterfaces[i]->send(_networkInterfaces[i]->privateGroup(), msg.type(), &msg, false);
 			}
-			else
-				_networkInterfaces[i]->send(_networkInterfaces[i]->privateGroup(), msg.type(), &msg, false);
+			else {
+				if ( _networkInterfaces[i]->isConnected() )
+					_networkInterfaces[i]->send(_networkInterfaces[i]->privateGroup(), msg.type(), &msg, false);
+			}
 		}
 	}
 }
