@@ -653,6 +653,14 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		virtual void handleTimeout();
 
 		/**
+		 * This method is called when close event is sent to the application.
+		 * The default handler returns true and causes the event queue to
+		 * shutdown and to exit the application.
+		 * It false is returned the close event is ignored.
+		 */
+		virtual bool handleClose();
+
+		/**
 		 * This methods gets called when an auto shutdown has been
 		 * initiated. The default implementation just quits.
 		 */

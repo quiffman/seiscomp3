@@ -59,7 +59,7 @@ class SC_SYSTEM_CORE_API LibTau : public TravelTimeTableInterface {
 		 * @param dep1 The source depth in km
 		 *
 		 * @returns A TravelTimeList of travel times sorted by time.
-		 * 
+		 *
 		 * It should be noted that in this implementation it is extremely
 		 * important to compute as many travel times for the same focal
 		 * depth as possible. Changing the depth will always result in
@@ -90,12 +90,12 @@ class SC_SYSTEM_CORE_API LibTau : public TravelTimeTableInterface {
 		TravelTime computeFirst(double lat1, double lon1, double dep1,
 		                        double lat2, double lon2, double alt2=0.,
 		                        int ellc = 0 /* for the time being, always */ )
-		                        throw(NoPhaseError);
+		                        throw(std::exception);
 
 
 	private:
 		TravelTimeList *compute(double delta, double depth);
-		TravelTime computeFirst(double delta, double depth) throw(NoPhaseError);
+		TravelTime computeFirst(double delta, double depth) throw(std::exception);
 
 		/**
 		 * Sets the source depth.

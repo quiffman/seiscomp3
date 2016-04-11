@@ -121,7 +121,6 @@ class ImEx : public Client::Application {
 		std::vector<boost::shared_ptr<ImExImpl> > _imexImpls;
 		Core::Time                                _lastCleanUp;
 		EventList                                 _eventList;
-		MessageList                               _messageList;
 
 		Communication::NetworkMessageCPtr         _lastNetworkMessage;
 		std::string                               _importMessageConversion;

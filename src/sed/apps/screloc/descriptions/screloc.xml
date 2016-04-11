@@ -9,6 +9,16 @@
 					Defines the locator to be used such as NonLinLoc.
 					</description>
 				</parameter>
+				<parameter name="ignoreRejectedOrigins" type="boolean" default="false">
+					<description>
+					Ignores origins with status REJECTED.
+					</description>
+				</parameter>
+				<parameter name="allowPreliminaryOrigins" type="boolean" default="false">
+					<description>
+					Triggers processing also on origins with status PRELIMINARY.
+					</description>
+				</parameter>
 			</group>
 		</configuration>
 		<command-line>

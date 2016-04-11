@@ -22,6 +22,7 @@ ${generator.refs.apps}
 ${generator.refs.extensions}
    /base/filter-grammar
    /base/arclink-protocol
+   /base/sdk
    /base/glossary
    /base/contributing-docs
    /base/coding-conventions

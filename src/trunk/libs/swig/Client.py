@@ -900,6 +900,10 @@ class Application(Core.InterruptibleObject):
         """handleTimeout(self)"""
         return _Client.Application_handleTimeout(self)
 
+    def handleClose(self):
+        """handleClose(self) -> bool"""
+        return _Client.Application_handleClose(self)
+
     def handleAutoShutdown(self):
         """handleAutoShutdown(self)"""
         return _Client.Application_handleAutoShutdown(self)
@@ -1181,6 +1185,10 @@ class StreamApplication(Application):
     def handleTimeout(self):
         """handleTimeout(self)"""
         return _Client.StreamApplication_handleTimeout(self)
+
+    def handleClose(self):
+        """handleClose(self) -> bool"""
+        return _Client.StreamApplication_handleClose(self)
 
     def handleAutoShutdown(self):
         """handleAutoShutdown(self)"""

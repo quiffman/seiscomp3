@@ -8,6 +8,13 @@
 					Treats an event as new event when it is seen the first time.
 				</description>
 			</parameter>
+			<parameter name="agencyIDs" type="list:string" default="">
+				<description>
+					Defines a white list of agencyIDs to alert an event. The
+					agencyID is extracted from the preferred origin of the event.
+					If this list is empty, all agencies are allowed.
+				</description>
+			</parameter>
 			<group name="poi">
 				<parameter name="message" type="string">
 					<description>

@@ -1174,7 +1174,7 @@ class _RoutingRequest(_Request):
             station = ""
         
         if channel is None:
-            channel = ""
+            channel = "*"
         
         if location is None:
             location = ""

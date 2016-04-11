@@ -315,7 +315,7 @@ MessageReceiver( void *dummy )
 
     /* Reset heartbeat */
     time((time_t*)&LastServerBeat);
-    gen_log (1,1, "Accepted new client connection\n");
+    gen_log (0,1, "Accepted new client connection\n");
     state=SEARCHING_FOR_MESSAGE_START; /* we're initializing */
 
     /* Multi-byte Read

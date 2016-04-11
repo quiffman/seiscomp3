@@ -70,10 +70,14 @@ void Converter::createCommandLineDescription() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Converter::validateParameters() {
-	if( commandline().hasOption("net-start") && !Core::fromString(_net_start, _net_start_str) &&
-		!_net_start.fromString(_net_start_str.c_str(), "%Y-%m-%d")) {
-		SEISCOMP_ERROR("invalid time format: %s", _net_start_str.c_str());
-		exit(1);
+	Core::Time net_start;
+	if( commandline().hasOption("net-start") ) {
+		if ( !Core::fromString(net_start, _net_start_str) &&
+		     !net_start.fromString(_net_start_str.c_str(), "%Y-%m-%d")) {
+			SEISCOMP_ERROR("invalid time format: %s", _net_start_str.c_str());
+			return false;
+		}
+		_net_start = net_start;
 	}
 	else {
 		_net_start = Core::Time(1980, 1, 1);

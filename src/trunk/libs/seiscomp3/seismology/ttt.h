@@ -17,6 +17,7 @@
 
 
 #include <seiscomp3/core/baseobject.h>
+#include <seiscomp3/core/exceptions.h>
 #include <seiscomp3/core/interfacefactory.h>
 #include <seiscomp3/core.h>
 
@@ -27,34 +28,20 @@
 namespace Seiscomp {
 
 
-class SC_SYSTEM_CORE_API FileNotFoundError : public std::exception {
+class SC_SYSTEM_CORE_API FileNotFoundError : public Core::GeneralException {
 	public:
-		FileNotFoundError(std::string const &s) throw() { filename = s; }
-		~FileNotFoundError() throw() {}
-		const char* what() const throw() { 
-			return ("File not found: " + filename).c_str(); 
-		}
-		std::string filename;
+		FileNotFoundError(std::string const &filename) : Core::GeneralException("File not found: " + filename) {}
 };
 
-class SC_SYSTEM_CORE_API MultipleModelsError : public std::exception {
+class SC_SYSTEM_CORE_API MultipleModelsError : public Core::GeneralException {
 	public:
-		MultipleModelsError(std::string const &m) throw() { model = m; }
-		~MultipleModelsError() throw() {}
-		const char* what() const throw() { 
-			return ("Multiple models at the same time are not supported ('" + model +
-			        "' instantiated previously)").c_str();
-		}
-		std::string model;
+		MultipleModelsError(std::string const &model) : Core::GeneralException("Multiple models at the same time are not supported ('" + model +
+		                                                                   "' instantiated previously)") {}
 };
 
-class SC_SYSTEM_CORE_API NoPhaseError : public std::exception {
+class SC_SYSTEM_CORE_API NoPhaseError : public Core::GeneralException {
 	public:
-		NoPhaseError() throw() {}
-		~NoPhaseError() throw() {}
-		const char* what() const throw() { 
-			return "No phase available";
-		}
+		NoPhaseError() : Core::GeneralException("No phase available") {}
 };
 
 
@@ -155,7 +142,7 @@ class SC_SYSTEM_CORE_API TravelTimeTableInterface : public Core::BaseObject {
 		compute(const char *phase,
 		        double lat1, double lon1, double dep1,
 		        double lat2, double lon2, double alt2=0.,
-		        int ellc = 0) throw(NoPhaseError);
+		        int ellc = 0) throw(std::exception);
 
 
 		/**
@@ -167,7 +154,7 @@ class SC_SYSTEM_CORE_API TravelTimeTableInterface : public Core::BaseObject {
 		virtual TravelTime
 		computeFirst(double lat1, double lon1, double dep1,
 		             double lat2, double lon2, double alt2=0.,
-		             int ellc = 0) throw(NoPhaseError) = 0;
+		             int ellc = 0) throw(std::exception) = 0;
 };
 
 
@@ -193,12 +180,12 @@ class SC_SYSTEM_CORE_API TravelTimeTable : public TravelTimeTableInterface {
 		compute(const char *phase,
 		        double lat1, double lon1, double dep1,
 		        double lat2, double lon2, double alt2=0.,
-		        int ellc = 0) throw(NoPhaseError);
+		        int ellc = 0) throw(std::exception);
 
 		TravelTime
 		computeFirst(double lat1, double lon1, double dep1,
 		             double lat2, double lon2, double alt2=0.,
-		             int ellc = 0) throw(NoPhaseError);
+		             int ellc = 0) throw(std::exception);
 
 	private:
 		static TravelTimeTableInterfacePtr _interface;

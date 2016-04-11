@@ -1891,8 +1891,13 @@ bool Application::processEvent() {
 				break;
 
 			case Notification::Close:
-				SEISCOMP_INFO("Close event received, returning");
-				return false;
+				if ( handleClose() ) {
+					SEISCOMP_INFO("Close event received, returning");
+					return false;
+				}
+				else
+					SEISCOMP_INFO("Close event received but ignored");
+				break;
 
 			case Notification::Sync:
 				sync();
@@ -2975,6 +2980,15 @@ void Application::monitorLog(const Communication::SystemConnection *con,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void Application::handleTimeout() {
 	std::cerr << "Unhandled Application::Timeout" << std::endl;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Application::handleClose() {
+	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

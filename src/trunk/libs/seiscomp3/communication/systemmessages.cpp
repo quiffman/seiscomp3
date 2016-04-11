@@ -428,8 +428,8 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
                                        Protocol::MSG_CONTENT_TYPES type,
                                        int schemaVersion)
 {
-	NetworkMessage* nm = new NetworkMessage(Protocol::DATA_MSG);
-	std::string& data = nm->data();
+	NetworkMessage *nm = new NetworkMessage(Protocol::DATA_MSG);
+	std::string &data = nm->data();
 
 	try
 	{
@@ -446,6 +446,8 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
 			{
 				IO::VBinaryArchive ar(&filtered_buf, false, schemaVersion);
 				ar << msg;
+				if ( !ar.success() )
+					throw Core::GeneralException("failed to serialize archive");
 			}
 				break;
 
@@ -453,6 +455,8 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
 			{
 				IO::XMLArchive ar(&filtered_buf, false, schemaVersion);
 				ar << msg;
+				if ( !ar.success() )
+					throw Core::GeneralException("failed to serialize archive");
 			}
 				break;
 
@@ -462,6 +466,8 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
 
 				IO::XMLArchive ar(&buf, false, schemaVersion);
 				ar << msg;
+				if ( !ar.success() )
+					throw Core::GeneralException("failed to serialize archive");
 			}
 				break;
 
@@ -471,8 +477,11 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
 
 				IO::XMLArchive ar;
 				ar.setRootName("");
-				if ( ar.create(&buf) )
+				if ( ar.create(&buf) ) {
 					ar << msg;
+					if ( !ar.success() )
+						throw Core::GeneralException("failed to serialize archive");
+				}
 				else
 					throw Core::GeneralException("encode: unable to create imported XML stream");
 			}
@@ -482,15 +491,15 @@ NetworkMessage* NetworkMessage::Encode(Seiscomp::Core::Message* msg,
 				throw Core::GeneralException("encode: unknown message content type");
 		};
 
+		msg->setDataSize(data.size());
 	}
 	catch ( std::exception& e )
 	{
 		SEISCOMP_ERROR("%s", e.what());
 		delete nm;
 		nm = NULL;
+		msg->setDataSize(0);
 	}
-
-	msg->setDataSize(data.size());
 
 	return nm;
 }

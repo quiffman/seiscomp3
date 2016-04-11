@@ -26,6 +26,7 @@
 #include <seiscomp3/core/strings.h>
 #include <seiscomp3/core/system.h>
 #include <seiscomp3/utils/timer.h>
+#include <seiscomp3/datamodel/version.h>
 
 
 namespace Seiscomp {
@@ -193,8 +194,17 @@ int SystemConnection::handshake(const std::string &protocolVersion,
 		return Core::Status::SEISCOMP_CONNECT_ERROR;
 	}
 
-	SEISCOMP_INFO("Outgoing messages are encoded to match schema version %d.%d",
-	              _schemaVersion.majorTag(), _schemaVersion.minorTag());
+	Core::Version maxVersion = Core::Version(DataModel::Version::Major, DataModel::Version::Minor);
+	if ( _schemaVersion > maxVersion ) {
+		SEISCOMP_INFO("Outgoing messages are encoded to match schema version %d.%d, "
+		              "although server supports %d.%d",
+		              maxVersion.majorTag(), maxVersion.minorTag(),
+		              _schemaVersion.majorTag(), _schemaVersion.minorTag());
+		_schemaVersion = maxVersion;
+	}
+	else
+		SEISCOMP_INFO("Outgoing messages are encoded to match schema version %d.%d",
+		              _schemaVersion.majorTag(), _schemaVersion.minorTag());
 
 	return Core::Status::SEISCOMP_SUCCESS;
 }

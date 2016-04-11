@@ -842,8 +842,10 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 
 	ProcList &list = mit->second;
 	for ( ProcList::iterator it = list.begin(); it != list.end(); ) {
-		if ( it->proc == wp )
+		if ( it->proc == wp ) {
+			SEISCOMP_DEBUG("Removed finished processor from stream procs");
 			it = list.erase(it);
+		}
 		else
 			++it;
 	}
@@ -914,32 +916,34 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 			break;
 	}
 
-	SEISCOMP_DEBUG("check for expired procs (rec ref: %d)", rec->referenceCount());
 	ProcList &list = _runningStreamProcs[rec->streamID()];
+	SEISCOMP_DEBUG("check for expired procs (got %d in list)", (int)list.size());
 
 	// Check for secondary procs that are still running but where the
 	// end time is before onset and remove them
 	// ...
 	for ( ProcList::iterator it = list.begin(); it != list.end(); ) {
 		if ( it->dataEndTime <= onset ) {
-			SEISCOMP_DEBUG("Remove expired proc %ld", (long)it->proc);
-			SEISCOMP_INFO("Remove expired running processor %s on %s",
-			              it->proc->className(), rec->streamID().c_str());
+			SEISCOMP_DEBUG("Remove expired proc %ld", (long int)it->proc);
+			if ( /*it->proc != NULL*/true ) {
+				SEISCOMP_INFO("Remove expired running processor %s on %s",
+				              it->proc->className(), rec->streamID().c_str());
 
-			if ( it->proc->status() == Processing::WaveformProcessor::LowSNR )
-				SEISCOMP_DEBUG("  -> status: SNR(%f) too low", it->proc->statusValue());
-			else if ( it->proc->status() > Processing::WaveformProcessor::Terminated )
-				SEISCOMP_DEBUG("  -> status: ERROR (%s, %f)",
-				               it->proc->status().toString(), it->proc->statusValue());
-			else
-				SEISCOMP_DEBUG("  -> status: OK");
+				if ( it->proc->status() == Processing::WaveformProcessor::LowSNR )
+					SEISCOMP_DEBUG("  -> status: SNR(%f) too low", it->proc->statusValue());
+				else if ( it->proc->status() > Processing::WaveformProcessor::Terminated )
+					SEISCOMP_DEBUG("  -> status: ERROR (%s, %f)",
+					               it->proc->status().toString(), it->proc->statusValue());
+				else
+					SEISCOMP_DEBUG("  -> status: OK");
 
-			// Remove processor from application
-			removeProcessor(it->proc);
+				// Remove processor from application
+				removeProcessor(it->proc);
 
-			// Remove its reverse lookup
-			ProcReverseMap::iterator pit = _procLookup.find(it->proc);
-			if ( pit != _procLookup.end() ) _procLookup.erase(pit);
+				// Remove its reverse lookup
+				ProcReverseMap::iterator pit = _procLookup.find(it->proc);
+				if ( pit != _procLookup.end() ) _procLookup.erase(pit);
+			}
 
 			// Remove it from the run list
 			it = list.erase(it);
@@ -948,9 +952,19 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 			++it;
 	}
 
-	// Register the secondary procs running on the verticals
-	list.push_back(ProcEntry(proc->safetyTimeWindow().endTime(), proc.get()));
-	_procLookup[proc.get()] = rec->streamID();
+	// addProcessor can feed the requested time window with cached records
+	// so the proc might be finished already. This needs a test otherwise
+	// the registered pointer is invalid later when checking for expired
+	// procs.
+	if ( !proc->isFinished() ) {
+		// Register the secondary procs running on the verticals
+		list.push_back(ProcEntry(proc->safetyTimeWindow().endTime(), proc.get()));
+		_procLookup[proc.get()] = rec->streamID();
+		SEISCOMP_DEBUG("%s: registered proc %ld",
+		               rec->streamID().data(), (long int)proc.get());
+	}
+	else
+		SEISCOMP_DEBUG("%s: proc finished already", rec->streamID().data());
 
 	SEISCOMP_DEBUG("Number of processors: %lu", (unsigned long)processorCount());
 }
@@ -969,6 +983,11 @@ void App::addAmplitudeProcessor(AmplitudeProcessorPtr proc,
 	                    proc->trigger(), rec->streamID(),
 	                    rec->networkCode(), rec->stationCode(), rec->locationCode(), rec->channelCode(), true) )
 		return;
+
+	if ( _config.amplitudeUpdateList.find(proc->type()) != _config.amplitudeUpdateList.end() )
+		proc->setUpdateEnabled(true);
+	else
+		proc->setUpdateEnabled(false);
 
 	switch ( proc->usedComponent() ) {
 		case Processing::WaveformProcessor::Vertical:
@@ -1006,11 +1025,6 @@ void App::addAmplitudeProcessor(AmplitudeProcessorPtr proc,
 			             proc.get());
 			break;
 	}
-
-	if ( _config.amplitudeUpdateList.find(proc->type()) != _config.amplitudeUpdateList.end() )
-		proc->setUpdateEnabled(true);
-	else
-		proc->setUpdateEnabled(false);
 
 	SEISCOMP_DEBUG("Number of processors: %lu", (unsigned long)processorCount());
 }

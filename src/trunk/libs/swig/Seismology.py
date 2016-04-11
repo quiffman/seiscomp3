@@ -436,10 +436,12 @@ def LocSAT_currentDefaultProfile():
   return _Seismology.LocSAT_currentDefaultProfile()
 LocSAT_currentDefaultProfile = _Seismology.LocSAT_currentDefaultProfile
 
-class FileNotFoundError(_object):
+class FileNotFoundError(Core.GeneralException):
     __swig_setmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
     __setattr__ = lambda self, name, value: _swig_setattr(self, FileNotFoundError, name, value)
     __swig_getmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
     __getattr__ = lambda self, name: _swig_getattr(self, FileNotFoundError, name)
     __repr__ = _swig_repr
     def __init__(self, *args): 
@@ -448,17 +450,15 @@ class FileNotFoundError(_object):
         except: self.this = this
     __swig_destroy__ = _Seismology.delete_FileNotFoundError
     __del__ = lambda self : None;
-    def what(self): return _Seismology.FileNotFoundError_what(self)
-    __swig_setmethods__["filename"] = _Seismology.FileNotFoundError_filename_set
-    __swig_getmethods__["filename"] = _Seismology.FileNotFoundError_filename_get
-    if _newclass:filename = _swig_property(_Seismology.FileNotFoundError_filename_get, _Seismology.FileNotFoundError_filename_set)
 FileNotFoundError_swigregister = _Seismology.FileNotFoundError_swigregister
 FileNotFoundError_swigregister(FileNotFoundError)
 
-class MultipleModelsError(_object):
+class MultipleModelsError(Core.GeneralException):
     __swig_setmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
     __setattr__ = lambda self, name, value: _swig_setattr(self, MultipleModelsError, name, value)
     __swig_getmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
     __getattr__ = lambda self, name: _swig_getattr(self, MultipleModelsError, name)
     __repr__ = _swig_repr
     def __init__(self, *args): 
@@ -467,17 +467,15 @@ class MultipleModelsError(_object):
         except: self.this = this
     __swig_destroy__ = _Seismology.delete_MultipleModelsError
     __del__ = lambda self : None;
-    def what(self): return _Seismology.MultipleModelsError_what(self)
-    __swig_setmethods__["model"] = _Seismology.MultipleModelsError_model_set
-    __swig_getmethods__["model"] = _Seismology.MultipleModelsError_model_get
-    if _newclass:model = _swig_property(_Seismology.MultipleModelsError_model_get, _Seismology.MultipleModelsError_model_set)
 MultipleModelsError_swigregister = _Seismology.MultipleModelsError_swigregister
 MultipleModelsError_swigregister(MultipleModelsError)
 
-class NoPhaseError(Exception):
+class NoPhaseError(Core.GeneralException):
     __swig_setmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
     __setattr__ = lambda self, name, value: _swig_setattr(self, NoPhaseError, name, value)
     __swig_getmethods__ = {}
+    for _s in [Core.GeneralException]: __swig_getmethods__.update(getattr(_s,'__swig_getmethods__',{}))
     __getattr__ = lambda self, name: _swig_getattr(self, NoPhaseError, name)
     __repr__ = _swig_repr
     def __init__(self): 
@@ -486,7 +484,6 @@ class NoPhaseError(Exception):
         except: self.this = this
     __swig_destroy__ = _Seismology.delete_NoPhaseError
     __del__ = lambda self : None;
-    def what(self): return _Seismology.NoPhaseError_what(self)
 NoPhaseError_swigregister = _Seismology.NoPhaseError_swigregister
 NoPhaseError_swigregister(NoPhaseError)
 

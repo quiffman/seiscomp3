@@ -11734,87 +11734,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_FileNotFoundError_what(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::FileNotFoundError *arg1 = (Seiscomp::FileNotFoundError *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:FileNotFoundError_what",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__FileNotFoundError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FileNotFoundError_what" "', argument " "1"" of type '" "Seiscomp::FileNotFoundError const *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::FileNotFoundError * >(argp1);
-  result = (char *)((Seiscomp::FileNotFoundError const *)arg1)->what();
-  resultobj = SWIG_FromCharPtr((const char *)result);
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FileNotFoundError_filename_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::FileNotFoundError *arg1 = (Seiscomp::FileNotFoundError *) 0 ;
-  std::string *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 = SWIG_OLDOBJ ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:FileNotFoundError_filename_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__FileNotFoundError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FileNotFoundError_filename_set" "', argument " "1"" of type '" "Seiscomp::FileNotFoundError *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::FileNotFoundError * >(argp1);
-  {
-    std::string *ptr = (std::string *)0;
-    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "FileNotFoundError_filename_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "FileNotFoundError_filename_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    arg2 = ptr;
-  }
-  if (arg1) (arg1)->filename = *arg2;
-  resultobj = SWIG_Py_Void();
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return resultobj;
-fail:
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FileNotFoundError_filename_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::FileNotFoundError *arg1 = (Seiscomp::FileNotFoundError *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  std::string *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:FileNotFoundError_filename_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__FileNotFoundError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FileNotFoundError_filename_get" "', argument " "1"" of type '" "Seiscomp::FileNotFoundError *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::FileNotFoundError * >(argp1);
-  result = (std::string *) & ((arg1)->filename);
-  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *FileNotFoundError_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -11872,87 +11791,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_MultipleModelsError_what(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::MultipleModelsError *arg1 = (Seiscomp::MultipleModelsError *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:MultipleModelsError_what",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__MultipleModelsError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MultipleModelsError_what" "', argument " "1"" of type '" "Seiscomp::MultipleModelsError const *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::MultipleModelsError * >(argp1);
-  result = (char *)((Seiscomp::MultipleModelsError const *)arg1)->what();
-  resultobj = SWIG_FromCharPtr((const char *)result);
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_MultipleModelsError_model_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::MultipleModelsError *arg1 = (Seiscomp::MultipleModelsError *) 0 ;
-  std::string *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 = SWIG_OLDOBJ ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:MultipleModelsError_model_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__MultipleModelsError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MultipleModelsError_model_set" "', argument " "1"" of type '" "Seiscomp::MultipleModelsError *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::MultipleModelsError * >(argp1);
-  {
-    std::string *ptr = (std::string *)0;
-    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MultipleModelsError_model_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "MultipleModelsError_model_set" "', argument " "2"" of type '" "std::string const &""'"); 
-    }
-    arg2 = ptr;
-  }
-  if (arg1) (arg1)->model = *arg2;
-  resultobj = SWIG_Py_Void();
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return resultobj;
-fail:
-  if (SWIG_IsNewObj(res2)) delete arg2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_MultipleModelsError_model_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::MultipleModelsError *arg1 = (Seiscomp::MultipleModelsError *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  std::string *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:MultipleModelsError_model_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__MultipleModelsError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MultipleModelsError_model_get" "', argument " "1"" of type '" "Seiscomp::MultipleModelsError *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::MultipleModelsError * >(argp1);
-  result = (std::string *) & ((arg1)->model);
-  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *MultipleModelsError_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -11988,28 +11826,6 @@ SWIGINTERN PyObject *_wrap_delete_NoPhaseError(PyObject *SWIGUNUSEDPARM(self), P
   arg1 = reinterpret_cast< Seiscomp::NoPhaseError * >(argp1);
   delete arg1;
   resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_NoPhaseError_what(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Seiscomp::NoPhaseError *arg1 = (Seiscomp::NoPhaseError *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:NoPhaseError_what",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NoPhaseError, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "NoPhaseError_what" "', argument " "1"" of type '" "Seiscomp::NoPhaseError const *""'"); 
-  }
-  arg1 = reinterpret_cast< Seiscomp::NoPhaseError * >(argp1);
-  result = (char *)((Seiscomp::NoPhaseError const *)arg1)->what();
-  resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
 fail:
   return NULL;
@@ -13199,8 +13015,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_compute__SWIG_3(PyObject *SW
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -13293,8 +13109,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_compute__SWIG_4(PyObject *SW
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -13378,8 +13194,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_compute__SWIG_5(PyObject *SW
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -13777,8 +13593,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_computeFirst__SWIG_0(PyObjec
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -13859,8 +13675,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_computeFirst__SWIG_1(PyObjec
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6,arg7);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -13932,8 +13748,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTableInterface_computeFirst__SWIG_2(PyObjec
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -14498,8 +14314,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_3(PyObject *SWIGUNUSEDP
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -14592,8 +14408,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_4(PyObject *SWIGUNUSEDP
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -14677,8 +14493,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_compute__SWIG_5(PyObject *SWIGUNUSEDP
   try {
     result = (arg1)->compute((char const *)arg2,arg3,arg4,arg5,arg6,arg7);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -15076,8 +14892,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_computeFirst__SWIG_0(PyObject *SWIGUN
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -15158,8 +14974,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_computeFirst__SWIG_1(PyObject *SWIGUN
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6,arg7);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -15231,8 +15047,8 @@ SWIGINTERN PyObject *_wrap_TravelTimeTable_computeFirst__SWIG_2(PyObject *SWIGUN
   try {
     result = (arg1)->computeFirst(arg2,arg3,arg4,arg5,arg6);
   }
-  catch(Seiscomp::NoPhaseError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj((new Seiscomp::NoPhaseError(static_cast< const Seiscomp::NoPhaseError& >(_e))),SWIGTYPE_p_Seiscomp__NoPhaseError,SWIG_POINTER_OWN), "Seiscomp::NoPhaseError", SWIGTYPE_p_Seiscomp__NoPhaseError); SWIG_fail;
+  catch(std::exception &_e) {
+    SWIG_exception_fail(SWIG_SystemError, (&_e)->what());
   }
   
   resultobj = SWIG_NewPointerObj((new Seiscomp::TravelTime(static_cast< const Seiscomp::TravelTime& >(result))), SWIGTYPE_p_Seiscomp__TravelTime, SWIG_POINTER_OWN |  0 );
@@ -15729,19 +15545,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"LocSAT_swigregister", LocSAT_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_FileNotFoundError", _wrap_new_FileNotFoundError, METH_VARARGS, NULL},
 	 { (char *)"delete_FileNotFoundError", _wrap_delete_FileNotFoundError, METH_VARARGS, NULL},
-	 { (char *)"FileNotFoundError_what", _wrap_FileNotFoundError_what, METH_VARARGS, NULL},
-	 { (char *)"FileNotFoundError_filename_set", _wrap_FileNotFoundError_filename_set, METH_VARARGS, NULL},
-	 { (char *)"FileNotFoundError_filename_get", _wrap_FileNotFoundError_filename_get, METH_VARARGS, NULL},
 	 { (char *)"FileNotFoundError_swigregister", FileNotFoundError_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_MultipleModelsError", _wrap_new_MultipleModelsError, METH_VARARGS, NULL},
 	 { (char *)"delete_MultipleModelsError", _wrap_delete_MultipleModelsError, METH_VARARGS, NULL},
-	 { (char *)"MultipleModelsError_what", _wrap_MultipleModelsError_what, METH_VARARGS, NULL},
-	 { (char *)"MultipleModelsError_model_set", _wrap_MultipleModelsError_model_set, METH_VARARGS, NULL},
-	 { (char *)"MultipleModelsError_model_get", _wrap_MultipleModelsError_model_get, METH_VARARGS, NULL},
 	 { (char *)"MultipleModelsError_swigregister", MultipleModelsError_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_NoPhaseError", _wrap_new_NoPhaseError, METH_VARARGS, NULL},
 	 { (char *)"delete_NoPhaseError", _wrap_delete_NoPhaseError, METH_VARARGS, NULL},
-	 { (char *)"NoPhaseError_what", _wrap_NoPhaseError_what, METH_VARARGS, NULL},
 	 { (char *)"NoPhaseError_swigregister", NoPhaseError_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_TravelTime", _wrap_new_TravelTime, METH_VARARGS, NULL},
 	 { (char *)"TravelTime___eq__", _wrap_TravelTime___eq__, METH_VARARGS, NULL},
@@ -16195,7 +16004,7 @@ static void *_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_tTo_p_Seiscomp__Core_
     return (void *)((Seiscomp::Core::BaseObject *) (Seiscomp::Array *) ((Seiscomp::TypedArray< Seiscomp::Core::Time > *) x));
 }
 static void *_p_Seiscomp__FileNotFoundErrorTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
-    return (void *)((std::exception *)  ((Seiscomp::FileNotFoundError *) x));
+    return (void *)((std::exception *) (Seiscomp::Core::GeneralException *) ((Seiscomp::FileNotFoundError *) x));
 }
 static void *_p_Seiscomp__IO__RecordStreamTimeoutTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::exception *) (Seiscomp::Core::GeneralException *)(Seiscomp::Core::StreamException *)(Seiscomp::IO::RecordStreamException *) ((Seiscomp::IO::RecordStreamTimeout *) x));
@@ -16204,7 +16013,7 @@ static void *_p_Seiscomp__Core__ValueErrorTo_p_std__exception(void *x, int *SWIG
     return (void *)((std::exception *)  ((Seiscomp::Core::ValueError *) x));
 }
 static void *_p_Seiscomp__NoPhaseErrorTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
-    return (void *)((std::exception *)  ((Seiscomp::NoPhaseError *) x));
+    return (void *)((std::exception *) (Seiscomp::Core::GeneralException *) ((Seiscomp::NoPhaseError *) x));
 }
 static void *_p_Seiscomp__Core__ClassNotFoundTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::exception *) (Seiscomp::Core::GeneralException *) ((Seiscomp::Core::ClassNotFound *) x));
@@ -16285,10 +16094,16 @@ static void *_p_Seiscomp__Core__DuplicateClassnameTo_p_std__exception(void *x, i
     return (void *)((std::exception *) (Seiscomp::Core::GeneralException *) ((Seiscomp::Core::DuplicateClassname *) x));
 }
 static void *_p_Seiscomp__MultipleModelsErrorTo_p_std__exception(void *x, int *SWIGUNUSEDPARM(newmemory)) {
-    return (void *)((std::exception *)  ((Seiscomp::MultipleModelsError *) x));
+    return (void *)((std::exception *) (Seiscomp::Core::GeneralException *) ((Seiscomp::MultipleModelsError *) x));
+}
+static void *_p_Seiscomp__FileNotFoundErrorTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Core::GeneralException *)  ((Seiscomp::FileNotFoundError *) x));
 }
 static void *_p_Seiscomp__IO__RecordStreamTimeoutTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::GeneralException *) (Seiscomp::Core::StreamException *)(Seiscomp::IO::RecordStreamException *) ((Seiscomp::IO::RecordStreamTimeout *) x));
+}
+static void *_p_Seiscomp__NoPhaseErrorTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Core::GeneralException *)  ((Seiscomp::NoPhaseError *) x));
 }
 static void *_p_Seiscomp__Core__ClassNotFoundTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::GeneralException *)  ((Seiscomp::Core::ClassNotFound *) x));
@@ -16349,6 +16164,9 @@ static void *_p_Seiscomp__Core___private__OperationInterruptedTo_p_Seiscomp__Cor
 }
 static void *_p_Seiscomp__Core__DuplicateClassnameTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::GeneralException *)  ((Seiscomp::Core::DuplicateClassname *) x));
+}
+static void *_p_Seiscomp__MultipleModelsErrorTo_p_Seiscomp__Core__GeneralException(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Seiscomp::Core::GeneralException *)  ((Seiscomp::MultipleModelsError *) x));
 }
 static void *_p_Seiscomp__IO__XMLArchiveTo_p_Seiscomp__Core__Generic__ArchiveT_Seiscomp__Core__BaseObject_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Seiscomp::Core::Generic::Archive< Seiscomp::Core::BaseObject > *)  ((Seiscomp::IO::XMLArchive *) x));
@@ -16507,10 +16325,10 @@ static swig_type_info _swigt__p_Seiscomp__Core__OverflowException = {"_p_Seiscom
 static swig_type_info _swigt__p_Seiscomp__Core__TypeConversionException = {"_p_Seiscomp__Core__TypeConversionException", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__EndOfStreamException = {"_p_Seiscomp__Core__EndOfStreamException", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__StreamException = {"_p_Seiscomp__Core__StreamException", 0, 0, 0, 0, 0};
-static swig_type_info _swigt__p_Seiscomp__Core__MemoryException = {"_p_Seiscomp__Core__MemoryException", 0, 0, 0, 0, 0};
-static swig_type_info _swigt__p_Seiscomp__RecordStream__SeedlinkException = {"_p_Seiscomp__RecordStream__SeedlinkException", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__IO__RecordStreamException = {"_p_Seiscomp__IO__RecordStreamException", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__IO__LibmseedException = {"_p_Seiscomp__IO__LibmseedException", 0, 0, 0, 0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__MemoryException = {"_p_Seiscomp__Core__MemoryException", 0, 0, 0, 0, 0};
+static swig_type_info _swigt__p_Seiscomp__RecordStream__SeedlinkException = {"_p_Seiscomp__RecordStream__SeedlinkException", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core___private__OperationInterrupted = {"_p_Seiscomp__Core___private__OperationInterrupted", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__DuplicateClassname = {"_p_Seiscomp__Core__DuplicateClassname", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_Seiscomp__RecordStream__SeedlinkCommandException = {"_p_Seiscomp__RecordStream__SeedlinkCommandException", 0, 0, 0, 0, 0};
@@ -17472,14 +17290,14 @@ static swig_cast_info _swigc__p_Seiscomp__Core__OverflowException[] = {{&_swigt_
 static swig_cast_info _swigc__p_Seiscomp__Core__TypeConversionException[] = {{&_swigt__p_Seiscomp__Core__TypeConversionException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__EndOfStreamException[] = {{&_swigt__p_Seiscomp__Core__EndOfStreamException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__StreamException[] = {{&_swigt__p_Seiscomp__Core__StreamException, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Seiscomp__Core__MemoryException[] = {{&_swigt__p_Seiscomp__Core__MemoryException, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Seiscomp__RecordStream__SeedlinkException[] = {{&_swigt__p_Seiscomp__RecordStream__SeedlinkException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__IO__RecordStreamException[] = {{&_swigt__p_Seiscomp__IO__RecordStreamException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__IO__LibmseedException[] = {{&_swigt__p_Seiscomp__IO__LibmseedException, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__MemoryException[] = {{&_swigt__p_Seiscomp__Core__MemoryException, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__RecordStream__SeedlinkException[] = {{&_swigt__p_Seiscomp__RecordStream__SeedlinkException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core___private__OperationInterrupted[] = {{&_swigt__p_Seiscomp__Core___private__OperationInterrupted, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__DuplicateClassname[] = {{&_swigt__p_Seiscomp__Core__DuplicateClassname, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__RecordStream__SeedlinkCommandException[] = {{&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Seiscomp__Core__GeneralException[] = {  {&_swigt__p_Seiscomp__IO__RecordStreamTimeout, _p_Seiscomp__IO__RecordStreamTimeoutTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__ClassNotFound, _p_Seiscomp__Core__ClassNotFoundTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeException, _p_Seiscomp__Core__TypeExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueException, _p_Seiscomp__Core__ValueExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__UnderflowException, _p_Seiscomp__Core__UnderflowExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__OverflowException, _p_Seiscomp__Core__OverflowExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeConversionException, _p_Seiscomp__Core__TypeConversionExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__EndOfStreamException, _p_Seiscomp__Core__EndOfStreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__StreamException, _p_Seiscomp__Core__StreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__MemoryException, _p_Seiscomp__Core__MemoryExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkException, _p_Seiscomp__RecordStream__SeedlinkExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__GeneralException, 0, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamException, _p_Seiscomp__IO__RecordStreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__IO__LibmseedException, _p_Seiscomp__IO__LibmseedExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__PickNotFoundException, _p_Seiscomp__Seismology__PickNotFoundExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__LocatorException, _p_Seiscomp__Seismology__LocatorExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__StationNotFoundException, _p_Seiscomp__Seismology__StationNotFoundExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core___private__OperationInterrupted, _p_Seiscomp__Core___private__OperationInterruptedTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__DuplicateClassname, _p_Seiscomp__Core__DuplicateClassnameTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, _p_Seiscomp__RecordStream__SeedlinkCommandExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__GeneralException[] = {  {&_swigt__p_Seiscomp__FileNotFoundError, _p_Seiscomp__FileNotFoundErrorTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamTimeout, _p_Seiscomp__IO__RecordStreamTimeoutTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__NoPhaseError, _p_Seiscomp__NoPhaseErrorTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__ClassNotFound, _p_Seiscomp__Core__ClassNotFoundTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeException, _p_Seiscomp__Core__TypeExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueException, _p_Seiscomp__Core__ValueExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__UnderflowException, _p_Seiscomp__Core__UnderflowExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__OverflowException, _p_Seiscomp__Core__OverflowExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeConversionException, _p_Seiscomp__Core__TypeConversionExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__EndOfStreamException, _p_Seiscomp__Core__EndOfStreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__StreamException, _p_Seiscomp__Core__StreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__GeneralException, 0, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamException, _p_Seiscomp__IO__RecordStreamExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__IO__LibmseedException, _p_Seiscomp__IO__LibmseedExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__MemoryException, _p_Seiscomp__Core__MemoryExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkException, _p_Seiscomp__RecordStream__SeedlinkExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__PickNotFoundException, _p_Seiscomp__Seismology__PickNotFoundExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__LocatorException, _p_Seiscomp__Seismology__LocatorExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Seismology__StationNotFoundException, _p_Seiscomp__Seismology__StationNotFoundExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core___private__OperationInterrupted, _p_Seiscomp__Core___private__OperationInterruptedTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__Core__DuplicateClassname, _p_Seiscomp__Core__DuplicateClassnameTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__MultipleModelsError, _p_Seiscomp__MultipleModelsErrorTo_p_Seiscomp__Core__GeneralException, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, _p_Seiscomp__RecordStream__SeedlinkCommandExceptionTo_p_Seiscomp__Core__GeneralException, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__IO__XMLArchive[] = {{&_swigt__p_Seiscomp__IO__XMLArchive, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__IO__BinaryArchive[] = {{&_swigt__p_Seiscomp__IO__BinaryArchive, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__IO__VBinaryArchive[] = {{&_swigt__p_Seiscomp__IO__VBinaryArchive, 0, 0, 0},{0, 0, 0, 0}};
@@ -17804,7 +17622,7 @@ static swig_cast_info _swigc__p_Seiscomp__Config__OptionNotFoundException[] = {{
 static swig_cast_info _swigc__p_Seiscomp__Config__TypeConversionException[] = {{&_swigt__p_Seiscomp__Config__TypeConversionException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Config__SyntaxException[] = {{&_swigt__p_Seiscomp__Config__SyntaxException, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Config__CaseSensitivityException[] = {{&_swigt__p_Seiscomp__Config__CaseSensitivityException, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__exception[] = {  {&_swigt__p_Seiscomp__FileNotFoundError, _p_Seiscomp__FileNotFoundErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamTimeout, _p_Seiscomp__IO__RecordStreamTimeoutTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueError, _p_Seiscomp__Core__ValueErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__NoPhaseError, _p_Seiscomp__NoPhaseErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ClassNotFound, _p_Seiscomp__Core__ClassNotFoundTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueException, _p_Seiscomp__Core__ValueExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__UnderflowException, _p_Seiscomp__Core__UnderflowExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__OverflowException, _p_Seiscomp__Core__OverflowExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeConversionException, _p_Seiscomp__Core__TypeConversionExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__EndOfStreamException, _p_Seiscomp__Core__EndOfStreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__StreamException, _p_Seiscomp__Core__StreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_std__exception, 0, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeException, _p_Seiscomp__Core__TypeExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamException, _p_Seiscomp__IO__RecordStreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__MemoryException, _p_Seiscomp__Core__MemoryExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__GeneralException, _p_Seiscomp__Core__GeneralExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkException, _p_Seiscomp__RecordStream__SeedlinkExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__LibmseedException, _p_Seiscomp__IO__LibmseedExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__PickNotFoundException, _p_Seiscomp__Seismology__PickNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__LocatorException, _p_Seiscomp__Seismology__LocatorExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__StationNotFoundException, _p_Seiscomp__Seismology__StationNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__Exception, _p_Seiscomp__Config__ExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__OptionNotFoundException, _p_Seiscomp__Config__OptionNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__TypeConversionException, _p_Seiscomp__Config__TypeConversionExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__SyntaxException, _p_Seiscomp__Config__SyntaxExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__CaseSensitivityException, _p_Seiscomp__Config__CaseSensitivityExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core___private__OperationInterrupted, _p_Seiscomp__Core___private__OperationInterruptedTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__DuplicateClassname, _p_Seiscomp__Core__DuplicateClassnameTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__MultipleModelsError, _p_Seiscomp__MultipleModelsErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, _p_Seiscomp__RecordStream__SeedlinkCommandExceptionTo_p_std__exception, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__exception[] = {  {&_swigt__p_Seiscomp__FileNotFoundError, _p_Seiscomp__FileNotFoundErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamTimeout, _p_Seiscomp__IO__RecordStreamTimeoutTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__Arclink___private__ArclinkException, _p_Seiscomp__RecordStream__Arclink___private__ArclinkExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueError, _p_Seiscomp__Core__ValueErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__NoPhaseError, _p_Seiscomp__NoPhaseErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ClassNotFound, _p_Seiscomp__Core__ClassNotFoundTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__ValueException, _p_Seiscomp__Core__ValueExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__UnderflowException, _p_Seiscomp__Core__UnderflowExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__OverflowException, _p_Seiscomp__Core__OverflowExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeConversionException, _p_Seiscomp__Core__TypeConversionExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__EndOfStreamException, _p_Seiscomp__Core__EndOfStreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__StreamException, _p_Seiscomp__Core__StreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_std__exception, 0, 0, 0},  {&_swigt__p_Seiscomp__Core__TypeException, _p_Seiscomp__Core__TypeExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__RecordStreamException, _p_Seiscomp__IO__RecordStreamExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__MemoryException, _p_Seiscomp__Core__MemoryExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__GeneralException, _p_Seiscomp__Core__GeneralExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__IO__LibmseedException, _p_Seiscomp__IO__LibmseedExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkException, _p_Seiscomp__RecordStream__SeedlinkExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__PickNotFoundException, _p_Seiscomp__Seismology__PickNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__LocatorException, _p_Seiscomp__Seismology__LocatorExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Seismology__StationNotFoundException, _p_Seiscomp__Seismology__StationNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__Exception, _p_Seiscomp__Config__ExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__OptionNotFoundException, _p_Seiscomp__Config__OptionNotFoundExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__TypeConversionException, _p_Seiscomp__Config__TypeConversionExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__SyntaxException, _p_Seiscomp__Config__SyntaxExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Config__CaseSensitivityException, _p_Seiscomp__Config__CaseSensitivityExceptionTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core___private__OperationInterrupted, _p_Seiscomp__Core___private__OperationInterruptedTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__Core__DuplicateClassname, _p_Seiscomp__Core__DuplicateClassnameTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__MultipleModelsError, _p_Seiscomp__MultipleModelsErrorTo_p_std__exception, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, _p_Seiscomp__RecordStream__SeedlinkCommandExceptionTo_p_std__exception, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__invalid_argument[] = {  {&_swigt__p_std__invalid_argument, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__listT_Seiscomp__TravelTime_std__allocatorT_Seiscomp__TravelTime_t_t[] = {  {&_swigt__p_Seiscomp__TravelTimeList, _p_Seiscomp__TravelTimeListTo_p_std__listT_Seiscomp__TravelTime_std__allocatorT_Seiscomp__TravelTime_t_t, 0, 0},  {&_swigt__p_std__listT_Seiscomp__TravelTime_std__allocatorT_Seiscomp__TravelTime_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__listT__Tp__Alloc_t[] = {  {&_swigt__p_std__listT__Tp__Alloc_t, 0, 0, 0},{0, 0, 0, 0}};

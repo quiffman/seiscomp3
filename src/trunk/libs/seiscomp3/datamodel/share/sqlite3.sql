@@ -72,7 +72,7 @@ CREATE TABLE Object (
 
 CREATE TABLE PublicObject (
 	_oid INTEGER NOT NULL,
-	publicID VARCHAR(80) NOT NULL,
+	publicID VARCHAR(255) NOT NULL,
 	PRIMARY KEY(_oid),
 	UNIQUE(publicID),
 	FOREIGN KEY(_oid)

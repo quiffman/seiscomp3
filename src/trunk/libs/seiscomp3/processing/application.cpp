@@ -133,6 +133,7 @@ void Application::registerProcessor(const std::string& networkCode,
 	              locationCode.c_str(), channelCode.c_str(),
 	              (unsigned long)_processors.size(), (unsigned long)_stationProcessors.size(),
 	              Core::BaseObject::ObjectCount());
+	SEISCOMP_DEBUG("Added proc %ld", (long)wp);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

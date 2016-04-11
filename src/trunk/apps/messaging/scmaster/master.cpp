@@ -34,7 +34,6 @@
 #include <seiscomp3/core/strings.h>
 #include <seiscomp3/core/system.h>
 #include <seiscomp3/core/version.h>
-#include <seiscomp3/datamodel/version.h>
 #include <seiscomp3/utils/files.h>
 
 #include "master.h"
@@ -50,6 +49,7 @@ Master::Master(const std::string& name)
  : _seqNum(0),
    _maxSeqNum(Protocol::MAX_SEQ_NUM),
    _name(Util::basename(name)) {
+	_schemaVersion = Core::Version(DataModel::Version::Major, DataModel::Version::Minor);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -185,6 +185,26 @@ bool Master::init() {
 			return false;
 		}
 	}
+
+	try {
+		std::string version = conf.getString("schemaVersionOverride");
+		Core::Version schemaVersion;
+		if ( !schemaVersion.fromString(version) ) {
+			SEISCOMP_ERROR("Wrong format in schemaVersionOverride: %s", version.data());
+			return false;
+		}
+
+		if ( schemaVersion > _schemaVersion ) {
+			SEISCOMP_ERROR("schemaVersionOverride %s is higher than version %s "
+			               "compiled in", schemaVersion.toString().data(),
+			               _schemaVersion.toString().data());
+			return false;
+		}
+
+		_schemaVersion = schemaVersion;
+	}
+	catch ( ... ) {}
+	SEISCOMP_INFO("Reporting schema version %s to clients", _schemaVersion.toString().data());
 
 	std::vector<std::string> groups;
 	try {
@@ -538,9 +558,9 @@ void Master::processServiceMessage(ServiceMessage* sm) {
 						tmpMsg->data() += groups + "\n";
 						tmpMsg->data() += Protocol::HEADER_SCHEMA_VERSION_TAG;
 						tmpMsg->data() += ": ";
-						tmpMsg->data() += Core::toString((int)DataModel::Version::Major);
+						tmpMsg->data() += Core::toString(_schemaVersion.majorTag());
 						tmpMsg->data() += ".";
-						tmpMsg->data() += Core::toString((int)DataModel::Version::Minor);
+						tmpMsg->data() += Core::toString(_schemaVersion.minorTag());
 					}
 
 					send(tmpMsg.get());

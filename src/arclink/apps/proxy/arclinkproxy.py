@@ -155,7 +155,7 @@ class RequestProxy(object):
 
                 req = mgr.new_request(self.__rtype, self.__args, self.__label)
                 req.content = self.__tw_proxy
-                use_routing = self.__rtype not in ("INVENTORY", "ROUTING") and \
+                use_routing = self.__rtype not in ("INVENTORY", "RESPONSE", "ROUTING") and \
                     not g_options.proxychain
 
                 try:

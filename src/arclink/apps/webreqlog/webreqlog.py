@@ -232,7 +232,7 @@ class WebReqLog(Client.Application):
 		self.commandline().addGroup("Export")
 		self.commandline().addStringOption("Export", "startTime,b", "start date: YYYY-MM-DD")
 		self.commandline().addStringOption("Export", "endTime,e", "end date: YYYY-MM-DD")
-		self.commandline().addStringOption("Export", "export", "comma seperated list of: file:xxx-date.html or email:abc@def.de tokens")
+		self.commandline().addStringOption("Export", "export", "comma-separated list of: file:xxx-date.html or email:abc@def.de tokens")
 
 		
 		return True
@@ -302,19 +302,18 @@ class WebReqLog(Client.Application):
 
 #----------------------------------------------------------------------------------------------------
 	def htmlHeader(self, script=""):
-		a = """
-<html>
+		a = """<html>
 <head>
-<title>Arclink Request Statistic</title>
+<title>Arclink Request Statistics</title>
 
 <style type="text/css">
 <!--
 a:link {font-weight:normal; color:blue; text-decoration:none}
 a:visited {font-weight:normal; color:blue; text-decoration:none}
-a.border{outline:1px solid black; margin:2;padding:3; background-color:lightgray; color:black}
+a.border{outline:1px solid black; margin:2px; padding:3px; background-color:lightgray; color:black}
 span.error{color:red}
 span.ok{color:darkgreen}
-div.body{width:75%; margin:20; border: 1px dashed #000; padding:10; min-width:800px;}
+div.body{width:75%; margin:20px; border: 1px dashed #000; padding:10px; min-width:800px;}
 div.RequestHeader{font-size:smaller; background-color: #e9e9e9; -moz-border-radius: 10px; -webkit-border-radius: 10px; border: 1px dashed #000; padding: 10px;}
 div.IndexMenu{font-size:smaller; background-color: #e9e9e9; -moz-border-radius: 10px; -webkit-border-radius: 10px; border: 1px dashed #000; padding: 10px;}
 
@@ -323,6 +322,8 @@ table.sortable thead { background-color:#eee; color:#666666; font-weight: bold; 
 table.sortable thead:hover { background-color:#ddd; color:#666666; font-weight: bold; cursor: pointer;}
 table.sortable {-moz-border-radius: 10px; -webkit-border-radius: 10px; border: 1px dashed #000; padding: 10px;}
 tr.sortbottom {background-color:#eee}
+td { text-align:right; }
+td.left { text-align:left; }
 
 #f1 { position:absolute; bottom:0px; right:0px; padding:3}
 #f2 { position:fixed; top:5px; right:5px; background-color:#afa; outline:2px solid red; font-size:smaller; padding:3 }
@@ -336,7 +337,6 @@ input.Xsubmit {color:black; background-color:lightgreen }
 
 div#mask { display: none; cursor: wait; z-index: 9999; position: absolute; top: 0; left: 0; height: 100%; width: 100%; background-color: #fff; opacity: 0; filter: alpha(opacity = 0);}
 
-
 -->
 </style>
 <script type="text/javascript">
@@ -345,11 +345,11 @@ function hide(o)
 	o.style.display="none";
 }
 </script>
-		"""
+"""
 
 		b = """
 </head>
-		"""
+"""
 		return a+script+b
 #----------------------------------------------------------------------------------------------------
 
@@ -358,7 +358,7 @@ function hide(o)
 	def htmlFooter(self):
 		return """
 </html>
-		"""
+"""
 #----------------------------------------------------------------------------------------------------
 
 
@@ -434,10 +434,10 @@ function hide(o)
 
 #----------------------------------------------------------------------------------------------------
 	# assemble link
-	def link(self, page, text, args=None, cls=""):
+	def link(self, page, text, args=None, cls=''):
 		if not args: args = dict()
-		if len(cls) > 0: cls="class=%s"%cls
-		return "<a %s href=%s/%s?%s>%s</a>" % (cls, self.urlBase, page, "&".join(["%s=%s"%(k,v.replace(" ","%20")) for k,v in args.items()]), text)
+		if len(cls) > 0: cls='class="%s"' % (cls)
+		return '<a %s href="%s/%s?%s">%s</a>' % (cls, self.urlBase, page, "&amp;".join(["%s=%s"%(k,v.replace(" ","%20")) for k,v in args.items()]), text)
 #----------------------------------------------------------------------------------------------------
 
 
@@ -476,7 +476,7 @@ function hide(o)
 		except: # FIXME error page is not displayed correctly
 			status = '404 ERROR'
 			headers = [('Content-type', 'text/html')]
-			ret = "<html>ERROR: File not found: %s</html>" % filename
+			ret = "<html><body><p><b>ERROR</b>: File not found: %s</p></body></html>" % filename
 
 		start_response(status, headers)
 		return [ret]
@@ -490,10 +490,9 @@ function hide(o)
 		start_response(status, headers)
 		ret = self.htmlHeader(script='<script src="%s/js?name=dt"></script>' % self.urlBase)
 
-		ret += "<div class=body>"
-		ret += "<h1>ArcLink Request Log Tool</h1><br>"
+		ret += '<div class="body">'
+		ret += '<h1>ArcLink Request Log Tool</h1><br>'
 		#ret += "<h2 style='color:red'>under construction ...</h2>"
-		#ret += "<br>"
 		#ret += "<br>"
 		
 		now = datetime.now()
@@ -504,10 +503,10 @@ function hide(o)
 		
 		#args = {"startTime":"2010-04-22", "endTime":"2010-04-30"}
 		#ret += "<h2>%s</h2>" % self.link("summary", "GET REQUEST STATISTIC", args)
-		ret += "<div class=IndexMenu>"
+		ret += '<div class="IndexMenu">'
 		ret += "<h2>%s</h2>" % "SHOW REQUESTS AND SUMMARY"
 		ret += """
-		<div class=SelectMenu>
+		<div class="SelectMenu">
 		Please select a time range:
 		<form name="input" action="summary" method="get">
 		"""
@@ -522,7 +521,7 @@ function hide(o)
 		<input name="endTime" id="endTime" type="text" size="20" value=%s>
 		""" % ('"'+date2str(endTime, "date time")+'"')
 		ret += """
-		<span class=submit>
+		<span class="submit">
 		<input type="submit" value="Submit" class="submit" />
 		<input type="reset" value="Reset">
 		</span>
@@ -530,11 +529,11 @@ function hide(o)
 		</div>
 		"""
 		ret += """
-		<div class=SelectMenu>
+		<div class="SelectMenu">
 		Or give a single ArcLink RequestID:
 		<form name="requestID" action="requests" method="get">
 		RequestID: <input name="requestID" type="text" size="25">
-		<span class=submit>
+		<span class="submit">
 		<input name="lines" type="hidden" value="yes">
 		<input type="submit" value="Submit" class="submit">
 		</span>
@@ -544,7 +543,7 @@ function hide(o)
 
 		ret += "</div><br>"
 
-		ret += "<div class=IndexMenu>"
+		ret += '<div class="IndexMenu">'
 		ret += "<h2>%s</h2>" % "SHOW ACCESS STATISTIC CHART"
 
 		now = datetime.now()
@@ -554,7 +553,7 @@ function hide(o)
 		endTime = Core.Time(tomorrow.year, tomorrow.month, tomorrow.day)
 
 		ret += """
-		<div class=SelectMenu>
+		<div class="SelectMenu">
 		Please select a time range:
 		<form name="chart" action="chart" method="get">
 		"""
@@ -792,22 +791,21 @@ $(document).ready(function() {
 
 
 
-		ret += "<div class=body>"
-
-		ret += '<div id=chartContainer style="width: 800px; height: 400px; margin: 0 auto"></div>'
+		ret += '<div class="body">'
+		ret += '<div id="chartContainer" style="width: 800px; height: 400px; margin: 0 auto"></div>'
 		ret += "<br><hr><br>"
 		
 		if plotting == "hourly":
-			ret += '<table id=hourly class="datatable sortable" width=60%><thead><tr><td>Hour</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
+			ret += '<table id="hourly" class="datatable sortable" width=60%><thead><tr><td>Hour</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
 			ret += "Hourly Count (%s - %s)<tbody>" % (date2str(startTime, 'date'), date2str(endTime, 'date'))
 			tr = tl = te = ts = 0
 			for k,(r,l,e,s) in sorted(counter.hourly.items()):
-				ret += "<tr><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%f align=right>%8.2f Mb</td></tr>" % (k,r,l,e,s,s)
+				ret += '<tr><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%f">%8.2f Mb</td></tr>' % (k,r,l,e,s,s)
 				tr += r
 				tl += l
 				te += e
 				ts += s
-			ret += '<tr class="sortbottom"><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
+			ret += '<tr class="sortbottom"><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
 			ret += "</tbody></table>"
 		
 		elif plotting == "daily":
@@ -815,38 +813,38 @@ $(document).ready(function() {
 			ret += "Daily Count<tbody>"
 			tr = tl = te = ts = 0
 			for k,(r,l,e,s) in sorted(counter.daily.items()):
-				ret += "<tr><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%f align=right>%8.2f Mb</td></tr>" % (k,r,l,e,s,s)
+				ret += '<tr><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%f">%8.2f Mb</td></tr>' % (k,r,l,e,s,s)
 				tr += r
 				tl += l
 				te += e
 				ts += s
-			ret += '<tr class="sortbottom"><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
+			ret += '<tr class="sortbottom"><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
 			ret += "</tbody></table>"
 
 		elif plotting == "weekdaily":
-			ret += '<br><table id=weekdaily class="datatable sortable" width=60%><thead><tr><td>WeekDay</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
+			ret += '<br><table id="weekdaily" class="datatable sortable" width=60%><thead><tr><td>WeekDay</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
 			ret += "WeekDaily Count (%s - %s)<tbody>" % (date2str(startTime, 'date'), date2str(endTime, 'date'))
 			tr = tl = te = ts = 0
 			for k,(r,l,e,s) in sorted(counter.weekdaily.items()):
-				ret += "<tr><th sorttable_customkey=%s align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%f align=right>%8.2f Mb</td></tr>" % (k,k[2:],r,l,e,s,s)
+				ret += '<tr><th sorttable_customkey="%s" align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%f">%8.2f Mb</td></tr>' % (k,k[2:],r,l,e,s,s)
 				tr += r
 				tl += l
 				te += e
 				ts += s
-			ret += '<tr class="sortbottom"><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
+			ret += '<tr class="sortbottom"><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
 			ret += "</tbody></table>"
 
 		elif plotting == "monthly":
-			ret += '<br><table id=monthly class="datatable sortable" width=60%><thead><tr><td>Month</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
+			ret += '<br><table id="monthly" class="datatable sortable" width=60%><thead><tr><td>Month</td><td>RequestCount</td><td>LineCount</td><td>ErrorCount</td><td>VolumeSize</td></tr></thead>'
 			ret += "Monthly Count<tbody>"
 			tr = tl = te = ts = 0
 			for k,(r,l,e,s) in sorted(counter.monthly.items()):
-				ret += "<tr><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%f align=right>%8.2f Mb</td></tr>" % (k,r,l,e,s,s)
+				ret += '<tr><th align="left">%s</th><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%f">%8.2f Mb</td></tr>' % (k,r,l,e,s,s)
 				tr += r
 				tl += l
 				te += e
 				ts += s
-			ret += '<tr class="sortbottom"><th align=left>%s</th><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
+			ret += '<tr class="sortbottom"><th align="left">%s</th><td align="right">%s</td><td align="right">%s</td><td align="right">%s</td><td align="right">%8.2f Mb</td></tr>' % ("Total",tr,tl,te,ts)
 			ret += "</tbody></table>"
 		
 		ret += "<br>"
@@ -869,8 +867,8 @@ $(document).ready(function() {
 		start_response(status, headers)
 
 		out = StringIO()
-		ret = self.htmlHeader(script='<script src="%s/js?name=st"></script>' % self.urlBase)
-		ret += '<body><div class=body>\n'
+		ret = self.htmlHeader(script='<script src="%s/js?name=st" type="text/javascript"></script>' % self.urlBase)
+		ret += '<body><div class="body">\n'
 
 		# init session
 		session = Session(environ["myArgs"])
@@ -1082,7 +1080,7 @@ $(document).ready(function() {
 		if len(streams): print >> out,  "Stations:\t%d" % len(streams)
 
 		print >> out, ""
-		print >> out,  "<table class=sortable width=100%>"
+		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
 		print >> out,  "<tr><th>User</th><th>Requests</th><th>Lines</th><th>Errors</th><th>Size</th></tr>"
 		print >> out,  "</thead><tbody>"
@@ -1095,11 +1093,11 @@ $(document).ready(function() {
 			ll = self.link("requests", "%-6d"%l, args)
 			args["onlyErrors"] = "yes"
 			lo = self.link("requests", "%-6d"%o, args)
-			print >> out,  "<tr><td>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%d align=right>%10s</td></tr>" % (ul,rl,ll,lo, s, byte2h(s, self.bytes))
+			print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%10s</td></tr>' % (ul,rl,ll,lo, s, byte2h(s, self.bytes))
 		print >> out,  "</tbody></table>"
 
 		print >> out , ""
-		print >> out,  "<table class=sortable width=100%>"
+		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
 		print >> out,  "<tr><th>Request Type</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
 		print >> out,  "</thead><tbody>"
@@ -1112,11 +1110,11 @@ $(document).ready(function() {
 			ll = self.link("requests", "%-6d"%l, args)
 			args["onlyErrors"] = "yes"
 			lo = self.link("requests", "%-6d"%o, args)
-			print >> out,  "<tr><td>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td></tr>" % (ul,rl,ll,lo)
+			print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (ul,rl,ll,lo)
 		print >> out,  "</tbody></table>"
 		
 		print >> out , ""
-		print >> out,  "<table class=sortable width=100%>"
+		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
 		print >> out,  "<tr><th>Volume</th><th>Count</th><th>Errors</th><th>Size</th></tr>"
 		print >> out,  "</thead><tbody>"
@@ -1126,12 +1124,12 @@ $(document).ready(function() {
 			kl = self.link("summary", "%-15s"%k, args)
 			args["onlyErrors"] = "yes"
 			el = self.link("requests", "%d"%e, args)
-			print >> out,  "<tr><td>%s</td><td align=right>%d</td><td align=right>%s</td><td sorttable_customkey=%d align=right>%s</td></tr>" % (kl,c,el,s,byte2h(s, self.bytes))
+			print >> out,  '<tr><td class="left">%s</td><td>%d</td><td>%s</td><td sorttable_customkey="%d">%s</td></tr>' % (kl,c,el,s,byte2h(s, self.bytes))
 		print >> out,  "</tbody></table>"
 
 		if session.args.get("lines") and len(streams) > 0:
 			print >> out , ""
-			print >> out,  "<table class=sortable width=100%>"
+			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
 			print >> out,  "<tr><th>Station</th><th>Requests</th><th>Errors</th><th>Size</th><th>Time</th></tr>"
 			print >> out,  "</thead><tbody>"
@@ -1143,12 +1141,12 @@ $(document).ready(function() {
 				rl = self.link("requests", "%-6d"%r, args)
 				args["onlyErrors"] = "yes"
 				ol = self.link("requests", "%-6d"%o, args)
-				print >> out,  "<tr><td>%s</td><td align=right>%s</td><td align=right>%s</td><td sorttable_customkey=%d align=right>%s</td><td sorttable_customkey=%d  align=right>%s</td></tr>" % (sl,rl,ol, s,byte2h(s, self.bytes), tw,sec2h(tw, self.secs))
+				print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%s</td><td sorttable_customkey="%d" >%s</td></tr>' % (sl,rl,ol, s,byte2h(s, self.bytes), tw,sec2h(tw, self.secs))
 			print >> out,  "</tbody></table>"
 
 		if len(messages) > 1 or (len(messages) == 1 and messages.keys()[0] != ""):
 			print >> out , ""
-			print >> out,  "<table class=sortable width=100%>"
+			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
 			print >> out,  "<tr><th>Count</th><th>Message</th></tr>"
 			print >> out,  "</thead><tbody>"
@@ -1157,12 +1155,12 @@ $(document).ready(function() {
 					args = dict(session.args)
 					args["message"] = k.replace(" ", "%20")
 					kl = self.link("requests", "%-30s"%k, args)
-					print >> out,  "<tr><td>%d</td><td>%s</td></tr>" % (c,kl)
+					print >> out,  '<tr><td class="left">%d</td><td>%s</td></tr>' % (c,kl)
 			print >> out,  "</tbody></table>"
 
 		if len(userIPs) > 0:
 			print >> out , ""
-			print >> out,  "<table class=sortable width=100%>"
+			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
 			print >> out,  "<tr><th>UserIP</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
 			print >> out,  "</thead><tbody>"
@@ -1175,12 +1173,12 @@ $(document).ready(function() {
 				ll = self.link("requests", "%-6d"%l, args)
 				args["onlyErrors"] = "yes"
 				lo = self.link("requests", "%-6d"%o, args)
-				print >> out,  "<tr><td>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td></tr>" % (sk,rl,ll,lo)
+				print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (sk,rl,ll,lo)
 			print >> out,  "</tbody></table>"
 
 		if len(clientIPs) > 0:
 			print >> out , ""
-			print >> out,  "<table class=sortable width=100%>"
+			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
 			print >> out,  "<tr><th>ClientIP</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
 			print >> out,  "</thead><tbody>"
@@ -1193,7 +1191,7 @@ $(document).ready(function() {
 				ll = self.link("requests", "%-6d"%l, args)
 				args["onlyErrors"] = "yes"
 				lo = self.link("requests", "%-6d"%o, args)
-				print >> out,  "<tr><td>%s</td><td align=right>%s</td><td align=right>%s</td><td align=right>%s</td></tr>" % (sk,rl,ll,lo)
+				print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (sk,rl,ll,lo)
 			print >> out,  "</tbody></table>"
 
 		print >> out,  "</pre>"
@@ -1217,7 +1215,7 @@ $(document).ready(function() {
 		print >> out,  "<h2>Arclink Requests</h2>"
 
 		if session.args.get("onlyErrors", None):
-			print >> out,  "only errorneous requests lines are displayed"
+			print >> out,  "only erroneous requests lines are displayed"
 
 		streamID = session.args.get("streamID", None)
 		if streamID:
@@ -1230,7 +1228,7 @@ $(document).ready(function() {
 
 
 		for request in requests:
-			print >> out, "<div class=RequestHeader>"
+			print >> out, '<div class="RequestHeader">'
 
 			args = dict()
 			args["session"] = session.args.get("session")
@@ -1255,7 +1253,7 @@ $(document).ready(function() {
 				if line.status().status() == "OK": cl = "ok"
 				else: cl = "error"
 
-				print >> out, "<span class=%s>%s" % (cl , line.start()), line.end(), \
+				print >> out, '<span class="%s">%s' % (cl , line.start()), line.end(), \
 						line.streamID().networkCode()+ \
 						" "+line.streamID().stationCode()+ \
 						" "+line.streamID().locationCode()+ \
@@ -1271,11 +1269,11 @@ $(document).ready(function() {
 			if reqErrors > 0: cl = "error"
 			else: cl = "ok"
 			try:
-				print >> out, "<span class=%s>TOTAL_LINES %d" % (cl, request.summary().totalLineCount())
+				print >> out, '<span class="%s">TOTAL_LINES %d' % (cl, request.summary().totalLineCount())
 				print >> out, "ERROR_LINES %d</span>" % reqErrors
 				print >> out, "AVERAGE_TIME_WINDOW %d" % request.summary().averageTimeWindow()
 			except:
-				print >> out, "!!! ERROR in def printRequests() !!!"
+				print >> out, "!!! ERROR in printRequests() !!!"
 				pass
 		
 			if request.arclinkStatusLineCount() == 0:
@@ -1284,7 +1282,7 @@ $(document).ready(function() {
 				line = request.arclinkStatusLine(i)
 				if line.status() != 'OK': cl = "error"
 				else: cl = "ok"
-				print >> out, "VOLUME %s <span class=%s>%s</span> %d <span class=%s>%s</span>" % (line.volumeID(), cl, line.status(), line.size(), cl, line.message())
+				print >> out, 'VOLUME %s <span class="%s">%s</span> %d <span class="%s">%s</span>' % (line.volumeID(), cl, line.status(), line.size(), cl, line.message())
 
 			print >> out, request.status(), request.message()
 			print >> out, "</div>"
@@ -1439,7 +1437,7 @@ $(document).ready(function() {
 
 #----------------------------------------------------------------------------------------------------
 	def printArgs(self, out, args):
-		print >> out, '<div id=f2 onclick="hide(this)">'
+		print >> out, '<div id="f2" onclick="hide(this)">'
 		print >> out, '<span style="font-weight:bold">Effective Constraints</span><pre>'
 		for k,v in args.iteritems():
 			print >> out, "%s = %s" % (k,v.replace("%20"," "))

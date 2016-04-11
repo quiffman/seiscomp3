@@ -27,7 +27,7 @@ def _string_fromxml(val):
 	if val is None:
 		return ""
 
-	return val.encode("utf-8", "replace")
+	return val.encode("utf-8", "replace").strip()
 
 def _string_toxml(val):
 	if val is None:
@@ -94,9 +94,12 @@ def _StationGroupType_fromxml(val):
 	else:
 		return 1
 
-_rx_datetime = re.compile("([0-9]{4})-([0-9]{2})-([0-9]{2})T" 	"([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]*)" 	"(Z|([+-])([0-9]{2}):([0-9]{2}))?$")
+_rx_datetime = re.compile("([0-9]{4})-([0-9]{2})-([0-9]{2})T" \
+	"([0-9]{2}):([0-9]{2}):([0-9]{2})(\.([0-9]*))?" \
+	"(Z|([+-])([0-9]{2}):([0-9]{2}))?$")
 
-_rx_date = re.compile("([0-9]*)-([0-9]*)-([0-9]*)" 	"(Z|([+-])([0-9]{2}):([0-9]{2}))?$")
+_rx_date = re.compile("([0-9]*)-([0-9]*)-([0-9]*)" \
+	"(Z|([+-])([0-9]{2}):([0-9]{2}))?$")
 
 def _datetime_fromxml(val = ""):
 	if val is None or val == "":
@@ -116,9 +119,12 @@ def _datetime_fromxml(val = ""):
 		except ValueError:
 			raise ValueError, "invalid datetime: " + val
 	else:
-		(year, month, mday, hour, min, sec, sfract,
+		(year, month, mday, hour, min, sec, sfdot, sfract,
 			tz, plusminus, tzhours, tzminutes) = m.groups()
 
+		if sfract is None:
+			sfract = "0"
+		
 		try:
 			obj = datetime.datetime(int(year), int(month), int(mday),
 				int(hour), int(min), int(sec), int((sfract + "000000")[:6]))

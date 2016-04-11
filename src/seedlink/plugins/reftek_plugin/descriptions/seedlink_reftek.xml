@@ -24,7 +24,7 @@
 			<parameter name="unit" type="string" default="91F3">
 				<description>The unit id.</description>
 			</parameter>
-			<parameter name="proc" type="string">
+			<parameter name="proc" type="string" default="reftek">
 				<description>
 				Name of the proc object (defined in streams.xml); used for processing
 				raw streams (streams submitted by a plugin as raw samples).

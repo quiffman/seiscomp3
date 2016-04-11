@@ -33,7 +33,10 @@ import sys, os
 extensions = [
 #    'rst2pdf.pdfbuilder',
     'sphinx.ext.ifconfig', 'sphinx.ext.todo',
-    'sphinx.ext.autodoc', 'sphinx.ext.pngmath', 'sphinx.ext.viewcode']
+    'sphinx.ext.autodoc', 'sphinx.ext.pngmath', 'sphinx.ext.viewcode',
+    'sphinx.ext.graphviz']
+
+graphviz_output_format = 'svg'
 
 # For now switch on todos
 todo_include_todos = True
@@ -59,7 +62,7 @@ copyright = u'2013, GFZ Potsdam, gempa GmbH'
 # built documents.
 #
 # The short X.Y version.
-version = '2013.245'
+version = '2013.274'
 # The full version, including alpha/beta/rc tags.
 release = 'Seattle'
 

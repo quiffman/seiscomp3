@@ -164,7 +164,7 @@ TravelTimeList *Locsat::compute(double lat1, double lon1, double dep1,
 }
 
 
-TravelTime Locsat::computeFirst(double delta, double depth) throw(NoPhaseError) {
+TravelTime Locsat::computeFirst(double delta, double depth) throw(std::exception) {
 	if ( _Pindex < 0 ) throw NoPhaseError();
 	char **phases = phase_types();
 	char *phase = phases[_Pindex];
@@ -177,7 +177,7 @@ TravelTime Locsat::computeFirst(double delta, double depth) throw(NoPhaseError) 
 
 TravelTime Locsat::computeFirst(double lat1, double lon1, double dep1,
                                 double lat2, double lon2, double alt2,
-                                int ellc) throw(NoPhaseError) {
+                                int ellc) throw(std::exception) {
 	if ( !_tabinCount ) setModel("iasp91");
 
 	double delta, azi1, azi2;

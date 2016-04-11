@@ -148,6 +148,8 @@ bool Connection::send(Seiscomp::Core::Message* msg)
 	}
 
 	NetworkMessage *clientMsg = encode(msg, _encoding, _schemaVersion.packed);
+	if ( clientMsg == NULL ) return false;
+
 	_transmittedBytes += msg->dataSize();
 
 	int ret = SystemConnection::send(clientMsg);
@@ -189,6 +191,8 @@ bool Connection::send(const std::string& groupname, Seiscomp::Core::Message* msg
 	}
 
 	NetworkMessage* clientMsg = encode(msg, _encoding, _schemaVersion.packed);
+	if ( clientMsg == NULL ) return false;
+
 	_transmittedBytes += msg->dataSize();
 
 	int ret = SystemConnection::send(groupname, clientMsg);

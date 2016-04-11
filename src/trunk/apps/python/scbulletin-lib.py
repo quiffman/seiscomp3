@@ -60,11 +60,12 @@ def stationCount(org):
 
 class Bulletin(object):
 
-    def __init__(self, dbq, format="autoloc1", long=True):
+    def __init__(self, dbq, long=True):
         self._dbq = dbq
-        self._format = format
         self._long = long
         self._evt = None
+        self.format = "autoloc1"
+        self.polarities = False
 
     def _getDistancesArrivalsSorted(self, org):
         # sort arrival list by distance
@@ -200,6 +201,10 @@ class Bulletin(object):
         try: agencyID = org.creationInfo().agencyID()
         except: pass
         txt += "    Agency                 %s\n" % agencyID
+        if extra:
+            try:    authorID = org.creationInfo().author()
+            except: authorID = "NOT SET"
+            txt += "    Author                 %s\n" % authorID 
         txt += "    Mode                   "
         try:    txt += "%s\n" % seiscomp3.DataModel.EEvaluationModeNames.name(org.evaluationMode())
         except: txt += "NOT SET\n"
@@ -212,7 +217,7 @@ class Bulletin(object):
             try:    txt += "%s\n" % org.creationInfo().creationTime().toString("%Y-%m-%d %H:%M:%S")
             except: txt += "NOT SET\n"
 
-        try:    txt += "    Residual RMS            %5.1f s\n" % org.quality().standardError()
+        try:    txt += "    Residual RMS            %6.2f s\n" % org.quality().standardError()
         except: pass
 
         try:    txt += "    Azimuthal gap           %5.0f deg\n" % org.quality().azimuthalGap()
@@ -317,15 +322,31 @@ class Bulletin(object):
             pha = arr.phase().code()
             flag = "X "[wt>0.1]
             status = seiscomp3.DataModel.EEvaluationModeNames.name(p.evaluationMode())[0].upper()
-            line = "    %-5s %-2s  %5.1f %s  %-7s %s %s %1s%1s %3.1f  %-5s\n" \
-                % (sta, net, dist, azi, pha, tstr, res, status, flag, wt, sta)
+            if self.polarities:
+                try:
+                    pol = seiscomp3.DataModel.EPickPolarityNames.name(p.polarity())
+                except:
+                    pol = None
+                if pol:
+                    if   pol=="positive":    pol="u"
+                    elif pol=="negative":    pol="d"
+                    elif pol=="undecidable": pol="x"
+                    else: pol="."
+                else: pol="."
+                line = "    %-5s %-2s  %5.1f %s  %-7s %s %s %1s%1s %3.1f  %s %-5s\n" \
+                    % (sta, net, dist, azi, pha, tstr, res, status, flag, wt, pol, sta)
+            else:
+                line = "    %-5s %-2s  %5.1f %s  %-7s %s %s %1s%1s %3.1f  %-5s\n" \
+                    % (sta, net, dist, azi, pha, tstr, res, status, flag, wt, sta)
             lines.append( (dist, line) )
 
         lines.sort()
 
         txt += "\n"
         txt += "%d Phase arrivals:\n" % org.arrivalCount()
-        txt += "    sta  net   dist azi  phase   time         res     wt  sta\n"
+        txt += "    sta  net   dist azi  phase   time         res     wt  "
+        if self.polarities: txt += "  "
+        txt += "sta\n"
         for dist,line in lines:
             txt += line
         txt += "\n"
@@ -563,11 +584,11 @@ class Bulletin(object):
         else:
             raise TypeError, "illegal type for origin"
 
-        if self._format == "autoloc1":
+        if self.format == "autoloc1":
             return self._printOriginAutoloc1(org)
-        elif self._format == "autoloc3":
+        elif self.format == "autoloc3":
             return self._printOriginAutoloc3(org, extra=False)
-        elif self._format == "autoloc3extra":
+        elif self.format == "autoloc3extra":
             return self._printOriginAutoloc3(org, extra=True)
         else:
             pass
@@ -625,6 +646,7 @@ class BulletinApp(seiscomp3.Client.Application):
                 self.commandline().addOption("Dump", "autoloc1,1", "autoloc1 format")
                 self.commandline().addOption("Dump", "autoloc3,3", "autoloc3 format")
                 self.commandline().addOption("Dump", "extra,x", "extra detailed autoloc3 format")
+                self.commandline().addOption("Dump", "polarities,p", "dump onset polarities")
 
                 self.commandline().addGroup("Input")
                 self.commandline().addStringOption("Input", "format,f", "input format to use (xml [default], zxml (zipped xml), binary)")
@@ -678,17 +700,19 @@ class BulletinApp(seiscomp3.Client.Application):
                 global minweight
                 minweight = float(mw)
 
-            format = "autoloc1"
+            bulletin = Bulletin(dbq)
+            bulletin.format = "autoloc1"
 
             if self.commandline().hasOption("autoloc1"):
-                format = "autoloc1"
+                bulletin.format = "autoloc1"
             elif self.commandline().hasOption("autoloc3"):
                 if self.commandline().hasOption("extra"):
-                    format = "autoloc3extra"
+                    bulletin.format = "autoloc3extra"
                 else:
-                    format = "autoloc3"
+                    bulletin.format = "autoloc3"
 
-            bulletin = Bulletin(dbq, format)
+            if self.commandline().hasOption("polarities"):
+                bulletin.polarities = True
 
             try:
                 if evid:

@@ -2348,7 +2348,7 @@ string Inventory::GetInstrumentName(int lookup)
 			}
 			else if(size == 3)
 				name = SplitString(instrument_info[1], '/');
-			else
+			else if (size>1)
 				name = instrument_info[1];
 		}
 	}

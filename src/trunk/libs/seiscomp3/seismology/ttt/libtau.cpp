@@ -36,7 +36,7 @@ double takeoff_angle(double p, double zs, double vzs) {
 	pv = p*vzs/(6371.-zs);
 	if (pv>1.) pv = 1.;
 
-	return 180.*asin(pv)/M_PI; 
+	return 180.*asin(pv)/M_PI;
 }
 
 
@@ -137,11 +137,11 @@ void LibTau::InitPath(const std::string &model) {
 
 void LibTau::SetDepth(double depth) {
 	if ( depth <= 0. ) depth = 0.01; // XXX Hack!!!
-	
+
 	if ( depth <= 0. || depth > 800 ) {
 		std::ostringstream errmsg;
 		errmsg.precision(8);
-		errmsg  << "Source depth of " << depth 
+		errmsg  << "Source depth of " << depth
 			<< " km is out of range of 0 < z <= 800";
 		throw std::out_of_range(errmsg.str());
 	}
@@ -160,7 +160,7 @@ TravelTimeList *LibTau::compute(double delta, double depth) {
 	TravelTimeList *ttlist = new TravelTimeList;
 	ttlist->delta = delta;
 	ttlist->depth = depth;
-	
+
 	SetDepth(depth);
 
 	for(int i=0; i<100; i++)
@@ -215,11 +215,11 @@ TravelTimeList *LibTau::compute(double lat1, double lon1, double dep1,
 }
 
 
-TravelTime LibTau::computeFirst(double delta, double depth) throw(NoPhaseError) {
+TravelTime LibTau::computeFirst(double delta, double depth) throw(std::exception) {
 	int n;
 	char ph[1000], *phase[100];
 	float time[100], p[100], dtdd[100], dtdh[100], dddp[100], vp, vs;
-	
+
 	SetDepth(depth);
 
 	for(int i=0; i<100; i++)
@@ -243,7 +243,7 @@ TravelTime LibTau::computeFirst(double delta, double depth) throw(NoPhaseError) 
 
 TravelTime LibTau::computeFirst(double lat1, double lon1, double dep1,
                                    double lat2, double lon2, double alt2,
-                                   int ellc) throw(NoPhaseError) {
+                                   int ellc) throw(std::exception) {
 	if ( !_tabinCount ) setModel("iasp91");
 
 	double delta, azi1, azi2;

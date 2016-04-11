@@ -271,10 +271,36 @@ class Routing(_sc3wrap.base_routing):
 
 
 
-	def load_routes(self, net_pat = None, sta_pat = None,
+	def load_routes(self, net_pat = None, sta_pat = None, cha_pat = None, loc_pat = None,
 		start_time = None, end_time = None, modified_after = None):
+
+		for item in (net_pat, sta_pat, cha_pat, loc_pat):
+			if item is None or item.find("*") >= 0 or item.find("?") >= 0:
+				# wildcards detected, use slow version
+				route_iter = self._route
+				break
+
+		else:
+			# no wildcards, trigger a hack to speed things up
+			route_iter = []
+
+			idx = set()
+			for x in (15, 14, 13, 11, 7, 12, 10, 9, 6, 5, 3, 8, 4, 2, 1, 0):
+				net = (net_pat, "")[not (x & 8)]
+				sta = (sta_pat, "")[not (x & 4)]
+				cha = (cha_pat, "")[not (x & 2)]
+				loc = (loc_pat, "")[not (x & 1)]
+
+				# note the different order of loc, cha
+				idx.add((net, sta, loc, cha))
+
+			for i in idx:
+				obj = self.obj.route(_sc3wrap.DataModel.RouteIndex(*i))
+				if obj:
+					obj.lastModified = _sc3wrap.Core.Time.GMT()
+					route_iter.append(_sc3wrap.base_route(obj))
 		
-		for route in self._route:
+		for route in route_iter:
 			
 #			if net_pat is None and sta_pat is None:
 #				routeFound = True

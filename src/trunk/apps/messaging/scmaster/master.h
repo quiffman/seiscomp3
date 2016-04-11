@@ -26,6 +26,7 @@
 #include <seiscomp3/communication/masterplugininterface.h>
 #include <seiscomp3/communication/networkinterface.h>
 #include <seiscomp3/communication/connectioninfo.h>
+#include <seiscomp3/datamodel/version.h>
 #include <seiscomp3/client/queue.h>
 #include <seiscomp3/client/queue.ipp>
 #include <seiscomp3/utils/timer.h>
@@ -249,6 +250,7 @@ private:
 	std::string _name;
 
 	MessageStat _messageStat;
+	Core::Version _schemaVersion;
 
 };
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

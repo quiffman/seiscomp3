@@ -51,7 +51,7 @@ namespace Applications {
 ImEx::ImEx(int argc, char* argv[])
  : Client::Application(argc, argv),
    _mode(UNDEFINED),
-   _cleanUpInterval(60*60) {
+   _cleanUpInterval(60*60,0) {
 
 	setRecordStreamEnabled(false);
 	setDatabaseEnabled(false, false);
@@ -316,10 +316,13 @@ void ImEx::updateData(DataModel::NotifierMessage* notifierMessage)
 
 	// Handle messages
 	notifierIt = notifierMessage->begin();
-	while ( notifierIt!= notifierMessage->end() ) {
+	for ( ; notifierIt != notifierMessage->end(); ++notifierIt ) {
 		Core::BaseObject* object = (*notifierIt)->object();
-		if ( !object )
+		if ( !object ) {
+			SEISCOMP_WARNING("Ignoring empty notifier for %s",
+			                 (*notifierIt)->parentID().data());
 			continue;
+		}
 
 		std::string className = object->className();
 		if ( className == DataModel::Pick::ClassName() ) {
@@ -361,7 +364,6 @@ void ImEx::updateData(DataModel::NotifierMessage* notifierMessage)
 		else {
 			SEISCOMP_DEBUG("Received unhandled object: %s with notifier type: %s", className.c_str(), (*notifierIt)->operation().toString());
 		}
-		++notifierIt;
 	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -451,7 +453,6 @@ Core::MessagePtr ImEx::convertMessage(Core::Message* message) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void ImEx::dispatchMessage(Core::Message* msg) {
-	_messageList.push_back(std::make_pair(Core::Time::GMT(), msg));
 	if ( Core::Time::GMT() - _lastCleanUp > _cleanUpInterval ) {
 		SEISCOMP_DEBUG("Cleaning up");
 		for ( size_t i = 0; i < _imexImpls.size(); ++i )
@@ -462,17 +463,6 @@ void ImEx::dispatchMessage(Core::Message* msg) {
 		cleanUp(_eventList);
 		cleanUp(_originList);
 
-		// Clean up messages
-		MessageList::iterator it = _messageList.begin();
-		while ( it != _messageList.end() ) {
-			if ( Core::Time::GMT() - it->first > _cleanUpInterval ) {
-				SEISCOMP_DEBUG("One element from message list removed");
-				it = _messageList.erase(it);
-			}
-			else {
-				++it;
-			}
-		}
 		_lastCleanUp = Core::Time::GMT();
 	}
 
@@ -556,12 +546,13 @@ void ImEx::cleanUp(T& container)
 template <typename T>
 void ImEx::cleanUpSpecial(T& container)
 {
+	Core::Time now = Core::Time::GMT();
 	typename T::iterator it = container.begin();
 	while ( it != container.end() ) {
 		try {
-			if ( Core::Time::GMT() - (*it)->creationInfo().creationTime() > _cleanUpInterval ) {
+			if ( now - (*it)->creationInfo().creationTime() > _cleanUpInterval ) {
 				SEISCOMP_DEBUG("GenericList: One element %s with id: %s removed",
-						(*it)->className(), (*it)->publicID().c_str());
+				               (*it)->className(), (*it)->publicID().c_str());
 				it = container.erase(it);
 			}
 			else {
@@ -570,7 +561,7 @@ void ImEx::cleanUpSpecial(T& container)
 		}
 		catch ( Core::ValueException& e ) {
 			SEISCOMP_ERROR("Creation time of object of type %s with id: %s not set. Removing object.",
-					(*it)->className(), (*it)->publicID().c_str());
+			               (*it)->className(), (*it)->publicID().c_str());
 			it = container.erase(it);
 		}
 	}

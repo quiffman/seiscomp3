@@ -84,7 +84,7 @@ void notifierMessageInfo(DataModel::NotifierMessage* notifierMessage) {
 
 	notifierIt = notifierMessage->begin();
 	*/
-	for ( ; notifierIt != notifierMessage->end(); notifierIt++ ) {
+	for ( ; notifierIt != notifierMessage->end(); ++notifierIt ) {
 		Core::BaseObject* object = (*notifierIt)->object();
 		if ( !object ) continue;
 
@@ -421,30 +421,30 @@ void ImExImpl::cleanUp()
 	SEISCOMP_DEBUG("Cleaning up in implementation for %s", _sinkName.c_str());
 	cleanUp(_eventList);
 
+	Core::Time now = Core::Time::GMT();
 	SentOriginList::iterator it = _sentOrigins.begin();
 	while ( it != _sentOrigins.end() ) {
-		if ( Core::Time::GMT() - (*it)->time().value() > _imex->cleanUpInterval() ) {
+		if ( now - (*it)->time().value() > _imex->cleanUpInterval() ) {
 			SEISCOMP_DEBUG("One %s with id: %s removed",
-					(*it)->className(), (*it)->publicID().c_str());
+			               (*it)->className(), (*it)->publicID().c_str());
 			// Remove sent arrivals and Amplitudes
 			for ( size_t i = 0; i < (*it)->arrivalCount(); ++i ) {
 				DataModel::Arrival* arrival = (*it)->arrival(i);
+
 				SentPicks::iterator pickIt = _sentPicks.begin();
-				for ( ; pickIt != _sentPicks.end(); ++pickIt ) {
-					if ( arrival->pickID() == (*pickIt)->publicID() ) {
-						_sentPicks.erase(pickIt);
-						break;
-					}
+				while ( pickIt != _sentPicks.end() ) {
+					if ( arrival->pickID() == (*pickIt)->publicID() )
+						pickIt = _sentPicks.erase(pickIt);
+					else
+						++pickIt;
 				}
 
 				SentAmplitudes::iterator saIt = _sentAmplitudes.begin();
 				while ( saIt != _sentAmplitudes.end() ) {
-					if ( arrival->pickID() == (*saIt)->pickID() ) {
+					if ( arrival->pickID() == (*saIt)->pickID() )
 						saIt = _sentAmplitudes.erase(saIt);
-					}
-					else {
+					else
 						++saIt;
-					}
 				}
 			}
 			it = _sentOrigins.erase(it);

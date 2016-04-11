@@ -9,6 +9,15 @@
 				CONFIG, LOGGING, SERVICE_REQUEST and SERVICE_PROVIDE are provided.
 				</description>
 			</parameter>
+			<parameter name="schemaVersionOverride" type="string">
+				<description>
+				Force the schema version to be reported to clients. This must be equal
+				or lower than the one the code supports otherwise scmaster will fail to
+				start. This is an expert setting and can be required if clients with
+				version equal or lower than 2013.245 connect to a master with a higher
+				schema version because of a bug on client side.
+				</description>
+			</parameter>
 			<group name="admin">
 				<parameter name="adminname" type="string">
 					<description>
