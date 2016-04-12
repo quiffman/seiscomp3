@@ -103,91 +103,6 @@ class _DataSelectRequestOptions(RequestOptions):
 		self.parseOutput()
 
 
-	#-----------------------------------------------------------------------
-	def networkIter(self, inv):
-		for i in xrange(inv.networkCount()):
-			net = inv.network(i)
-
-			# network code
-			if self.channel and not self.channel.matchNet(net.code()):
-				continue
-
-			# start and end time
-			if self.time:
-				try: end = net.end()
-				except ValueException: end = None
-				if not self.time.match(net.start(), end):
-					continue
-
-			yield net
-
-
-	#---------------------------------------------------------------------------
-	def stationIter(self, net):
-		for i in xrange(net.stationCount()):
-			sta = net.station(i)
-
-			# station code
-			if self.channel and not self.channel.matchSta(sta.code()):
-				continue
-
-			# start and end time
-			if self.time:
-				try: end = sta.end()
-				except ValueException: end = None
-				if not self.time.match(sta.start(), end):
-					continue
-
-			# geographic location
-			if self.geo:
-				try:
-					lat = sta.latitude()
-					lon = sta.longitude()
-				except ValueException: continue
-				if not self.geo.match(lat, lon):
-					continue
-
-			yield sta
-
-
-	#---------------------------------------------------------------------------
-	def locationIter(self, sta):
-		for i in xrange(sta.sensorLocationCount()):
-			loc = sta.sensorLocation(i)
-
-			# location code
-			if self.channel and not self.channel.matchLoc(loc.code()):
-				continue
-
-			# start and end time
-			if self.time:
-				try: end = loc.end()
-				except ValueException: end = None
-				if not self.time.match(loc.start(), end):
-					continue
-
-			yield loc
-
-
-	#---------------------------------------------------------------------------
-	def streamIter(self, loc):
-		for i in xrange(loc.streamCount()):
-			stream = loc.stream(i)
-
-			# stream code
-			if self.channel and not self.channel.matchCha(stream.code()):
-				continue
-
-			# start and end time
-			if self.time:
-				try: end = stream.end()
-				except ValueException: end = None
-				if not self.time.match(stream.start(), end):
-					continue
-
-			yield stream
-
-
 ################################################################################
 class _WaveformProducer:
 	def __init__(self, req, ro, rs, fileName):
@@ -290,6 +205,91 @@ class FDSNDataSelect(resource.Resource):
 		return self._processRequest(req, ro)
 
 
+	#-----------------------------------------------------------------------
+	def _networkIter(self, inv, ro):
+		for i in xrange(inv.networkCount()):
+			net = inv.network(i)
+
+			# network code
+			if ro.channel and not ro.channel.matchNet(net.code()):
+				continue
+
+			# start and end time
+			if ro.time:
+				try: end = net.end()
+				except ValueException: end = None
+				if not ro.time.match(net.start(), end):
+					continue
+
+			yield net
+
+
+	#---------------------------------------------------------------------------
+	def _stationIter(self, net, ro):
+		for i in xrange(net.stationCount()):
+			sta = net.station(i)
+
+			# station code
+			if ro.channel and not ro.channel.matchSta(sta.code()):
+				continue
+
+			# start and end time
+			if ro.time:
+				try: end = sta.end()
+				except ValueException: end = None
+				if not ro.time.match(sta.start(), end):
+					continue
+
+			# geographic location
+			if ro.geo:
+				try:
+					lat = sta.latitude()
+					lon = sta.longitude()
+				except ValueException: continue
+				if not ro.geo.match(lat, lon):
+					continue
+
+			yield sta
+
+
+	#---------------------------------------------------------------------------
+	def _locationIter(self, sta, ro):
+		for i in xrange(sta.sensorLocationCount()):
+			loc = sta.sensorLocation(i)
+
+			# location code
+			if ro.channel and not ro.channel.matchLoc(loc.code()):
+				continue
+
+			# start and end time
+			if ro.time:
+				try: end = loc.end()
+				except ValueException: end = None
+				if not ro.time.match(loc.start(), end):
+					continue
+
+			yield loc
+
+
+	#---------------------------------------------------------------------------
+	def _streamIter(self, loc, ro):
+		for i in xrange(loc.streamCount()):
+			stream = loc.stream(i)
+
+			# stream code
+			if ro.channel and not ro.channel.matchCha(stream.code()):
+				continue
+
+			# start and end time
+			if ro.time:
+				try: end = stream.end()
+				except ValueException: end = None
+				if not ro.time.match(stream.start(), end):
+					continue
+
+			yield stream
+
+
 	#---------------------------------------------------------------------------
 	def _processRequest(self, req, ro):
 
@@ -323,14 +323,14 @@ class FDSNDataSelect(resource.Resource):
 		# iterate over inventory networks
 		inv = Application.Instance()._inv
 		for s in ro.streams:
-			for net in s.networkIter(inv):
+			for net in self._networkIter(inv, s):
 				if ro.userName is None and utils.isRestricted(net):
 					continue
-				for sta in s.stationIter(net):
+				for sta in self._stationIter(net, s):
 					if ro.userName is None and utils.isRestricted(sta):
 						continue
-					for loc in s.locationIter(sta):
-						for cha in s.streamIter(loc):
+					for loc in self._locationIter(sta, s):
+						for cha in self._streamIter(loc, s):
 							# enforce maximum sample per request restriction
 							if maxSamples is not None:
 								try:

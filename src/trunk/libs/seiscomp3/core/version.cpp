@@ -31,7 +31,7 @@ FrameworkVersion CurrentVersion;
 
 
 FrameworkVersion::FrameworkVersion() {
-	_text = "Seattle 2014.016";
+	_text = "Seattle 2014.023";
 }
 
 

@@ -500,6 +500,8 @@ class EventDump : public Seiscomp::Client::Application {
 						continue;
 					}
 
+					query()->load(pick.get());
+
 					if ( !pick->eventParameters() )
 						ep->add(pick.get());
 				}
@@ -656,6 +658,8 @@ class EventDump : public Seiscomp::Client::Application {
 							SEISCOMP_WARNING("Pick with id '%s' not found", origin->arrival(a)->pickID().c_str());
 							continue;
 						}
+
+						query()->load(pick.get());
 
 						if ( !pick->eventParameters() )
 							ep->add(pick.get());

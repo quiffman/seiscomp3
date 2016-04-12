@@ -183,8 +183,9 @@ void SDSArchive::setFilenames() {
 			if ( first ) {
 				if ( getStartTime(file) > stime ) {
 					Time tmptime = stime - TimeSpan(86400,0);
-					tmptime.get2(&tmpyear, &tmpdoy);
-					_fnames.push(SDSfilename(tmpdoy+1, tmpyear));
+					int tmpdoy2;
+					tmptime.get2(&tmpyear, &tmpdoy2);
+					_fnames.push(SDSfilename(tmpdoy2+1, tmpyear));
 				}
 			}
 
