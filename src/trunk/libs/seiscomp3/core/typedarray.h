@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <string>
+#include <complex>
 #include <seiscomp3/core/datetime.h>
 #include <seiscomp3/core/array.h>
 #include <seiscomp3/core/arrayfactory.h>
@@ -109,13 +110,19 @@ class TypedArray : public Array {
 		//! Concatenates the given array to this array.
 		void append(int size, const T* data);
 
-		//! Concatenates this array to the fiven array and store the result
+		//! Appends value n-times to this array.
+		void append(int n, T value);
+
+		//! Concatenates this array to the given array and store the result
 		//! in this array.
 		void prepend(const Array *array);
 
-		//! Concatenates this array to the fiven array and store the result
+		//! Concatenates this array to the given array and store the result
 		//! in this array.
 		void prepend(int size, const T* data);
+
+		//! Prepends value n-times to this array.
+		void prepend(int n, T value);
 
 		//! Returns the slice m...n-1 of the array
 		TypedArray<T>* slice(int m, int n) const;
@@ -189,6 +196,11 @@ class NumericArray : public TypedArray<T> {
 
 		//! Returns the slice m...n-1 of the array
 		NumericArray<T>* slice(int m, int n) const;
+
+		NumericArray<T> &operator+=(T v);
+		NumericArray<T> &operator-=(T v);
+		NumericArray<T> &operator*=(T v);
+		NumericArray<T> &operator/=(T v);
 };
 
 
@@ -216,6 +228,15 @@ TYPEDEF_CONST_SMARTPOINTER(DateTimeArray);
 typedef TypedArray<std::string> StringArray;
 TYPEDEF_SMARTPOINTER(StringArray);
 TYPEDEF_CONST_SMARTPOINTER(StringArray);
+
+typedef TypedArray< std::complex<float> > ComplexFloatArray;
+TYPEDEF_SMARTPOINTER(ComplexFloatArray);
+TYPEDEF_CONST_SMARTPOINTER(ComplexFloatArray);
+
+typedef TypedArray< std::complex<double> > ComplexDoubleArray;
+TYPEDEF_SMARTPOINTER(ComplexDoubleArray);
+TYPEDEF_CONST_SMARTPOINTER(ComplexDoubleArray);
+
 
 }
 

@@ -44,15 +44,15 @@ class MySQLDB(QueryInterface):
   def __init__(self, database):
     QueryInterface.__init__(self, database)
   def getTables(self):
-    tables = []
+    tmp_tables = []
     if self._database.beginQuery("show tables") == False:
-         return False
+         return tmp_tables
 
     while self._database.fetchRow():
-      tables.append(self._database.getRowFieldString(0))
+      tmp_tables.append(self._database.getRowFieldString(0))
 
     self._database.endQuery()
-    return tables
+    return tmp_tables
 
   def deleteObjectQuery(self, *v):
     if v[0]:
@@ -128,15 +128,15 @@ class PostgresDB(QueryInterface):
   def __init__(self, database):
     QueryInterface.__init__(self, database)
   def getTables(self):
-    tables = []
-    if self._database.beginQuery("SELECT table_schema || '.' || table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');") == False:
-      return False
+    tmp_tables = []
+    if self._database.beginQuery("SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');") == False:
+      return tmp_tables
 
     while self._database.fetchRow():
-      tables.append(self._database.getRowFieldString(0))
+      tmp_tables.append(self._database.getRowFieldString(0))
 
     self._database.endQuery()
-    return tables
+    return tmp_tables
 
   def deleteObjectQuery(self, *v):
     if v[0]:
@@ -214,13 +214,15 @@ class DBCleaner(seiscomp3.Client.Application):
     self.setMessagingEnabled(False)
     self.setDatabaseEnabled(True, True)
 
-    self._daysToKeep = 30;
-    self._hoursToKeep = 0;
-    self._minutesToKeep = 0;
+    self._daysToKeep = 30
+    self._hoursToKeep = 0
+    self._minutesToKeep = 0
     self._datetime = None
+    self._invertMode = False
 
     self._steps = 0
     self._currentStep = 0
+    self._keepEvents = []
 
     self._timer = seiscomp3.Utils.StopWatch()
 
@@ -232,6 +234,8 @@ class DBCleaner(seiscomp3.Client.Application):
         self.commandline().addIntOption("Settings", "hours", "Specify the number of hours to keep")
         self.commandline().addIntOption("Settings", "minutes", "Specify the number of minutes to keep")
         self.commandline().addStringOption("Settings", "datetime", "Specify the datetime (UTC) from which to keep all events in format [%Y-%m-%d %H:%M:%S]")
+        self.commandline().addOption("Settings", "invert,i", "Delete all events after the specified time period")
+        self.commandline().addStringOption("Settings", "keep-events", "Event-IDs to keep in the database")
 
         self.commandline().addGroup("Mode")
         self.commandline().addOption("Mode", "check", "Checks if unreachable objects exists")
@@ -273,6 +277,12 @@ class DBCleaner(seiscomp3.Client.Application):
       try: self._hoursToKeep = self.commandline().optionInt("hours")
       except: pass
       try: self._minutesToKeep = self.commandline().optionInt("minutes")
+      except: pass
+      try: self._invertMode = self.commandline().hasOption("invert")
+      except: pass
+      try:
+        eventIDs = self.commandline().optionString("keep-events")
+        self._keepEvents = [id.strip() for id in eventIDs.split(',')]
       except: pass
 
       try:
@@ -336,8 +346,11 @@ class DBCleaner(seiscomp3.Client.Application):
          return False
 
       if "Object" in tables: tables.remove("Object")
+      if "object" in tables: tables.remove("object")
       if "PublicObject" in tables: tables.remove("PublicObject")
+      if "publicobject" in tables: tables.remove("publicobject")
       if "Meta" in tables: tables.remove("Meta")
+      if "meta" in tables: tables.remove("meta")
 
       self._steps = len(tables) + 1
 
@@ -390,7 +403,16 @@ class DBCleaner(seiscomp3.Client.Application):
       else:
         timestamp = self._datetime
 
-      output.write("[INFO] Keep objects after %s\n" % timestamp.toString("%Y-%m-%d %H:%M:%S"))
+      if not self._invertMode:
+        output.write("[INFO] Keep objects after %s\n" % timestamp.toString("%Y-%m-%d %H:%M:%S"))
+      else:
+        output.write("[INFO] Keep objects before %s\n" % timestamp.toString("%Y-%m-%d %H:%M:%S"))
+
+      if len(self._keepEvents) > 0:
+        output.write("[INFO] Keep events in db: %s\n" % ",".join(self._keepEvents))
+
+      op = '<';
+      if self._invertMode: op = '>='
 
       old_events = "\
       create temporary table old_events as \
@@ -399,8 +421,11 @@ class DBCleaner(seiscomp3.Client.Application):
         where Event._oid=PEvent._oid and \
               Origin._oid=POrigin._oid and \
               Event.%s=POrigin.%s and \
-              Origin.%s < '%s'\
-      " % (self.cnvCol("publicID"), self.cnvCol("preferredOriginID"), self.cnvCol("publicID"), self.cnvCol("time_value"), timestamp.toString("%Y-%m-%d %H:%M:%S"))
+              Origin.%s %s '%s'\
+      " % (self.cnvCol("publicID"), self.cnvCol("preferredOriginID"), self.cnvCol("publicID"), self.cnvCol("time_value"), op, timestamp.toString("%Y-%m-%d %H:%M:%S"))
+
+      if len(self._keepEvents) > 0:
+        old_events += " and PEvent." + self.cnvCol("publicID") + " not in ('%s')" % "','".join(self._keepEvents)
 
       self._steps = 32
 
@@ -427,14 +452,61 @@ class DBCleaner(seiscomp3.Client.Application):
       if self.runCommand("drop table old_events") == False: return False
       self.endMessage()
 
+      tmp_fm = "\
+      create temporary table tmp_fm as \
+        select FocalMechanism._oid, PFM.%s, 0 as used \
+        from PublicObject as PFM, FocalMechanism \
+        where PFM._oid=FocalMechanism._oid\
+      " % (self.cnvCol("publicID"))
+
+      self.beginMessage("Find unassociated focal mechanisms")
+
+      if self.runCommand(tmp_fm) == False: return False
+
+      tmp_fm = "\
+      update tmp_fm set used=1 \
+      where " + self.database().convertColumnName("publicID") + " in (select distinct " + self.database().convertColumnName("focalMechanismID") + " from FocalMechanismReference) \
+      "
+
+      if self.runCommand(tmp_fm) == False: return False
+
+      self.endMessage(self.unusedCount("tmp_fm"))
+
+      # Delete Comments of unassociated focal mechanisms
+      self.delete("Delete comments of unassociation focal mechanisms", self.deleteUnusedChilds, "Comment", "tmp_fm")
+
+      # Delete MomentTensor.Comments of unassociated focal mechanisms
+      self.delete("Delete moment tensor comments of unassociated focal mechanisms", self.deleteUnusedChilds, "Comment", "MomentTensor", "tmp_fm")
+
+      # Delete MomentTensor.DataUsed of unassociated focal mechanisms
+      self.delete("Delete moment tensor data of unassociated focal mechanisms", self.deleteUnusedChilds, "DataUsed", "MomentTensor", "tmp_fm")
+
+      # Delete MomentTensor.PhaseSetting of unassociated focal mechanisms
+      self.delete("Delete moment tensor phase settings of unassociated focal mechanisms", self.deleteUnusedChilds, "MomentTensorPhaseSetting", "MomentTensor", "tmp_fm")
+
+      # Delete MomentTensor.StationContribution.ComponentContribution of unassociated focal mechanisms
+      self.delete("Delete moment tensor component contributions of unassociated focal mechanisms", self.deleteUnusedChilds, "MomentTensorComponentContribution", "MomentTensorStationContribution", "MomentTensor", "tmp_fm")
+
+      # Delete MomentTensor.StationContributions of unassociated focal mechanisms
+      self.delete("Delete moment tensor station contributions of unassociated focal mechanisms", self.deleteUnusedPublicChilds, "MomentTensorStationContribution", "MomentTensor", "tmp_fm")
+
+      # Delete MomentTensors of unassociated focal mechanisms
+      self.delete("Delete moment tensors of unassociated focal mechanisms", self.deleteUnusedPublicChilds, "MomentTensor", "tmp_fm")
+
+      # Delete FocalMechanism itself
+      self.delete("Delete unassociated focal mechanisms", self.deleteUnusedObjects, "FocalMechanism", "tmp_fm")
+
+      self.beginMessage("Cleaning up temporary results")
+      if self.runCommand("drop table tmp_fm") == False: return False
+      self.endMessage()
 
       tmp_origin = "\
       create temporary table tmp_origin as \
         select Origin._oid, %s, 0 as used \
         from PublicObject, Origin \
         where PublicObject._oid=Origin._oid and \
-              Origin.%s < '%s'\
-      " % (self.cnvCol("publicID"), self.cnvCol("time_value"), timestamp.toString("%Y-%m-%d %H:%M:%S"))
+              Origin.%s %s '%s'\
+      " % (self.cnvCol("publicID"), self.cnvCol("time_value"), op, timestamp.toString("%Y-%m-%d %H:%M:%S"))
 
       self.beginMessage("Find unassociated origins")
 
@@ -442,8 +514,8 @@ class DBCleaner(seiscomp3.Client.Application):
 
       tmp_origin = "\
       update tmp_origin set used=1 \
-      where " + self.database().convertColumnName("publicID") + " in (select distinct " + self.database().convertColumnName("originID") + " from OriginReference) \
-      "
+      where (" + self.database().convertColumnName("publicID") + " in (select distinct " + self.database().convertColumnName("originID") + " from OriginReference)) \
+      or (" + self.database().convertColumnName("publicID") + " in (select " + self.database().convertColumnName("derivedOriginID") + " from MomentTensor))"
 
       if self.runCommand(tmp_origin) == False: return False
 
@@ -475,55 +547,6 @@ class DBCleaner(seiscomp3.Client.Application):
       if self.runCommand("drop table tmp_origin") == False: return False
       self.endMessage()
 
-      tmp_fm = "\
-      create temporary table tmp_fm as \
-        select FocalMechanism._oid, PFM.%s, 0 as used \
-        from PublicObject as PFM, FocalMechanism \
-        where PFM._oid=FocalMechanism._oid\
-      " % (self.cnvCol("publicID"))
-
-      self.beginMessage("Find unassociated focal mechanisms")
-
-      if self.runCommand(tmp_fm) == False: return False
-
-      tmp_fm = "\
-      update tmp_fm set used=1 \
-      where " + self.database().convertColumnName("publicID") + " in (select distinct " + self.database().convertColumnName("focalMechanismID") + " from FocalMechanismReference) \
-      "
-
-      if self.runCommand(tmp_fm) == False: return False
-
-      self.endMessage(self.unusedCount("tmp_fm"))
-
-
-      # Delete Comments of unassociated focal mechanisms
-      self.delete("Delete comments of unassociation focal mechanisms", self.deleteUnusedChilds, "Comment", "tmp_fm")
-
-      # Delete MomentTensor.Comments of unassociated focal mechanisms
-      self.delete("Delete moment tensor comments of unassociated focal mechanisms", self.deleteUnusedChilds, "Comment", "MomentTensor", "tmp_fm")
-
-      # Delete MomentTensor.DataUsed of unassociated focal mechanisms
-      self.delete("Delete moment tensor data of unassociated focal mechanisms", self.deleteUnusedChilds, "DataUsed", "MomentTensor", "tmp_fm")
-
-      # Delete MomentTensor.PhaseSetting of unassociated focal mechanisms
-      self.delete("Delete moment tensor phase settings of unassociated focal mechanisms", self.deleteUnusedChilds, "MomentTensorPhaseSetting", "MomentTensor", "tmp_fm")
-
-      # Delete MomentTensor.StationContribution.ComponentContribution of unassociated focal mechanisms
-      self.delete("Delete moment tensor component contributions of unassociated focal mechanisms", self.deleteUnusedChilds, "MomentTensorComponentContribution", "MomentTensorStationContribution", "MomentTensor", "tmp_fm")
-
-      # Delete MomentTensor.StationContributions of unassociated focal mechanisms
-      self.delete("Delete moment tensor station contributions of unassociated focal mechanisms", self.deleteUnusedPublicChilds, "MomentTensorStationContribution", "MomentTensor", "tmp_fm")
-
-      # Delete MomentTensors of unassociated focal mechanisms
-      self.delete("Delete moment tensors of unassociated focal mechanisms", self.deleteUnusedPublicChilds, "MomentTensor", "tmp_fm")
-
-      # Delete FocalMechanism itself
-      self.delete("Delete unassociated focal mechanisms", self.deleteUnusedObjects, "FocalMechanism", "tmp_fm")
-
-      self.beginMessage("Cleaning up temporary results")
-      if self.runCommand("drop table tmp_fm") == False: return False
-      self.endMessage()
-
       # Delete all unassociated picks (via arrivals)
 
       self.beginMessage("Find unassociated picks")
@@ -533,8 +556,8 @@ class DBCleaner(seiscomp3.Client.Application):
         select Pick._oid, %s, 0 as used \
         from PublicObject, Pick \
         where PublicObject._oid=Pick._oid and \
-              Pick.%s < '%s' \
-      " % (self.cnvCol("publicID"), self.cnvCol("time_value"), timestamp.toString("%Y-%m-%d %H:%M:%S"))
+              Pick.%s %s '%s' \
+      " % (self.cnvCol("publicID"), self.cnvCol("time_value"), op, timestamp.toString("%Y-%m-%d %H:%M:%S"))
 
       if self.runCommand(tmp_pick) == False: return False
 
@@ -564,8 +587,8 @@ class DBCleaner(seiscomp3.Client.Application):
         select Amplitude._oid, " + self.cnvCol("publicID") + ", 0 as used \
         from PublicObject, Amplitude \
         where PublicObject._oid=Amplitude._oid and \
-              Amplitude." + self.cnvCol("timeWindow_reference") + " < '%s' \
-      " % timestamp.toString("%Y-%m-%d %H:%M:%S")
+              Amplitude." + self.cnvCol("timeWindow_reference") + " %s '%s' \
+      " % (op, timestamp.toString("%Y-%m-%d %H:%M:%S"))
 
       if self.runCommand(tmp_amp) == False: return False
 
@@ -587,8 +610,8 @@ class DBCleaner(seiscomp3.Client.Application):
 
       self.beginMessage("Delete waveform quality parameters")
       if self.runCommand(self._query.deleteObjectQuery("Object", "WaveformQuality") + \
-                         "WaveformQuality.%s < '%s'" % (self.cnvCol("end"), timestamp.toString("%Y-%m-%d %H:%M:%S"))) == False: return False
-      if self.runCommand("delete from WaveformQuality where WaveformQuality.%s < '%s'" % (self.cnvCol("end"), timestamp.toString("%Y-%m-%d %H:%M:%S"))) == False: return False
+                         "WaveformQuality.%s %s '%s'" % (self.cnvCol("end"), op, timestamp.toString("%Y-%m-%d %H:%M:%S"))) == False: return False
+      if self.runCommand("delete from WaveformQuality where WaveformQuality.%s %s '%s'" % (self.cnvCol("end"), op, timestamp.toString("%Y-%m-%d %H:%M:%S"))) == False: return False
       self.endMessage()
 
       return True

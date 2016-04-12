@@ -10,6 +10,11 @@
 					Defines a list of available LOCSAT tab directories.
 					</description>
 				</parameter>
+				<parameter name="enableConfidenceEllipsoid" type="boolen" default="false">
+					<description>
+					Compute the confidence ellipsoid.
+					</description>
+				</parameter>
 			</group>
 		</configuration>
 	</plugin>

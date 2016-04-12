@@ -287,11 +287,13 @@ bool Autoloc3::_store(const Pick *pick)
 	if ( ! pick->station())
 		return false;
 
-	if ( ! pick->station()->used)
+	if ( automatic(pick) && ! pick->station()->used)
 		// This means that this pick is completely ignored!
 		// Nevertheless, we might want to loosely associate it to an
 		// origin, i.e. associate it without using it for location
 		return false;
+		// A manual pick, however, is processed, because we assume
+		// that the analyst knows best!
 
 	// pick too old? -> ignored completely
 	if (pick->time < now() - _config.maxAge) {
@@ -1211,10 +1213,10 @@ bool Autoloc3::_process(const Pick *pick)
 		return false;
 
 	// A pick is tagged as XXL pick if it exceeds BOTH the configured XXL
-	// minimum amplitude 
-	// and XXL minumum SNR threshold.
-	if ( pick->amp >= _config.xxlMinAmplitude && pick->snr > _config.xxlMinSNR )
+	// minimum amplitude and XXL minimum SNR threshold.
+	if ( _config.xxlEnabled && pick->amp >= _config.xxlMinAmplitude && pick->snr > _config.xxlMinSNR ) {
 		((Pick*)pick)->xxl = true;
+	}
 
 	// This has turned out to be too fuzzy a criterion:
 	// If it has a bigger SNR, the threshold is lowered accordingly, because 

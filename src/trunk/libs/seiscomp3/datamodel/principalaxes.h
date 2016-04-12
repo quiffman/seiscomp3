@@ -32,6 +32,11 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(PrincipalAxes);
 
 
+/**
+ * \brief This class describes the principal axes of a double-couple
+ * \brief moment tensor solution. tAxis and pAxis are required,
+ * \brief while nAxis is optional.
+ */
 class SC_SYSTEM_CORE_API PrincipalAxes : public Core::BaseObject {
 	DECLARE_SC_CLASS(PrincipalAxes);
 	DECLARE_SERIALIZATION;
@@ -70,14 +75,17 @@ class SC_SYSTEM_CORE_API PrincipalAxes : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! T (tension) axis of a double-couple moment tensor solution.
 		void setTAxis(const Axis& tAxis);
 		Axis& tAxis();
 		const Axis& tAxis() const;
 
+		//! P (pressure) axis of a double-couple moment tensor solution.
 		void setPAxis(const Axis& pAxis);
 		Axis& pAxis();
 		const Axis& pAxis() const;
 
+		//! N (neutral) axis of a double-couple moment tensor solution.
 		void setNAxis(const OPT(Axis)& nAxis);
 		Axis& nAxis() throw(Seiscomp::Core::ValueException);
 		const Axis& nAxis() const throw(Seiscomp::Core::ValueException);

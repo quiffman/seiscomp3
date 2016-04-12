@@ -38,6 +38,11 @@ DEFINE_SMARTPOINTER(FocalMechanism);
 DEFINE_SMARTPOINTER(Event);
 
 
+/**
+ * \brief This type can hold objects of type Event, Origin,
+ * \brief Magnitude, StationMagnitude,
+ * \brief FocalMechanism, Reading, Amplitude, and Pick.
+ */
 class SC_SYSTEM_CORE_API EventParameters : public PublicObject {
 	DECLARE_SC_CLASS(EventParameters);
 	DECLARE_SERIALIZATION;

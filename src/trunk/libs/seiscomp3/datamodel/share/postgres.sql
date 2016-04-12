@@ -784,6 +784,8 @@ CREATE TABLE Pick (
 	  ON DELETE CASCADE
 );
 
+CREATE INDEX Pick_m_time_value ON Pick(m_time_value);
+CREATE INDEX Pick_m_time_value_ms ON Pick(m_time_value_ms);
 
 CREATE TRIGGER Pick_update BEFORE UPDATE ON Pick FOR EACH ROW EXECUTE PROCEDURE update_modified();
 
@@ -987,6 +989,8 @@ CREATE TABLE Origin (
 	  ON DELETE CASCADE
 );
 
+CREATE INDEX Origin_m_time_value ON Origin(m_time_value);
+CREATE INDEX Origin_m_time_value_ms ON Origin(m_time_value_ms);
 
 CREATE TRIGGER Origin_update BEFORE UPDATE ON Origin FOR EACH ROW EXECUTE PROCEDURE update_modified();
 
@@ -1027,6 +1031,7 @@ CREATE TABLE ParameterSet (
 	  ON DELETE CASCADE
 );
 
+CREATE INDEX ParameterSet_m_baseID ON ParameterSet(m_baseID);
 
 CREATE TRIGGER ParameterSet_update BEFORE UPDATE ON ParameterSet FOR EACH ROW EXECUTE PROCEDURE update_modified();
 
@@ -1048,6 +1053,7 @@ CREATE TABLE Setup (
 	UNIQUE(_parent_oid,m_name)
 );
 
+CREATE INDEX Setup_m_parameterSetID ON Setup(m_parameterSetID);
 
 CREATE TRIGGER Setup_update BEFORE UPDATE ON Setup FOR EACH ROW EXECUTE PROCEDURE update_modified();
 
@@ -1089,6 +1095,7 @@ CREATE TABLE ConfigModule (
 	  ON DELETE CASCADE
 );
 
+CREATE INDEX ConfigModule_m_parameterSetID ON ConfigModule(m_parameterSetID);
 
 CREATE TRIGGER ConfigModule_update BEFORE UPDATE ON ConfigModule FOR EACH ROW EXECUTE PROCEDURE update_modified();
 

@@ -48,6 +48,14 @@ DEFINE_SMARTPOINTER(Magnitude);
 class EventParameters;
 
 
+/**
+ * \brief This class represents the focal time and geographical
+ * \brief location of an
+ * \brief earthquake hypocenter, as well as additional
+ * \brief meta-information. Origin
+ * \brief can have objects of type OriginUncertainty and Arrival as
+ * \brief child elements.
+ */
 class SC_SYSTEM_CORE_API Origin : public PublicObject {
 	DECLARE_SC_CLASS(Origin);
 	DECLARE_SERIALIZATION;
@@ -106,57 +114,92 @@ class SC_SYSTEM_CORE_API Origin : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Focal time as TimeQuantity.
 		void setTime(const TimeQuantity& time);
 		TimeQuantity& time();
 		const TimeQuantity& time() const;
 
+		//! Hypocenter longitude, with respect to the World Geodetic
+		//! System 1984 (WGS84) reference system
+		//! (National Imagery and Mapping Agency 2000) in degrees.
 		void setLatitude(const RealQuantity& latitude);
 		RealQuantity& latitude();
 		const RealQuantity& latitude() const;
 
+		//! Hypocenter latitude, with respect to the WGS84 reference
+		//! system in degrees.
 		void setLongitude(const RealQuantity& longitude);
 		RealQuantity& longitude();
 		const RealQuantity& longitude() const;
 
+		//! Depth of hypocenter with respect to the nominal sea level
+		//! given by the
+		//! WGS84 geoid (Earth Gravitational Model, EGM96, Lemoine et
+		//! al. 1998).
+		//! Positive values indicate hypocenters below sea level. For
+		//! shallow
+		//! hypocenters, the depth value can be negative. The depth is
+		//! defined
+		//! in km.
 		void setDepth(const OPT(RealQuantity)& depth);
 		RealQuantity& depth() throw(Seiscomp::Core::ValueException);
 		const RealQuantity& depth() const throw(Seiscomp::Core::ValueException);
 
+		//! Type of depth determination.
 		void setDepthType(const OPT(OriginDepthType)& depthType);
 		OriginDepthType depthType() const throw(Seiscomp::Core::ValueException);
 
+		//! Boolean flag. True if focal time was kept fixed for
+		//! computation of the Origin.
 		void setTimeFixed(const OPT(bool)& timeFixed);
 		bool timeFixed() const throw(Seiscomp::Core::ValueException);
 
+		//! Boolean flag. True if epicenter was kept fixed for
+		//! computation of Origin.
 		void setEpicenterFixed(const OPT(bool)& epicenterFixed);
 		bool epicenterFixed() const throw(Seiscomp::Core::ValueException);
 
+		//! Identifies the reference system used for hypocenter
+		//! determination. This is only necessary if
+		//! a modified version of the standard (with local extensions)
+		//! is used that provides a non-standard coordinate
+		//! system.
 		void setReferenceSystemID(const std::string& referenceSystemID);
 		const std::string& referenceSystemID() const;
 
+		//! Identifies the method used for locating the event.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Identifies the earth model used in methodID.
 		void setEarthModelID(const std::string& earthModelID);
 		const std::string& earthModelID() const;
 
+		//! Additional parameters describing the quality of an Origin
+		//! determination.
 		void setQuality(const OPT(OriginQuality)& quality);
 		OriginQuality& quality() throw(Seiscomp::Core::ValueException);
 		const OriginQuality& quality() const throw(Seiscomp::Core::ValueException);
 
+		//! Additional parameters describing the uncertainty of an
+		//! Origin determination.
 		void setUncertainty(const OPT(OriginUncertainty)& uncertainty);
 		OriginUncertainty& uncertainty() throw(Seiscomp::Core::ValueException);
 		const OriginUncertainty& uncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Describes the Origin type.
 		void setType(const OPT(OriginType)& type);
 		OriginType type() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation mode of Origin.
 		void setEvaluationMode(const OPT(EvaluationMode)& evaluationMode);
 		EvaluationMode evaluationMode() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation status of Origin.
 		void setEvaluationStatus(const OPT(EvaluationStatus)& evaluationStatus);
 		EvaluationStatus evaluationStatus() const throw(Seiscomp::Core::ValueException);
 
+		//! CreationInfo for the Origin object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

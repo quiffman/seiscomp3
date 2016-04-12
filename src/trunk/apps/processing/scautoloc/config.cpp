@@ -31,7 +31,7 @@ StationConfig::StationConfig()
 
 bool StationConfig::read(const std::string &fname)
 {
-	char line[100];
+	string line;
 	string defaultkey = "* *";
 	_entry[defaultkey] = Entry();
 
@@ -42,9 +42,13 @@ bool StationConfig::read(const std::string &fname)
 	}
 
 	Entry entry;
-	while( ! ifile.getline(line, 100).eof() ) {
+	while( ! ifile.eof()) {
+		getline(ifile, line);
+		line.erase(0,line.find_first_not_of(" \n\r\t"));
+		if (line[0] == '#')
+			continue;
 		char net[10],sta[10];
-		int n = sscanf(line, "%8s %8s %d %f", net, sta, &entry.usage, &entry.maxNucDist);
+		int n = sscanf(line.c_str(), "%8s %8s %d %f", net, sta, &entry.usage, &entry.maxNucDist);
 		if (n!=4) break;
 		string key = string(net)+string(" ")+string(sta);
 		_entry[key] = entry;
@@ -131,6 +135,7 @@ Autoloc3::Config::Config()
 	publicationIntervalTimeIntercept = 0;
 	publicationIntervalPickCount = 20;
 
+	xxlEnabled = false;
 	xxlMinAmplitude = 10000.;
 	xxlMinPhaseCount = 4;
 	xxlMaxStaDist = 15;
@@ -168,8 +173,11 @@ void Autoloc3::Config::dump() const
 //	SEISCOMP_INFO("useImportedOrigins               %s",     useImportedOrigins ? "true":"false");
 	SEISCOMP_INFO("locatorProfile                   %s",     locatorProfile.c_str());
 
-	if (xxlMinPhaseCount <= 0) return;
-	SEISCOMP_INFO("XXL feature is active");
+	if ( ! xxlEnabled) {
+		SEISCOMP_INFO("XXL feature is not enabled");
+		return;
+	}
+	SEISCOMP_INFO("XXL feature is enabled");
 	SEISCOMP_INFO("xxl.minPhaseCount                 %d",     xxlMinPhaseCount);
 	SEISCOMP_INFO("xxl.minAmplitude                  %g",     xxlMinAmplitude);
 	SEISCOMP_INFO("xxl.maxStationDistance           %.1f deg", xxlMaxStaDist);

@@ -92,7 +92,7 @@ bool transformFFT(int n, T *inout, double fsamp,
 	int taperLength;
 
 	if ( cutoff > 0 ) {
-		taperLength = cutoff * fsamp;
+		taperLength = (int)(cutoff * fsamp);
 		if ( taperLength > n ) taperLength = n;
 
 		iTaperStart = 0;
@@ -119,7 +119,7 @@ bool transformFFT(int n, T *inout, double fsamp,
 	double df = nyquist_freq / fftn2;
 
 	if ( min_freq > 0 ) {
-		iTaperEnd = min_freq / df;
+		iTaperEnd = (int)(min_freq / df);
 		if ( iTaperEnd > fftn2 ) iTaperEnd = fftn2;
 
 		iTaperStart = iTaperEnd / 2;
@@ -131,8 +131,8 @@ bool transformFFT(int n, T *inout, double fsamp,
 
 	// End spectra taper
 	if ( max_freq > 0 ) {
-		eTaperStart = max_freq / df;
-		eTaperEnd = (max_freq * 2) / df;
+		eTaperStart = (int)(max_freq / df);
+		eTaperEnd = (int)((max_freq * 2) / df);
 
 		if ( eTaperStart > fftn2 ) eTaperStart = fftn2;
 		if ( eTaperEnd > fftn2 ) eTaperEnd = fftn2;
@@ -153,15 +153,15 @@ bool transformFFT(int n, T *inout, double fsamp,
 	// do the inverse FFT
 	ifft(n, inout, data_coeff);
 
-    return true;
+	return true;
 }
 
 
 // Explicit template instantiation for float and double types
 template SC_SYSTEM_CORE_API
 bool transformFFT<float>(int n, float *inout, double fsamp,
-                          const FFT::TransferFunction *tf,
-                          double cutoff, double min_freq, double max_freq);
+                         const FFT::TransferFunction *tf,
+                         double cutoff, double min_freq, double max_freq);
 
 template SC_SYSTEM_CORE_API
 bool transformFFT<double>(int n, double *inout, double fsamp,

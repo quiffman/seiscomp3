@@ -62,6 +62,11 @@ class SC_SYSTEM_CORE_API StationMagnitudeContributionIndex {
 };
 
 
+/**
+ * \brief This class describes the weighting of magnitude values from
+ * \brief several StationMagnitude objects for computing a
+ * \brief network magnitude estimation.
+ */
 class SC_SYSTEM_CORE_API StationMagnitudeContribution : public Object {
 	DECLARE_SC_CLASS(StationMagnitudeContribution);
 	DECLARE_SERIALIZATION;
@@ -106,12 +111,23 @@ class SC_SYSTEM_CORE_API StationMagnitudeContribution : public Object {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Refers to the publicID of a StationMagnitude object.
 		void setStationMagnitudeID(const std::string& stationMagnitudeID);
 		const std::string& stationMagnitudeID() const;
 
+		//! Residual of magnitude computation.
 		void setResidual(const OPT(double)& residual);
 		double residual() const throw(Seiscomp::Core::ValueException);
 
+		//! Weight of the magnitude value from class StationMagnitude
+		//! for computing
+		//! the magnitude value in class Magnitude. Note that there is
+		//! no rule
+		//! for the sum of the weights of all station magnitude
+		//! contributions
+		//! to a specific network magnitude. In particular, the weights
+		//! are not
+		//! required to sum up to unity.
 		void setWeight(const OPT(double)& weight);
 		double weight() const throw(Seiscomp::Core::ValueException);
 

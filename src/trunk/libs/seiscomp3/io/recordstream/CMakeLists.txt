@@ -8,6 +8,7 @@ SET(RECORDSTREAM_SOURCES
 	combined.cpp
 	streamidx.cpp
 	decimation.cpp
+	fdsnws.cpp
 	remez/remez.c
 )
 
@@ -21,6 +22,7 @@ SET(RECORDSTREAM_HEADERS
 	combined.h
 	streamidx.h
 	decimation.h
+	fdsnws.h
 )
 
 SC_SETUP_LIB_SUBDIR(RECORDSTREAM)

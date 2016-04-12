@@ -772,6 +772,9 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		bool initLogging();
 		bool initMessaging();
 
+		bool loadConfig(const std::string &configDB);
+		bool loadInventory(const std::string &inventoryDB);
+
 		void startMessageThread();
 		void runMessageThread();
 
@@ -872,8 +875,8 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		std::string _messagingEncoding;
 		unsigned int _messagingTimeout;
 
-		std::string _inventoryDBFilename;
-		std::string _configDBFilename;
+		std::string _inventoryDB;
+		std::string _configDB;
 
 		std::string _dbType;
 		std::string _dbParameters;

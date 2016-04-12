@@ -952,6 +952,7 @@ $(document).ready(function() {
 		volumes = dict()
 		userIPs = dict()
 		clientIPs = dict()
+		nets = dict()
 
 		startTime = str2date(session.args.get("startTime"))
 		endTime = str2date(session.args.get("endTime"))
@@ -960,6 +961,7 @@ $(document).ready(function() {
 
 		for request in requests:
 			user = request.userID()
+			netcounts = {}
 
 			if request.arclinkStatusLineCount() == 0:
 				self.query().loadArclinkStatusLines(request)
@@ -976,6 +978,8 @@ $(document).ready(function() {
 				messages.setdefault(message, 0)
 				messages[message] +=1
 
+			if self.export and request.type().upper() == 'WAVEFORM' and request.arclinkRequestLineCount() == 0:
+				self.query().loadArclinkRequestLines(request)
 			for i in xrange(request.arclinkRequestLineCount()):
 				line = request.arclinkRequestLine(i)
 	
@@ -985,14 +989,35 @@ $(document).ready(function() {
 				timeWindow = (line.end() - line.start()).seconds()
 				if timeWindow < 0: timeWindow = 0
 
-				if line.status().status() == 'OK': status = 0
-				else: status = 1
+				if line.status().status() == 'OK':
+					status = 0
+					error = 0
+					nodata = 0
+				elif line.status().status() == 'NODATA':
+					status = 1
+					error = 0
+					nodata = 1
+				else:
+					status = 1
+					error = 1
+					nodata = 0
 
-				(count, error, s, tw) = streams.setdefault(stream, (0, 0, 0, 0))
-				streams[stream] = (count+1, error+status, s+size, tw+timeWindow)
+				(lines, nodataCount, errorCount, s, tw) = streams.setdefault(stream, (0, 0, 0, 0, 0))
+				streams[stream] = (lines+1, nodataCount+nodata, errorCount+error, s+size, tw+timeWindow)
 
 				messages.setdefault(message, 0)
 				messages[message] +=1
+
+				netcode = line.streamID().networkCode()
+				if netcode[0] in 'XYZ':
+					netcode += '/' + line.start().toString('%Y')
+
+				(lines, nodataCount, errorCount, s) = netcounts.setdefault(netcode, (0, 0, 0, 0))
+				netcounts[netcode] = (lines+1, nodataCount+nodata, errorCount+error, s+size)
+
+			for netcode, (lineCount, nodataCount, errorCount, size) in netcounts.iteritems():
+				(count, lines, nodata, error, s) = nets.setdefault(netcode, (0, 0, 0, 0, 0))
+				nets[netcode] = (count +1, lines+lineCount, nodata+nodataCount, error+errorCount, s+size)
 			
 			lineCount = request.summary().totalLineCount()
 			errorCount = request.summary().totalLineCount() - request.summary().okLineCount()
@@ -1082,7 +1107,7 @@ $(document).ready(function() {
 		print >> out, ""
 		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
-		print >> out,  "<tr><th>User</th><th>Requests</th><th>Lines</th><th>Errors</th><th>Size</th></tr>"
+		print >> out,  "<tr><th>User</th><th>Requests</th><th>Lines</th><th>Nodata/Errors</th><th>Size</th></tr>"
 		print >> out,  "</thead><tbody>"
 		for k,(r,l,o,s) in sorted(users.items()):
 			args = dict(session.args)
@@ -1096,10 +1121,21 @@ $(document).ready(function() {
 			print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%10s</td></tr>' % (ul,rl,ll,lo, s, byte2h(s, self.bytes))
 		print >> out,  "</tbody></table>"
 
+		if len(nets) > 0:
+			print >> out, ""
+			print >> out,  '<table class="sortable" width="100%">'
+			print >> out,  "<thead>"
+			print >> out,  "<tr><th>Network</th><th>Requests</th><th>Lines</th><th>Nodata</th><th>Errors</th><th>Size</th></tr>"
+			print >> out,  "</thead><tbody>"
+			for k,(r,l,n,o,s) in sorted(nets.items()):
+				if s > 0:
+					print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%10s</td></tr>' % (k,r,l,n,o, s, byte2h(s, self.bytes))
+			print >> out,  "</tbody></table>"
+
 		print >> out , ""
 		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
-		print >> out,  "<tr><th>Request Type</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
+		print >> out,  "<tr><th>Request Type</th><th>Requests</th><th>Lines</th><th>Nodata/Errors</th></tr>"
 		print >> out,  "</thead><tbody>"
 		for k,(r,l,o) in rtypes.items():
 			args = dict(session.args)
@@ -1116,7 +1152,7 @@ $(document).ready(function() {
 		print >> out , ""
 		print >> out,  '<table class="sortable" width="100%">'
 		print >> out,  "<thead>"
-		print >> out,  "<tr><th>Volume</th><th>Count</th><th>Errors</th><th>Size</th></tr>"
+		print >> out,  "<tr><th>Volume</th><th>Count</th><th>Nodata/Errors</th><th>Size</th></tr>"
 		print >> out,  "</thead><tbody>"
 		for k,(c,e,s) in sorted(volumes.items()):
 			args = dict(session.args)
@@ -1131,17 +1167,18 @@ $(document).ready(function() {
 			print >> out , ""
 			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
-			print >> out,  "<tr><th>Station</th><th>Requests</th><th>Errors</th><th>Size</th><th>Time</th></tr>"
+			print >> out,  "<tr><th>Station</th><th>Requests</th><th>Nodata</th><th>Errors</th><th>Size</th><th>Time</th></tr>"
 			print >> out,  "</thead><tbody>"
-			for k,(r,o,s,tw) in sorted(streams.items()):
+			for k,(r,n,o,s,tw) in sorted(streams.items()):
 				args = dict(session.args)
 				args["streamID"] = k+".*.*"
 				sl = self.link("summary", "%-15s"%k, args)
 				args["lines"] = "yes"
 				rl = self.link("requests", "%-6d"%r, args)
 				args["onlyErrors"] = "yes"
+				nl = self.link("requests", "%-6d"%o, args)
 				ol = self.link("requests", "%-6d"%o, args)
-				print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%s</td><td sorttable_customkey="%d" >%s</td></tr>' % (sl,rl,ol, s,byte2h(s, self.bytes), tw,sec2h(tw, self.secs))
+				print >> out,  '<tr><td class="left">%s</td><td>%s</td><td>%s</td><td>%s</td><td sorttable_customkey="%d">%s</td><td sorttable_customkey="%d" >%s</td></tr>' % (sl,rl,nl,ol, s,byte2h(s, self.bytes), tw,sec2h(tw, self.secs))
 			print >> out,  "</tbody></table>"
 
 		if len(messages) > 1 or (len(messages) == 1 and messages.keys()[0] != ""):
@@ -1162,7 +1199,7 @@ $(document).ready(function() {
 			print >> out , ""
 			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
-			print >> out,  "<tr><th>UserIP</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
+			print >> out,  "<tr><th>UserIP</th><th>Requests</th><th>Lines</th><th>Nodata/Errors</th></tr>"
 			print >> out,  "</thead><tbody>"
 			for k,(r,l,o) in sorted(userIPs.items()):
 				args = dict(session.args)
@@ -1180,7 +1217,7 @@ $(document).ready(function() {
 			print >> out , ""
 			print >> out,  '<table class="sortable" width="100%">'
 			print >> out,  "<thead>"
-			print >> out,  "<tr><th>ClientIP</th><th>Requests</th><th>Lines</th><th>Errors</th></tr>"
+			print >> out,  "<tr><th>ClientIP</th><th>Requests</th><th>Lines</th><th>Nodata/Errors</th></tr>"
 			print >> out,  "</thead><tbody>"
 			for k,(r,l,o) in sorted(clientIPs.items()):
 				args = dict(session.args)

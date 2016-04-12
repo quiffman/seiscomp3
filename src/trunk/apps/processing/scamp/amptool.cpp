@@ -621,8 +621,10 @@ int AmpTool::addProcessor(Processing::AmplitudeProcessor *proc,
 			pick->waveformID().stationCode(),
 			pick->waveformID().locationCode(),
 			pick->waveformID().channelCode().substr(0,2),
-			&configuration(), params)) )
+			&configuration(), params)) ) {
+		_report << "   - " << proc->type().c_str() << " [setup failed]" << std::endl;
 		return -1;
+	}
 
 
 	proc->computeTimeWindow();

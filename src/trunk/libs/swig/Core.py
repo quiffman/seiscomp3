@@ -716,6 +716,8 @@ class Array(BaseObject):
     DOUBLE = _Core.Array_DOUBLE
     DATETIME = _Core.Array_DATETIME
     STRING = _Core.Array_STRING
+    COMPLEX_FLOAT = _Core.Array_COMPLEX_FLOAT
+    COMPLEX_DOUBLE = _Core.Array_COMPLEX_DOUBLE
     DT_QUANTITY = _Core.Array_DT_QUANTITY
     __swig_destroy__ = _Core.delete_Array
     __del__ = lambda self : None;
@@ -1531,6 +1533,10 @@ class CharArray(CharArrayT):
     def mean(self): return _Core.CharArray_mean(self)
     def rms(self, offset = 0): return _Core.CharArray_rms(self, offset)
     def slice(self, *args): return _Core.CharArray_slice(self, *args)
+    def __iadd__(self, *args): return _Core.CharArray___iadd__(self, *args)
+    def __isub__(self, *args): return _Core.CharArray___isub__(self, *args)
+    def __imul__(self, *args): return _Core.CharArray___imul__(self, *args)
+    def __idiv__(self, *args): return _Core.CharArray___idiv__(self, *args)
 CharArray_swigregister = _Core.CharArray_swigregister
 CharArray_swigregister(CharArray)
 
@@ -1582,6 +1588,10 @@ class IntArray(IntArrayT):
     def mean(self): return _Core.IntArray_mean(self)
     def rms(self, offset = 0): return _Core.IntArray_rms(self, offset)
     def slice(self, *args): return _Core.IntArray_slice(self, *args)
+    def __iadd__(self, *args): return _Core.IntArray___iadd__(self, *args)
+    def __isub__(self, *args): return _Core.IntArray___isub__(self, *args)
+    def __imul__(self, *args): return _Core.IntArray___imul__(self, *args)
+    def __idiv__(self, *args): return _Core.IntArray___idiv__(self, *args)
 IntArray_swigregister = _Core.IntArray_swigregister
 IntArray_swigregister(IntArray)
 
@@ -1633,6 +1643,10 @@ class FloatArray(FloatArrayT):
     def mean(self): return _Core.FloatArray_mean(self)
     def rms(self, offset = 0): return _Core.FloatArray_rms(self, offset)
     def slice(self, *args): return _Core.FloatArray_slice(self, *args)
+    def __iadd__(self, *args): return _Core.FloatArray___iadd__(self, *args)
+    def __isub__(self, *args): return _Core.FloatArray___isub__(self, *args)
+    def __imul__(self, *args): return _Core.FloatArray___imul__(self, *args)
+    def __idiv__(self, *args): return _Core.FloatArray___idiv__(self, *args)
 FloatArray_swigregister = _Core.FloatArray_swigregister
 FloatArray_swigregister(FloatArray)
 
@@ -1684,6 +1698,10 @@ class DoubleArray(DoubleArrayT):
     def mean(self): return _Core.DoubleArray_mean(self)
     def rms(self, offset = 0): return _Core.DoubleArray_rms(self, offset)
     def slice(self, *args): return _Core.DoubleArray_slice(self, *args)
+    def __iadd__(self, *args): return _Core.DoubleArray___iadd__(self, *args)
+    def __isub__(self, *args): return _Core.DoubleArray___isub__(self, *args)
+    def __imul__(self, *args): return _Core.DoubleArray___imul__(self, *args)
+    def __idiv__(self, *args): return _Core.DoubleArray___idiv__(self, *args)
 DoubleArray_swigregister = _Core.DoubleArray_swigregister
 DoubleArray_swigregister(DoubleArray)
 

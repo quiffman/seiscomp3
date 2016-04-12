@@ -42,6 +42,16 @@ DEFINE_SMARTPOINTER(MomentTensor);
 class EventParameters;
 
 
+/**
+ * \brief This class describes the focal mechanism of an event. It
+ * \brief includes different
+ * \brief descriptions like nodal planes, principal axes, and a
+ * \brief moment tensor.
+ * \brief The moment tensor description is provided by objects of the
+ * \brief class
+ * \brief MomentTensor which can be specified as child elements of
+ * \brief FocalMechanism.
+ */
 class SC_SYSTEM_CORE_API FocalMechanism : public PublicObject {
 	DECLARE_SC_CLASS(FocalMechanism);
 	DECLARE_SERIALIZATION;
@@ -100,35 +110,55 @@ class SC_SYSTEM_CORE_API FocalMechanism : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Refers to the publicID of the triggering origin.
 		void setTriggeringOriginID(const std::string& triggeringOriginID);
 		const std::string& triggeringOriginID() const;
 
+		//! Nodal planes of the focal mechanism.
 		void setNodalPlanes(const OPT(NodalPlanes)& nodalPlanes);
 		NodalPlanes& nodalPlanes() throw(Seiscomp::Core::ValueException);
 		const NodalPlanes& nodalPlanes() const throw(Seiscomp::Core::ValueException);
 
+		//! Principal axes of the focal mechanism.
 		void setPrincipalAxes(const OPT(PrincipalAxes)& principalAxes);
 		PrincipalAxes& principalAxes() throw(Seiscomp::Core::ValueException);
 		const PrincipalAxes& principalAxes() const throw(Seiscomp::Core::ValueException);
 
+		//! Largest azimuthal gap in distribution of stations used for
+		//! determination
+		//! of focal mechanism in degrees.
 		void setAzimuthalGap(const OPT(double)& azimuthalGap);
 		double azimuthalGap() const throw(Seiscomp::Core::ValueException);
 
+		//! Number of station polarities used for determination of
+		//! focal mechanism.
 		void setStationPolarityCount(const OPT(int)& stationPolarityCount);
 		int stationPolarityCount() const throw(Seiscomp::Core::ValueException);
 
+		//! Fraction of misfit polarities in a first-motion focal
+		//! mechanism determination.
+		//! Decimal fraction between 0 and 1.
 		void setMisfit(const OPT(double)& misfit);
 		double misfit() const throw(Seiscomp::Core::ValueException);
 
+		//! Station distribution ratio (STDR) parameter. Indicates how
+		//! the stations
+		//! are distributed about the focal sphere (Reasenberg and
+		//! Oppenheimer 1985).
+		//! Decimal fraction between 0 and 1.
 		void setStationDistributionRatio(const OPT(double)& stationDistributionRatio);
 		double stationDistributionRatio() const throw(Seiscomp::Core::ValueException);
 
+		//! Resource identifier of the method used for determination of
+		//! the focal mechanism.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Evaluation mode of FocalMechanism.
 		void setEvaluationMode(const OPT(EvaluationMode)& evaluationMode);
 		EvaluationMode evaluationMode() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation status of FocalMechanism.
 		void setEvaluationStatus(const OPT(EvaluationStatus)& evaluationStatus);
 		EvaluationStatus evaluationStatus() const throw(Seiscomp::Core::ValueException);
 

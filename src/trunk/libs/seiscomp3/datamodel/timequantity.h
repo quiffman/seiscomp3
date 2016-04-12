@@ -32,6 +32,13 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(TimeQuantity);
 
 
+/**
+ * \brief This type describes a point in time, given in ISO 8601
+ * \brief format, with
+ * \brief optional symmetric or asymmetric uncertainties given in
+ * \brief seconds. The
+ * \brief time has to be specified in UTC.
+ */
 class SC_SYSTEM_CORE_API TimeQuantity : public Core::BaseObject {
 	DECLARE_SC_CLASS(TimeQuantity);
 	DECLARE_SERIALIZATION;
@@ -81,18 +88,23 @@ class SC_SYSTEM_CORE_API TimeQuantity : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Point in time (UTC), given in ISO 8601 format.
 		void setValue(Seiscomp::Core::Time value);
 		Seiscomp::Core::Time value() const;
 
+		//! Symmetric uncertainty of point in time in seconds.
 		void setUncertainty(const OPT(double)& uncertainty);
 		double uncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Lower uncertainty of point in time in seconds.
 		void setLowerUncertainty(const OPT(double)& lowerUncertainty);
 		double lowerUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Upper uncertainty of point in time in seconds.
 		void setUpperUncertainty(const OPT(double)& upperUncertainty);
 		double upperUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Confidence level of the uncertainty, given in percent.
 		void setConfidenceLevel(const OPT(double)& confidenceLevel);
 		double confidenceLevel() const throw(Seiscomp::Core::ValueException);
 

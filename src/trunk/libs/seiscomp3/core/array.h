@@ -37,6 +37,8 @@ class SC_SYSTEM_CORE_API Array : public Seiscomp::Core::BaseObject {
 			DOUBLE,
 			DATETIME,
 			STRING,
+			COMPLEX_FLOAT,
+			COMPLEX_DOUBLE,
 			DT_QUANTITY
 		};
 	

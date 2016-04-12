@@ -72,6 +72,10 @@ class SC_SYSTEM_CORE_API CommentIndex {
 };
 
 
+/**
+ * \brief Comment holds information on comments to a resource as well
+ * \brief as author and creation time information.
+ */
 class SC_SYSTEM_CORE_API Comment : public Object {
 	DECLARE_SC_CLASS(Comment);
 	DECLARE_SERIALIZATION;
@@ -110,12 +114,15 @@ class SC_SYSTEM_CORE_API Comment : public Object {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Text of comment.
 		void setText(const std::string& text);
 		const std::string& text() const;
 
+		//! Identifier of comment, possibly in QuakeML RI format.
 		void setId(const std::string& id);
 		const std::string& id() const;
 
+		//! CreationInfo for the Comment object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

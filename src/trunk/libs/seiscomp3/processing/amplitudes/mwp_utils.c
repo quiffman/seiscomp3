@@ -60,7 +60,7 @@ Mwp_integr(int n, double *f, int i0)
 	int i;
 	double sum = 0;
 
-	Mwp_demean(n, f, i0);
+//	Mwp_demean(n, f, i0);
 
 	for (i=0; i<n; i++) {
 		sum += f[i];

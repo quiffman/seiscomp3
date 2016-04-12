@@ -205,7 +205,7 @@ bool Timer::Update() {
 	for ( TimerList::iterator it = _timers.begin(); it != _timers.end(); ) {
 		Timer *t = *it;
 		if ( --t->_value == 0 ) {
-			if ( t->_isActive ) {
+			if ( t->_isActive && t->_callback ) {
 				//lk.unlock();
 				t->_callback();
 				//lk.lock();

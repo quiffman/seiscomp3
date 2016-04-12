@@ -209,13 +209,6 @@ void SLConnection::handshake() {
 
 	for (set<StreamIdx>::iterator it = _streams.begin(); it != _streams.end(); ++it) {
 		try {
-			_sock.startTimer();
-			_sock.sendRequest("STATION " + it->station() + " " + it->network(), !batchmode);
-			SEISCOMP_DEBUG("Seedlink command: STATION %s %s", it->station().c_str(),it->network().c_str());
-			_sock.sendRequest("SELECT " + it->selector(), !batchmode);
-			SEISCOMP_DEBUG("Seedlink command: SELECT %s", it->selector().c_str());
-
-			string timestr = "";
 			Time stime = (it->startTime() != Time()) ? it->startTime() : _stime;
 			Time etime = (it->endTime() != Time()) ? it->endTime() : _etime;
 
@@ -224,31 +217,42 @@ void SLConnection::handshake() {
 			if ( etime.microseconds() > 0 )
 				etime += Time(1,0);
 
-			Time rectime = it->timestamp() + Time(1,0);
+			if ( it->timestamp().valid() )
+				stime = it->timestamp() + Time(1,0);
+			else if ( !stime.valid() ) {
+				if ( etime > Time::GMT() )
+					stime = Time::GMT();
+			}
 
-			if (it->timestamp() != Time()) {
-				timestr = rectime.toString("%Y,%m,%d,%H,%M,%S");
-				if (etime != Time())
+			// Remove microseconds
+			stime.setUSecs(0);
+			etime.setUSecs(0);
+
+			// Empty time windows are not requested
+			if ( stime.valid() && etime.valid() && stime >= etime ) {
+				SEISCOMP_DEBUG("Seedlink: ignoring empty request for %s.%s %s %s %s",
+				               it->network().data(), it->station().data(),
+				               it->selector().data(),
+				               stime.toString("%Y,%m,%d,%H,%M,%S").data(),
+				               etime.toString("%Y,%m,%d,%H,%M,%S").data());
+				continue;
+			}
+
+			string timestr;
+
+			if ( stime.valid() ) {
+				timestr = stime.toString("%Y,%m,%d,%H,%M,%S");
+				if ( etime.valid() )
 					timestr += " " + etime.toString("%Y,%m,%d,%H,%M,%S");
 			}
-			else {
-				if (stime != Time()) {
-					timestr = stime.toString("%Y,%m,%d,%H,%M,%S");
-					if (etime != Time())
-						timestr += " " + etime.toString("%Y,%m,%d,%H,%M,%S");
-					/* else: a missing end time means get records all the time */
-				}
-				else {
-					if (etime > Time::GMT()) {
-						timestr = Time::GMT().toString("%Y,%m,%d,%H,%M,%S") + " " +
-						          etime.toString("%Y,%m,%d,%H,%M,%S");
-					}
-					/* else: with a missing start time and an end time in the past
-					   the time window can not be set correctly */
-				}
-			}
 
-			if (timestr.length() > 0) {
+			_sock.startTimer();
+			_sock.sendRequest("STATION " + it->station() + " " + it->network(), !batchmode);
+			SEISCOMP_DEBUG("Seedlink command: STATION %s %s", it->station().c_str(),it->network().c_str());
+			_sock.sendRequest("SELECT " + it->selector(), !batchmode);
+			SEISCOMP_DEBUG("Seedlink command: SELECT %s", it->selector().c_str());
+
+			if ( timestr.length() > 0 ) {
 				_sock.sendRequest("TIME " + timestr, !batchmode);
 				SEISCOMP_DEBUG("Seedlink command: TIME %s", timestr.c_str());
 			}

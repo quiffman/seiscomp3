@@ -38,6 +38,12 @@ DEFINE_SMARTPOINTER(AmplitudeReference);
 class EventParameters;
 
 
+/**
+ * \brief This class groups Pick and Amplitude elements which are
+ * \brief thought to belong
+ * \brief to the same event, but for which the event identification
+ * \brief is not known.
+ */
 class SC_SYSTEM_CORE_API Reading : public PublicObject {
 	DECLARE_SC_CLASS(Reading);
 	DECLARE_SERIALIZATION;

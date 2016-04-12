@@ -123,7 +123,7 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		void setNewOriginID(const std::string& newOriginID);
 
 		int capabilities() const;
-	
+
 		DataModel::Origin* locate(PickList& pickList) throw(Core::GeneralException);
 		DataModel::Origin* locate(PickList& pickList,
 		                          double initLat, double initLon, double initDepth,
@@ -148,7 +148,7 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		double stationCorrection(const std::string &staid, const std::string &stacode,
 		                         const std::string &phase) const;
 
-	
+
 	private:
 		typedef std::map<std::string, double> PhaseCorrectionMap;
 		typedef std::map<std::string, PhaseCorrectionMap> StationCorrectionMap;
@@ -159,6 +159,7 @@ class SC_SYSTEM_CORE_API LocSAT : public Seismology::LocatorInterface {
 		StationCorrectionMap _stationCorrection;
 		std::string          _newOriginID;
 		std::string          _tablePrefix;
+		bool                 _computeConfidenceEllipsoid;
 		Internal::LocSAT*    _locateEvent;
 		Internal::Locator_params* _locator_params;
 		double               _minArrivalWeight;

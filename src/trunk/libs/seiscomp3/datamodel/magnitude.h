@@ -42,6 +42,16 @@ DEFINE_SMARTPOINTER(StationMagnitudeContribution);
 class Origin;
 
 
+/**
+ * \brief Describes a magnitude which can, but does not need to be
+ * \brief associated with
+ * \brief an origin. Association with an origin is expressed with the
+ * \brief optional
+ * \brief attribute originID. It is either a combination of different
+ * \brief magnitude
+ * \brief estimations, or it represents the reported magnitude for
+ * \brief the given event.
+ */
 class SC_SYSTEM_CORE_API Magnitude : public PublicObject {
 	DECLARE_SC_CLASS(Magnitude);
 	DECLARE_SERIALIZATION;
@@ -100,28 +110,51 @@ class SC_SYSTEM_CORE_API Magnitude : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Resulting magnitude value from combining values of type
+		//! StationMagnitude.
+		//! If no estimations are available, this value can represent
+		//! the reported magnitude.
 		void setMagnitude(const RealQuantity& magnitude);
 		RealQuantity& magnitude();
 		const RealQuantity& magnitude() const;
 
+		//! Describes the type of magnitude. This is a free-text field
+		//! because
+		//! it is impossible to cover all existing magnitude type
+		//! designations
+		//! with an enumeration. Possible values are unspecified
+		//! magitude (M),
+		//! local magnitude (ML), body wave magnitude (Mb),
+		//! surface wave magnitude (MS), moment magnitude (Mw),
+		//! duration magnitude (Md), coda magnitude (Mc), MH, Mwp, M50,
+		//! M100, etc.
 		void setType(const std::string& type);
 		const std::string& type() const;
 
+		//! Reference to an origin's publicID if the magnitude has an
+		//! associated Origin.
 		void setOriginID(const std::string& originID);
 		const std::string& originID() const;
 
+		//! Identifies the method of magnitude estimation. Users should
+		//! avoid to
+		//! give contradictory information in methodID and type.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Number of used stations for this magnitude computation.
 		void setStationCount(const OPT(int)& stationCount);
 		int stationCount() const throw(Seiscomp::Core::ValueException);
 
+		//! Azimuthal gap for this magnitude computation in degrees.
 		void setAzimuthalGap(const OPT(double)& azimuthalGap);
 		double azimuthalGap() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation status of Magnitude.
 		void setEvaluationStatus(const OPT(EvaluationStatus)& evaluationStatus);
 		EvaluationStatus evaluationStatus() const throw(Seiscomp::Core::ValueException);
 
+		//! CreationInfo for the Magnitude object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os, sys, signal, subprocess, pipes, glob, shutil, imp, traceback
 
 
@@ -478,6 +479,7 @@ def on_print(args, flags):
     print "export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH" % LD_LIBRARY_PATH
     print "export PYTHONPATH=%s:$PYTHONPATH" % PYTHONPATH
     print "export MANPATH=%s:$MANPATH" % MANPATH
+    print "export LC_ALL=C"
   else:
     error("wrong argument: {crontab|env} expected")
     return 1
@@ -923,6 +925,7 @@ if not isWrapped:
   try: os.environ["MANPATH"] = MANPATH + ":" + os.environ["MANPATH"]
   except: os.environ["MANPATH"] = MANPATH
 
+  os.environ["LC_ALL"] = "C"
   os.environ["SEISCOMP_WRAP"] = "TRUE"
 
   sys.exit(system(sys.argv))

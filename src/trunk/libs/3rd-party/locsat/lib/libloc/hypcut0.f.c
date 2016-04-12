@@ -18,11 +18,11 @@ struct sccshypcut0_1_ {
 struct {
     char e_1[80];
     } sccshypcut0_ = { {'@', '(', '#', ')', 'h', 'y', 'p', 'c', 'u', 't', '0',
-	     '.', 'f', '\t', '4', '4', '.', '1', '\t', '9', '/', '2', '0', 
-	    '/', '9', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+	     '.', 'f', '\t', '4', '4', '.', '1', '\t', '9', '/', '2', '0',
+	    '/', '9', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 	    ' ', ' ', ' ', ' ', ' '} };
 
 
@@ -140,9 +140,9 @@ static integer c__1 = 1;
 /* AUTHORS */
 /* 	Steve Bratt, December 1988; */
 /* 	Walter Nagy, July 1990. */
-/* Subroutine */ int hypcut0_(staid, stalat, stalon, nsta, dobs, dsd, dwavid, 
-	ipsta, ipwav, nwav, maxtbd, maxtbz, ntbd, tbd, tbtt, idtyp, iderr, 
-	atype, ndata, luout, prtflg, alat0, alon0, ierr, staid_len, 
+/* Subroutine */ int hypcut0_(staid, stalat, stalon, nsta, dobs, dsd, dwavid,
+	ipsta, ipwav, nwav, maxtbd, maxtbz, ntbd, tbd, tbtt, idtyp, iderr,
+	atype, ndata, luout, prtflg, alat0, alon0, ierr, staid_len,
 	dwavid_len, atype_len, prtflg_len)
 char *staid;
 real *stalat, *stalon;
@@ -172,7 +172,7 @@ ftnlen prtflg_len;
 	    494.45,552.32,605.82,654.47,695.75,734.6 };
 
     /* System generated locals */
-    integer tbd_dim1, tbd_offset, tbtt_dim1, tbtt_dim2, tbtt_offset, i__1, 
+    integer tbd_dim1, tbd_offset, tbtt_dim1, tbtt_dim2, tbtt_offset, i__1,
 	    i__2;
     doublereal d__1;
 
@@ -326,16 +326,16 @@ ftnlen prtflg_len;
 		    itimeyet = 1;
 		}
 /*              Load valid S and P times into arrays for each i'th station */
-		if ((s_cmp(wavid, "P ", k, (ftnlen)2) == 0 || s_cmp(wavid, 
+		if ((s_cmp(wavid, "P ", k, (ftnlen)2) == 0 || s_cmp(wavid,
 			"Pn", k, (ftnlen)2) == 0 || s_cmp(wavid, "Pg", k, (
-			ftnlen)2) == 0 || s_cmp(wavid, "Pb", k, (ftnlen)2) == 
+			ftnlen)2) == 0 || s_cmp(wavid, "Pb", k, (ftnlen)2) ==
 			0) && dobs[n] < comprtime[i__ - 1]) {
 		    comprtime[i__ - 1] = dobs[n];
 		    iwave[i__ - 1] = (shortint) ipwav[n];
 		} else if ((s_cmp(wavid, "S ", k, (ftnlen)2) == 0 || s_cmp(
-			wavid, "Sn", k, (ftnlen)2) == 0 || s_cmp(wavid, "Sb", 
+			wavid, "Sn", k, (ftnlen)2) == 0 || s_cmp(wavid, "Sb",
 			k, (ftnlen)2) == 0 || s_cmp(wavid, "Lg", k, (ftnlen)2)
-			 == 0 || s_cmp(wavid, "Sg", k, (ftnlen)2) == 0) && 
+			 == 0 || s_cmp(wavid, "Sg", k, (ftnlen)2) == 0) &&
 			dobs[n] < sheartime[i__ - 1]) {
 		    sheartime[i__ - 1] = dobs[n];
 		}
@@ -347,7 +347,7 @@ ftnlen prtflg_len;
 		}
 /*           ---- Slownesses ---- */
 	    } else if (idtyp[n] == 3) {
-		if (*(unsigned char *)wavid == 'P' && dsd[n] > (float)0. && 
+		if (*(unsigned char *)wavid == 'P' && dsd[n] > (float)0. &&
 			dobs[n] > .02 && dobs[n] < 19.16) {
 		    if (dsd[n] < slowsd[i__ - 1]) {
 			slowsd[i__ - 1] = dsd[n];
@@ -373,22 +373,22 @@ ftnlen prtflg_len;
 	    indexcompr[icompr - 1] = (shortint) i__;
 	    ordercompr[icompr - 1] = comprtime[i__ - 1];
 	}
-	goodsminusp[i__ - 1] = goodcompr[i__ - 1] && sheartime[i__ - 1] < 
+	goodsminusp[i__ - 1] = goodcompr[i__ - 1] && sheartime[i__ - 1] <
 		fmaxtime && sheartime[i__ - 1] > comprtime[i__ - 1];
 	if (goodsminusp[i__ - 1]) {
 	    ++isminusp;
 	    indexsminusp[isminusp - 1] = (shortint) i__;
-	    ordersminusp[isminusp - 1] = sheartime[i__ - 1] - comprtime[i__ - 
+	    ordersminusp[isminusp - 1] = sheartime[i__ - 1] - comprtime[i__ -
 		    1];
 	}
-	goodazim[i__ - 1] = bestazim[i__ - 1] >= (float)-180. && bestazim[i__ 
+	goodazim[i__ - 1] = bestazim[i__ - 1] >= (float)-180. && bestazim[i__
 		- 1] <= (float)360.;
 	if (goodazim[i__ - 1]) {
 	    ++iazim;
 	    indexdsd[iazim - 1] = (shortint) i__;
 	    orderdsd[iazim - 1] = azimsd[i__ - 1];
 	}
-	goodslow[i__ - 1] = bestslow[i__ - 1] > .02 && bestslow[i__ - 1] < 
+	goodslow[i__ - 1] = bestslow[i__ - 1] > .02 && bestslow[i__ - 1] <
 		19.16;
 	if (goodslow[i__ - 1]) {
 	    ++islow;
@@ -483,8 +483,8 @@ ftnlen prtflg_len;
 	    for (j = 1; j <= 11; ++j) {
 		if (sminusptime > sminusp[j - 1] && sminusptime <= sminusp[j])
 			 {
-		    dis[0] = (distance[j] - distance[j - 1]) * (sminusptime - 
-			    sminusp[j - 1]) / (sminusp[j] - sminusp[j - 1]) + 
+		    dis[0] = (distance[j] - distance[j - 1]) * (sminusptime -
+			    sminusp[j - 1]) / (sminusp[j] - sminusp[j - 1]) +
 			    distance[j - 1];
 		    useazim = bestazim[n - 1];
 		    iusesta = n;
@@ -535,8 +535,8 @@ station", (ftnlen)44);
 /*        Interpolate slowness(es) to get distance(s). */
 	for (j = 1; j <= 11; ++j) {
 	    if (sminusptime > sminusp[j - 1] && sminusptime <= sminusp[j]) {
-		dis[i__ - 1] = (distance[j] - distance[j - 1]) * (sminusptime 
-			- sminusp[j - 1]) / (sminusp[j] - sminusp[j - 1]) + 
+		dis[i__ - 1] = (distance[j] - distance[j - 1]) * (sminusptime
+			- sminusp[j - 1]) / (sminusp[j] - sminusp[j - 1]) +
 			distance[j - 1];
 	    }
 /* L1100: */
@@ -555,10 +555,10 @@ station", (ftnlen)44);
     i__1 = ntbd[n];
     for (i__ = 1; i__ <= i__1; ++i__) {
 	if (tbd[i__ + n * tbd_dim1] > dis[0]) {
-	    tmp = (dis[0] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n * 
+	    tmp = (dis[0] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n *
 		    tbd_dim1] - tbd[i__ - 1 + n * tbd_dim1]);
 	    tcalc = tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1] + tmp * (
-		    tbtt[i__ + (n * tbtt_dim2 + 1) * tbtt_dim1] - tbtt[i__ - 
+		    tbtt[i__ + (n * tbtt_dim2 + 1) * tbtt_dim1] - tbtt[i__ -
 		    1 + (n * tbtt_dim2 + 1) * tbtt_dim1]);
 	    torg = ordercompr[j - 1] - tcalc;
 	    goto L1130;
@@ -582,7 +582,7 @@ L1130:
 		sta2 = stalon[n2];
 		sta3 = stalat[n1];
 		sta4 = stalon[n1];
-		crossings_(&sta1, &sta2, &sta3, &sta4, &dis[i2 - 1], &dis[i1 
+		crossings_(&sta1, &sta2, &sta3, &sta4, &dis[i2 - 1], &dis[i1
 			- 1], &crosslat[ic2 - 2], &crosslon[ic2 - 2], &
 			crosslat[ic2 - 1], &crosslon[ic2 - 1], &icerr);
 		if (icerr > 0) {
@@ -601,30 +601,31 @@ L1130:
 		}
 /*              Find the best crossing from 3 S-P times ? */
 		if (icross > 1) {
-		    smallest = (float)888888.;
-		    for (i__ = 1; i__ <= 2; ++i__) {
-			for (j = 3; j <= 4; ++j) {
-			    distaz2_(&crosslat[i__ - 1], &crosslon[i__ - 1], &
-				    crosslat[j - 1], &crosslon[j - 1], &
-				    delcross, &azi, &baz);
-			    if (delcross < smallest) {
-				smallest = delcross;
-				azisav = azi;
-/*                          K.S. 1-Dec-97, abort here because of illegal code */
-				s_stop("*** K.S. ill code in hypcut0.f ***", (
-					ftnlen)34);
-/*                           i1       = i */
-/*                           i2       = j */
-			    }
-/* L1140: */
+			smallest = (float)888888.;
+			for (i__ = 1; i__ <= 2; ++i__) {
+				for (j = 3; j <= 4; ++j) {
+					distaz2_(&crosslat[i__ - 1], &crosslon[i__ - 1],
+					         &crosslat[j - 1], &crosslon[j - 1],
+					         &delcross, &azi, &baz);
+					if (delcross < smallest) {
+						smallest = delcross;
+						azisav = azi;
+	/*                          K.S. 1-Dec-97, abort here because of illegal code */
+						//s_stop("*** K.S. ill code in hypcut0.f ***", (ftnlen)34);
+	/*                           i1       = i */
+	/*                           i2       = j */
+						*ierr = 1;
+						return 0;
+					}
+	/* L1140: */
+				}
 			}
-		    }
-		    d__1 = smallest / (float)2.;
-		    latlon2_(&crosslat[i1 - 1], &crosslon[i1 - 1], &d__1, &
-			    azisav, &a1, &a2);
-		    *alat0 = a1;
-		    *alon0 = a2;
-		    if (s_cmp(prtflg, "y", prtflg_len, (ftnlen)1) == 0) {
+			d__1 = smallest / (float)2.;
+			latlon2_(&crosslat[i1 - 1], &crosslon[i1 - 1], &d__1,
+			         &azisav, &a1, &a2);
+			*alat0 = a1;
+			*alon0 = a2;
+			if (s_cmp(prtflg, "y", prtflg_len, (ftnlen)1) == 0) {
 			io___67.ciunit = *luout;
 			s_wsfe(&io___67);
 			do_fio(&c__1, "    Method: Nearest crossing of 3 S-P\
@@ -678,9 +679,9 @@ L1180:
 	i__1 = ntbd[n];
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    if (tbd[i__ + n * tbd_dim1] > dis[0]) {
-		tmp = (dis[0] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n * 
+		tmp = (dis[0] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n *
 			tbd_dim1] - tbd[i__ - 1 + n * tbd_dim1]);
-		tcalc = tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1] + tmp 
+		tcalc = tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1] + tmp
 			* (tbtt[i__ + (n * tbtt_dim2 + 1) * tbtt_dim1] - tbtt[
 			i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1]);
 		res1 = (d__1 = comprtime[j - 1] - torg - tcalc, abs(d__1));
@@ -696,9 +697,9 @@ L1200:
 	i__1 = ntbd[n];
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    if (tbd[i__ + n * tbd_dim1] > dis[1]) {
-		tmp = (dis[1] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n * 
+		tmp = (dis[1] - tbd[i__ - 1 + n * tbd_dim1]) / (tbd[i__ + n *
 			tbd_dim1] - tbd[i__ - 1 + n * tbd_dim1]);
-		tcalc = tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1] + tmp 
+		tcalc = tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1] + tmp
 			* (tbtt[i__ + (n * tbtt_dim2 + 1) * tbtt_dim1] - tbtt[
 			i__ - 1 + (n * tbtt_dim2 + 1) * tbtt_dim1]);
 		res2 = (d__1 = comprtime[j - 1] - torg - tcalc, abs(d__1));
@@ -760,9 +761,9 @@ L1230:
 	    i__2 = ntbd[n];
 	    for (i__ = 1; i__ <= i__2; ++i__) {
 		if (tbtt[i__ + (n * tbtt_dim2 + 1) * tbtt_dim1] > tcalc) {
-		    tmp = (tcalc - tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * 
-			    tbtt_dim1]) / (tbtt[i__ + (n * tbtt_dim2 + 1) * 
-			    tbtt_dim1] - tbtt[i__ - 1 + (n * tbtt_dim2 + 1) * 
+		    tmp = (tcalc - tbtt[i__ - 1 + (n * tbtt_dim2 + 1) *
+			    tbtt_dim1]) / (tbtt[i__ + (n * tbtt_dim2 + 1) *
+			    tbtt_dim1] - tbtt[i__ - 1 + (n * tbtt_dim2 + 1) *
 			    tbtt_dim1]);
 		    dist1 = tbd[i__ - 1 + n * tbd_dim1] + tmp * (tbd[i__ + n *
 			     tbd_dim1] - tbd[i__ - 1 + n * tbd_dim1]);
@@ -777,7 +778,7 @@ L1250:
 	    sta2 = stalon[n1];
 	    sta3 = stalat[j];
 	    sta4 = stalon[j];
-	    crossings_(&sta1, &sta2, &sta3, &sta4, dis, &dist1, &crosslat[ic2 
+	    crossings_(&sta1, &sta2, &sta3, &sta4, dis, &dist1, &crosslat[ic2
 		    - 2], &crosslon[ic2 - 2], &crosslat[ic2 - 1], &crosslon[
 		    ic2 - 1], &icerr);
 	    if (icerr < 1) {
@@ -864,7 +865,7 @@ L1280:
 		sta3 = stalat[n2];
 		sta4 = stalon[n2];
 		azcros2_(&sta1, &sta2, &bestazim[n1 - 1], &sta3, &sta4, &
-			bestazim[n2 - 1], &dist1x, &dist2x, &alat0x, &alon0x, 
+			bestazim[n2 - 1], &dist1x, &dist2x, &alat0x, &alon0x,
 			&ierrx);
 		if (ierrx == 0) {
 		    delta = (dist1x + dist2x) * (float).5;
@@ -940,8 +941,8 @@ ons", (ftnlen)48);
 /* 1320    continue */
 	for (j = 1; j <= 18; ++j) {
 	    if (useslow < slowness[j - 1] && useslow >= slowness[j]) {
-		dis[0] = (distance[j] - distance[j - 1]) * (useslow - 
-			slowness[j - 1]) / (slowness[j] - slowness[j - 1]) + 
+		dis[0] = (distance[j] - distance[j - 1]) * (useslow -
+			slowness[j - 1]) / (slowness[j] - slowness[j - 1]) +
 			distance[j - 1];
 		if (s_cmp(prtflg, "y", prtflg_len, (ftnlen)1) == 0) {
 		    io___84.ciunit = *luout;
@@ -1042,8 +1043,8 @@ station", (ftnlen)48);
 	useslow = bestslow[iusesta - 1];
 	for (j = 1; j <= 18; ++j) {
 	    if (useslow < slowness[j - 1] && useslow >= slowness[j]) {
-		dis[0] = (distance[j] - distance[j - 1]) * (useslow - 
-			slowness[j - 1]) / (slowness[j] - slowness[j - 1]) + 
+		dis[0] = (distance[j] - distance[j - 1]) * (useslow -
+			slowness[j - 1]) / (slowness[j] - slowness[j - 1]) +
 			distance[j - 1];
 	    }
 /* L1340: */
@@ -1072,9 +1073,9 @@ station", (ftnlen)48);
 	if (s_cmp(prtflg, "y", prtflg_len, (ftnlen)1) == 0) {
 	    io___88.ciunit = *luout;
 	    s_wsfe(&io___88);
-	    do_fio(&c__1, " Initial location procedure failed - Bailing out", 
+	    do_fio(&c__1, " Initial location procedure failed - Bailing out",
 		    (ftnlen)48);
-	    do_fio(&c__1, " ===============================================", 
+	    do_fio(&c__1, " ===============================================",
 		    (ftnlen)48);
 	    e_wsfe();
 	}

@@ -156,7 +156,7 @@ SC_SYSTEM_CORE_API bool fromString(long& value, const std::string& str) {
 
 
 template <>
-SC_SYSTEM_CORE_API bool fromString(unsigned long& value, const std::string& str) {
+SC_SYSTEM_CORE_API bool fromString(unsigned long int& value, const std::string& str) {
 	char* endptr = NULL;
 	errno = 0;
 	long int retval = strtol(str.c_str(), &endptr, 10);
@@ -170,6 +170,44 @@ SC_SYSTEM_CORE_API bool fromString(unsigned long& value, const std::string& str)
 	}
 
 	value = (unsigned long)retval;
+	return true;
+}
+
+
+template <>
+SC_SYSTEM_CORE_API bool fromString(long long int& value, const std::string& str) {
+	char* endptr = NULL;
+	errno = 0;
+	long long int retval = strtoll(str.c_str(), &endptr, 10);
+	if ( errno != 0 )
+		return false;
+	if ( endptr ) {
+		if ( str.c_str() + str.size() != endptr )
+			return false;
+		else if ( retval == 0 && str.c_str() == endptr )
+			return false;
+	}
+
+	value = retval;
+	return true;
+}
+
+
+template <>
+SC_SYSTEM_CORE_API bool fromString(unsigned long long int& value, const std::string& str) {
+	char* endptr = NULL;
+	errno = 0;
+	long long int retval = strtoll(str.c_str(), &endptr, 10);
+	if ( errno != 0 )
+		return false;
+	if ( endptr ) {
+		if ( str.c_str() + str.size() != endptr )
+			return false;
+		else if ( retval == 0 && str.c_str() == endptr )
+			return false;
+	}
+
+	value = (unsigned long long)retval;
 	return true;
 }
 

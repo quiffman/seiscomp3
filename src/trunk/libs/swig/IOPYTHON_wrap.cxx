@@ -3453,156 +3453,162 @@ namespace Swig {
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl swig_types[23]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl swig_types[24]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl swig_types[25]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl swig_types[26]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl swig_types[27]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl swig_types[28]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_const_t__Impl swig_types[29]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_t__Impl swig_types[30]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_const_t__Impl swig_types[31]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_t__Impl swig_types[32]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_const_t__Impl swig_types[33]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_t__Impl swig_types[34]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_const_t__Impl swig_types[35]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_t__Impl swig_types[36]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_const_t__Impl swig_types[37]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_t__Impl swig_types[38]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_const_t__Impl swig_types[39]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_t__Impl swig_types[40]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_const_t__Impl swig_types[41]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl swig_types[42]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__AHRecord_const_t__Impl swig_types[43]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__AHRecord_t__Impl swig_types[44]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__DatabaseInterface_const_t__Impl swig_types[45]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__DatabaseInterface_t__Impl swig_types[46]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Exporter_const_t__Impl swig_types[47]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Exporter_t__Impl swig_types[48]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__GFArchive_const_t__Impl swig_types[49]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__GFArchive_t__Impl swig_types[50]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Importer_const_t__Impl swig_types[51]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Importer_t__Impl swig_types[52]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__MSeedRecord_const_t__Impl swig_types[53]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__MSeedRecord_t__Impl swig_types[54]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl swig_types[55]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl swig_types[56]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Arclink___private__ArclinkConnection_const_t__Impl swig_types[57]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Arclink___private__ArclinkConnection_t__Impl swig_types[58]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Combined___private__CombinedConnection_const_t__Impl swig_types[59]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Combined___private__CombinedConnection_t__Impl swig_types[60]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__File_const_t__Impl swig_types[61]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__File_t__Impl swig_types[62]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__SLConnection_const_t__Impl swig_types[63]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__SLConnection_t__Impl swig_types[64]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream_const_t__Impl swig_types[65]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream_t__Impl swig_types[66]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[67]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[68]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[69]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[70]
-#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[71]
-#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[72]
-#define SWIGTYPE_p_Seiscomp__Core__TimeSpan swig_types[73]
-#define SWIGTYPE_p_Seiscomp__Core__TimeWindow swig_types[74]
-#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[75]
-#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[76]
-#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[77]
-#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[78]
-#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[79]
-#define SWIGTYPE_p_Seiscomp__Core___private__Alarmable swig_types[80]
-#define SWIGTYPE_p_Seiscomp__Core___private__Interruptible swig_types[81]
-#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[82]
-#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[83]
-#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[84]
-#define SWIGTYPE_p_Seiscomp__IO__AHOutput swig_types[85]
-#define SWIGTYPE_p_Seiscomp__IO__AHRecord swig_types[86]
-#define SWIGTYPE_p_Seiscomp__IO__BinaryArchive swig_types[87]
-#define SWIGTYPE_p_Seiscomp__IO__DatabaseInterface swig_types[88]
-#define SWIGTYPE_p_Seiscomp__IO__ExportSink swig_types[89]
-#define SWIGTYPE_p_Seiscomp__IO__Exporter swig_types[90]
-#define SWIGTYPE_p_Seiscomp__IO__GFArchive swig_types[91]
-#define SWIGTYPE_p_Seiscomp__IO__Importer swig_types[92]
-#define SWIGTYPE_p_Seiscomp__IO__LibmseedException swig_types[93]
-#define SWIGTYPE_p_Seiscomp__IO__MSeedRecord swig_types[94]
-#define SWIGTYPE_p_Seiscomp__IO__RecordInput swig_types[95]
-#define SWIGTYPE_p_Seiscomp__IO__RecordIterator swig_types[96]
-#define SWIGTYPE_p_Seiscomp__IO__RecordStream swig_types[97]
-#define SWIGTYPE_p_Seiscomp__IO__RecordStreamException swig_types[98]
-#define SWIGTYPE_p_Seiscomp__IO__RecordStreamTimeout swig_types[99]
-#define SWIGTYPE_p_Seiscomp__IO__VBinaryArchive swig_types[100]
-#define SWIGTYPE_p_Seiscomp__IO__XMLArchive swig_types[101]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[102]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[103]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[104]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[105]
-#define SWIGTYPE_p_Seiscomp__Record swig_types[106]
-#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException swig_types[107]
-#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkConnection swig_types[108]
-#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkException swig_types[109]
-#define SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection swig_types[110]
-#define SWIGTYPE_p_Seiscomp__RecordStream__File swig_types[111]
-#define SWIGTYPE_p_Seiscomp__RecordStream__SLConnection swig_types[112]
-#define SWIGTYPE_p_Seiscomp__RecordStream__SeedlinkCommandException swig_types[113]
-#define SWIGTYPE_p_Seiscomp__RecordStream__SeedlinkException swig_types[114]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[115]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[116]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[117]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[118]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[119]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[120]
-#define SWIGTYPE_p_TagType swig_types[121]
-#define SWIGTYPE_p_Type swig_types[122]
-#define SWIGTYPE_p_allocator_type swig_types[123]
-#define SWIGTYPE_p_bool swig_types[124]
-#define SWIGTYPE_p_char swig_types[125]
-#define SWIGTYPE_p_char_type swig_types[126]
-#define SWIGTYPE_p_const_iterator swig_types[127]
-#define SWIGTYPE_p_const_reference swig_types[128]
-#define SWIGTYPE_p_difference_type swig_types[129]
-#define SWIGTYPE_p_double swig_types[130]
-#define SWIGTYPE_p_f_enum_std__ios_base__event_r_std__ios_base_int__void swig_types[131]
-#define SWIGTYPE_p_float swig_types[132]
-#define SWIGTYPE_p_fmtflags swig_types[133]
-#define SWIGTYPE_p_int swig_types[134]
-#define SWIGTYPE_p_int_type swig_types[135]
-#define SWIGTYPE_p_iostate swig_types[136]
-#define SWIGTYPE_p_iterator swig_types[137]
-#define SWIGTYPE_p_long swig_types[138]
-#define SWIGTYPE_p_off_type swig_types[139]
-#define SWIGTYPE_p_openmode swig_types[140]
-#define SWIGTYPE_p_p_void swig_types[141]
-#define SWIGTYPE_p_pos_type swig_types[142]
-#define SWIGTYPE_p_reference swig_types[143]
-#define SWIGTYPE_p_seekdir swig_types[144]
-#define SWIGTYPE_p_size_t swig_types[145]
-#define SWIGTYPE_p_size_type swig_types[146]
-#define SWIGTYPE_p_state_type swig_types[147]
-#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[148]
-#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[149]
-#define SWIGTYPE_p_std__basic_streambufT_char_std__char_traitsT_char_t_t swig_types[150]
-#define SWIGTYPE_p_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t swig_types[151]
-#define SWIGTYPE_p_std__complexT_double_t swig_types[152]
-#define SWIGTYPE_p_std__complexT_float_t swig_types[153]
-#define SWIGTYPE_p_std__exception swig_types[154]
-#define SWIGTYPE_p_std__invalid_argument swig_types[155]
-#define SWIGTYPE_p_std__ios_base swig_types[156]
-#define SWIGTYPE_p_std__istream swig_types[157]
-#define SWIGTYPE_p_std__listT_double_t swig_types[158]
-#define SWIGTYPE_p_std__listT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[159]
-#define SWIGTYPE_p_std__locale swig_types[160]
-#define SWIGTYPE_p_std__ostream swig_types[161]
-#define SWIGTYPE_p_std__streambuf swig_types[162]
-#define SWIGTYPE_p_std__vectorT_char_t swig_types[163]
-#define SWIGTYPE_p_std__vectorT_double_t swig_types[164]
-#define SWIGTYPE_p_std__vectorT_float_t swig_types[165]
-#define SWIGTYPE_p_std__vectorT_int_t swig_types[166]
-#define SWIGTYPE_p_std__vectorT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[167]
-#define SWIGTYPE_p_std__vectorT_std__complexT_double_t_t swig_types[168]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[169]
-#define SWIGTYPE_p_time_t swig_types[170]
-#define SWIGTYPE_p_traits_type swig_types[171]
-#define SWIGTYPE_p_value_type swig_types[172]
-#define SWIGTYPE_p_void swig_types[173]
-static swig_type_info *swig_types[175];
-static swig_module_info swig_module = {swig_types, 174, 0, 0, 0, 0};
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl swig_types[26]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl swig_types[27]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl swig_types[28]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl swig_types[29]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl swig_types[30]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl swig_types[31]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl swig_types[32]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_const_t__Impl swig_types[33]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_t__Impl swig_types[34]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_const_t__Impl swig_types[35]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_t__Impl swig_types[36]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_const_t__Impl swig_types[37]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_t__Impl swig_types[38]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_const_t__Impl swig_types[39]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_t__Impl swig_types[40]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_const_t__Impl swig_types[41]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_t__Impl swig_types[42]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_const_t__Impl swig_types[43]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_t__Impl swig_types[44]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_const_t__Impl swig_types[45]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl swig_types[46]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__AHRecord_const_t__Impl swig_types[47]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__AHRecord_t__Impl swig_types[48]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__DatabaseInterface_const_t__Impl swig_types[49]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__DatabaseInterface_t__Impl swig_types[50]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Exporter_const_t__Impl swig_types[51]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Exporter_t__Impl swig_types[52]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__GFArchive_const_t__Impl swig_types[53]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__GFArchive_t__Impl swig_types[54]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Importer_const_t__Impl swig_types[55]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__Importer_t__Impl swig_types[56]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__MSeedRecord_const_t__Impl swig_types[57]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IO__MSeedRecord_t__Impl swig_types[58]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl swig_types[59]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl swig_types[60]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Arclink___private__ArclinkConnection_const_t__Impl swig_types[61]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Arclink___private__ArclinkConnection_t__Impl swig_types[62]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Combined___private__CombinedConnection_const_t__Impl swig_types[63]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__Combined___private__CombinedConnection_t__Impl swig_types[64]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__File_const_t__Impl swig_types[65]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__File_t__Impl swig_types[66]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__SLConnection_const_t__Impl swig_types[67]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream__SLConnection_t__Impl swig_types[68]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream_const_t__Impl swig_types[69]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__RecordStream_t__Impl swig_types[70]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[71]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[72]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[73]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[74]
+#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[75]
+#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[76]
+#define SWIGTYPE_p_Seiscomp__Core__TimeSpan swig_types[77]
+#define SWIGTYPE_p_Seiscomp__Core__TimeWindow swig_types[78]
+#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[79]
+#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[80]
+#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[81]
+#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[82]
+#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[83]
+#define SWIGTYPE_p_Seiscomp__Core___private__Alarmable swig_types[84]
+#define SWIGTYPE_p_Seiscomp__Core___private__Interruptible swig_types[85]
+#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[86]
+#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[87]
+#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[88]
+#define SWIGTYPE_p_Seiscomp__IO__AHOutput swig_types[89]
+#define SWIGTYPE_p_Seiscomp__IO__AHRecord swig_types[90]
+#define SWIGTYPE_p_Seiscomp__IO__BinaryArchive swig_types[91]
+#define SWIGTYPE_p_Seiscomp__IO__DatabaseInterface swig_types[92]
+#define SWIGTYPE_p_Seiscomp__IO__ExportSink swig_types[93]
+#define SWIGTYPE_p_Seiscomp__IO__Exporter swig_types[94]
+#define SWIGTYPE_p_Seiscomp__IO__GFArchive swig_types[95]
+#define SWIGTYPE_p_Seiscomp__IO__Importer swig_types[96]
+#define SWIGTYPE_p_Seiscomp__IO__LibmseedException swig_types[97]
+#define SWIGTYPE_p_Seiscomp__IO__MSeedRecord swig_types[98]
+#define SWIGTYPE_p_Seiscomp__IO__RecordInput swig_types[99]
+#define SWIGTYPE_p_Seiscomp__IO__RecordIterator swig_types[100]
+#define SWIGTYPE_p_Seiscomp__IO__RecordStream swig_types[101]
+#define SWIGTYPE_p_Seiscomp__IO__RecordStreamException swig_types[102]
+#define SWIGTYPE_p_Seiscomp__IO__RecordStreamTimeout swig_types[103]
+#define SWIGTYPE_p_Seiscomp__IO__VBinaryArchive swig_types[104]
+#define SWIGTYPE_p_Seiscomp__IO__XMLArchive swig_types[105]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[106]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[107]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[108]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[109]
+#define SWIGTYPE_p_Seiscomp__Record swig_types[110]
+#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkCommandException swig_types[111]
+#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkConnection swig_types[112]
+#define SWIGTYPE_p_Seiscomp__RecordStream__Arclink___private__ArclinkException swig_types[113]
+#define SWIGTYPE_p_Seiscomp__RecordStream__Combined___private__CombinedConnection swig_types[114]
+#define SWIGTYPE_p_Seiscomp__RecordStream__File swig_types[115]
+#define SWIGTYPE_p_Seiscomp__RecordStream__SLConnection swig_types[116]
+#define SWIGTYPE_p_Seiscomp__RecordStream__SeedlinkCommandException swig_types[117]
+#define SWIGTYPE_p_Seiscomp__RecordStream__SeedlinkException swig_types[118]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[119]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[120]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[121]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[122]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[123]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[124]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__complexT_double_t_t swig_types[125]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__complexT_float_t_t swig_types[126]
+#define SWIGTYPE_p_TagType swig_types[127]
+#define SWIGTYPE_p_Type swig_types[128]
+#define SWIGTYPE_p_allocator_type swig_types[129]
+#define SWIGTYPE_p_bool swig_types[130]
+#define SWIGTYPE_p_char swig_types[131]
+#define SWIGTYPE_p_char_type swig_types[132]
+#define SWIGTYPE_p_const_iterator swig_types[133]
+#define SWIGTYPE_p_const_reference swig_types[134]
+#define SWIGTYPE_p_difference_type swig_types[135]
+#define SWIGTYPE_p_double swig_types[136]
+#define SWIGTYPE_p_f_enum_std__ios_base__event_r_std__ios_base_int__void swig_types[137]
+#define SWIGTYPE_p_float swig_types[138]
+#define SWIGTYPE_p_fmtflags swig_types[139]
+#define SWIGTYPE_p_int swig_types[140]
+#define SWIGTYPE_p_int_type swig_types[141]
+#define SWIGTYPE_p_iostate swig_types[142]
+#define SWIGTYPE_p_iterator swig_types[143]
+#define SWIGTYPE_p_long swig_types[144]
+#define SWIGTYPE_p_off_type swig_types[145]
+#define SWIGTYPE_p_openmode swig_types[146]
+#define SWIGTYPE_p_p_void swig_types[147]
+#define SWIGTYPE_p_pos_type swig_types[148]
+#define SWIGTYPE_p_reference swig_types[149]
+#define SWIGTYPE_p_seekdir swig_types[150]
+#define SWIGTYPE_p_size_t swig_types[151]
+#define SWIGTYPE_p_size_type swig_types[152]
+#define SWIGTYPE_p_state_type swig_types[153]
+#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[154]
+#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[155]
+#define SWIGTYPE_p_std__basic_streambufT_char_std__char_traitsT_char_t_t swig_types[156]
+#define SWIGTYPE_p_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t swig_types[157]
+#define SWIGTYPE_p_std__complexT_double_t swig_types[158]
+#define SWIGTYPE_p_std__complexT_float_t swig_types[159]
+#define SWIGTYPE_p_std__exception swig_types[160]
+#define SWIGTYPE_p_std__invalid_argument swig_types[161]
+#define SWIGTYPE_p_std__ios_base swig_types[162]
+#define SWIGTYPE_p_std__istream swig_types[163]
+#define SWIGTYPE_p_std__listT_double_t swig_types[164]
+#define SWIGTYPE_p_std__listT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[165]
+#define SWIGTYPE_p_std__locale swig_types[166]
+#define SWIGTYPE_p_std__ostream swig_types[167]
+#define SWIGTYPE_p_std__streambuf swig_types[168]
+#define SWIGTYPE_p_std__vectorT_char_t swig_types[169]
+#define SWIGTYPE_p_std__vectorT_double_t swig_types[170]
+#define SWIGTYPE_p_std__vectorT_float_t swig_types[171]
+#define SWIGTYPE_p_std__vectorT_int_t swig_types[172]
+#define SWIGTYPE_p_std__vectorT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t swig_types[173]
+#define SWIGTYPE_p_std__vectorT_std__complexT_double_t_t swig_types[174]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[175]
+#define SWIGTYPE_p_time_t swig_types[176]
+#define SWIGTYPE_p_traits_type swig_types[177]
+#define SWIGTYPE_p_value_type swig_types[178]
+#define SWIGTYPE_p_void swig_types[179]
+static swig_type_info *swig_types[181];
+static swig_module_info swig_module = {swig_types, 180, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -26791,6 +26797,10 @@ static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_co
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl", "Seiscomp::ArrayPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Array >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::CharArray const >::Impl *|Seiscomp::CharArrayCPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::CharArray >::Impl *|Seiscomp::CharArrayPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexDoubleArray const >::Impl *|Seiscomp::ComplexDoubleArrayCPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexDoubleArray >::Impl *|Seiscomp::ComplexDoubleArrayPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexFloatArray const >::Impl *|Seiscomp::ComplexFloatArrayCPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexFloatArray >::Impl *|Seiscomp::ComplexFloatArrayPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl", "Seiscomp::Core::BaseObjectCPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Core::BaseObject const >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::Core::BaseObject >::Impl *|Seiscomp::Core::BaseObjectPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl", "::Seiscomp::Core::SmartPointer< Seiscomp::Core::DataMessage >::Impl *|Seiscomp::Core::DataMessagePtr *", 0, 0, (void*)0, 0};
@@ -26877,6 +26887,8 @@ static swig_type_info _swigt__p_Seiscomp__RecordStream__SeedlinkCommandException
 static swig_type_info _swigt__p_Seiscomp__RecordStream__SeedlinkException = {"_p_Seiscomp__RecordStream__SeedlinkException", "Seiscomp::RecordStream::SeedlinkException *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t = {"_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t", "Seiscomp::TypedArray< Seiscomp::Core::Time > *|Seiscomp::DateTimeArray *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t = {"_p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t", "Seiscomp::StringArray *|Seiscomp::TypedArray< std::basic_string< char,std::char_traits< char >,std::allocator< char > > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t = {"_p_Seiscomp__TypedArrayT_std__complexT_double_t_t", "Seiscomp::TypedArray< std::complex< double > > *|Seiscomp::ComplexDoubleArray *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t = {"_p_Seiscomp__TypedArrayT_std__complexT_float_t_t", "Seiscomp::ComplexFloatArray *|Seiscomp::TypedArray< std::complex< float > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_TagType = {"_p_TagType", "TagType *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Type = {"_p_Type", "Type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
@@ -26959,6 +26971,10 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl,
@@ -27054,6 +27070,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__TypedArrayT_float_t,
   &_swigt__p_Seiscomp__TypedArrayT_int_t,
   &_swigt__p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t,
+  &_swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t,
+  &_swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t,
   &_swigt__p_TagType,
   &_swigt__p_Type,
   &_swigt__p_allocator_type,
@@ -27143,6 +27161,10 @@ static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_co
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
@@ -27229,6 +27251,8 @@ static swig_cast_info _swigc__p_Seiscomp__RecordStream__SeedlinkCommandException
 static swig_cast_info _swigc__p_Seiscomp__RecordStream__SeedlinkException[] = {  {&_swigt__p_Seiscomp__RecordStream__SeedlinkException, 0, 0, 0},  {&_swigt__p_Seiscomp__RecordStream__SeedlinkCommandException, _p_Seiscomp__RecordStream__SeedlinkCommandExceptionTo_p_Seiscomp__RecordStream__SeedlinkException, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__complexT_double_t_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__complexT_float_t_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TagType[] = {  {&_swigt__p_TagType, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Type[] = {  {&_swigt__p_Type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -27311,6 +27335,10 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl,
@@ -27406,6 +27434,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__TypedArrayT_float_t,
   _swigc__p_Seiscomp__TypedArrayT_int_t,
   _swigc__p_Seiscomp__TypedArrayT_std__basic_stringT_char_std__char_traitsT_char_t_std__allocatorT_char_t_t_t,
+  _swigc__p_Seiscomp__TypedArrayT_std__complexT_double_t_t,
+  _swigc__p_Seiscomp__TypedArrayT_std__complexT_float_t_t,
   _swigc__p_TagType,
   _swigc__p_Type,
   _swigc__p_allocator_type,

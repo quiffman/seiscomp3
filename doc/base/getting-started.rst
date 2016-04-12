@@ -81,7 +81,18 @@ supports two main backends: MySQL and postgresql. Select the backend to be used
 here but be prepared that only for the MySQL backend the setup can help to
 create the database and tables for you. If you are using postgresql you have
 to provide a working database with the correct schema. The schema files are
-part of the distribution and can be found in :file:`share/db/postgresql.sql`.
+part of the distribution and can be found in :file:`share/db/postgresql.sql`. 
+
+.. note::
+
+   As of PostgreSQL version 9 the default output encoding has changed to hex.
+   In order to fix issuses with seiscomp3 log in to your database and run the 
+   following command.
+
+   .. code-block:: sql
+
+      ALTER DATABASE seiscomp3 SET bytea_output TO 'escape';
+
 
 ----
 

@@ -32,6 +32,9 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(SourceTimeFunction);
 
 
+/**
+ * \brief Source time function used in moment-tensor inversion.
+ */
 class SC_SYSTEM_CORE_API SourceTimeFunction : public Core::BaseObject {
 	DECLARE_SC_CLASS(SourceTimeFunction);
 	DECLARE_SERIALIZATION;
@@ -70,15 +73,21 @@ class SC_SYSTEM_CORE_API SourceTimeFunction : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Type of source time function. Values can be taken from the
+		//! following:
+		//! BOX_CAR, TRIANGLE, TRAPEZOID, UNKNOWN_FUNCTION.
 		void setType(SourceTimeFunctionType type);
 		SourceTimeFunctionType type() const;
 
+		//! Source time function duration in seconds.
 		void setDuration(double duration);
 		double duration() const;
 
+		//! Source time function rise time in seconds.
 		void setRiseTime(const OPT(double)& riseTime);
 		double riseTime() const throw(Seiscomp::Core::ValueException);
 
+		//! Source time function decay time in seconds.
 		void setDecayTime(const OPT(double)& decayTime);
 		double decayTime() const throw(Seiscomp::Core::ValueException);
 

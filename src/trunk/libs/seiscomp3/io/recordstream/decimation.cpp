@@ -161,13 +161,13 @@ bool Decimation::setSource(string name) {
 					if ( !Core::fromString(fp, value) ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a numerical value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid fp parameter value");
 					}
 
 					if ( fp <= 0 ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a positive value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid fp parameter value");
 					}
 
 					_fp = fp;
@@ -177,13 +177,13 @@ bool Decimation::setSource(string name) {
 					if ( !Core::fromString(fs, value) ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a numerical value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid fs parameter value");
 					}
 
 					if ( fs <= 0 ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a positive value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid fs parameter value");
 					}
 
 					_fs = fs;
@@ -193,13 +193,13 @@ bool Decimation::setSource(string name) {
 					if ( !Core::fromString(cs, value) ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a numerical value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid cs parameter value");
 					}
 
 					if ( cs <= 0 ) {
 						SEISCOMP_ERROR("Invalid decimation value for '%s': expected a positive value",
 						               name.c_str());
-						throw RecordStreamException("invalid rate parameter value");
+						throw RecordStreamException("invalid cs parameter value");
 					}
 
 					_coeffScale = cs;

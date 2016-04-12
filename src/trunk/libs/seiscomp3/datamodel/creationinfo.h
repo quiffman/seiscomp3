@@ -33,6 +33,10 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(CreationInfo);
 
 
+/**
+ * \brief CreationInfo is used to describe creation metadata (author,
+ * \brief version, and creation time) of a resource.
+ */
 class SC_SYSTEM_CORE_API CreationInfo : public Core::BaseObject {
 	DECLARE_SC_CLASS(CreationInfo);
 	DECLARE_SERIALIZATION;
@@ -71,24 +75,35 @@ class SC_SYSTEM_CORE_API CreationInfo : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Designation of agency that published a resource. The string
+		//! has a maximum length of 64 characters.
 		void setAgencyID(const std::string& agencyID);
 		const std::string& agencyID() const;
 
+		//! RI of the agency that published a resource.
 		void setAgencyURI(const std::string& agencyURI);
 		const std::string& agencyURI() const;
 
+		//! Name describing the author of a resource. The string has a
+		//! maximum length of 128 characters.
 		void setAuthor(const std::string& author);
 		const std::string& author() const;
 
+		//! RI of the author of a resource.
 		void setAuthorURI(const std::string& authorURI);
 		const std::string& authorURI() const;
 
+		//! Time of creation of a resource, in ISO 8601 format. It has
+		//! to be given in UTC.
 		void setCreationTime(const OPT(Seiscomp::Core::Time)& creationTime);
 		Seiscomp::Core::Time creationTime() const throw(Seiscomp::Core::ValueException);
 
+		//! Time of last modification of a resource, in ISO 8601
+		//! format. It has to be given in UTC.
 		void setModificationTime(const OPT(Seiscomp::Core::Time)& modificationTime);
 		Seiscomp::Core::Time modificationTime() const throw(Seiscomp::Core::ValueException);
 
+		//! Version string of a resource.
 		void setVersion(const std::string& version);
 		const std::string& version() const;
 

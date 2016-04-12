@@ -108,6 +108,7 @@ void App::createCommandLineDescription() {
 	commandline().addOption("Settings", "min-score", "Minimum score for an origin to be reported", &_config.minScore);
 	commandline().addOption("Settings", "min-pick-snr", "Minimum SNR for a pick to be processed", &_config.minPickSNR);
 
+	commandline().addOption("Settings", "xxl-enable", "", &_config.xxlEnabled);
 	commandline().addOption("Settings", "xxl-min-phase-count", "Minimum number of picks for an XXL origin to be reported", &_config.xxlMinPhaseCount);
 	commandline().addOption("Settings", "xxl-min-amplitude", "Flag pick as XXL if BOTH snr and amplitude exceed a threshold", &_config.xxlMinAmplitude);
 	commandline().addOption("Settings", "xxl-min-snr", "Flag pick as XXL if BOTH snr and amplitude exceed a threshold", &_config.xxlMinSNR);
@@ -196,6 +197,7 @@ bool App::initConfiguration() {
 	try { _config.maxStaDist = configGetDouble("autoloc.maxStationDistance"); } catch (...) {}
 	try { _config.defaultMaxNucDist = configGetDouble("autoloc.defaultMaxNucleationDistance"); } catch (...) {}
 
+	try { _config.xxlEnabled = configGetBool("autoloc.xxl.enable"); } catch (...) {}
 	try { _config.xxlMinAmplitude = configGetDouble("autoloc.xxl.minAmplitude"); } catch (...) {
 		try {
 			// deprecated since 2013-06-26
@@ -789,8 +791,10 @@ bool App::feed(DataModel::Pick *sc3pick) {
 
 
 	::Autoloc::Pick* pick = convertFromSC3(sc3pick);
-	if ( ! pick )
+	if ( ! pick ) {
+//		SEISCOMP_ERROR_S(sc3pick->publicID());
 		return false;
+	}
 
 	if (_amplTypeAbs.size()) {
 		// assign absolute amplitude to pick

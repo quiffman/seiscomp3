@@ -2973,98 +2973,104 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl swig_types[28]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl swig_types[29]
 #define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl swig_types[30]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl swig_types[31]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl swig_types[32]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl swig_types[33]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_t__AttachementType_t__Impl swig_types[34]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_const_t__Impl swig_types[35]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_t__Impl swig_types[36]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_const_t__Impl swig_types[37]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_t__Impl swig_types[38]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_const_t__Impl swig_types[39]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_t__Impl swig_types[40]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_const_t__Impl swig_types[41]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_t__Impl swig_types[42]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_const_t__Impl swig_types[43]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_t__Impl swig_types[44]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_const_t__Impl swig_types[45]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_t__Impl swig_types[46]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_const_t__Impl swig_types[47]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl swig_types[48]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl swig_types[49]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl swig_types[50]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[51]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[52]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[53]
-#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[54]
-#define SWIGTYPE_p_Seiscomp__Core__Status swig_types[55]
-#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[56]
-#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[57]
-#define SWIGTYPE_p_Seiscomp__Core__TimeSpan swig_types[58]
-#define SWIGTYPE_p_Seiscomp__Core__TimeWindow swig_types[59]
-#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[60]
-#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[61]
-#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[62]
-#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[63]
-#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[64]
-#define SWIGTYPE_p_Seiscomp__Core__Version swig_types[65]
-#define SWIGTYPE_p_Seiscomp__Core___private__Alarmable swig_types[66]
-#define SWIGTYPE_p_Seiscomp__Core___private__Interruptible swig_types[67]
-#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[68]
-#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[69]
-#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[70]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[71]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[72]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[73]
-#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[74]
-#define SWIGTYPE_p_Seiscomp__Record swig_types[75]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[76]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t__DataArray__const_iterator swig_types[77]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t__DataArray__iterator swig_types[78]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[79]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t__DataArray__const_iterator swig_types[80]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t__DataArray__iterator swig_types[81]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[82]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t__DataArray__const_iterator swig_types[83]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t__DataArray__iterator swig_types[84]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[85]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t__DataArray__const_iterator swig_types[86]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t__DataArray__iterator swig_types[87]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[88]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator swig_types[89]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t__DataArray__iterator swig_types[90]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t swig_types[91]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator swig_types[92]
-#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator swig_types[93]
-#define SWIGTYPE_p_T swig_types[94]
-#define SWIGTYPE_p_TagType swig_types[95]
-#define SWIGTYPE_p_Type swig_types[96]
-#define SWIGTYPE_p_bool swig_types[97]
-#define SWIGTYPE_p_boost__none_t swig_types[98]
-#define SWIGTYPE_p_char swig_types[99]
-#define SWIGTYPE_p_const_iterator swig_types[100]
-#define SWIGTYPE_p_double swig_types[101]
-#define SWIGTYPE_p_float swig_types[102]
-#define SWIGTYPE_p_int swig_types[103]
-#define SWIGTYPE_p_iterator swig_types[104]
-#define SWIGTYPE_p_std__complexT_double_t swig_types[105]
-#define SWIGTYPE_p_std__complexT_float_t swig_types[106]
-#define SWIGTYPE_p_std__exception swig_types[107]
-#define SWIGTYPE_p_std__istream swig_types[108]
-#define SWIGTYPE_p_std__ostream swig_types[109]
-#define SWIGTYPE_p_std__string swig_types[110]
-#define SWIGTYPE_p_std__vectorT_Seiscomp__Core__Time_t swig_types[111]
-#define SWIGTYPE_p_std__vectorT_char_t swig_types[112]
-#define SWIGTYPE_p_std__vectorT_double_t swig_types[113]
-#define SWIGTYPE_p_std__vectorT_float_t swig_types[114]
-#define SWIGTYPE_p_std__vectorT_int_t swig_types[115]
-#define SWIGTYPE_p_std__vectorT_std__complexT_double_t_t swig_types[116]
-#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[117]
-#define SWIGTYPE_p_time_t swig_types[118]
-#define SWIGTYPE_p_timeval swig_types[119]
-#define SWIGTYPE_p_void swig_types[120]
-static swig_type_info *swig_types[122];
-static swig_module_info swig_module = {swig_types, 121, 0, 0, 0, 0};
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl swig_types[31]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl swig_types[32]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl swig_types[33]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl swig_types[34]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl swig_types[35]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl swig_types[36]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl swig_types[37]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GenericMessageT_Seiscomp__Core__BaseObject_t__AttachementType_t__Impl swig_types[38]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_const_t__Impl swig_types[39]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__GreensFunction_t__Impl swig_types[40]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_const_t__Impl swig_types[41]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__Message_t__Impl swig_types[42]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_const_t__Impl swig_types[43]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core___private__InterruptibleObject_t__Impl swig_types[44]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_const_t__Impl swig_types[45]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DateTimeArray_t__Impl swig_types[46]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_const_t__Impl swig_types[47]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__DoubleArray_t__Impl swig_types[48]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_const_t__Impl swig_types[49]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__FloatArray_t__Impl swig_types[50]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_const_t__Impl swig_types[51]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__GenericRecord_t__Impl swig_types[52]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_const_t__Impl swig_types[53]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__IntArray_t__Impl swig_types[54]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_const_t__Impl swig_types[55]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__Record_t__Impl swig_types[56]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_const_t__Impl swig_types[57]
+#define SWIGTYPE_p_Seiscomp__Core__SmartPointerT_Seiscomp__StringArray_t__Impl swig_types[58]
+#define SWIGTYPE_p_Seiscomp__Core__Status swig_types[59]
+#define SWIGTYPE_p_Seiscomp__Core__StreamException swig_types[60]
+#define SWIGTYPE_p_Seiscomp__Core__Time swig_types[61]
+#define SWIGTYPE_p_Seiscomp__Core__TimeSpan swig_types[62]
+#define SWIGTYPE_p_Seiscomp__Core__TimeWindow swig_types[63]
+#define SWIGTYPE_p_Seiscomp__Core__TypeConversionException swig_types[64]
+#define SWIGTYPE_p_Seiscomp__Core__TypeException swig_types[65]
+#define SWIGTYPE_p_Seiscomp__Core__UnderflowException swig_types[66]
+#define SWIGTYPE_p_Seiscomp__Core__ValueError swig_types[67]
+#define SWIGTYPE_p_Seiscomp__Core__ValueException swig_types[68]
+#define SWIGTYPE_p_Seiscomp__Core__Version swig_types[69]
+#define SWIGTYPE_p_Seiscomp__Core___private__Alarmable swig_types[70]
+#define SWIGTYPE_p_Seiscomp__Core___private__Interruptible swig_types[71]
+#define SWIGTYPE_p_Seiscomp__Core___private__InterruptibleObject swig_types[72]
+#define SWIGTYPE_p_Seiscomp__Core___private__OperationInterrupted swig_types[73]
+#define SWIGTYPE_p_Seiscomp__GenericRecord swig_types[74]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_char_t swig_types[75]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_double_t swig_types[76]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_float_t swig_types[77]
+#define SWIGTYPE_p_Seiscomp__NumericArrayT_int_t swig_types[78]
+#define SWIGTYPE_p_Seiscomp__Record swig_types[79]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t swig_types[80]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t__DataArray__const_iterator swig_types[81]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t__DataArray__iterator swig_types[82]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t swig_types[83]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t__DataArray__const_iterator swig_types[84]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_char_t__DataArray__iterator swig_types[85]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t swig_types[86]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t__DataArray__const_iterator swig_types[87]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_double_t__DataArray__iterator swig_types[88]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t swig_types[89]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t__DataArray__const_iterator swig_types[90]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_float_t__DataArray__iterator swig_types[91]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t swig_types[92]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator swig_types[93]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_int_t__DataArray__iterator swig_types[94]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__complexT_double_t_t swig_types[95]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__complexT_float_t_t swig_types[96]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t swig_types[97]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator swig_types[98]
+#define SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator swig_types[99]
+#define SWIGTYPE_p_T swig_types[100]
+#define SWIGTYPE_p_TagType swig_types[101]
+#define SWIGTYPE_p_Type swig_types[102]
+#define SWIGTYPE_p_bool swig_types[103]
+#define SWIGTYPE_p_boost__none_t swig_types[104]
+#define SWIGTYPE_p_char swig_types[105]
+#define SWIGTYPE_p_const_iterator swig_types[106]
+#define SWIGTYPE_p_double swig_types[107]
+#define SWIGTYPE_p_float swig_types[108]
+#define SWIGTYPE_p_int swig_types[109]
+#define SWIGTYPE_p_iterator swig_types[110]
+#define SWIGTYPE_p_std__complexT_double_t swig_types[111]
+#define SWIGTYPE_p_std__complexT_float_t swig_types[112]
+#define SWIGTYPE_p_std__exception swig_types[113]
+#define SWIGTYPE_p_std__istream swig_types[114]
+#define SWIGTYPE_p_std__ostream swig_types[115]
+#define SWIGTYPE_p_std__string swig_types[116]
+#define SWIGTYPE_p_std__vectorT_Seiscomp__Core__Time_t swig_types[117]
+#define SWIGTYPE_p_std__vectorT_char_t swig_types[118]
+#define SWIGTYPE_p_std__vectorT_double_t swig_types[119]
+#define SWIGTYPE_p_std__vectorT_float_t swig_types[120]
+#define SWIGTYPE_p_std__vectorT_int_t swig_types[121]
+#define SWIGTYPE_p_std__vectorT_std__complexT_double_t_t swig_types[122]
+#define SWIGTYPE_p_std__vectorT_std__string_t swig_types[123]
+#define SWIGTYPE_p_time_t swig_types[124]
+#define SWIGTYPE_p_timeval swig_types[125]
+#define SWIGTYPE_p_void swig_types[126]
+static swig_type_info *swig_types[128];
+static swig_module_info swig_module = {swig_types, 127, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -19132,6 +19138,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_CharArrayT_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< char > *arg1 = (Seiscomp::TypedArray< char > *) 0 ;
+  int arg2 ;
+  char arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  char val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:CharArrayT_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_char_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArrayT_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArrayT_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_char(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "CharArrayT_append" "', argument " "3"" of type '" "char""'");
+  } 
+  arg3 = static_cast< char >(val3);
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_CharArrayT_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -19167,6 +19212,27 @@ SWIGINTERN PyObject *_wrap_CharArrayT_append(PyObject *self, PyObject *args) {
         _v = SWIG_CheckState(res);
       }
       if (_v) {
+        {
+          int res = SWIG_AsVal_char(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_CharArrayT_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_char_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
         int res = SWIG_AsCharPtrAndSize(argv[2], 0, NULL, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
@@ -19180,7 +19246,8 @@ fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'CharArrayT_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< char >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< char >::append(int,char const *)\n");
+    "    Seiscomp::TypedArray< char >::append(int,char const *)\n"
+    "    Seiscomp::TypedArray< char >::append(int,char)\n");
   return 0;
 }
 
@@ -19257,6 +19324,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_CharArrayT_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< char > *arg1 = (Seiscomp::TypedArray< char > *) 0 ;
+  int arg2 ;
+  char arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  char val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:CharArrayT_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_char_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArrayT_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArrayT_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_char(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "CharArrayT_prepend" "', argument " "3"" of type '" "char""'");
+  } 
+  arg3 = static_cast< char >(val3);
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_CharArrayT_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -19292,6 +19398,27 @@ SWIGINTERN PyObject *_wrap_CharArrayT_prepend(PyObject *self, PyObject *args) {
         _v = SWIG_CheckState(res);
       }
       if (_v) {
+        {
+          int res = SWIG_AsVal_char(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_CharArrayT_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_char_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
         int res = SWIG_AsCharPtrAndSize(argv[2], 0, NULL, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
@@ -19305,7 +19432,8 @@ fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'CharArrayT_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< char >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< char >::prepend(int,char const *)\n");
+    "    Seiscomp::TypedArray< char >::prepend(int,char const *)\n"
+    "    Seiscomp::TypedArray< char >::prepend(int,char)\n");
   return 0;
 }
 
@@ -20539,6 +20667,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_IntArrayT_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< int > *arg1 = (Seiscomp::TypedArray< int > *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:IntArrayT_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_int_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArrayT_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArrayT_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "IntArrayT_append" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_IntArrayT_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -20583,12 +20750,34 @@ SWIGINTERN PyObject *_wrap_IntArrayT_append(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_int_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_IntArrayT_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'IntArrayT_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< int >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< int >::append(int,int const *)\n");
+    "    Seiscomp::TypedArray< int >::append(int,int const *)\n"
+    "    Seiscomp::TypedArray< int >::append(int,int)\n");
   return 0;
 }
 
@@ -20662,6 +20851,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_IntArrayT_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< int > *arg1 = (Seiscomp::TypedArray< int > *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:IntArrayT_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_int_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArrayT_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArrayT_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "IntArrayT_prepend" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_IntArrayT_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -20706,12 +20934,34 @@ SWIGINTERN PyObject *_wrap_IntArrayT_prepend(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_int_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_IntArrayT_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'IntArrayT_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< int >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< int >::prepend(int,int const *)\n");
+    "    Seiscomp::TypedArray< int >::prepend(int,int const *)\n"
+    "    Seiscomp::TypedArray< int >::prepend(int,int)\n");
   return 0;
 }
 
@@ -21945,6 +22195,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FloatArrayT_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< float > *arg1 = (Seiscomp::TypedArray< float > *) 0 ;
+  int arg2 ;
+  float arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:FloatArrayT_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_float_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArrayT_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArrayT_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "FloatArrayT_append" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_FloatArrayT_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -21989,12 +22278,34 @@ SWIGINTERN PyObject *_wrap_FloatArrayT_append(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_float_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_float(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_FloatArrayT_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'FloatArrayT_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< float >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< float >::append(int,float const *)\n");
+    "    Seiscomp::TypedArray< float >::append(int,float const *)\n"
+    "    Seiscomp::TypedArray< float >::append(int,float)\n");
   return 0;
 }
 
@@ -22068,6 +22379,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FloatArrayT_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< float > *arg1 = (Seiscomp::TypedArray< float > *) 0 ;
+  int arg2 ;
+  float arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:FloatArrayT_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_float_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArrayT_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArrayT_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "FloatArrayT_prepend" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_FloatArrayT_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -22112,12 +22462,34 @@ SWIGINTERN PyObject *_wrap_FloatArrayT_prepend(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_float_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_float(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_FloatArrayT_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'FloatArrayT_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< float >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< float >::prepend(int,float const *)\n");
+    "    Seiscomp::TypedArray< float >::prepend(int,float const *)\n"
+    "    Seiscomp::TypedArray< float >::prepend(int,float)\n");
   return 0;
 }
 
@@ -23351,6 +23723,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DoubleArrayT_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< double > *arg1 = (Seiscomp::TypedArray< double > *) 0 ;
+  int arg2 ;
+  double arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:DoubleArrayT_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArrayT_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArrayT_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "DoubleArrayT_append" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = static_cast< double >(val3);
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DoubleArrayT_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -23395,12 +23806,34 @@ SWIGINTERN PyObject *_wrap_DoubleArrayT_append(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_double_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_DoubleArrayT_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'DoubleArrayT_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< double >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< double >::append(int,double const *)\n");
+    "    Seiscomp::TypedArray< double >::append(int,double const *)\n"
+    "    Seiscomp::TypedArray< double >::append(int,double)\n");
   return 0;
 }
 
@@ -23474,6 +23907,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DoubleArrayT_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< double > *arg1 = (Seiscomp::TypedArray< double > *) 0 ;
+  int arg2 ;
+  double arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:DoubleArrayT_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_double_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArrayT_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArrayT_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "DoubleArrayT_prepend" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = static_cast< double >(val3);
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DoubleArrayT_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -23518,12 +23990,34 @@ SWIGINTERN PyObject *_wrap_DoubleArrayT_prepend(PyObject *self, PyObject *args) 
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_double_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_DoubleArrayT_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'DoubleArrayT_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< double >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< double >::prepend(int,double const *)\n");
+    "    Seiscomp::TypedArray< double >::prepend(int,double const *)\n"
+    "    Seiscomp::TypedArray< double >::prepend(int,double)\n");
   return 0;
 }
 
@@ -24766,6 +25260,53 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DateTimeArray_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< Seiscomp::Core::Time > *arg1 = (Seiscomp::TypedArray< Seiscomp::Core::Time > *) 0 ;
+  int arg2 ;
+  Seiscomp::Core::Time arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:DateTimeArray_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DateTimeArray_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< Seiscomp::Core::Time > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< Seiscomp::Core::Time > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DateTimeArray_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Seiscomp__Core__Time,  0  | 0);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "DateTimeArray_append" "', argument " "3"" of type '" "Seiscomp::Core::Time""'"); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "DateTimeArray_append" "', argument " "3"" of type '" "Seiscomp::Core::Time""'");
+    } else {
+      Seiscomp::Core::Time * temp = reinterpret_cast< Seiscomp::Core::Time * >(argp3);
+      arg3 = *temp;
+      if (SWIG_IsNewObj(res3)) delete temp;
+    }
+  }
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DateTimeArray_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -24810,12 +25351,32 @@ SWIGINTERN PyObject *_wrap_DateTimeArray_append(PyObject *self, PyObject *args) 
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Seiscomp__Core__Time, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_DateTimeArray_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'DateTimeArray_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< Seiscomp::Core::Time >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::append(int,Seiscomp::Core::Time const *)\n");
+    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::append(int,Seiscomp::Core::Time const *)\n"
+    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::append(int,Seiscomp::Core::Time)\n");
   return 0;
 }
 
@@ -24889,6 +25450,53 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DateTimeArray_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< Seiscomp::Core::Time > *arg1 = (Seiscomp::TypedArray< Seiscomp::Core::Time > *) 0 ;
+  int arg2 ;
+  Seiscomp::Core::Time arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:DateTimeArray_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DateTimeArray_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< Seiscomp::Core::Time > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< Seiscomp::Core::Time > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DateTimeArray_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Seiscomp__Core__Time,  0  | 0);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "DateTimeArray_prepend" "', argument " "3"" of type '" "Seiscomp::Core::Time""'"); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "DateTimeArray_prepend" "', argument " "3"" of type '" "Seiscomp::Core::Time""'");
+    } else {
+      Seiscomp::Core::Time * temp = reinterpret_cast< Seiscomp::Core::Time * >(argp3);
+      arg3 = *temp;
+      if (SWIG_IsNewObj(res3)) delete temp;
+    }
+  }
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DateTimeArray_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -24933,12 +25541,32 @@ SWIGINTERN PyObject *_wrap_DateTimeArray_prepend(PyObject *self, PyObject *args)
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_Seiscomp__Core__Time_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Seiscomp__Core__Time, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_DateTimeArray_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'DateTimeArray_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< Seiscomp::Core::Time >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::prepend(int,Seiscomp::Core::Time const *)\n");
+    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::prepend(int,Seiscomp::Core::Time const *)\n"
+    "    Seiscomp::TypedArray< Seiscomp::Core::Time >::prepend(int,Seiscomp::Core::Time)\n");
   return 0;
 }
 
@@ -26178,6 +26806,47 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_StringArray_append__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< std::string > *arg1 = (Seiscomp::TypedArray< std::string > *) 0 ;
+  int arg2 ;
+  std::string arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:StringArray_append",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "StringArray_append" "', argument " "1"" of type '" "Seiscomp::TypedArray< std::string > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< std::string > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "StringArray_append" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "StringArray_append" "', argument " "3"" of type '" "std::string""'"); 
+    }
+    arg3 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  (arg1)->append(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_StringArray_append(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -26221,12 +26890,32 @@ SWIGINTERN PyObject *_wrap_StringArray_append(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_AsPtr_std_string(argv[2], (std::string**)(0));
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_StringArray_append__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'StringArray_append'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< std::string >::append(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< std::string >::append(int,std::string const *)\n");
+    "    Seiscomp::TypedArray< std::string >::append(int,std::string const *)\n"
+    "    Seiscomp::TypedArray< std::string >::append(int,std::string)\n");
   return 0;
 }
 
@@ -26300,6 +26989,47 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_StringArray_prepend__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::TypedArray< std::string > *arg1 = (Seiscomp::TypedArray< std::string > *) 0 ;
+  int arg2 ;
+  std::string arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:StringArray_prepend",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "StringArray_prepend" "', argument " "1"" of type '" "Seiscomp::TypedArray< std::string > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::TypedArray< std::string > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "StringArray_prepend" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "StringArray_prepend" "', argument " "3"" of type '" "std::string""'"); 
+    }
+    arg3 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  (arg1)->prepend(arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_StringArray_prepend(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[4];
@@ -26343,12 +27073,32 @@ SWIGINTERN PyObject *_wrap_StringArray_prepend(PyObject *self, PyObject *args) {
       }
     }
   }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Seiscomp__TypedArrayT_std__string_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_AsPtr_std_string(argv[2], (std::string**)(0));
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_StringArray_prepend__SWIG_2(self, args);
+        }
+      }
+    }
+  }
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'StringArray_prepend'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Seiscomp::TypedArray< std::string >::prepend(Seiscomp::Array const *)\n"
-    "    Seiscomp::TypedArray< std::string >::prepend(int,std::string const *)\n");
+    "    Seiscomp::TypedArray< std::string >::prepend(int,std::string const *)\n"
+    "    Seiscomp::TypedArray< std::string >::prepend(int,std::string)\n");
   return 0;
 }
 
@@ -27341,6 +28091,134 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_CharArray___iadd__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< char > *arg1 = (Seiscomp::NumericArray< char > *) 0 ;
+  char arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< char > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:CharArray___iadd__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArray___iadd__" "', argument " "1"" of type '" "Seiscomp::NumericArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_char(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArray___iadd__" "', argument " "2"" of type '" "char""'");
+  } 
+  arg2 = static_cast< char >(val2);
+  result = (Seiscomp::NumericArray< char > *) &(arg1)->operator +=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CharArray___isub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< char > *arg1 = (Seiscomp::NumericArray< char > *) 0 ;
+  char arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< char > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:CharArray___isub__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArray___isub__" "', argument " "1"" of type '" "Seiscomp::NumericArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_char(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArray___isub__" "', argument " "2"" of type '" "char""'");
+  } 
+  arg2 = static_cast< char >(val2);
+  result = (Seiscomp::NumericArray< char > *) &(arg1)->operator -=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CharArray___imul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< char > *arg1 = (Seiscomp::NumericArray< char > *) 0 ;
+  char arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< char > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:CharArray___imul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArray___imul__" "', argument " "1"" of type '" "Seiscomp::NumericArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_char(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArray___imul__" "', argument " "2"" of type '" "char""'");
+  } 
+  arg2 = static_cast< char >(val2);
+  result = (Seiscomp::NumericArray< char > *) &(arg1)->operator *=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CharArray___idiv__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< char > *arg1 = (Seiscomp::NumericArray< char > *) 0 ;
+  char arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< char > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:CharArray___idiv__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CharArray___idiv__" "', argument " "1"" of type '" "Seiscomp::NumericArray< char > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< char > * >(argp1);
+  ecode2 = SWIG_AsVal_char(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CharArray___idiv__" "', argument " "2"" of type '" "char""'");
+  } 
+  arg2 = static_cast< char >(val2);
+  result = (Seiscomp::NumericArray< char > *) &(arg1)->operator /=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_char_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *CharArray_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -28035,6 +28913,134 @@ SWIGINTERN PyObject *_wrap_IntArray_slice(PyObject *SWIGUNUSEDPARM(self), PyObje
   arg3 = static_cast< int >(val3);
   result = (Seiscomp::NumericArray< int > *)((Seiscomp::NumericArray< int > const *)arg1)->slice(arg2,arg3);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_IntArray___iadd__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< int > *arg1 = (Seiscomp::NumericArray< int > *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< int > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:IntArray___iadd__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArray___iadd__" "', argument " "1"" of type '" "Seiscomp::NumericArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArray___iadd__" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (Seiscomp::NumericArray< int > *) &(arg1)->operator +=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_IntArray___isub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< int > *arg1 = (Seiscomp::NumericArray< int > *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< int > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:IntArray___isub__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArray___isub__" "', argument " "1"" of type '" "Seiscomp::NumericArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArray___isub__" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (Seiscomp::NumericArray< int > *) &(arg1)->operator -=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_IntArray___imul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< int > *arg1 = (Seiscomp::NumericArray< int > *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< int > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:IntArray___imul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArray___imul__" "', argument " "1"" of type '" "Seiscomp::NumericArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArray___imul__" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (Seiscomp::NumericArray< int > *) &(arg1)->operator *=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_IntArray___idiv__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< int > *arg1 = (Seiscomp::NumericArray< int > *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< int > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:IntArray___idiv__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "IntArray___idiv__" "', argument " "1"" of type '" "Seiscomp::NumericArray< int > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< int > * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "IntArray___idiv__" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (Seiscomp::NumericArray< int > *) &(arg1)->operator /=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_int_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
   return resultobj;
 fail:
   return NULL;
@@ -28741,6 +29747,134 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_FloatArray___iadd__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< float > *arg1 = (Seiscomp::NumericArray< float > *) 0 ;
+  float arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FloatArray___iadd__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArray___iadd__" "', argument " "1"" of type '" "Seiscomp::NumericArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArray___iadd__" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  result = (Seiscomp::NumericArray< float > *) &(arg1)->operator +=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_FloatArray___isub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< float > *arg1 = (Seiscomp::NumericArray< float > *) 0 ;
+  float arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FloatArray___isub__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArray___isub__" "', argument " "1"" of type '" "Seiscomp::NumericArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArray___isub__" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  result = (Seiscomp::NumericArray< float > *) &(arg1)->operator -=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_FloatArray___imul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< float > *arg1 = (Seiscomp::NumericArray< float > *) 0 ;
+  float arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FloatArray___imul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArray___imul__" "', argument " "1"" of type '" "Seiscomp::NumericArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArray___imul__" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  result = (Seiscomp::NumericArray< float > *) &(arg1)->operator *=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_FloatArray___idiv__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< float > *arg1 = (Seiscomp::NumericArray< float > *) 0 ;
+  float arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< float > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:FloatArray___idiv__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FloatArray___idiv__" "', argument " "1"" of type '" "Seiscomp::NumericArray< float > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< float > * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FloatArray___idiv__" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  result = (Seiscomp::NumericArray< float > *) &(arg1)->operator /=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_float_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *FloatArray_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -29441,6 +30575,134 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DoubleArray___iadd__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< double > *arg1 = (Seiscomp::NumericArray< double > *) 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:DoubleArray___iadd__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArray___iadd__" "', argument " "1"" of type '" "Seiscomp::NumericArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArray___iadd__" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  result = (Seiscomp::NumericArray< double > *) &(arg1)->operator +=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DoubleArray___isub__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< double > *arg1 = (Seiscomp::NumericArray< double > *) 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:DoubleArray___isub__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArray___isub__" "', argument " "1"" of type '" "Seiscomp::NumericArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArray___isub__" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  result = (Seiscomp::NumericArray< double > *) &(arg1)->operator -=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DoubleArray___imul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< double > *arg1 = (Seiscomp::NumericArray< double > *) 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:DoubleArray___imul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArray___imul__" "', argument " "1"" of type '" "Seiscomp::NumericArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArray___imul__" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  result = (Seiscomp::NumericArray< double > *) &(arg1)->operator *=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DoubleArray___idiv__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::NumericArray< double > *arg1 = (Seiscomp::NumericArray< double > *) 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Seiscomp::NumericArray< double > *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:DoubleArray___idiv__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DoubleArray___idiv__" "', argument " "1"" of type '" "Seiscomp::NumericArray< double > *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::NumericArray< double > * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DoubleArray___idiv__" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  result = (Seiscomp::NumericArray< double > *) &(arg1)->operator /=(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Seiscomp__NumericArrayT_double_t, SWIG_POINTER_OWN |  0 );
+  if (result) result->incrementReferenceCount();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *DoubleArray_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -29959,6 +31221,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CharArray_mean", _wrap_CharArray_mean, METH_VARARGS, NULL},
 	 { (char *)"CharArray_rms", _wrap_CharArray_rms, METH_VARARGS, NULL},
 	 { (char *)"CharArray_slice", _wrap_CharArray_slice, METH_VARARGS, NULL},
+	 { (char *)"CharArray___iadd__", _wrap_CharArray___iadd__, METH_VARARGS, NULL},
+	 { (char *)"CharArray___isub__", _wrap_CharArray___isub__, METH_VARARGS, NULL},
+	 { (char *)"CharArray___imul__", _wrap_CharArray___imul__, METH_VARARGS, NULL},
+	 { (char *)"CharArray___idiv__", _wrap_CharArray___idiv__, METH_VARARGS, NULL},
 	 { (char *)"CharArray_swigregister", CharArray_swigregister, METH_VARARGS, NULL},
 	 { (char *)"IntArray_ClassName", _wrap_IntArray_ClassName, METH_VARARGS, NULL},
 	 { (char *)"IntArray_TypeInfo", _wrap_IntArray_TypeInfo, METH_VARARGS, NULL},
@@ -29976,6 +31242,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"IntArray_mean", _wrap_IntArray_mean, METH_VARARGS, NULL},
 	 { (char *)"IntArray_rms", _wrap_IntArray_rms, METH_VARARGS, NULL},
 	 { (char *)"IntArray_slice", _wrap_IntArray_slice, METH_VARARGS, NULL},
+	 { (char *)"IntArray___iadd__", _wrap_IntArray___iadd__, METH_VARARGS, NULL},
+	 { (char *)"IntArray___isub__", _wrap_IntArray___isub__, METH_VARARGS, NULL},
+	 { (char *)"IntArray___imul__", _wrap_IntArray___imul__, METH_VARARGS, NULL},
+	 { (char *)"IntArray___idiv__", _wrap_IntArray___idiv__, METH_VARARGS, NULL},
 	 { (char *)"IntArray_swigregister", IntArray_swigregister, METH_VARARGS, NULL},
 	 { (char *)"FloatArray_ClassName", _wrap_FloatArray_ClassName, METH_VARARGS, NULL},
 	 { (char *)"FloatArray_TypeInfo", _wrap_FloatArray_TypeInfo, METH_VARARGS, NULL},
@@ -29993,6 +31263,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"FloatArray_mean", _wrap_FloatArray_mean, METH_VARARGS, NULL},
 	 { (char *)"FloatArray_rms", _wrap_FloatArray_rms, METH_VARARGS, NULL},
 	 { (char *)"FloatArray_slice", _wrap_FloatArray_slice, METH_VARARGS, NULL},
+	 { (char *)"FloatArray___iadd__", _wrap_FloatArray___iadd__, METH_VARARGS, NULL},
+	 { (char *)"FloatArray___isub__", _wrap_FloatArray___isub__, METH_VARARGS, NULL},
+	 { (char *)"FloatArray___imul__", _wrap_FloatArray___imul__, METH_VARARGS, NULL},
+	 { (char *)"FloatArray___idiv__", _wrap_FloatArray___idiv__, METH_VARARGS, NULL},
 	 { (char *)"FloatArray_swigregister", FloatArray_swigregister, METH_VARARGS, NULL},
 	 { (char *)"DoubleArray_ClassName", _wrap_DoubleArray_ClassName, METH_VARARGS, NULL},
 	 { (char *)"DoubleArray_TypeInfo", _wrap_DoubleArray_TypeInfo, METH_VARARGS, NULL},
@@ -30010,6 +31284,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"DoubleArray_mean", _wrap_DoubleArray_mean, METH_VARARGS, NULL},
 	 { (char *)"DoubleArray_rms", _wrap_DoubleArray_rms, METH_VARARGS, NULL},
 	 { (char *)"DoubleArray_slice", _wrap_DoubleArray_slice, METH_VARARGS, NULL},
+	 { (char *)"DoubleArray___iadd__", _wrap_DoubleArray___iadd__, METH_VARARGS, NULL},
+	 { (char *)"DoubleArray___isub__", _wrap_DoubleArray___isub__, METH_VARARGS, NULL},
+	 { (char *)"DoubleArray___imul__", _wrap_DoubleArray___imul__, METH_VARARGS, NULL},
+	 { (char *)"DoubleArray___idiv__", _wrap_DoubleArray___idiv__, METH_VARARGS, NULL},
 	 { (char *)"DoubleArray_swigregister", DoubleArray_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
@@ -30240,6 +31518,10 @@ static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_co
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl", "Seiscomp::ArrayPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Array >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::CharArray const >::Impl *|Seiscomp::CharArrayCPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::CharArray >::Impl *|Seiscomp::CharArrayPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexDoubleArray const >::Impl *|Seiscomp::ComplexDoubleArrayCPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexDoubleArray >::Impl *|Seiscomp::ComplexDoubleArrayPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexFloatArray const >::Impl *|Seiscomp::ComplexFloatArrayCPtr *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::ComplexFloatArray >::Impl *|Seiscomp::ComplexFloatArrayPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl", "Seiscomp::Core::BaseObjectCPtr *|Seiscomp::Core::SmartPointer< Seiscomp::Core::BaseObject const >::Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl", "Seiscomp::Core::SmartPointer< Seiscomp::Core::BaseObject >::Impl *|Seiscomp::Core::BaseObjectPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl = {"_p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl", "::Seiscomp::Core::SmartPointer< Seiscomp::Core::DataMessage >::Impl *|Seiscomp::Core::DataMessagePtr *", 0, 0, (void*)0, 0};
@@ -30300,6 +31582,8 @@ static swig_type_info _swigt__p_Seiscomp__TypedArrayT_float_t__DataArray__iterat
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_int_t = {"_p_Seiscomp__TypedArrayT_int_t", "Seiscomp::TypedArray< int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator = {"_p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator", "Seiscomp::TypedArray< int >::DataArray::const_iterator *|Seiscomp::TypedArray< int >::const_iterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__iterator = {"_p_Seiscomp__TypedArrayT_int_t__DataArray__iterator", "Seiscomp::TypedArray< int >::DataArray::iterator *|Seiscomp::TypedArray< int >::iterator *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t = {"_p_Seiscomp__TypedArrayT_std__complexT_double_t_t", "Seiscomp::TypedArray< std::complex< double > > *|Seiscomp::ComplexDoubleArray *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t = {"_p_Seiscomp__TypedArrayT_std__complexT_float_t_t", "Seiscomp::ComplexFloatArray *|Seiscomp::TypedArray< std::complex< float > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__string_t = {"_p_Seiscomp__TypedArrayT_std__string_t", "Seiscomp::StringArray *|Seiscomp::TypedArray< std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator = {"_p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator", "Seiscomp::TypedArray< std::string >::const_iterator *|Seiscomp::TypedArray< std::string >::DataArray::const_iterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator = {"_p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator", "Seiscomp::TypedArray< std::string >::DataArray::iterator *|Seiscomp::TypedArray< std::string >::iterator *", 0, 0, (void*)0, 0};
@@ -30363,6 +31647,10 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl,
+  &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl,
   &_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl,
@@ -30423,6 +31711,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Seiscomp__TypedArrayT_int_t,
   &_swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator,
   &_swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__iterator,
+  &_swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t,
+  &_swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t,
   &_swigt__p_Seiscomp__TypedArrayT_std__string_t,
   &_swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator,
   &_swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator,
@@ -30486,6 +31776,10 @@ static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_co
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl[] = {  {&_swigt__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl, 0, 0, 0},{0, 0, 0, 0}};
@@ -30546,6 +31840,8 @@ static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_float_t__DataArray__iterat
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_int_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_int_t, 0, 0, 0},  {&_swigt__p_Seiscomp__NumericArrayT_int_t, _p_Seiscomp__NumericArrayT_int_tTo_p_Seiscomp__TypedArrayT_int_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator[] = {  {&_swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_int_t__DataArray__iterator[] = {  {&_swigt__p_Seiscomp__TypedArrayT_int_t__DataArray__iterator, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__complexT_double_t_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__complexT_double_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__complexT_float_t_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__complexT_float_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__string_t[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator[] = {  {&_swigt__p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator, 0, 0, 0},{0, 0, 0, 0}};
@@ -30609,6 +31905,10 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Array_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__CharArray_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_const_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexDoubleArray_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_const_t__Impl,
+  _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__ComplexFloatArray_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_const_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__BaseObject_t__Impl,
   _swigc__p_Seiscomp__Core__SmartPointerT_Seiscomp__Core__DataMessage_t__Impl,
@@ -30669,6 +31969,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Seiscomp__TypedArrayT_int_t,
   _swigc__p_Seiscomp__TypedArrayT_int_t__DataArray__const_iterator,
   _swigc__p_Seiscomp__TypedArrayT_int_t__DataArray__iterator,
+  _swigc__p_Seiscomp__TypedArrayT_std__complexT_double_t_t,
+  _swigc__p_Seiscomp__TypedArrayT_std__complexT_float_t_t,
   _swigc__p_Seiscomp__TypedArrayT_std__string_t,
   _swigc__p_Seiscomp__TypedArrayT_std__string_t__DataArray__const_iterator,
   _swigc__p_Seiscomp__TypedArrayT_std__string_t__DataArray__iterator,
@@ -31422,6 +32724,8 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "Array_DOUBLE",SWIG_From_int(static_cast< int >(Seiscomp::Array::DOUBLE)));
   SWIG_Python_SetConstant(d, "Array_DATETIME",SWIG_From_int(static_cast< int >(Seiscomp::Array::DATETIME)));
   SWIG_Python_SetConstant(d, "Array_STRING",SWIG_From_int(static_cast< int >(Seiscomp::Array::STRING)));
+  SWIG_Python_SetConstant(d, "Array_COMPLEX_FLOAT",SWIG_From_int(static_cast< int >(Seiscomp::Array::COMPLEX_FLOAT)));
+  SWIG_Python_SetConstant(d, "Array_COMPLEX_DOUBLE",SWIG_From_int(static_cast< int >(Seiscomp::Array::COMPLEX_DOUBLE)));
   SWIG_Python_SetConstant(d, "Array_DT_QUANTITY",SWIG_From_int(static_cast< int >(Seiscomp::Array::DT_QUANTITY)));
   SWIG_Python_SetConstant(d, "Record_META_ONLY",SWIG_From_int(static_cast< int >(Seiscomp::Record::META_ONLY)));
   SWIG_Python_SetConstant(d, "Record_DATA_ONLY",SWIG_From_int(static_cast< int >(Seiscomp::Record::DATA_ONLY)));

@@ -1,5 +1,11 @@
 import os, string, time, re, glob, shutil, sys, imp, resource
-import seiscomp3.Kernel, seiscomp3.Config, seiscomp3.System
+import seiscomp3.Kernel, seiscomp3.Config
+try:
+    import seiscomp3.System
+    hasSystem = True
+except:
+    hasSystem = False
+
 try:
     import seiscomp3.DataModel
     import seiscomp3.IO
@@ -98,11 +104,8 @@ class TemplateModule(seiscomp3.Kernel.Module):
         cfg.readConfig(os.path.join(os.environ['HOME'], ".seiscomp3", "global.cfg"))
         cfg.readConfig(os.path.join(os.environ['HOME'], ".seiscomp3", self.name + ".cfg"))
 
-        #seiscomp3.System.Environment.Instance().initConfig(cfg, self.name)
         self.global_params = dict([(x, ",".join(cfg.getStrings(x))) for x in cfg.names()])
-        #self.global_params_ex = dict(filter(lambda s: s[1].find("$") != -1, [(x, ",".join(cfg.getStrings(x))) for x in cfg.names()]))
         self.station_params = dict()
-        #self.station_params_ex = dict()
         self.plugin_dir = os.path.join(self.pkgroot, "share", "plugins", "seedlink")
         self.template_dir = os.path.join(self.pkgroot, "share", "templates", "seedlink")
         self.alt_template_dir = "" #os.path.join(self.env.home
@@ -128,7 +131,7 @@ class TemplateModule(seiscomp3.Kernel.Module):
         self.station_params = dict([(x, ",".join(cfg.getStrings(x))) for x in cfg.names()])
         #self.station_params_ex = dict(filter(lambda s: s[1].find("$") != -1, [(x, ",".join(cfg.getStrings(x))) for x in cfg.names()]))
 
-    def _process_template(self, tpl_file, source=None, station_scope=True, print_error=False):
+    def _process_template(self, tpl_file, source=None, station_scope=True, print_error=True):
         tpl_paths = []
 
         if source:
@@ -212,10 +215,26 @@ class Module(TemplateModule):
             resource.setrlimit(resource.RLIMIT_NOFILE, (lim[1], lim[1]))
 
             lim = resource.getrlimit(resource.RLIMIT_NOFILE)
-            print "maximum number of open files set to", lim[0]
+            print >> sys.stderr, " maximum number of open files set to", lim[0]
 
         except Exception, e:
-            print "failed to raise the maximum number open files:", str(e)
+            print >> sys.stderr, " failed to raise the maximum number open files:", str(e)
+
+        if self.global_params.has_key("sequence_file_cleanup"):
+            try:
+                max_minutes = int(self.global_params["sequence_file_cleanup"])
+                if max_minutes > 0:
+                    files = glob.glob(os.path.join(self.run_dir, "*.seq"))
+                    for f in files:
+                        if (time.time()-os.path.getmtime(f))/60 >= max_minutes:
+                            print >> sys.stderr, " removing sequence file %s" % f
+                            os.remove(f)
+                else:
+                    print >>sys.stderr, " sequence_file_cleanup disabled"
+
+            except ValueError:
+                print >>sys.stderr, " sequence_file_cleanup parameter is not a number: '%s'" % str(self.global_params["sequence_file_cleanup"])
+                return 1
 
         return self.env.start(self.name, self.env.binaryFile(self.name), daemon_opt,\
                               not self.env.syslog)
@@ -437,7 +456,7 @@ class Module(TemplateModule):
                 sproc_names = [x.strip() for x in sproc_names.split(",")]
                 for sproc_name in sproc_names:
                     self.sproc_used = True
-                    sproc = self._process_template("streams_%s.tpl" % sproc_name, source_type)
+                    sproc = self._process_template("streams_%s.tpl" % sproc_name, source_type, True, False)
                     if sproc:
                         station_sproc.add(sproc_name)
                         self.sproc[sproc_name] = sproc
@@ -446,7 +465,7 @@ class Module(TemplateModule):
 
             # Read plugins.ini template for this source and store content
             # under the provided key for this binding
-            plugin_ini = self._process_template("plugins.ini.tpl", source_type)
+            plugin_ini = self._process_template("plugins.ini.tpl", source_type, True, False)
             if plugin_ini:
                 self.plugins_ini[source_key] = plugin_ini
 
@@ -585,9 +604,13 @@ class Module(TemplateModule):
         self._set_default("bytespersec", "0", False)
 
         ## Expand the @Variables@
-        e = seiscomp3.System.Environment.Instance()
-        self.setParam("filebase", e.absolutePath(self.param("filebase", False)), False)
-        self.setParam("lockfile", e.absolutePath(self.param("lockfile", False)), False)
+        if hasSystem:
+            e = seiscomp3.System.Environment.Instance()
+            self.setParam("filebase", e.absolutePath(self.param("filebase", False)), False)
+            self.setParam("lockfile", e.absolutePath(self.param("lockfile", False)), False)
+        else:
+            self.setParam("filebase", self.param("filebase", False), False)
+            self.setParam("lockfile", self.param("lockfile", False), False)
 
         if self._get("msrtsimul", False).lower() == "true":
           self.msrtsimul = True
@@ -595,7 +618,7 @@ class Module(TemplateModule):
           self.msrtsimul = False
 
         # Load custom stream processor definitions
-        custom_procs = self._process_template("streams_custom.tpl", None)
+        custom_procs = self._process_template("streams_custom.tpl", None, True, False)
         if custom_procs: self.sproc[""] = sproc
 
         # Load descriptions from inventory:

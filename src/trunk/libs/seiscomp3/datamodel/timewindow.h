@@ -32,6 +32,12 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(TimeWindow);
 
 
+/**
+ * \brief Describes a time window for amplitude measurements, given
+ * \brief by a central point in time, and points in time
+ * \brief before and after this central point. Both points before and
+ * \brief after may coincide with the central point.
+ */
 class SC_SYSTEM_CORE_API TimeWindow : public Core::BaseObject {
 	DECLARE_SC_CLASS(TimeWindow);
 	DECLARE_SERIALIZATION;
@@ -79,12 +85,23 @@ class SC_SYSTEM_CORE_API TimeWindow : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Reference point in time ("central" point), in ISO 8601
+		//! format. It
+		//! has to be given in UTC.
 		void setReference(Seiscomp::Core::Time reference);
 		Seiscomp::Core::Time reference() const;
 
+		//! Absolute value of duration of time interval before
+		//! reference point
+		//! in time window. The value may be zero, but not negative in
+		//! seconds.
 		void setBegin(double begin);
 		double begin() const;
 
+		//! Absolute value of duration of time interval after reference
+		//! point in
+		//! time window. The value may be zero, but not negative in
+		//! seconds.
 		void setEnd(double end);
 		double end() const;
 

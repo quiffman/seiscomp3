@@ -32,6 +32,13 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(Axis);
 
 
+/**
+ * \brief This class describes an eigenvector of a moment tensor
+ * \brief expressed in its
+ * \brief principal-axes system. It uses the angles azimuth, plunge,
+ * \brief and the
+ * \brief eigenvalue length.
+ */
 class SC_SYSTEM_CORE_API Axis : public Core::BaseObject {
 	DECLARE_SC_CLASS(Axis);
 	DECLARE_SERIALIZATION;
@@ -70,14 +77,22 @@ class SC_SYSTEM_CORE_API Axis : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Azimuth of eigenvector of moment tensor expressed in
+		//! principal-axes system. Measured clockwise
+		//! from South-North direction at epicenter in degrees.
 		void setAzimuth(const RealQuantity& azimuth);
 		RealQuantity& azimuth();
 		const RealQuantity& azimuth() const;
 
+		//! Plunge of eigenvector of moment tensor expressed in
+		//! principal-axes system. Measured against downward
+		//! vertical direction at epicenter in degrees.
 		void setPlunge(const RealQuantity& plunge);
 		RealQuantity& plunge();
 		const RealQuantity& plunge() const;
 
+		//! Eigenvalue of moment tensor expressed in principal-axes
+		//! system in Nm.
 		void setLength(const RealQuantity& length);
 		RealQuantity& length();
 		const RealQuantity& length() const;

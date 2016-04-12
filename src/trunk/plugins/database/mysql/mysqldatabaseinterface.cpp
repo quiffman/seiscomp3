@@ -33,7 +33,7 @@ IMPLEMENT_SC_CLASS_DERIVED(MySQLDatabase,
                            "mysql_database_interface");
 
 REGISTER_DB_INTERFACE(MySQLDatabase, "mysql");
-ADD_SC_PLUGIN("MySQL database driver", "GFZ Potsdam <seiscomp-devel@gfz-potsdam.de>", 0, 9, 0)
+ADD_SC_PLUGIN("MySQL database driver", "GFZ Potsdam <seiscomp-devel@gfz-potsdam.de>", 0, 9, 1)
 
 
 MySQLDatabase::MySQLDatabase()
@@ -61,6 +61,11 @@ bool MySQLDatabase::open() {
 
 	my_bool reconnect = true;
 	mysql_options(_handle, MYSQL_OPT_RECONNECT, (const char*)&reconnect);
+
+	if ( _timeout > 0 ) {
+		SEISCOMP_INFO("Apply database read timeout of %d seconds", _timeout);
+		mysql_options(_handle, MYSQL_OPT_READ_TIMEOUT, (const char*)&_timeout);
+	}
 
 	if ( mysql_real_connect(_handle, _host.c_str(), _user.c_str(), _password.c_str(),
 	                        _database.c_str(), _port, NULL, 0) == NULL ) {
@@ -267,7 +272,7 @@ bool MySQLDatabase::beginQuery(const char* q) {
 
 	_result = mysql_use_result(_handle);
 	//_result = mysql_store_result(_handle);
-	
+
 	if ( _result == NULL )
 		return false;
 

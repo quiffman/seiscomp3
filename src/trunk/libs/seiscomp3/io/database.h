@@ -48,7 +48,7 @@ DEFINE_SMARTPOINTER(DatabaseInterface);
 	\code
 	class MyDatabaseInterface : Seiscomp::IO::DatabaseInterface {
 		DECLARE_SC_CLASS(MyDatabaseInterface)
-		
+
 		public:
 			MyDatabaseInterface(const char* serviceName)
 			 : DatabaseInterface(serviceName) {}
@@ -64,7 +64,7 @@ DEFINE_SMARTPOINTER(DatabaseInterface);
  */
  class SC_SYSTEM_CORE_API DatabaseInterface : public Seiscomp::Core::BaseObject {
 	DECLARE_SC_CLASS(DatabaseInterface);
- 
+
 	// ------------------------------------------------------------------
 	//  Xstruction
 	// ------------------------------------------------------------------
@@ -235,6 +235,16 @@ DEFINE_SMARTPOINTER(DatabaseInterface);
 	//  Protected interface
 	// ------------------------------------------------------------------
 	protected:
+		//! This method can be implemented in an interface to handle
+		//! additional URI parameters:
+		//! mysql://sysop:sysop@localhost/test?param1=value1&param2=value2
+		//! This method would be called for param1 and param2.
+		//! If this method is reimplemented the base implementation should
+		//! be called otherwise column_prefix and timeout are not handled
+		//! by default.
+		virtual bool handleURIParameter(const std::string &name,
+		                                const std::string &value);
+
 		//! This method has to be implemented in derived classes to
 		//! connect to the database using the members _user, _password,
 		//! _host, _port and _database
@@ -245,12 +255,13 @@ DEFINE_SMARTPOINTER(DatabaseInterface);
 	//  Protected members
 	// ------------------------------------------------------------------
 	protected:
-		std::string _user;
-		std::string _password;
-		std::string _host;
-		int _port;
-		std::string _database;
-		std::string _columnPrefix;
+		std::string  _user;
+		std::string  _password;
+		std::string  _host;
+		int          _port;
+		unsigned int _timeout;
+		std::string  _database;
+		std::string  _columnPrefix;
 };
 
 

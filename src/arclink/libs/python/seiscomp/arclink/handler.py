@@ -1184,7 +1184,7 @@ class _RoutingRequest(_Request):
         try:
             RequestHandler.dataLock.acquire()
             try:
-                self.__routing.load_routes(network, station, start_time, end_time)
+                self.__routing.load_routes(network, station, channel, location, start_time, end_time)
 
             finally:
                 RequestHandler.dataLock.release()

@@ -706,6 +706,8 @@ CREATE TABLE Pick (
 	creationInfo_version VARCHAR(64),
 	creationInfo_used TINYINT(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
+	INDEX(time_value),
+	INDEX(time_value_ms),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
 	  ON DELETE CASCADE,
@@ -889,6 +891,8 @@ CREATE TABLE Origin (
 	creationInfo_version VARCHAR(64),
 	creationInfo_used TINYINT(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY(_oid),
+	INDEX(time_value),
+	INDEX(time_value_ms),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
 	  ON DELETE CASCADE,
@@ -921,6 +925,7 @@ CREATE TABLE ParameterSet (
 	created DATETIME,
 	created_ms INTEGER,
 	PRIMARY KEY(_oid),
+	INDEX(baseID),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
 	  ON DELETE CASCADE,
@@ -937,6 +942,7 @@ CREATE TABLE Setup (
 	parameterSetID VARCHAR(255),
 	enabled TINYINT(1) NOT NULL,
 	PRIMARY KEY(_oid),
+	INDEX(parameterSetID),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
 	  ON DELETE CASCADE,
@@ -971,6 +977,7 @@ CREATE TABLE ConfigModule (
 	parameterSetID VARCHAR(255),
 	enabled TINYINT(1) NOT NULL,
 	PRIMARY KEY(_oid),
+	INDEX(parameterSetID),
 	FOREIGN KEY(_oid)
 	  REFERENCES Object(_oid)
 	  ON DELETE CASCADE,

@@ -46,6 +46,11 @@ DEFINE_SMARTPOINTER(MomentTensorStationContribution);
 class FocalMechanism;
 
 
+/**
+ * \brief This class represents a moment tensor solution for an
+ * \brief event. It is an
+ * \brief optional part of a FocalMechanism description.
+ */
 class SC_SYSTEM_CORE_API MomentTensor : public PublicObject {
 	DECLARE_SC_CLASS(MomentTensor);
 	DECLARE_SERIALIZATION;
@@ -104,51 +109,79 @@ class SC_SYSTEM_CORE_API MomentTensor : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Refers to the publicID of the Origin derived in the moment
+		//! tensor inversion.
 		void setDerivedOriginID(const std::string& derivedOriginID);
 		const std::string& derivedOriginID() const;
 
+		//! Refers to the publicID of the Magnitude object which
+		//! represents the derived moment
+		//! magnitude.
 		void setMomentMagnitudeID(const std::string& momentMagnitudeID);
 		const std::string& momentMagnitudeID() const;
 
+		//! Scalar moment as derived in moment tensor inversion in Nm.
 		void setScalarMoment(const OPT(RealQuantity)& scalarMoment);
 		RealQuantity& scalarMoment() throw(Seiscomp::Core::ValueException);
 		const RealQuantity& scalarMoment() const throw(Seiscomp::Core::ValueException);
 
+		//! Tensor object holding the moment tensor elements.
 		void setTensor(const OPT(Tensor)& tensor);
 		Tensor& tensor() throw(Seiscomp::Core::ValueException);
 		const Tensor& tensor() const throw(Seiscomp::Core::ValueException);
 
+		//! Variance of moment tensor inversion.
 		void setVariance(const OPT(double)& variance);
 		double variance() const throw(Seiscomp::Core::ValueException);
 
+		//! Variance reduction of moment tensor inversion, given in
+		//! percent (Dreger 2003). This is a
+		//! goodness-of-fit measure.
 		void setVarianceReduction(const OPT(double)& varianceReduction);
 		double varianceReduction() const throw(Seiscomp::Core::ValueException);
 
+		//! Double couple parameter obtained from moment tensor
+		//! inversion (decimal fraction between 0
+		//! and 1).
 		void setDoubleCouple(const OPT(double)& doubleCouple);
 		double doubleCouple() const throw(Seiscomp::Core::ValueException);
 
+		//! CLVD (compensated linear vector dipole) parameter obtained
+		//! from moment tensor inversion (decimal
+		//! fraction between 0 and 1).
 		void setClvd(const OPT(double)& clvd);
 		double clvd() const throw(Seiscomp::Core::ValueException);
 
+		//! Isotropic part obtained from moment tensor inversion
+		//! (decimal fraction between 0 and 1).
 		void setIso(const OPT(double)& iso);
 		double iso() const throw(Seiscomp::Core::ValueException);
 
+		//! Resource identifier of the Green's function used in moment
+		//! tensor inversion.
 		void setGreensFunctionID(const std::string& greensFunctionID);
 		const std::string& greensFunctionID() const;
 
+		//! Resource identifier of the filter setup used in moment
+		//! tensor inversion.
 		void setFilterID(const std::string& filterID);
 		const std::string& filterID() const;
 
+		//! Source time function used in moment-tensor inversion.
 		void setSourceTimeFunction(const OPT(SourceTimeFunction)& sourceTimeFunction);
 		SourceTimeFunction& sourceTimeFunction() throw(Seiscomp::Core::ValueException);
 		const SourceTimeFunction& sourceTimeFunction() const throw(Seiscomp::Core::ValueException);
 
+		//! Resource identifier of the method used for moment-tensor
+		//! inversion.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Moment tensor method used.
 		void setMethod(const OPT(MomentTensorMethod)& method);
 		MomentTensorMethod method() const throw(Seiscomp::Core::ValueException);
 
+		//! Status of moment tensor.
 		void setStatus(const OPT(MomentTensorStatus)& status);
 		MomentTensorStatus status() const throw(Seiscomp::Core::ValueException);
 
@@ -158,6 +191,7 @@ class SC_SYSTEM_CORE_API MomentTensor : public PublicObject {
 		void setCmtVersion(const std::string& cmtVersion);
 		const std::string& cmtVersion() const;
 
+		//! CreationInfo for the MomentTensor object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

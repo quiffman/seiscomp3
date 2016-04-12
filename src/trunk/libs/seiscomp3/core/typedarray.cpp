@@ -58,6 +58,18 @@ Array::DataType dispatchType<std::string>() {
 	return Array::STRING;
 }
 
+template<>
+Array::DataType dispatchType< std::complex<float> >() {
+	return Array::COMPLEX_FLOAT;
+}
+
+template<>
+Array::DataType dispatchType< std::complex<double> >() {
+	return Array::COMPLEX_DOUBLE;
+}
+
+
+
 }
 
 
@@ -178,6 +190,11 @@ void TypedArray<T>::append(int size, const T* data) {
 }
 
 template<typename T>
+void TypedArray<T>::append(int n, T value) {
+	_data.insert(_data.end(), n, value);
+}
+
+template<typename T>
 void TypedArray<T>::prepend(const Array *array) {
 	if (array->dataType() == dispatchType<T>())
 		_data.insert(_data.begin(),static_cast<const TypedArray<T> *>(array)->begin(),static_cast<const TypedArray<T> *>(array)->end());
@@ -189,6 +206,12 @@ template<typename T>
 void TypedArray<T>::prepend(int size, const T* data) {
 	_data.insert(_data.begin(), data, data + size);
 }
+
+template<typename T>
+void TypedArray<T>::prepend(int n, T value) {
+	_data.insert(_data.begin(), n, value);
+}
+
 
 template<typename T>
 typename TypedArray<T>::iterator TypedArray<T>::begin() {
@@ -300,22 +323,66 @@ template<typename T>
 T NumericArray<T>::rms(T offset) const {
 	size_t n = TypedArray<T>::_data.size();
 	const T *f = TypedArray<T>::typedData();
-	double fi, r = 0;
+	T fi, r = 0;
 
-	if(offset) {
-		for(size_t i=0; i<n; i++, f++) {
+	if ( offset ) {
+		for ( size_t i = 0; i < n; ++i, ++f ) {
 			fi = ((*f)-offset);
 			r += fi*fi;
 		}
 	}
 	else {
-		for(size_t i=0; i<n; i++, f++) {
+		for ( size_t i = 0; i < n; ++i, ++f )
 			r += (*f)*(*f);
-		}
 	}
 
 	return static_cast<T>(sqrt(r/n));
 }
+
+template<typename T>
+NumericArray<T> &NumericArray<T>::operator+=(T v) {
+	size_t n = TypedArray<T>::_data.size();
+	T *f = TypedArray<T>::typedData();
+	while ( n ) {
+		*f += v;
+		--n; ++f;
+	}
+	return *this;
+}
+
+template<typename T>
+NumericArray<T> &NumericArray<T>::operator-=(T v) {
+	size_t n = TypedArray<T>::_data.size();
+	T *f = TypedArray<T>::typedData();
+	while ( n ) {
+		*f -= v;
+		--n; ++f;
+	}
+	return *this;
+}
+
+template<typename T>
+NumericArray<T> &NumericArray<T>::operator*=(T v) {
+	size_t n = TypedArray<T>::_data.size();
+	T *f = TypedArray<T>::typedData();
+	while ( n ) {
+		*f *= v;
+		--n; ++f;
+	}
+	return *this;
+}
+
+template<typename T>
+NumericArray<T> &NumericArray<T>::operator/=(T v) {
+	size_t n = TypedArray<T>::_data.size();
+	T *f = TypedArray<T>::typedData();
+	while ( n ) {
+		*f /= v;
+		--n; ++f;
+	}
+	return *this;
+}
+
 
 template<typename T>
 TypedArray<T>* TypedArray<T>::slice(int m, int n) const {
@@ -333,6 +400,7 @@ NumericArray<T>* NumericArray<T>::slice(int m, int n) const {
 	if ( n > (int)TypedArray<T>::_data.size() ) n = TypedArray<T>::_data.size();
 	return new NumericArray<T>(n-m, &(TypedArray<T>::_data[m]));
 }
+
 
 
 
@@ -372,6 +440,15 @@ template class SC_SYSTEM_CORE_API TypedArray<Core::Time>;
 IMPLEMENT_TEMPLATE_RTTI(StringArray, "StringArray", Array)
 REGISTER_CLASS(Seiscomp::Core::BaseObject, StringArray);
 template class SC_SYSTEM_CORE_API TypedArray<std::string>;
+
+IMPLEMENT_TEMPLATE_RTTI(ComplexFloatArray, "ComplexFloatArray", Array)
+REGISTER_CLASS(Seiscomp::Core::BaseObject, ComplexFloatArray);
+template class SC_SYSTEM_CORE_API TypedArray< std::complex<float> >;
+
+IMPLEMENT_TEMPLATE_RTTI(ComplexDoubleArray, "ComplexDoubleArray", Array)
+REGISTER_CLASS(Seiscomp::Core::BaseObject, ComplexDoubleArray);
+template class SC_SYSTEM_CORE_API TypedArray< std::complex<double> >;
+
 
 }
 

@@ -28,7 +28,7 @@ namespace Database {
 
 class MySQLDatabase : public Seiscomp::IO::DatabaseInterface {
 	DECLARE_SC_CLASS(MySQLDatabase);
-	
+
 	// ------------------------------------------------------------------
 	//  Xstruction
 	// ------------------------------------------------------------------
@@ -43,7 +43,7 @@ class MySQLDatabase : public Seiscomp::IO::DatabaseInterface {
 	public:
 		bool connect(const char *con);
 		void disconnect();
-		
+
 		bool isConnected() const;
 
 		void start();
@@ -69,7 +69,7 @@ class MySQLDatabase : public Seiscomp::IO::DatabaseInterface {
 	protected:
 		bool open();
 
-	
+
 	// ------------------------------------------------------------------
 	//  Implementation
 	// ------------------------------------------------------------------
@@ -80,11 +80,11 @@ class MySQLDatabase : public Seiscomp::IO::DatabaseInterface {
 
 
 	private:
-		MYSQL* _handle;
-		MYSQL_RES* _result;
-		MYSQL_ROW _row;
+		MYSQL                 *_handle;
+		MYSQL_RES*             _result;
+		MYSQL_ROW              _row;
 		//std::string _lastQuery;
-		mutable int _fieldCount;
+		mutable int            _fieldCount;
 		mutable unsigned long *_lengths;
 };
 

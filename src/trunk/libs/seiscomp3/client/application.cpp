@@ -637,7 +637,7 @@ bool Application::isDatabaseEnabled() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Application::isInventoryDatabaseEnabled() const {
-	return _inventoryDBFilename.empty();
+	return _inventoryDB.empty();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -646,7 +646,7 @@ bool Application::isInventoryDatabaseEnabled() const {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Application::isConfigDatabaseEnabled() const {
-	return _configDBFilename.empty();
+	return _configDB.empty();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1604,14 +1604,8 @@ bool Application::init() {
 	}
 
 	if ( _enableLoadInventory ) {
-		if ( !_inventoryDBFilename.empty() ) {
-			SEISCOMP_INFO("Loading complete inventory (file)");
-			showMessage("Loading inventory");
-			try { Inventory::Instance()->load(_inventoryDBFilename.c_str()); }
-			catch ( std::exception &e ) {
-				SEISCOMP_ERROR("%s", e.what());
-				return false;
-			}
+		if ( !_inventoryDB.empty() ) {
+			if ( !loadInventory(_inventoryDB) ) return false;
 		}
 		else if ( _database ) {
 			if ( _query ) {
@@ -1634,14 +1628,8 @@ bool Application::init() {
 			SEISCOMP_INFO("Filtered %d stations by type", filtered);
 	}
 	else if ( _enableLoadStations ) {
-		if ( !_inventoryDBFilename.empty() ) {
-			SEISCOMP_INFO("Loading complete inventory (file)");
-			showMessage("Loading inventory");
-			try { Inventory::Instance()->load(_inventoryDBFilename.c_str()); }
-			catch ( Core::GeneralException &e ) {
-				SEISCOMP_ERROR("%s", e.what());
-				return false;
-			}
+		if ( !_inventoryDB.empty() ) {
+			if ( !loadInventory(_inventoryDB) ) return false;
 		}
 		else if ( _database ) {
 			if ( _query ) {
@@ -1670,17 +1658,8 @@ bool Application::init() {
 	if ( _enableLoadConfigModule ) {
 		std::set<std::string> params;
 
-		if ( !_configDBFilename.empty() ) {
-			SEISCOMP_INFO("Loading configuration module (file)");
-			showMessage("Reading station config from file");
-
-			try { ConfigDB::Instance()->load(_configDBFilename.c_str()); }
-			catch ( Core::GeneralException &e ) {
-				SEISCOMP_ERROR("%s", e.what());
-				return false;
-			}
-
-			SEISCOMP_INFO("Finished loading configuration module");
+		if ( !_configDB.empty() ) {
+			if ( !loadConfig(_configDB) ) return false;
 		}
 		else if ( _database ) {
 			if ( _query ) {
@@ -2083,8 +2062,8 @@ void Application::initCommandLine() {
 		commandline().addOption("Database", "db-driver-list", "list all supported database drivers");
 		commandline().addOption("Database", "database,d", "the database connection string, format: service://user:pwd@host/database", &_db, false);
 		commandline().addOption("Database", "config-module", "the configmodule to use", &_configModuleName);
-		commandline().addOption("Database", "inventory-db", "load the inventory database from a given XML file", &_inventoryDBFilename, false);
-		commandline().addOption("Database", "config-db", "load the config database from a given XML file", &_configDBFilename, false);
+		commandline().addOption("Database", "inventory-db", "load the inventory from the given database or file, format: [service://]location", &_inventoryDB, false);
+		commandline().addOption("Database", "config-db", "load the configuration from the given database or file, format: [service://]location", &_configDB, false);
 	}
 
 
@@ -2214,10 +2193,10 @@ bool Application::initConfiguration() {
 	}
 	catch (...) {}
 
-	try { _inventoryDBFilename = configGetString("database.inventory"); }
+	try { _inventoryDB = configGetString("database.inventory"); }
 	catch ( ... ) {}
 
-	try { _configDBFilename = configGetString("database.config"); }
+	try { _configDB = configGetString("database.config"); }
 	catch ( ... ) {}
 
 	try { _agencyID = Util::replace(configGetString("agencyID"), AppResolver(_name)); }
@@ -2681,6 +2660,74 @@ Application::addOutputObjectLog(const std::string &name, const std::string &chan
 	return _outputMonitor->add(name, channel);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Application::loadConfig(const std::string &configDB) {
+	SEISCOMP_INFO("Loading configuration module %s", configDB.c_str());
+	showMessage("Reading station config from");
+
+	if ( configDB.find("://") == string::npos ) {
+		try { ConfigDB::Instance()->load(configDB.c_str()); }
+		catch ( std::exception &e ) {
+			SEISCOMP_ERROR("%s", e.what());
+			return false;
+		}
+	}
+	else {
+		SEISCOMP_INFO("Trying to connect to %s", configDB.c_str());
+		IO::DatabaseInterfacePtr db = IO::DatabaseInterface::Open(configDB.c_str());
+		if ( db ) {
+			SEISCOMP_INFO("Connected successfully");
+			DataModel::DatabaseQueryPtr query = new DataModel::DatabaseQuery(db.get());
+			ConfigDB::Instance()->load(query.get());
+		}
+		else {
+			SEISCOMP_WARNING("Database connection to %s failed", configDB.c_str());
+			return false;
+		}
+	}
+
+	SEISCOMP_INFO("Finished loading configuration module");
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool Application::loadInventory(const std::string &inventoryDB) {
+	SEISCOMP_INFO("Loading complete inventory from %s", inventoryDB.c_str());
+	showMessage("Loading inventory");
+	if ( inventoryDB.find("://") == string::npos ) {
+		try { Inventory::Instance()->load(inventoryDB.c_str()); }
+		catch ( std::exception &e ) {
+			SEISCOMP_ERROR("%s", e.what());
+			return false;
+		}
+	}
+	else {
+		SEISCOMP_INFO("Trying to connect to %s", inventoryDB.c_str());
+		IO::DatabaseInterfacePtr db = IO::DatabaseInterface::Open(inventoryDB.c_str());
+		if ( db ) {
+			SEISCOMP_INFO("Connected successfully");
+			DataModel::DatabaseQueryPtr query = new DataModel::DatabaseQuery(db.get());
+			Inventory::Instance()->load(query.get());
+		}
+		else {
+			SEISCOMP_WARNING("Database connection to %s failed", inventoryDB.c_str());
+			return false;
+		}
+	}
+
+	SEISCOMP_INFO("Finished loading complete inventory");
+	return true;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
 
 

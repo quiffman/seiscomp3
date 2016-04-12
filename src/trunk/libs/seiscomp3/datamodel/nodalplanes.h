@@ -32,6 +32,11 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(NodalPlanes);
 
 
+/**
+ * \brief This class describes the nodal planes of a double-couple
+ * \brief moment-tensor solution. The attribute preferredPlane
+ * \brief can be used to define which plane is the preferred one.
+ */
 class SC_SYSTEM_CORE_API NodalPlanes : public Core::BaseObject {
 	DECLARE_SC_CLASS(NodalPlanes);
 	DECLARE_SERIALIZATION;
@@ -70,14 +75,18 @@ class SC_SYSTEM_CORE_API NodalPlanes : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! First nodal plane of double-couple moment tensor solution.
 		void setNodalPlane1(const OPT(NodalPlane)& nodalPlane1);
 		NodalPlane& nodalPlane1() throw(Seiscomp::Core::ValueException);
 		const NodalPlane& nodalPlane1() const throw(Seiscomp::Core::ValueException);
 
+		//! Second nodal plane of double-couple moment tensor solution.
 		void setNodalPlane2(const OPT(NodalPlane)& nodalPlane2);
 		NodalPlane& nodalPlane2() throw(Seiscomp::Core::ValueException);
 		const NodalPlane& nodalPlane2() const throw(Seiscomp::Core::ValueException);
 
+		//! Indicator for preferred nodal plane of moment tensor
+		//! solution. It can take integer values 1 or 2.
 		void setPreferredPlane(const OPT(int)& preferredPlane);
 		int preferredPlane() const throw(Seiscomp::Core::ValueException);
 

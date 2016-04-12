@@ -31,7 +31,7 @@ using namespace std;
 IMPLEMENT_SC_ABSTRACT_CLASS(DatabaseInterface, "DatabaseInterface");
 
 
-DatabaseInterface::DatabaseInterface() {}
+DatabaseInterface::DatabaseInterface() : _timeout(0) {}
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -48,7 +48,7 @@ DatabaseInterface::~DatabaseInterface() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DatabaseInterface* DatabaseInterface::Create(const char* service) {
 	if ( service == NULL ) return NULL;
-	
+
 	return DatabaseInterfaceFactory::Create(service);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -99,6 +99,7 @@ bool DatabaseInterface::connect(const char* con) {
 	if ( isConnected() )
 		return false;
 
+	_timeout = 0;
 	string connection = con;
 	string params;
 	size_t pos = connection.find('?');
@@ -145,16 +146,50 @@ bool DatabaseInterface::connect(const char* con) {
 		for ( size_t i = 0; i < tokens.size(); ++i ) {
 			vector<string> param;
 			Core::split(param, tokens[i].c_str(), "=");
-			if ( !params.empty() ) {
-				if ( param[0] == "column_prefix" ) {
-					if ( param.size() >= 2 )
-						_columnPrefix = param[1];
+			if ( !param.empty() ) {
+				if ( param.size() == 1 ) {
+					if ( !handleURIParameter(param[0], "") )
+						return false;
+				}
+				else if ( param.size() == 2 ) {
+					if ( !handleURIParameter(param[0], param[1]) )
+						return false;
 				}
 			}
 		}
 	}
 
 	return open();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool DatabaseInterface::handleURIParameter(const std::string &name,
+                                           const std::string &value) {
+	if ( name == "column_prefix" ) {
+		if ( !value.empty() )
+			_columnPrefix = value;
+	}
+	else if ( name == "timeout" ) {
+		if ( !value.empty() ) {
+			if ( !Core::fromString(_timeout, value) ) {
+				SEISCOMP_ERROR("Invalid timeout parameter '%s' for database connection",
+				               value.c_str());
+				return false;
+			}
+			else
+				SEISCOMP_DEBUG("Request database read timeout of %d seconds", _timeout);
+		}
+		else {
+			SEISCOMP_ERROR("Database timeout parameter expects a value");
+			return false;
+		}
+	}
+
+	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

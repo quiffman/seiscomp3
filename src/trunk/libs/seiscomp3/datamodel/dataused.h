@@ -33,6 +33,11 @@ DEFINE_SMARTPOINTER(DataUsed);
 class MomentTensor;
 
 
+/**
+ * \brief The DataUsed class describes the type of data that has been
+ * \brief used for a
+ * \brief moment-tensor inversion.
+ */
 class SC_SYSTEM_CORE_API DataUsed : public Object {
 	DECLARE_SC_CLASS(DataUsed);
 	DECLARE_SERIALIZATION;
@@ -71,15 +76,20 @@ class SC_SYSTEM_CORE_API DataUsed : public Object {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Type of waveform data.
 		void setWaveType(DataUsedWaveType waveType);
 		DataUsedWaveType waveType() const;
 
+		//! Number of stations that have contributed data of the type
+		//! given in waveType.
 		void setStationCount(int stationCount);
 		int stationCount() const;
 
+		//! Number of data components of the type given in waveType.
 		void setComponentCount(int componentCount);
 		int componentCount() const;
 
+		//! Shortest period present in data in seconds.
 		void setShortestPeriod(const OPT(double)& shortestPeriod);
 		double shortestPeriod() const throw(Seiscomp::Core::ValueException);
 

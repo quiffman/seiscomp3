@@ -32,6 +32,12 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(NodalPlane);
 
 
+/**
+ * \brief This class describes a nodal plane using the attributes
+ * \brief strike, dip, and
+ * \brief rake. For a definition of the angles see Aki and Richards
+ * \brief (1980).
+ */
 class SC_SYSTEM_CORE_API NodalPlane : public Core::BaseObject {
 	DECLARE_SC_CLASS(NodalPlane);
 	DECLARE_SERIALIZATION;
@@ -70,14 +76,17 @@ class SC_SYSTEM_CORE_API NodalPlane : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Strike angle of nodal plane in degrees.
 		void setStrike(const RealQuantity& strike);
 		RealQuantity& strike();
 		const RealQuantity& strike() const;
 
+		//! Dip angle of nodal plane in degrees.
 		void setDip(const RealQuantity& dip);
 		RealQuantity& dip();
 		const RealQuantity& dip() const;
 
+		//! Rake angle of nodal plane in degrees.
 		void setRake(const RealQuantity& rake);
 		RealQuantity& rake();
 		const RealQuantity& rake() const;

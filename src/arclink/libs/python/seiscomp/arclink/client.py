@@ -22,7 +22,7 @@ try:
     hasM2Crypto = True
 except:
     hasM2Crypto = False
-    
+
 
 LINESIZE      = 1024
 BLOCKSIZE     = 512
@@ -70,17 +70,17 @@ class _StatusAttr(XAttribute):
         elif val == "NODATA":      return STATUS_NODATA
         elif val == "UNSET":       return STATUS_UNSET
         elif val == None:          return STATUS_UNSET
-        
+
         raise ValueError, "invalid status value: " + val
 
 class SSLWrapper:
     def __init__(self, password):
         if not hasM2Crypto:
             raise Exception("Module M2Crypto was not found on this system. Please install it to automatically decrypt your files.")
-        
+
         self._cypher = None
         self._password = None
-        
+
         if password is None:
             raise Exception ('Password should not be Empty')
             #	password = util.passphrase_callback(0)
@@ -113,32 +113,32 @@ class SSLWrapper:
         chunk = None
         key = ""
         iv = ""
-        
+
         while True:
             hash=EVP.MessageDigest('md5')
-            
+
             if (chunk is not None):
                 hash.update(chunk)
-            
+
             hash.update(password)
-            
+
             if (salt is not None):
                 hash.update(salt)
-            
+
             chunk = hash.final()
-            
+
             i = 0
             if len(key) < size:
                 i = min(size - len(key), len(chunk))
                 key += chunk[0:i]
-            
+
             if len(iv) < size and i < len(chunk):
                 j = min(size - len(iv), len(chunk) - i)
                 iv += chunk[i:i+j]
-            
+
             if (len(key) == size and len(iv) == size):
                 break
-            
+
         return [key,iv]
 
 class _RequestLineElement(XElement):
@@ -190,7 +190,7 @@ class ArclinkAuthFailed(ArclinkError):
     def __init__(self, dcname):
         self.dcname = dcname
         ArclinkError.__init__(self, "authentication failed")
-    
+
 class ArclinkXMLError(ArclinkError):
     pass
 
@@ -216,7 +216,7 @@ class Arclink(object):
         self.__errstate = False
         self.__wait = False
         self.__wait_size = None
-    
+
     def send_command(self, s, check_ok=True):
         self.__fd.write(s + "\r\n")
         self.__fd.flush()
@@ -235,11 +235,11 @@ class Arclink(object):
         self.send_command("SHOWERR", False)
         return self.__fd.readline(LINESIZE).rstrip()
 
-    def open_connection(self, host, port, user, passwd = None, inst = None,
-        timeout = None, user_ip = None):
+    def open_connection(self, host, port, user, passwd=None, inst=None,
+            timeout=None, user_ip=None):
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__sock.settimeout(timeout)
-        
+
         self.__sock.connect((host, port))
         self.__fd = self.__sock.makefile('rb+')
         try:
@@ -250,10 +250,10 @@ class Arclink(object):
 
             self.software = r
             self.organization = self.__fd.readline(LINESIZE).rstrip()
-        
+
             if user == None:
                 raise ArclinkAuthFailed, self.organization
-        
+
             try:
                 if(passwd == None):
                     self.send_command("USER " + user)
@@ -282,14 +282,14 @@ class Arclink(object):
         self.__fd.close()
         self.__sock.close()
         self.__fd = self.__sock = None
-    
-    def get_status(self, req_id = "ALL"):
+
+    def get_status(self, req_id="ALL"):
         self.send_command("STATUS " + req_id, False)
         p = xml.sax.make_parser()
         element_stack = [XElement({ "arclink" : _ArclinkElement })]
         p.setFeature(xml.sax.handler.feature_namespaces, True)
         p.setContentHandler(_MyContentHandler(p, element_stack, True))
- 
+
         try:
             line = self.__fd.readline(LINESIZE).rstrip()
             while line != "END":
@@ -305,26 +305,26 @@ class Arclink(object):
 
         except xml.sax.SAXException, e:
             raise ArclinkXMLError, str(e)
-        
+
         if(len(element_stack[0].arclink) != 1):
             raise ArclinkXMLError, "bad XML root element"
-    
+
         return element_stack[0].arclink[0]
 
     def submit(self, reqf):
         line = reqf.readline(LINESIZE).strip()
         while not line:
             line = reqf.readline(LINESIZE).strip()
-        
+
         if line.split()[0].upper() == "LABEL":
             self.send_command(line)
             line = reqf.readline(LINESIZE).strip()
-        
+
         if line.split()[0].upper() != "REQUEST":
             raise ArclinkError, "incorrectly formulated request"
-            
+
         self.send_command(line)
-        
+
         line = reqf.readline(LINESIZE).strip()
         while line and line.split()[0].upper() != "END":
             self.send_command(line, False)
@@ -332,7 +332,7 @@ class Arclink(object):
 
         if len(line.split()) != 1:
             raise ArclinkError, "incorrectly formulated request"
-        
+
         line = reqf.readline(LINESIZE)
         while line:
             if line.strip():
@@ -352,12 +352,12 @@ class Arclink(object):
             req_vol = req_id
         else:
             req_vol = req_id + "." + vol_id
-        
+
         if pos == None:
             pos_ext = ""
         else:
             pos_ext = " " + pos
-        
+
         saved_tmo = self.__sock.gettimeout()
         try:
             if timeout == 0:
@@ -365,51 +365,51 @@ class Arclink(object):
             else:
                 cmdstr = "BDOWNLOAD "
                 self.__sock.settimeout(timeout)
-            
+
             self.send_command(cmdstr + req_vol + pos_ext, False)
-            
+
             try:
                 r = self.__fd.readline(LINESIZE).rstrip()
                 if r == "ERROR":
                     raise ArclinkError, self.get_errmsg()
-            
+
             except socket.timeout:
                 if timeout == 0:
                     raise
-                
+
                 raise ArclinkTimeout, "timeout"
 
         finally:
             self.__sock.settimeout(saved_tmo)
-            
+
         try:
             size = int(r)
         except ValueError:
             raise ArclinkError, "unexpected response: " + r
 
         return size
-    
-    def wait(self, req_id, vol_id = None, pos = None, timeout = 0):
+
+    def wait(self, req_id, vol_id=None, pos=None, timeout=0):
         self.__wait_size = self.__init_download(req_id, vol_id, pos, timeout)
         self.__wait = True
-    
+
     def __getDecryptor(self, buf, password):
         try:
             try:
                 SSL = None
                 status = False
-    
+
                 if buf is None or len(buf) < 8:
                     raise Exception("supplied Buffer smaller than 8, cannot find out encryption.")
-                
+
                 if buf[0:8] == "Salted__":
                     status = True
-                    
+
                     if password is None or password == "":
                         raise Exception('file is encrypted but no password supplied.')
-                    
+
                     SSL = SSLWrapper(password)
-    
+
             except Exception, e:
                 logs.info(str(e))
 
@@ -421,23 +421,23 @@ class Arclink(object):
             try:
                 status = False
                 DEC = None
-                
+
                 if buf is None or len(buf) < 3:
                     raise Exception('buffer size too small to perform analyse.')
-                
+
                 if buf[0:3] == "BZh":
                     DEC = bz2.BZ2Decompressor()
-                
+
             except Exception, e:
                 logs.info(str(e))
-                if status is True: 
+                if status is True:
                     logs.info('file will be saved compressed.')
-            
+
         finally:
             return (DEC, status)
 
     def __iter_data(self, size, password, raw):
-        
+
         bytes_read = 0
         self.__errstate = False
 
@@ -454,18 +454,18 @@ class Arclink(object):
                     bytes_read += len(buf)
                     if firstBlock:
                         firstBlock = False
-                        
+
                         (decryptor, encStatus) = self.__getDecryptor(buf, password)  # Find out if data is encrypted
                         if raw:
                             decryptor = None
-    
+
                         if decryptor is not None:
                             buf = decryptor.update(buf)
-                        
+
                         (decompressor, decStatus) = self.__getDecompressor(buf)  # Find out if data is compressed
                         if raw:
                             decompressor = None
-    
+
                         if decompressor is not None:
                             buf = decompressor.decompress(buf)
                     else:
@@ -475,18 +475,18 @@ class Arclink(object):
                             buf = decompressor.decompress(buf)
 
                     yield buf
-    
+
                 if decryptor is not None:
                     buf = decryptor.final()
                     if decompressor is not None and len(buf) > 0:
                          buf = decompressor.decompress(buf)
 
                     yield buf
-    
+
                 r = self.__fd.readline(LINESIZE).rstrip()
                 if r != "END":
                     raise ArclinkError, "END not found"
-    
+
             except Exception, e:
                 logs.warning("Download error: %s" % (str(e)))
                 if decryptor is not None:
@@ -499,35 +499,34 @@ class Arclink(object):
                 self.__compressed = None
             else:
                 self.__compressed = ((decStatus is True) and (decompressor is None))
-            
+
             if bytes_read and bytes_read != size:
                 self.__errstate = True
 
-    # Create a WSGI-compatible iterator
-    def iterdownload(self, req_id, vol_id = None, pos = None,
-        timeout = 0, password = None, raw=False):
+    def iterdownload(self, req_id, vol_id=None, pos=None,
+            timeout=0, password=None, raw=False):
 
         size = self.__init_download(req_id, vol_id, pos, timeout)
         it = self.__iter_data(size, password, raw)
         return _DownloadIterator(it, size, self.close_connection)
 
-    def download_data(self, outfd, req_id, vol_id = None, pos = None,
-        timeout = 0, password = None, raw=False):
+    def download_data(self, outfd, req_id, vol_id=None, pos=None,
+            timeout=0, password=None, raw=False):
 
         if self.__wait:
             size = self.__wait_size
             self.__wait = False
-        
+
         else:
             size = self.__init_download(req_id, vol_id, pos, timeout)
 
         for buf in self.__iter_data(size, password, raw):
             outfd.write(buf)
-        
+
         return (self.__encrypted, self.__compressed)
 
-    def download_xml(self, db, req_id, vol_id = None, pos = None,
-        timeout = 0):
+    def download_xml(self, db, req_id, vol_id=None, pos=None,
+            timeout=0):
 
         p = db.make_parser()
 
@@ -552,7 +551,7 @@ class Arclink(object):
 
             except xml.sax.SAXException, e:  # FIXME: not applicable to ElementTree
                 raise ArclinkXMLError, str(e)
-            
+
             r = self.__fd.readline(LINESIZE).rstrip()
             if r != "END":
                 raise ArclinkError, "END not found"
@@ -563,7 +562,7 @@ class Arclink(object):
 
     def errstate(self):
         return self.__errstate
-    
+
     def purge(self, req_id):
         try:
             self.send_command("PURGE " + req_id)

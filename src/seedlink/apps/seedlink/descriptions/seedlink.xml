@@ -165,6 +165,13 @@
 				steim1 or steim2. If omitted, the global encoding parameter is used.
 				</description>
 			</parameter>
+			<parameter name="sequence_file_cleanup" type="int" default="0" unit="min">
+				<description>
+				If configured with a value greater than zero then all sequence files
+				created by the chain plugin are deleted which are older than X minutes
+				before Seedlink is started.
+				</description>
+			</parameter>
 		</configuration>
 	</module>
 

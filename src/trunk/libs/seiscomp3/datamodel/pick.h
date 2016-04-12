@@ -43,6 +43,12 @@ DEFINE_SMARTPOINTER(Comment);
 class EventParameters;
 
 
+/**
+ * \brief A pick is the observation of an amplitude anomaly in a
+ * \brief seismogram at a
+ * \brief specific point in time. It is not necessarily related to a
+ * \brief seismic event.
+ */
 class SC_SYSTEM_CORE_API Pick : public PublicObject {
 	DECLARE_SC_CLASS(Pick);
 	DECLARE_SERIALIZATION;
@@ -101,47 +107,70 @@ class SC_SYSTEM_CORE_API Pick : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Observed onset time of signal ("pick time").
 		void setTime(const TimeQuantity& time);
 		TimeQuantity& time();
 		const TimeQuantity& time() const;
 
+		//! Identifes the waveform stream.
 		void setWaveformID(const WaveformStreamID& waveformID);
 		WaveformStreamID& waveformID();
 		const WaveformStreamID& waveformID() const;
 
+		//! Identifies the filter or filter setup used for filtering
+		//! the waveform
+		//! stream referenced by waveformID.
 		void setFilterID(const std::string& filterID);
 		const std::string& filterID() const;
 
+		//! Identifies the picker that produced the pick. This can be
+		//! either a
+		//! detection software program or a person.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Observed horizontal slowness of the signal. Most relevant
+		//! in array measurements
+		//! in s/deg.
 		void setHorizontalSlowness(const OPT(RealQuantity)& horizontalSlowness);
 		RealQuantity& horizontalSlowness() throw(Seiscomp::Core::ValueException);
 		const RealQuantity& horizontalSlowness() const throw(Seiscomp::Core::ValueException);
 
+		//! Observed backazimuth of the signal. Most relevant in array
+		//! measurements
+		//! in degrees.
 		void setBackazimuth(const OPT(RealQuantity)& backazimuth);
 		RealQuantity& backazimuth() throw(Seiscomp::Core::ValueException);
 		const RealQuantity& backazimuth() const throw(Seiscomp::Core::ValueException);
 
+		//! Identifies the method that was used to determine the
+		//! slowness.
 		void setSlownessMethodID(const std::string& slownessMethodID);
 		const std::string& slownessMethodID() const;
 
+		//! Flag that roughly categorizes the sharpness of the onset.
 		void setOnset(const OPT(PickOnset)& onset);
 		PickOnset onset() const throw(Seiscomp::Core::ValueException);
 
+		//! Tentative phase identification as specified by the picker.
 		void setPhaseHint(const OPT(Phase)& phaseHint);
 		Phase& phaseHint() throw(Seiscomp::Core::ValueException);
 		const Phase& phaseHint() const throw(Seiscomp::Core::ValueException);
 
+		//! Indicates the polarity of first motion, usually from
+		//! impulsive onsets.
 		void setPolarity(const OPT(PickPolarity)& polarity);
 		PickPolarity polarity() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation mode of Pick.
 		void setEvaluationMode(const OPT(EvaluationMode)& evaluationMode);
 		EvaluationMode evaluationMode() const throw(Seiscomp::Core::ValueException);
 
+		//! Evaluation status of Pick.
 		void setEvaluationStatus(const OPT(EvaluationStatus)& evaluationStatus);
 		EvaluationStatus evaluationStatus() const throw(Seiscomp::Core::ValueException);
 
+		//! CreationInfo for the Pick object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

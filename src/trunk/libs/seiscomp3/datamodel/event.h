@@ -45,6 +45,23 @@ DEFINE_SMARTPOINTER(FocalMechanismReference);
 class EventParameters;
 
 
+/**
+ * \brief The class Event describes a seismic event which does not
+ * \brief necessarily need
+ * \brief to be a tectonic earthquake. An event is usually associated
+ * \brief with one or
+ * \brief more origins, which contain information about focal time
+ * \brief and geographical
+ * \brief location of the event. Multiple origins can cover automatic
+ * \brief and manual
+ * \brief locations, a set of location from different agencies,
+ * \brief locations generated
+ * \brief with different location programs and earth models, etc.
+ * \brief Furthermore, an event
+ * \brief is usually associated with one or more magnitudes, and with
+ * \brief one or more focal
+ * \brief mechanism determinations.
+ */
 class SC_SYSTEM_CORE_API Event : public PublicObject {
 	DECLARE_SC_CLASS(Event);
 	DECLARE_SERIALIZATION;
@@ -103,21 +120,29 @@ class SC_SYSTEM_CORE_API Event : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Refers to the publicID of the preferred Origin object.
 		void setPreferredOriginID(const std::string& preferredOriginID);
 		const std::string& preferredOriginID() const;
 
+		//! Refers to the publicID of the preferred Magnitude object.
 		void setPreferredMagnitudeID(const std::string& preferredMagnitudeID);
 		const std::string& preferredMagnitudeID() const;
 
+		//! Refers to the publicID of the preferred FocalMechanism
+		//! object.
 		void setPreferredFocalMechanismID(const std::string& preferredFocalMechanismID);
 		const std::string& preferredFocalMechanismID() const;
 
+		//! Describes the type of an event (Storchak et al. 2012).
 		void setType(const OPT(EventType)& type);
 		EventType type() const throw(Seiscomp::Core::ValueException);
 
+		//! Denotes how certain the information on event type is
+		//! (Storchak et al. 2012).
 		void setTypeCertainty(const OPT(EventTypeCertainty)& typeCertainty);
 		EventTypeCertainty typeCertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! CreationInfo for the Event object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

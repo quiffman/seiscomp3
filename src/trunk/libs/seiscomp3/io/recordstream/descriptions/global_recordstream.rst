@@ -3,8 +3,9 @@ SeisComP applications access waveform data through the RecordStream interface. T
 .. csv-table::
    :header: "Name", "Service Prefix", "Description"
 
-   ":ref:`rs-slink`", "``slink``", "Connects to :ref:`SeedLink Server <seedlink>`"
-   ":ref:`rs-arclink`", "``arclink``", "Connects to :ref:`ArcLink Server <arclink>`"
+   ":ref:`rs-slink`", "``slink``", "Connects to :ref:`SeedLink server <seedlink>`"
+   ":ref:`rs-arclink`", "``arclink``", "Connects to :ref:`ArcLink server <arclink>`"
+   ":ref:`rs-fdsnws`", "``fdsnws``", "Connects to :ref:`FDSN Web service <fdsnws>`"
    ":ref:`rs-file`", "``file``", "Reads records from file"
    ":ref:`rs-archive`", "``archive``", "Reads all record files found in directory (and subdirectories)"
    ":ref:`rs-sdsarchive`", "``sdsarchive``", "Reads records from SeisComP archive (SDS)"
@@ -56,6 +57,19 @@ Examples
 - ``arclink://``
 - ``arclink://geofon.gfz-potsdam.de?user=foo&pwd=secret``
 - ``arclink://localhost:18042``
+
+.. _rs-fdsnws:
+
+FDSNWS
+------
+
+This RecordStream fetches data from a FDSN Web service. The source is read as an
+URL.
+
+Examples
+^^^^^^^^
+
+- ``fdsnws://service.iris.edu:80/fdsnws/dataselect/1/query``
 
 .. _rs-file:
 

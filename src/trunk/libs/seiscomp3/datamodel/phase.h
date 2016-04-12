@@ -32,6 +32,10 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(Phase);
 
 
+/**
+ * \brief Generic and extensible phase description that currently
+ * \brief contains the phase code only.
+ */
 class SC_SYSTEM_CORE_API Phase : public Core::BaseObject {
 	DECLARE_SC_CLASS(Phase);
 	DECLARE_SERIALIZATION;
@@ -76,6 +80,10 @@ class SC_SYSTEM_CORE_API Phase : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Phase code as given in the IASPEI Standard Seismic Phase
+		//! List
+		//! (Storchak et al. 2003). String with a maximum length of 32
+		//! characters.
 		void setCode(const std::string& code);
 		const std::string& code() const;
 

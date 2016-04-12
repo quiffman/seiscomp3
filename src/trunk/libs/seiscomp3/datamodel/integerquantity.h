@@ -31,6 +31,25 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(IntegerQuantity);
 
 
+/**
+ * \brief Physical quantities expressed as integers are represented
+ * \brief by their
+ * \brief measured or computed values and optional values for
+ * \brief symmetric or upper
+ * \brief and lower uncertainties. The interpretation of these
+ * \brief uncertainties is
+ * \brief not defined in the standard. They can contain statistically
+ * \brief well-defined
+ * \brief error measures, but the mechanism can also be used to
+ * \brief simply describe a
+ * \brief possible value range. If the confidence level of the
+ * \brief uncertainty is known,
+ * \brief it can be listed in the optional attribute confidenceLevel.
+ * \brief Note that uncertainty, upperUncertainty, and
+ * \brief lowerUncertainty are given as absolute values of the
+ * \brief deviation
+ * \brief from the main value.
+ */
 class SC_SYSTEM_CORE_API IntegerQuantity : public Core::BaseObject {
 	DECLARE_SC_CLASS(IntegerQuantity);
 	DECLARE_SERIALIZATION;
@@ -80,18 +99,27 @@ class SC_SYSTEM_CORE_API IntegerQuantity : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Value of the quantity. The unit is implicitly defined and
+		//! depends on the context.
 		void setValue(int value);
 		int value() const;
 
+		//! Uncertainty as the absolute value of symmetric deviation
+		//! from the main value.
 		void setUncertainty(const OPT(int)& uncertainty);
 		int uncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Uncertainty as the absolute value of deviation from the
+		//! main value towards smaller values.
 		void setLowerUncertainty(const OPT(int)& lowerUncertainty);
 		int lowerUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Uncertainty as the absolute value of deviation from the
+		//! main value towards larger values.
 		void setUpperUncertainty(const OPT(int)& upperUncertainty);
 		int upperUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Confidence level of the uncertainty, given in percent.
 		void setConfidenceLevel(const OPT(double)& confidenceLevel);
 		double confidenceLevel() const throw(Seiscomp::Core::ValueException);
 

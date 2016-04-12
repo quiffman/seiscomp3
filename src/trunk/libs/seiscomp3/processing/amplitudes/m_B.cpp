@@ -124,7 +124,6 @@ bool AmplitudeProcessor_mB::computeAmplitude(const DoubleArray &data,
 	// SNR check
 	if (*snr < _config.snrMin) {
 		setStatus(LowSNR, *snr);
-
 		return false;
 	}
 

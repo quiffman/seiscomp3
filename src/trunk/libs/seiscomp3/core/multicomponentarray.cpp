@@ -29,7 +29,7 @@ IMPLEMENT_SC_CLASS(MultiComponentArray, "MultiComponentArray");
 
 Array* FillZeroesFunctor::operator()(const Array *pred, const Array *succ, double dt, double freq) const {
     if (dt <= _gapLength) {
-        int number = floor(dt * freq);
+        int number = (int)floor(dt * freq);
 	switch (pred->dataType()) {
 		case Array::CHAR:
 			return new CharArray(number);
@@ -63,7 +63,7 @@ Array* linearInterpolate(const Array *pred, const Array *succ, int number) {
             factor = -1;
 
         for (int i = 0; i < number; ++i)
-            result->set(i, i * step * factor + pval);
+            result->set(i, (int)(i * step * factor + pval));
 
         return result;
     }
@@ -73,7 +73,7 @@ Array* linearInterpolate(const Array *pred, const Array *succ, int number) {
 
 Array* LinearInterpolateFunctor::operator()(const Array *pred, const Array *succ, double dt, double freq) const {
     if (dt <= _gapLength) {        
-        int number = floor(dt * freq);
+        int number = (int)floor(dt * freq);
         switch (pred->dataType()) {
             case Array::CHAR:
                 return linearInterpolate<char>(pred, succ, number);
@@ -158,14 +158,14 @@ bool MultiComponent::feed(const Array *array, const Core::Time &time, const GapF
     }
 
     if (stime < commstart) {
-        int samples = ceil((double)(commstart - stime) * _frequency);
+        int samples = (int)ceil((double)(commstart - stime) * _frequency);
         data = data->slice(samples, dsize);
         dsize = data->size();
         stime = Core::Time(etime - Core::Time(dsize / _frequency));
     }
 
     if (commend != Core::Time() && etime > commend) {
-        int samples = floor((double)(commend - stime) * _frequency);        
+        int samples = (int)floor((double)(commend - stime) * _frequency);        
         data = data->slice(0, samples);
         dsize = data->size();
         etime = stime + (Core::Time((double)dsize / _frequency));
@@ -217,7 +217,7 @@ bool MultiComponent::feed(const Array *array, const Core::Time &time, const GapF
 
         ArrayPtr newdata = 0;
         if (_start >= stime) {
-            int samples = floor((double)(etime - _start) * _frequency);
+            int samples = (int)floor((double)(etime - _start) * _frequency);
             newdata = data->slice(dsize - samples, dsize);
             if (cursize > samples) {
                 ArrayPtr tmp = _data->slice(samples, cursize);
@@ -228,14 +228,14 @@ bool MultiComponent::feed(const Array *array, const Core::Time &time, const GapF
         }
 
         if (end <= etime) {
-            int samples = floor((double)(end - stime) *  _frequency);
+            int samples = (int)floor((double)(end - stime) *  _frequency);
             _data = _data->slice(0, cursize - samples);
             _data->append(data.get());
             return true;
         }
         
         if (end > etime) {
-            int samples = floor((double)(stime - _start) * _frequency);
+            int samples = (int)floor((double)(stime - _start) * _frequency);
             newdata = _data->slice(0, samples);
             newdata->append(data.get());
             ArrayPtr tmp = _data->slice(samples + dsize, cursize);
@@ -275,7 +275,7 @@ bool MultiComponent::prune(const Core::Time *beg, const Core::Time *end) {
 
         if (beg && _start < *beg) {
             double seconds = (double)(*beg - _start);
-            int samples = ceil(seconds * _frequency); // cut at or after the given start
+            int samples = (int)ceil(seconds * _frequency); // cut at or after the given start
 
             _data = _data->slice(samples, _data->size());
             _start = Core::Time(etime - Core::Time(_data->size() / _frequency));
@@ -284,7 +284,7 @@ bool MultiComponent::prune(const Core::Time *beg, const Core::Time *end) {
 
         if (end && *end < etime) {
             double seconds = (double)(*end - _start);
-            int samples = floor(seconds * _frequency); // cut at or before the given end
+            int samples = (int)floor(seconds * _frequency); // cut at or before the given end
 
             _data = _data->slice(0, samples);
             result = true;

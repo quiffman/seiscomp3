@@ -149,26 +149,22 @@ void PostgreSQLDatabase::rollback() {
 bool PostgreSQLDatabase::execute(const char* command) {
 	if ( !isConnected() || command == NULL ) return false;
 
-	endQuery();
-
-	_result = PQexec(_handle, command);
-	if ( _result == NULL ) {
+	PGresult *result = PQexec(_handle, command);
+	if ( result == NULL ) {
 		SEISCOMP_ERROR("execute(\"%s\"): %s", command, PQerrorMessage(_handle));
 		return false;
 	}
 
-	ExecStatusType stat = PQresultStatus(_result);
+	ExecStatusType stat = PQresultStatus(result);
 	if ( stat != PGRES_TUPLES_OK && stat != PGRES_COMMAND_OK ) {
 		SEISCOMP_ERROR("QUERY/COMMAND failed");
 		SEISCOMP_ERROR("  %s", command);
 		SEISCOMP_ERROR("  %s", PQerrorMessage(_handle));
-		PQclear(_result);
-		_result = NULL;
+		PQclear(result);
 		return false;
 	}
 
-	_nRows = PQntuples(_result);
-	_fieldCount = PQnfields(_result);
+	PQclear(result);
 
 	return true;
 }
@@ -179,7 +175,35 @@ bool PostgreSQLDatabase::execute(const char* command) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool PostgreSQLDatabase::beginQuery(const char* query) {
-	return execute(query);
+	if ( !isConnected() || query == NULL ) return false;
+	if ( _result ) {
+		SEISCOMP_ERROR("beginQuery: nested queries are not supported");
+		//SEISCOMP_DEBUG("last successfull query: %s", _lastQuery.c_str());
+		return false;
+	}
+
+	endQuery();
+
+	_result = PQexec(_handle, query);
+	if ( _result == NULL ) {
+		SEISCOMP_ERROR("query(\"%s\"): %s", query, PQerrorMessage(_handle));
+		return false;
+	}
+
+	ExecStatusType stat = PQresultStatus(_result);
+	if ( stat != PGRES_TUPLES_OK && stat != PGRES_COMMAND_OK ) {
+		SEISCOMP_ERROR("QUERY/COMMAND failed");
+		SEISCOMP_ERROR("  %s", query);
+		SEISCOMP_ERROR("  %s", PQerrorMessage(_handle));
+		PQclear(_result);
+		_result = NULL;
+		return false;
+	}
+
+	_nRows = PQntuples(_result);
+	_fieldCount = PQnfields(_result);
+
+	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

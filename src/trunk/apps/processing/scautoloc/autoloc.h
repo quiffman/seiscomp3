@@ -203,6 +203,9 @@ class Autoloc3 {
 			bool adoptManualOriginsFixedDepth;
 			bool useImportedOrigins;
 
+			// enable the XXL feature
+			bool xxlEnabled;
+
 			// minimum absolute amplitude to flag a pick as XXL
 			double xxlMinAmplitude;            // default  10000 nm/s
 

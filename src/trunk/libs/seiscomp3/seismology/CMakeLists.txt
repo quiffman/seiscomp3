@@ -5,6 +5,8 @@ SET(SEISMOLOGY_SOURCES
 	Mjma.cpp
 	ttt.cpp
 
+	eigv.cpp
+	chi2.cpp
 	locsat.cpp
 	locatorinterface.cpp
 	locsat_internal.cpp

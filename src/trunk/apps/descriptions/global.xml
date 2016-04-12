@@ -373,11 +373,11 @@
 				</option>
 
 				<option flag="" long-flag="inventory-db" argument="arg" publicID="database#inventory-db">
-					<description>Load the inventory database from a given XML file.</description>
+					<description>Load the inventory from the given database or file, format: [service://]location</description>
 				</option>
 
 				<option flag="" long-flag="config-db" argument="arg" publicID="database#config-db">
-					<description>Load the configuration database from a given XML file.</description>
+					<description>Load the configuration from the given database or file, format: [service://]location</description>
 				</option>
 			</group>
 

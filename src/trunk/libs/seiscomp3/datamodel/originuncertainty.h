@@ -33,6 +33,17 @@ namespace DataModel {
 DEFINE_SMARTPOINTER(OriginUncertainty);
 
 
+/**
+ * \brief This class describes the location uncertainties of an
+ * \brief origin. The uncertainty
+ * \brief can be described either as a simple circular horizontal
+ * \brief uncertainty, an
+ * \brief uncertainty ellipse according to IMS1.0, or a confidence
+ * \brief ellipsoid. If
+ * \brief multiple uncertainty models are given, the preferred
+ * \brief variant can be
+ * \brief specified in the attribute preferredDescription.
+ */
 class SC_SYSTEM_CORE_API OriginUncertainty : public Core::BaseObject {
 	DECLARE_SC_CLASS(OriginUncertainty);
 	DECLARE_SERIALIZATION;
@@ -71,22 +82,31 @@ class SC_SYSTEM_CORE_API OriginUncertainty : public Core::BaseObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Circular confidence region, given by single value of
+		//! horizontal uncertainty in km.
 		void setHorizontalUncertainty(const OPT(double)& horizontalUncertainty);
 		double horizontalUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Semi-minor axis of confidence ellipse in km.
 		void setMinHorizontalUncertainty(const OPT(double)& minHorizontalUncertainty);
 		double minHorizontalUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Semi-major axis of confidence ellipse in km.
 		void setMaxHorizontalUncertainty(const OPT(double)& maxHorizontalUncertainty);
 		double maxHorizontalUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Azimuth of major axis of confidence ellipse. Measured
+		//! clockwise from
+		//! South-North direction at epicenter in degrees.
 		void setAzimuthMaxHorizontalUncertainty(const OPT(double)& azimuthMaxHorizontalUncertainty);
 		double azimuthMaxHorizontalUncertainty() const throw(Seiscomp::Core::ValueException);
 
+		//! Confidence ellipsoid.
 		void setConfidenceEllipsoid(const OPT(ConfidenceEllipsoid)& confidenceEllipsoid);
 		ConfidenceEllipsoid& confidenceEllipsoid() throw(Seiscomp::Core::ValueException);
 		const ConfidenceEllipsoid& confidenceEllipsoid() const throw(Seiscomp::Core::ValueException);
 
+		//! Preferred uncertainty description.
 		void setPreferredDescription(const OPT(OriginUncertaintyDescription)& preferredDescription);
 		OriginUncertaintyDescription preferredDescription() const throw(Seiscomp::Core::ValueException);
 

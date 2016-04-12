@@ -19,6 +19,8 @@
 #include <seiscomp3/logging/log.h>
 
 #include <iostream>
+#include <algorithm>
+
 
 namespace Seiscomp {
 namespace Processing  {
@@ -71,6 +73,7 @@ void Stream::init(const std::string &networkCode,
 	catch ( ... ) {}
 
 	gainUnit = stream->gainUnit();
+	std::transform(gainUnit.begin(), gainUnit.end(), gainUnit.begin(), ::toupper);
 
 	try {
 		azimuth = stream->azimuth();

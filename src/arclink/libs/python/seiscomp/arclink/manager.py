@@ -25,6 +25,44 @@ _DEFAULT_USER = "guest@anywhere"
 _SOCKET_TIMEOUT = 300
 _REQUEST_TIMEOUT = 300  # currently not used
 _DOWNLOAD_RETRY = 5
+_MAX_REQ_LINES = 990
+_MAX_REQ_MB = 500
+
+class RequestLine(object):
+    __slots__ = ('start_time', 'end_time', 'net', 'sta', 'cha', 'loc',
+        'constraints', 'routes_tried', 'estimated_size')
+
+    def __init__(self, start_time, end_time, net, sta, cha, loc,
+            constraints=None, routes_tried=None, estimated_size=0):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.net = net if net and net != '.' else ''
+        self.sta = sta if sta and sta != '.' else ''
+        self.cha = cha if cha and cha != '.' else ''
+        self.loc = loc if loc and loc != '.' else ''
+        self.constraints = constraints if constraints else {}
+        self.routes_tried = routes_tried if routes_tried else set()
+        self.estimated_size = estimated_size
+
+    def items(self):
+        return (self.start_time, self.end_time, self.net, self.sta, self.cha, self.loc,
+            self.constraints)
+
+    # for backwards compatibility
+    def __getitem__(self, i):
+        return (self.net if self.net else '.', self.sta if self.sta else '.',
+            self.cha if self.cha else '.', self.loc if self.loc else '.',
+            self.start_time, self.end_time, self.constraints, self.routes_tried)[i]
+
+    def __repr__(self):
+        return ("%d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" % (
+            self.start_time.year, self.start_time.month, self.start_time.day,
+            self.start_time.hour, self.start_time.minute, self.start_time.second,
+            self.end_time.year, self.end_time.month, self.end_time.day,
+            self.end_time.hour, self.end_time.minute, self.end_time.second,
+            self.net if self.net else '.', self.sta if self.sta else '.',
+            self.cha if self.cha else '.', self.loc if self.loc else '.',
+            " ".join([ "%s=%s" % (a, v) for a, v in self.constraints.iteritems() ]))).rstrip()
 
 class _Request(object):
     def __init__(self, rtype, args, label, socket_timeout, request_timeout,
@@ -54,19 +92,24 @@ class _Request(object):
     def new(self):
         return _Request(self.rtype, self.args, self.label, self.socket_timeout,
             self.request_timeout, self.download_retry)
-    
-    def add(self, network, station, stream, loc_id, begin, end,
-        constraints = None, routes_tried = None):
-        
-        if constraints is None:
-            constraints = {}
 
-        if routes_tried is None:
-            routes_tried = set()
+    def __add_nscl_first(self, net, sta, cha, loc, start_time, end_time,
+            constraints=None, routes_tried=None, estimated_size=0):
+        self.content.append(RequestLine(start_time, end_time, net, sta, cha, loc,
+            constraints, routes_tried, estimated_size))
 
-        self.content.append((network, station, stream, loc_id, begin, end,
-            constraints, routes_tried))
-    
+    def __add_time_first(self, start_time, end_time, net, sta, cha, loc,
+            constraints=None, routes_tried=None, estimated_size=0):
+        self.content.append(RequestLine(start_time, end_time, net, sta, cha, loc,
+            constraints, routes_tried, estimated_size))
+
+    def add(self, *items):
+        if isinstance(items[0], datetime.datetime):
+            self.__add_time_first(*items)
+        else:
+            # for backwards compatibility
+            self.__add_nscl_first(*items)
+
     def dump(self, fd):
         if self.label:
              print >>fd, "LABEL %s" % (self.label,)
@@ -74,12 +117,8 @@ class _Request(object):
         print >>fd, "REQUEST %s %s" % (self.rtype,
             " ".join([ "%s=%s" % (a, v) for a, v in self.args.iteritems() ]))
 
-        for (network, station, stream, loc_id, begin, end, constraints, routes_tried) in self.content:
-            print >>fd, "%d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" % \
-                (begin.year, begin.month, begin.day, begin.hour, begin.minute, begin.second,
-                end.year, end.month, end.day, end.hour, end.minute, end.second,
-                network, station, stream, loc_id,
-                " ".join([ "%s=%s" % (a, v) for a, v in constraints.iteritems() ]))
+        for rl in self.content:
+            print >>fd, repr(rl)
 
         print >>fd, "END"
 
@@ -87,6 +126,7 @@ class _Request(object):
         try:
             (host, port) = addr.split(':')
             port = int(port)
+
         except ValueError:
             self.error = "invalid ArcLink address"
             return
@@ -113,14 +153,14 @@ class _Request(object):
 
             finally:
                 self.__arcl.close_connection()
-                
+
         except (ArclinkError, socket.error), e:
             self.error = str(e)
 
     def status(self):
         if self.id is None:
             raise ArclinkError, "request not submitted"
-        
+
         if self.__status:
             return self.__status
 
@@ -133,7 +173,7 @@ class _Request(object):
             status = self.__arcl.get_status(self.id).request[0]
             if status.ready:
                 self.__status = status
-                
+
             return status
 
         finally:
@@ -142,7 +182,7 @@ class _Request(object):
     def wait(self):
         if self.id is None:
             raise ArclinkError, "request not submitted"
-        
+
         self.__arcl_wait = Arclink()
 
         retry = 0
@@ -168,20 +208,20 @@ class _Request(object):
         if self.__arcl_wait:
             self.__arcl_wait.close_connection()
             self.__arcl_wait = None
-    
+
     def download_data(self, fd, vol_id=None, block=False, purge=True, password=None, raw=False):
         if self.id is None:
             raise ArclinkError, "request not submitted"
-        
+
         retry = 0
         if block:
             tmo = self.socket_timeout
         else:
             tmo = 0
-        
+
         if vol_id is not None:
             self.close()
-        
+
         while True:
             if self.__arcl_wait:
                 arcl = self.__arcl_wait
@@ -212,7 +252,7 @@ class _Request(object):
 
                     except IOError:
                         raise ArclinkError, "download failed: " + reason
- 
+
                     retry += 1
                     if retry > self.download_retry:
                         raise ArclinkError, "download failed: " + reason
@@ -223,19 +263,19 @@ class _Request(object):
     def download_xml(self, db, block=False, purge=True):
         if self.id is None:
             raise ArclinkError, "request not submitted"
-        
+
         retry = 0
         if block:
             tmo = self.socket_timeout
         else:
             tmo = 0
-        
+
         while True:
             arcl = self.__arcl
             self.__arcl_wait = None
             arcl.open_connection(self.__host, self.__port,
                 self.__user, self.__passwd, None, self.socket_timeout)
-                
+
             try:
                 try:
                     arcl.download_xml(db, self.id, timeout=tmo)
@@ -250,7 +290,7 @@ class _Request(object):
                     retry += 1
                     if retry > self.download_retry:
                         raise ArclinkError, "download failed: " + str(e)
-                    
+
             finally:
                 arcl.close_connection()
 
@@ -266,9 +306,10 @@ class _Request(object):
 
         finally:
             self.__arcl.close_connection()
-    
+
 class RequestThread(threading.Thread):
-    def __init__(self, req, addr, user, passwd, user_ip, req_sent, req_retry):
+    def __init__(self, req, addr, user, passwd, user_ip, req_sent, req_retry,
+            max_req_lines, max_req_mb):
         threading.Thread.__init__(self)
         self.__req = req
         self.__addr = addr
@@ -277,70 +318,84 @@ class RequestThread(threading.Thread):
         self.__user_ip = user_ip
         self.__req_sent = req_sent
         self.__req_retry = req_retry
+        self.__max_req_lines = max_req_lines
+        self.__max_req_mb = max_req_mb
 
-    def run(self):
+    def __process(self, req):
         try:
-            self.__req.submit(self.__addr, self.__user, self.__passwd, self.__user_ip)
-            if self.__req.error is not None:
+            req.submit(self.__addr, self.__user, self.__passwd, self.__user_ip)
+            if req.error is not None:
                 logs.warning("error submitting request to %s: %s" %
-                    (self.__addr, self.__req.error))
+                    (self.__addr, req.error))
 
-                for item in self.__req.content:
-                    item[7].add(self.__addr) #routes tried
-                    self.__req_retry.add(*item)
+                for rl in req.content:
+                    rl.routes_tried.add(self.__addr)
+                    self.__req_retry.content.append(rl)
 
                 return
 
-            self.__req.wait()
-            logs.debug("%s: request %s ready" % (self.__req.address, self.__req.id))
+            req.wait()
+            logs.debug("%s: request %s ready" % (req.address, req.id))
 
             fail_content = {}
-            for (net, sta, strm, loc, begin, end, constraints, routes_tried) in self.__req.content:
-                key = ("%d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" %
-                    (begin.year, begin.month, begin.day, begin.hour, begin.minute, begin.second,
-                    end.year, end.month, end.day, end.hour, end.minute, end.second, net, sta, strm, loc,
-                    " ".join([ "%s=%s" % (a, v) for a, v in constraints.iteritems() ]))).strip()
+            for rl in req.content:
+                rl.routes_tried.add(self.__addr)
+                fail_content[repr(rl)] = rl
 
-                routes_tried.add(self.__addr)
-                fail_content[key] = (net, sta, strm, loc, begin, end, constraints, routes_tried)
+            sr = req.status()
+            for sv in sr.volume:
+                for sl in sv.line:
+                    if (sv.status != STATUS_OK and sv.status != STATUS_WARN and sv.status != STATUS_DENIED) or \
+                        (sl.status != STATUS_OK and sl.status != STATUS_WARN and sl.status != STATUS_DENIED):
+                        self.__req_retry.content.append(fail_content[sl.content.strip()])
 
-            rqstat = self.__req.status()
-            for vol in rqstat.volume:
-                for rqln in vol.line:
-                    if (vol.status != STATUS_OK and vol.status != STATUS_WARN and vol.status != STATUS_DENIED) or \
-                        (rqln.status != STATUS_OK and rqln.status != STATUS_WARN and rqln.status != STATUS_DENIED):
-                        self.__req_retry.content.append(fail_content[rqln.content.strip()])
-
-            #self.__req.purge()
-            self.__req_sent.append(self.__req)
+            #req.purge()
+            self.__req_sent.append(req)
             return
 
         except ArclinkError, e:
             try:
-                rqstat = self.__req.status()
-                if rqstat.error:
-                    logs.warning("%s: request %s failed (%s)" % (self.__req.address, self.__req.id, str(e)))
-                
-                else:
-                    logs.warning("%s: request %s returned no data (%s)" % (self.__req.address, self.__req.id, str(e)))
+                sr = req.status()
+                if sr.error:
+                    logs.warning("%s: request %s failed (%s)" % (req.address, req.id, str(e)))
 
-                #self.__req.purge()
-                self.__req_sent.append(self.__req)
+                else:
+                    logs.warning("%s: request %s returned no data (%s)" % (req.address, req.id, str(e)))
+
+                #req.purge()
+                self.__req_sent.append(req)
 
             except (ArclinkError, socket.error), e:
-                logs.warning("%s: error: %s" % (self.__req.address, str(e)))
-                        
-        except socket.error, e:
-            logs.warning("%s: error: %s" % (self.__req.address, str(e)))
+                logs.warning("%s: error: %s" % (req.address, str(e)))
 
-        for item in self.__req.content:
-            item[7].add(self.__addr) #routes tried
-            self.__req_retry.add(*item)
+        except socket.error, e:
+            logs.warning("%s: error: %s" % (req.address, str(e)))
+
+        for rl in req.content:
+            rl.routes_tried.add(self.__addr)
+            self.__req_retry.content.append(rl)
+
+    def run(self):
+        req = self.__req.new()
+        size = 0
+
+        for rl in self.__req.content:
+            req.content.append(rl)
+            size += rl.estimated_size
+
+            if len(req.content) >= self.__max_req_lines or size/(1024*1024) >= self.__max_req_mb:
+                self.__process(req)
+                req = self.__req.new()
+                size = 0
+
+        if req.content:
+            self.__process(req)
 
 class ArclinkManager(object):
-    def __init__(self, address, default_user = _DEFAULT_USER, user_ip = None,
-        pwtable = {}, addr_alias = {}, socket_timeout = _SOCKET_TIMEOUT,
-        request_timeout = _REQUEST_TIMEOUT, download_retry = _DOWNLOAD_RETRY):
+    def __init__(self, address, default_user=_DEFAULT_USER, user_ip=None,
+            pwtable={}, addr_alias={}, socket_timeout=_SOCKET_TIMEOUT,
+            request_timeout=_REQUEST_TIMEOUT, download_retry=_DOWNLOAD_RETRY,
+            max_req_lines=_MAX_REQ_LINES, max_req_mb=_MAX_REQ_MB):
         self.__myaddr = address
         self.__default_user = default_user
         self.__user_ip = user_ip
@@ -349,6 +404,8 @@ class ArclinkManager(object):
         self.__socket_timeout = socket_timeout
         self.__request_timeout = request_timeout
         self.__download_retry = download_retry
+        self.__max_req_lines = max_req_lines
+        self.__max_req_mb = max_req_mb
 
         usr_pwd = self.__pwtable.get(address)
         if usr_pwd is None:
@@ -367,32 +424,33 @@ class ArclinkManager(object):
         try:
             (host, port) = self.__myaddr.split(':')
             port = int(port)
+
         except ValueError:
             raise Exception("Hostname should be in a form of host:port")
-        
+
         try:
             socket.gethostbyname(host)
         except socket.error:
             raise Exception("Cannot resolv supplied address")
-            
+
         # Test that the ArcLink server is up and running
         try:
             acl = self.__arcl = Arclink()
             acl.open_connection(host, port, self.__myuser)
             acl.close_connection()
-	    acl = None
+            acl = None
         except Exception, e:
             raise Exception("Arclink Server is down.")
-        
+
     def new_request(self, rtype, args={}, label=None):
         return _Request(rtype, args, label, self.__socket_timeout,
             self.__request_timeout, self.__download_retry)
- 
-    def get_inventory(self, network = "*", station = ".", stream = ".",
-        loc_id = ".", begin = None, end = None, sensortype = None,
-        permanent = None, restricted = None, latmin = None, latmax = None,
-        lonmin = None, lonmax = None, instr = False, allnet = False,
-        modified_after = None, qc_constraints = None):
+
+    def get_inventory(self, network='*', station=None, stream=None,
+            loc_id=None, start_time=None, end_time=None, sensortype=None,
+            permanent=None, restricted=None, latmin=None, latmax=None,
+            lonmin=None, lonmax=None, instr=False, allnet=False,
+            modified_after=None, qc_constraints=None):
 
         constraints = {}
 
@@ -413,7 +471,7 @@ class ArclinkManager(object):
                 constraints['restricted'] = 'true'
             else:
                 constraints['restricted'] = 'false'
-        
+
         if latmin is not None:
             constraints['latmin'] = str(latmin)
 
@@ -426,40 +484,49 @@ class ArclinkManager(object):
         if lonmax is not None:
             constraints['lonmax'] = str(lonmax)
 
-        if begin is None:
-            begin = datetime.datetime(1980,1,1,0,0,0)
+        if start_time is None:
+            start_time = datetime.datetime(1980,1,1,0,0,0)
 
-        if end is None:
-            end = datetime.datetime(2030,12,31,0,0,0)
+        if end_time is None:
+            end_time = datetime.datetime(2030,12,31,0,0,0)
 
         args = { 'compression': 'bzip2' }
         if instr:
             args['instruments'] = 'true'
         else:
             args['instruments'] = 'false'
-        
+
         if modified_after is not None:
             args['modified_after'] = modified_after.isoformat()
-        
+
         req = self.new_request("INVENTORY", args)
-        req.add(network, station, stream, loc_id, begin, end, constraints)
+        req.add(start_time, end_time, network, station, stream, loc_id, constraints)
 
         if allnet:
-            req.add("*", ".", ".", ".", begin, end, constraints)
+            req.add(start_time, end_time, '*', '', '', '', constraints)
 
         req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
         if req.error is not None:
             raise ArclinkError, req.error
-        
-        db = _Inventory()
-        req.download_xml(db, True)
-        return db
+
+        inv = _Inventory()
+        req.download_xml(inv, True)
+        return inv
+
+    def __estimate_size(self, strm, start_time, end_time):
+        if strm.sampleRateDenominator == 0:
+            return 0
+
+        tdiff = end_time - start_time
+        tdiff = tdiff.days * 86400 + tdiff.seconds
+        spfr = float(strm.sampleRateNumerator) / float(strm.sampleRateDenominator)
+        return max(int(tdiff * spfr * 1.5), 512)
 
     def __spfr_diff(self, strm, spfr):
         if strm.sampleRateDenominator == 0:
             return 10000
-        
+
         return abs(spfr - float(strm.sampleRateNumerator) / float(strm.sampleRateDenominator))
 
     def __expand_request(self, req, inv, spfr):
@@ -486,12 +553,12 @@ class ArclinkManager(object):
 
         content = []
 
-        for (net_code, sta_code, strm_code, loc_code, begin, end, constraints, routes_tried) in req.content:
-            expanded = set()
+        for rl in req.content:
+            expanded = {}
             spfr_diff = 10000
 
             for sgrp in inv.stationGroup.itervalues():
-                if not fnmatch.fnmatchcase(sgrp.code, net_code):
+                if not fnmatch.fnmatchcase(sgrp.code, rl.net):
                     continue
 
                 for sref in sgrp.stationReference.itervalues():
@@ -507,83 +574,86 @@ class ArclinkManager(object):
                         continue
 
                     for loc in sum([i.values() for i in sta.sensorLocation.itervalues()], []):
-                        if not fnmatch.fnmatchcase(_dot(loc.code), _dot(loc_code)):
+                        if not fnmatch.fnmatchcase(_dot(loc.code), _dot(rl.loc)):
                             continue
-                        
+
                         for strm in sum([i.values() for i in loc.stream.itervalues()], []):
-                            if fnmatch.fnmatchcase(strm.code, strm_code):
+                            if fnmatch.fnmatchcase(strm.code, rl.cha):
                                 if spfr is not None:
                                     if self.__spfr_diff(strm, spfr) < spfr_diff:
                                         spfr_diff = self.__spfr_diff(strm, spfr)
                                         expanded.clear()
-                                    
+
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded.add((net.code, sta.code, strm.code, _dot(loc.code), begin, end))
-                        
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
+                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
+
                         for strm in sum([i.values() for i in loc.auxStream.itervalues()], []):
-                            if fnmatch.fnmatchcase(strm.code, strm_code):
+                            if fnmatch.fnmatchcase(strm.code, rl.cha):
                                 if spfr is not None:
                                     if self.__spfr_diff(strm, spfr) < spfr_diff:
                                         spfr_diff = self.__spfr_diff(strm, spfr)
                                         expanded.clear()
-                                    
+
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded.add((net.code, sta.code, strm.code, _dot(loc.code), begin, end))
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
+                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
 
             for net in sum([i.values() for i in inv.network.itervalues()], []):
-                if not fnmatch.fnmatchcase(net.code, net_code):
+                if not fnmatch.fnmatchcase(net.code, rl.net):
                     continue
 
                 for sta in sum([i.values() for i in net.station.itervalues()], []):
-                    if not fnmatch.fnmatchcase(sta.code, sta_code):
+                    if not fnmatch.fnmatchcase(sta.code, rl.sta):
                         continue
 
                     for loc in sum([i.values() for i in sta.sensorLocation.itervalues()], []):
-                        if not fnmatch.fnmatchcase(_dot(loc.code), _dot(loc_code)):
+                        if not fnmatch.fnmatchcase(_dot(loc.code), _dot(rl.loc)):
                             continue
-                        
+
                         for strm in sum([i.values() for i in loc.stream.itervalues()], []):
-                            if fnmatch.fnmatchcase(strm.code, strm_code):
+                            if fnmatch.fnmatchcase(strm.code, rl.cha):
                                 if spfr is not None:
                                     if self.__spfr_diff(strm, spfr) < spfr_diff:
                                         spfr_diff = self.__spfr_diff(strm, spfr)
                                         expanded.clear()
-                                    
+
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded.add((net.code, sta.code, strm.code, _dot(loc.code), begin, end))
-                        
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
+                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
+
                         for strm in sum([i.values() for i in loc.auxStream.itervalues()], []):
-                            if fnmatch.fnmatchcase(strm.code, strm_code):
+                            if fnmatch.fnmatchcase(strm.code, rl.cha):
                                 if spfr is not None:
                                     if self.__spfr_diff(strm, spfr) < spfr_diff:
                                         spfr_diff = self.__spfr_diff(strm, spfr)
                                         expanded.clear()
-                                    
+
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded.add((net.code, sta.code, strm.code, _dot(loc.code), begin, end))
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
+                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
 
             if expanded:
-                for x in expanded:
-                    content.append(x + (constraints, routes_tried.copy()))
-            
+                for (x, estimated_size) in expanded.iteritems():
+                    rlx = RequestLine(*x)
+                    rlx.routes_tried = rl.routes_tried.copy()
+                    rlx.estimated_size = estimated_size
+                    content.append(rlx)
+
             else:
-                logs.warning("no match for %d,%d,%d,%d,%d,%d %d,%d,%d,%d,%d,%d %s %s %s %s %s" % \
-                    (begin.year, begin.month, begin.day, begin.hour, begin.minute, begin.second,
-                    end.year, end.month, end.day, end.hour, end.minute, end.second,
-                    net_code, sta_code, strm_code, loc_code,
-                    " ".join([ "%s=%s" % (a, v) for a, v in constraints.iteritems() ])))
+                logs.warning("no match for " + repr(rl))
 
         req.content[:] = content
 
-    def __execute(self, db, request, req_sent, req_noroute, req_nodata):
+    def __execute(self, inv, request, req_sent, req_noroute, req_nodata, dry_run):
         def _cmptime(t1, t2):
             if t1 is None and t2 is None:
                 return 0
@@ -596,32 +666,32 @@ class ArclinkManager(object):
 
         req_retry = request.new()
         req_route = {}
-        
-        for item in request.content:
+
+        for rl in request.content:
             for x in (15, 14, 13, 11, 7, 12, 10, 9, 6, 5, 3, 8, 4, 2, 1, 0):
-                net = (item[0], "")[not (x & 8)]
-                sta = (item[1], "")[not (x & 4)]
-                cha = (item[2], "")[not (x & 2)]
-                loc = (item[3], "")[not (x & 1)]
+                net = (rl.net, "")[not (x & 8)]
+                sta = (rl.sta, "")[not (x & 4)]
+                cha = (rl.cha, "")[not (x & 2)]
+                loc = (rl.loc, "")[not (x & 1)]
 
                 try:
-                    route = db.route[net][sta][loc][cha]
+                    route = inv.route[net][sta][loc][cha]
                     break
 
                 except KeyError:
                     continue
 
             else:
-                logs.warning("route to station %s %s not found" % (item[0], item[1]))
-                req_noroute.add(*item)
+                logs.warning("route to station %s %s not found" % (rl.net, rl.sta))
+                req_noroute.content.append(rl)
                 continue
 
             server_list = sum([i.values() for i in route.arclink.itervalues()], [])
             server_list.sort(key=lambda x: x.priority)
             arclink_addrs = []
             for server in server_list:
-                if _cmptime(server.start, item[5]) > 0 or \
-                    _cmptime(server.end, item[4]) < 0:
+                if _cmptime(server.start, rl.end_time) > 0 or \
+                    _cmptime(server.end, rl.start_time) < 0:
                     continue
 
                 alias = self.__addr_alias.get(server.address)
@@ -629,19 +699,19 @@ class ArclinkManager(object):
                     arclink_addrs.append(server.address)
                 else:
                     arclink_addrs.append(alias)
-            
+
             for addr in arclink_addrs:
-                if addr not in item[7]: #routes tried
+                if addr not in rl.routes_tried:
                     if addr not in req_route:
                         req_route[addr] = request.new()
 
-                    req_route[addr].add(*item)
+                    req_route[addr].content.append(rl)
                     break
             else:
                 if arclink_addrs:
-                    req_nodata.add(*item)
+                    req_nodata.content.append(rl)
                 else:
-                    req_noroute.add(*item)
+                    req_noroute.content.append(rl)
 
         req_thr = []
         for (addr, req) in req_route.items():
@@ -651,19 +721,26 @@ class ArclinkManager(object):
                 passwd = None
             else:
                 (user, passwd) = usr_pwd
-                    
-            logs.info("launching request thread (%s)" % (addr,))
-            thr = RequestThread(req, addr, user, passwd, self.__user_ip, req_sent, req_retry)
-            thr.start()
-            req_thr.append(thr)
+
+            if not dry_run:
+                logs.info("launching request thread (%s)" % (addr,))
+
+                thr = RequestThread(req, addr, user, passwd, self.__user_ip, req_sent, req_retry,
+                    self.__max_req_lines, self.__max_req_mb)
+
+                thr.start()
+                req_thr.append(thr)
+
+            else:
+                req_sent.append(req)
 
         for thr in req_thr:
             thr.join()
 
         if req_retry.content:
-            return self.__execute(db, req_retry, req_sent, req_noroute, req_nodata)
-        
-    def execute(self, request, use_inventory = True, use_routing = True, preferred_sample_rate = None):
+            return self.__execute(inv, req_retry, req_sent, req_noroute, req_nodata, dry_run)
+
+    def execute(self, request, use_inventory=True, use_routing=True, preferred_sample_rate=None, dry_run=False):
         if len(request.content) == 0:
             raise ArclinkError, "empty request"
 
@@ -676,21 +753,26 @@ class ArclinkManager(object):
 
         if use_inventory:
             logs.debug("requesting inventory from %s" % (self.__myaddr))
-            args = {'instruments': 'true', 'compression': 'bzip2'}
-            req = self.new_request("INVENTORY", args, request.label)
-            req.content = request.content
-            req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            if req.error is not None:
-                raise ArclinkError, "error getting inventory data from %s: %s" % \
-                    (self.__myaddr, req.error)
-            
-            try:
-                req.download_xml(inv, True)
+            startidx = 0
+            while startidx < len(request.content):
+                args = {'instruments': 'true', 'compression': 'bzip2'}
+                req = self.new_request("INVENTORY", args, request.label)
+                req.content = request.content[startidx:startidx+self.__max_req_lines]
+                req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            except ArclinkError, e:
-                raise ArclinkError, "error getting inventory data from %s: %s" % \
-                    (self.__myaddr, str(e))
+                if req.error is not None:
+                    raise ArclinkError, "error getting inventory data from %s: %s" % \
+                        (self.__myaddr, req.error)
+
+                try:
+                    req.download_xml(inv, True)
+
+                except ArclinkError, e:
+                    raise ArclinkError, "error getting inventory data from %s: %s" % \
+                        (self.__myaddr, str(e))
+
+                startidx += len(req.content)
 
             self.__expand_request(request, inv, preferred_sample_rate)
             if len(request.content) == 0:
@@ -698,44 +780,55 @@ class ArclinkManager(object):
 
         if use_routing:
             logs.debug("requesting routing from %s" % (self.__myaddr))
-            args = { 'compression': 'bzip2' }
-            req = self.new_request("ROUTING", args, request.label)
-            req.content = request.content
-            req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            if req.error is not None:
-                raise ArclinkError, "error getting routing data from %s: %s" % \
-                    (self.__myaddr, req.error)
-            
-            try:
-                req.download_xml(rtn, True)
+            startidx = 0
+            while startidx < len(request.content):
+                args = { 'compression': 'bzip2' }
+                req = self.new_request("ROUTING", args, request.label)
+                req.content = request.content[startidx:startidx+self.__max_req_lines]
+                req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            except ArclinkError, e:
-                raise ArclinkError, "error getting routing data from %s: %s" % \
-                    (self.__myaddr, str(e))
+                if req.error is not None:
+                    raise ArclinkError, "error getting routing data from %s: %s" % \
+                        (self.__myaddr, req.error)
 
-            self.__execute(rtn, request, req_sent, req_noroute, req_nodata)
+                try:
+                    req.download_xml(rtn, True)
+
+                except ArclinkError, e:
+                    raise ArclinkError, "error getting routing data from %s: %s" % \
+                        (self.__myaddr, str(e))
+
+                startidx += len(req.content)
+
+            self.__execute(rtn, request, req_sent, req_noroute, req_nodata, dry_run)
 
         else:
             logs.debug("requesting %s data from %s" % (request.rtype.lower(), self.__myaddr))
-            request.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            if request.error is not None:
-                raise ArclinkError, "error getting %s data from %s: %s" % \
-                    (request.rtype.lower(), self.__myaddr, request.error)
-            
-            try:
-                request.wait()
+            startidx = 0
+            while startidx < len(request.content):
+                req = request.new()
+                req.content = request.content[startidx:startidx+self.__max_req_lines]
+                req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
-            except ArclinkError, e:
-                rqstat = request.status()
-                if rqstat.error:
-                    logs.warning("%s: request %s failed (%s)" % (request.address, request.id, str(e)))
-                
-                else:
-                    logs.warning("%s: request %s returned no data (%s)" % (request.address, request.id, str(e)))
+                if req.error is not None:
+                    raise ArclinkError, "error getting %s data from %s: %s" % \
+                        (req.rtype.lower(), self.__myaddr, req.error)
 
-            req_sent.append(request)
+                try:
+                    req.wait()
+
+                except ArclinkError, e:
+                    sr = req.status()
+                    if sr.error:
+                        logs.warning("%s: request %s failed (%s)" % (req.address, req.id, str(e)))
+
+                    else:
+                        logs.warning("%s: request %s returned no data (%s)" % (req.address, req.id, str(e)))
+
+                req_sent.append(req)
+                startidx += len(req.content)
 
         if not req_noroute.content:
             req_noroute = None
@@ -745,7 +838,7 @@ class ArclinkManager(object):
 
         return (inv, req_sent, req_noroute, req_nodata)
 
-    def __route_request(self, db, req_ok, request):
+    def __route_request(self, inv, req_sent, request, dry_run):
         def _cmptime(t1, t2):
             if t1 is None and t2 is None:
                 return 0
@@ -758,35 +851,35 @@ class ArclinkManager(object):
 
         req_fail = None
         req_route = {}
-        
-        for item in request.content:
+
+        for rl in request.content:
             for x in (15, 14, 13, 11, 7, 12, 10, 9, 6, 5, 3, 8, 4, 2, 1, 0):
-                net = (item[0], "")[not (x & 8)]
-                sta = (item[1], "")[not (x & 4)]
-                cha = (item[2], "")[not (x & 2)]
-                loc = (item[3], "")[not (x & 1)]
+                net = (rl.net, "")[not (x & 8)]
+                sta = (rl.sta, "")[not (x & 4)]
+                cha = (rl.cha, "")[not (x & 2)]
+                loc = (rl.loc, "")[not (x & 1)]
 
                 try:
-                    route = db.route[net][sta][loc][cha]
+                    route = inv.route[net][sta][loc][cha]
                     break
 
                 except KeyError:
                     continue
 
             else:
-                logs.warning("route to station %s %s not found" % (item[0], item[1]))
+                logs.warning("route to station %s %s not found" % (rl.net, rl.sta))
                 if req_fail is None:
                     req_fail = request.new()
-                    
-                req_fail.add(*item)
+
+                req_fail.content.append(rl)
                 continue
 
             server_list = sum([i.values() for i in route.arclink.itervalues()], [])
             server_list.sort(key=lambda x: x.priority)
             arclink_addrs = []
             for server in server_list:
-                if _cmptime(server.start, item[5]) > 0 or \
-                    _cmptime(server.end, item[4]) < 0:
+                if _cmptime(server.start, rl.end_time) > 0 or \
+                    _cmptime(server.end, rl.start_time) < 0:
                     continue
 
                 alias = self.__addr_alias.get(server.address)
@@ -794,84 +887,110 @@ class ArclinkManager(object):
                     arclink_addrs.append(server.address)
                 else:
                     arclink_addrs.append(alias)
-            
-            for addr in arclink_addrs:
-                if addr not in item[7]: #routes tried
-                    if addr not in req_route:
-                        req_route[addr] = request.new()
 
-                    req_route[addr].add(*item)
+            for addr in arclink_addrs:
+                if addr not in rl.routes_tried:
+                    if addr not in req_route:
+                        req = request.new()
+                        req.size = 0
+                        req_route[addr] = [ req ]
+
+                    else:
+                        req = req_route[addr][-1]
+
+                        if len(req.content) >= self.__max_req_lines or req.size/(1024*1024) >= self.__max_req_mb:
+                            req = request.new()
+                            req.size = 0
+                            req_route[addr].append(req)
+
+                    req.content.append(rl)
+                    req.size += rl.estimated_size
                     break
+
             else:
                 if req_fail is None:
                     req_fail = request.new()
-                    
-                req_fail.add(*item)
 
-        for (addr, req) in req_route.items():
+                req_fail.content.append(rl)
+
+        for (addr, reqlist) in req_route.items():
             usr_pwd = self.__pwtable.get(addr)
             if usr_pwd is None:
                 user = self.__default_user
                 passwd = None
             else:
                 (user, passwd) = usr_pwd
-                    
-            for item in req.content:
-                item[7].add(addr) # routes tried
 
-            req.submit(addr, user, passwd, self.__user_ip)
-            if req.error is not None:
-                logs.warning("error submitting request to %s: %s" %
-                    (addr, req.error))
+            error = False
+            for req in reqlist:
+                for rl in req.content:
+                    rl.routes_tried.add(addr)
 
-                if req_fail is None:
-                    req_fail = request.new()
+                if not error:
+                    if not dry_run:
+                        req.submit(addr, user, passwd, self.__user_ip)
 
-                for item in req.content:
-                    req_fail.add(*item)
+                    if req.error is None:
+                        req_sent.append(req)
 
-                del req_route[addr]
- 
-        req_ok += req_route.values()
-        
+                    else:
+                        logs.warning("error submitting request to %s: %s" %
+                            (addr, req.error))
+
+                        error = True
+
+                if error:
+                    if req_fail is None:
+                        req_fail = request.new()
+
+                    for rl in req.content:
+                        req_fail.content.append(rl)
+
         if req_fail is not None and len(req_route) > 0:
-            return self.__route_request(db, req_ok, req_fail)
-        
+            return self.__route_request(inv, req_sent, req_fail, dry_run)
+
         return req_fail
 
-    def route_request(self, request, use_inventory=True, preferred_sample_rate=None):
+    def route_request(self, request, use_inventory=True, preferred_sample_rate=None, dry_run=False):
         if len(request.content) == 0:
-            return ([], None)
-        
+            raise ArclinkError, "empty request"
+
+        inv = _Inventory()
+        rtn = _Routing()
+
         if use_inventory:
-            args = {'instruments': 'false', 'compression': 'bzip2'}
-            req = self.new_request("INVENTORY", args, request.label)
-            req.content = request.content
+            startidx = 0
+            while startidx < len(request.content):
+                args = {'instruments': 'false', 'compression': 'bzip2'}
+                req = self.new_request("INVENTORY", args, request.label)
+                req.content = request.content[startidx:startidx+self.__max_req_lines]
+                req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
+
+                if req.error is not None:
+                    raise ArclinkError, req.error
+
+                req.download_xml(inv, True)
+                startidx += len(req.content)
+
+            self.__expand_request(request, inv, preferred_sample_rate)
+            if len(request.content) == 0:
+                raise ArclinkError, "empty request after wildcard expansion"
+
+        startidx = 0
+        while startidx < len(request.content):
+            args = { 'compression': 'bzip2' }
+            req = self.new_request("ROUTING", args, request.label)
+            req.content = request.content[startidx:startidx+self.__max_req_lines]
             req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
 
             if req.error is not None:
                 raise ArclinkError, req.error
 
-            db = _Inventory()
-            req.download_xml(db, True)
+            req.download_xml(rtn, True)
+            startidx += len(req.content)
 
-            self.__expand_request(request, db, preferred_sample_rate)
-            if len(request.content) == 0:
-                raise ArclinkError, "empty request after wildcard expansion"
+        req_sent = []
+        req_fail = self.__route_request(rtn, req_sent, request, dry_run)
 
-        args = { 'compression': 'bzip2' }
-        req = self.new_request("ROUTING", args, request.label)
-        req.content = request.content
-        req.submit(self.__myaddr, self.__myuser, self.__mypasswd, self.__user_ip)
-
-        if req.error is not None:
-            raise ArclinkError, req.error
-        
-        db = _Routing()
-        req.download_xml(db, True)
-
-        req_ok = []
-        req_fail = self.__route_request(db, req_ok, request)
-
-        return (req_ok, req_fail)
+        return (inv, req_sent, req_fail)
 

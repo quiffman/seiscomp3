@@ -12,6 +12,7 @@
 #     preferred origin resp. preferred magnitude
 #   - additional request parameters:
 #     - format:          [qml, qml-rt, sc3ml], default: qml
+#     - includepicks:    boolean, default: false
 #     - includecomments: boolean, default: true
 #     - formatted:       boolean, default: false
 #

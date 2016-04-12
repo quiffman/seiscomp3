@@ -1471,7 +1471,8 @@ bool EventTool::handleJournalEntry(DataModel::JournalEntry *entry) {
 			}
 		}
 	}
-	else
+	// Is this command ours by starting with Ev?
+	else if ( !entry->action().empty() && (entry->action().compare(0, 2,"Ev") == 0) )
 		response = createEntry(entry->objectID(), entry->action() + "Failed", ":unknown command:");
 
 	if ( response ) {

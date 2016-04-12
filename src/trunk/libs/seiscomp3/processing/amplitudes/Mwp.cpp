@@ -28,7 +28,7 @@ extern "C" {
 
 }
 
-using namespace Seiscomp::Math;
+using namespace Seiscomp::Math::Filtering::IIR;
 
 namespace Seiscomp {
 
@@ -163,12 +163,13 @@ bool AmplitudeProcessor_Mwp::computeAmplitude(const DoubleArray &data,
 	else
 		*snr = amax / *_noiseAmplitude;
 
+/*
 	if ( *snr < _config.snrMin ) {
 		setStatus(LowSNR, *snr);
 		_processedData = continuousData();
 		return false;
 	}
-
+*/
 	int onset = i1, n=i2; // XXX
 
 	_processedData.resize(n);
@@ -176,12 +177,18 @@ bool AmplitudeProcessor_Mwp::computeAmplitude(const DoubleArray &data,
 	for ( int i = 0; i < n; ++i )
 		_processedData[i] = (data[i] - offset) / _streamConfig[_usedComponent].gain;
 
-	Filter *flt = new Math::Filtering::IIR::ButterworthHighpass<double>(3,.01, _stream.fsamp);
+	// Apply mild highpass to take care of long-period noise.
+	// This is required unless the stations are exceptionally good.
+	ButterworthHighpass<double> *hp = new ButterworthHighpass<double>(2,.008, _stream.fsamp);
 
 	Mwp_demean(n, _processedData.typedData(), onset);
 	Mwp_taper (n, _processedData.typedData(), onset);
-	flt->apply(n, _processedData.typedData());
+	hp->apply(n, _processedData.typedData());
 	Mwp_double_integration(n, _processedData.typedData(), onset, _stream.fsamp);
+	// apply high pass a second time
+	hp->reset();
+	hp->apply(n, _processedData.typedData());
+	delete hp;
 
 	// Amplitude in nanometers
 	amplitude->value = 1.E9*Mwp_amplitude(si2, _processedData.typedData(), si1, &onset);
@@ -189,12 +196,11 @@ bool AmplitudeProcessor_Mwp::computeAmplitude(const DoubleArray &data,
 	dt->index = onset; // FIXME
 	*period = 0.0;
 
-	delete flt;
 
 	// Now check the SNR of the doubly integrated trace.
 	// Perhaps we can skip the initial SNR test completely!
 	*snr = Mwp_SNR(n, _processedData.typedData(), i1);
-	if ( *snr < 5 ) {
+	if ( *snr < _config.snrMin ) {
 		setStatus(LowSNR, *snr);
 		return false;
 	}

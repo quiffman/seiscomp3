@@ -2097,7 +2097,7 @@ Reference
    based on assumptions about the type of arrival \(phase\) as well as
    observed and \(on the basis of an earth model\) computed arrival times,
    or the residual, respectively. Additional pick attributes like the
-   horizontal slowness and backazimuth of the observed wave—especially if
+   horizontal slowness and backazimuth of the observed wave\-especially if
    derived from array data\-may further constrain the nature of the arrival.
 
    .. py:staticmethod:: Cast(obj)
@@ -3362,7 +3362,7 @@ Reference
 
       :param year: :ref:`IntegerQuantity <api-python-datamodel-integerquantity>`
 
-      Year or range of years of the event’s focal time.
+      Year or range of years of the event's focal time.
 
    .. py:method:: year()
 
@@ -3377,7 +3377,7 @@ Reference
 
       :param month: :ref:`IntegerQuantity <api-python-datamodel-integerquantity>`
 
-      Month or range of months of the event’s focal time.
+      Month or range of months of the event's focal time.
 
    .. py:method:: month()
 
@@ -3392,7 +3392,7 @@ Reference
 
       :param day: :ref:`IntegerQuantity <api-python-datamodel-integerquantity>`
 
-      Day or range of days of the event’s focal time.
+      Day or range of days of the event's focal time.
 
    .. py:method:: day()
 
@@ -3407,7 +3407,7 @@ Reference
 
       :param hour: :ref:`IntegerQuantity <api-python-datamodel-integerquantity>`
 
-      Hour or range of hours of the event’s focal time.
+      Hour or range of hours of the event's focal time.
 
    .. py:method:: hour()
 
@@ -3422,7 +3422,7 @@ Reference
 
       :param minute: :ref:`IntegerQuantity <api-python-datamodel-integerquantity>`
 
-      Minute or range of minutes of the event’s focal time.
+      Minute or range of minutes of the event's focal time.
 
    .. py:method:: minute()
 
@@ -3438,7 +3438,7 @@ Reference
       :param second: :ref:`RealQuantity <api-python-datamodel-realquantity>`
 
       Second and fraction of seconds or range of seconds with fraction of the
-      event’s focal time.
+      event's focal time.
 
    .. py:method:: second()
 
@@ -3512,7 +3512,7 @@ Reference
    of the major axis, and Y denotes the direction of the minor axis of the
    ellipsoid. Note that Figure 4 can be interpreted as a hypothetical view
    from the interior of the Earth to the inner face of a shell representing
-   Earth’s surface. The three Tait\-Bryan rotations are performed as follows:
+   Earth's surface. The three Tait\-Bryan rotations are performed as follows:
    \(i\) a rotation about the Z axis with angle psi \(heading, or azimuth\);
    \(ii\) a rotation about the Y axis with angle phi \(elevation, or plunge\);
    and \(iii\) a rotation about the X axis with angle theta \(bank\). Note that in
@@ -3583,7 +3583,7 @@ Reference
       :param majorAxisPlunge: float
 
       Plunge angle of major axis of confidence ellipsoid. Corresponds to
-      Tait\-Bryan angle φ
+      Tait\-Bryan angle phi
       in degrees.
 
    .. py:method:: majorAxisPlunge()
@@ -3595,7 +3595,7 @@ Reference
       :param majorAxisAzimuth: float
 
       Azimuth angle of major axis of confidence ellipsoid. Corresponds to
-      Tait\-Bryan angle ψ
+      Tait\-Bryan angle psi
       in degrees.
 
    .. py:method:: majorAxisAzimuth()
@@ -3606,10 +3606,10 @@ Reference
 
       :param majorAxisRotation: float
 
-      This angle describes a rotation about the confidence ellipsoid’s major axis
+      This angle describes a rotation about the confidence ellipsoid's major axis
       which is required
-      to define the direction of the ellipsoid’s minor axis. Corresponds to
-      Tait\-Bryan angle θ
+      to define the direction of the ellipsoid's minor axis. Corresponds to
+      Tait\-Bryan angle theta
       in degrees.
 
    .. py:method:: majorAxisRotation()
@@ -7148,7 +7148,7 @@ Reference
 
       :param originID: string
 
-      Reference to an origin’s publicID if the magnitude has an associated Origin.
+      Reference to an origin's publicID if the magnitude has an associated Origin.
 
    .. py:method:: originID()
 
@@ -7555,7 +7555,7 @@ Reference
 
       :param greensFunctionID: string
 
-      Resource identifier of the Green’s function used in moment tensor inversion.
+      Resource identifier of the Green's function used in moment tensor inversion.
 
    .. py:method:: greensFunctionID()
 
@@ -14495,7 +14495,7 @@ Reference
 
       :param originID: string
 
-      Reference to an origin’s publicID if the StationMagnitude has an associated
+      Reference to an origin's publicID if the StationMagnitude has an associated
       Origin.
 
    .. py:method:: originID()
@@ -15489,7 +15489,7 @@ Reference
 
       :param reference: datetime
 
-      Reference point in time \(“central” point\), in ISO 8601 format. It
+      Reference point in time \(\"central\" point\), in ISO 8601 format. It
       has to be given in UTC.
 
    .. py:method:: reference()

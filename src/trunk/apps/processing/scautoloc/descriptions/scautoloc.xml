@@ -148,10 +148,18 @@
 				</parameter>
 
 				<group name="xxl">
-					<parameter name="minAmplitude" type="double" default="10000">
+					<parameter name="enable" type="boolean" default="false">
 						<description>
 						Arrivals with exceptionally large amplitudes may be flagged as XXL, 
 						allowing (in future) faster, preliminary "heads-up" alerts.
+
+						This option enables the feature.
+						</description>
+					</parameter>
+					<parameter name="minAmplitude" type="double" default="10000">
+						<description>
+						Minimum amplitude for a pick to be flagged as XXL. NOTE that
+						BOTH minAmplitude and minSNR need to be exceeded!
 						</description>
 					</parameter>
 					<parameter name="minSNR" type="double" default="8">

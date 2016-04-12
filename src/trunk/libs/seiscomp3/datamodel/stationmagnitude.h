@@ -40,6 +40,10 @@ DEFINE_SMARTPOINTER(Comment);
 class Origin;
 
 
+/**
+ * \brief This class describes the magnitude derived from a single
+ * \brief waveform stream.
+ */
 class SC_SYSTEM_CORE_API StationMagnitude : public PublicObject {
 	DECLARE_SC_CLASS(StationMagnitude);
 	DECLARE_SERIALIZATION;
@@ -98,26 +102,43 @@ class SC_SYSTEM_CORE_API StationMagnitude : public PublicObject {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Reference to an origin's publicID if the StationMagnitude
+		//! has an associated Origin.
 		void setOriginID(const std::string& originID);
 		const std::string& originID() const;
 
+		//! Estimated magnitude as RealQuantity.
 		void setMagnitude(const RealQuantity& magnitude);
 		RealQuantity& magnitude();
 		const RealQuantity& magnitude() const;
 
+		//! See class Magnitude.
 		void setType(const std::string& type);
 		const std::string& type() const;
 
+		//! Identifies the data source of the StationMagnitude. For
+		//! magnitudes derived from amplitudes in
+		//! waveforms (e. g., local magnitude ML ), amplitudeID points
+		//! to publicID in class Amplitude.
 		void setAmplitudeID(const std::string& amplitudeID);
 		const std::string& amplitudeID() const;
 
+		//! See class Magnitude.
 		void setMethodID(const std::string& methodID);
 		const std::string& methodID() const;
 
+		//! Identifies the waveform stream. This element can be helpful
+		//! if no
+		//! amplitude is referenced, or the amplitude is not available
+		//! in the
+		//! context. Otherwise, it would duplicate the waveformID
+		//! provided there
+		//! and can be omitted.
 		void setWaveformID(const OPT(WaveformStreamID)& waveformID);
 		WaveformStreamID& waveformID() throw(Seiscomp::Core::ValueException);
 		const WaveformStreamID& waveformID() const throw(Seiscomp::Core::ValueException);
 
+		//! CreationInfo for the StationMagnitude object.
 		void setCreationInfo(const OPT(CreationInfo)& creationInfo);
 		CreationInfo& creationInfo() throw(Seiscomp::Core::ValueException);
 		const CreationInfo& creationInfo() const throw(Seiscomp::Core::ValueException);

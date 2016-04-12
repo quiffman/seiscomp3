@@ -50,8 +50,8 @@ AmplitudeProcessor_mBc::AmplitudeProcessor_mBc(const Core::Time& trigger)
 bool AmplitudeProcessor_mBc::computeAmplitude(const DoubleArray &data,
                                              size_t i1, size_t i2,
                                              size_t si1, size_t si2,
-                                             double offset, double *dt,
-                                             double *amplitude, double *width,
+                                             double offset, AmplitudeIndex *dt,
+                                             AmplitudeValue *amplitude,
                                              double *period, double *snr) {
 // see also amplitudeprocessor_m_B.cpp
 
@@ -75,23 +75,21 @@ bool AmplitudeProcessor_mBc::computeAmplitude(const DoubleArray &data,
 	// SNR check
 	if (*snr < _config.snrMin) {
 		setStatus(LowSNR, *snr);
-
 		return false;
 	}
 
-	*dt = si1 + measurement.icum;
+	dt->index = si1 + measurement.icum;
 	*period = pmax;
-	*amplitude = measurement.vcum;
-
+	amplitude->value = measurement.vcum;
 	if ( _streamConfig[_usedComponent].gain != 0.0 )
-		*amplitude /= _streamConfig[_usedComponent].gain;
+		amplitude->value /= _streamConfig[_usedComponent].gain;
 	else {
 		setStatus(MissingGain, 0.0);
 		return false;
 	}
 
 	// Convert m/s to nm/s
-	*amplitude *= 1.E09;
+	amplitude->value *= 1.E09;
 
 	return true;
 }

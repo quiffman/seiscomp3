@@ -63,6 +63,13 @@ class SC_SYSTEM_CORE_API EventDescriptionIndex {
 };
 
 
+/**
+ * \brief Free-form string with additional event description. This
+ * \brief can be a
+ * \brief well-known name, like 1906 San Francisco Earthquake. A
+ * \brief number of
+ * \brief categories can be given in type.
+ */
 class SC_SYSTEM_CORE_API EventDescription : public Object {
 	DECLARE_SC_CLASS(EventDescription);
 	DECLARE_SERIALIZATION;
@@ -106,9 +113,11 @@ class SC_SYSTEM_CORE_API EventDescription : public Object {
 	//  Setters/Getters
 	// ------------------------------------------------------------------
 	public:
+		//! Free-form text with earthquake description.
 		void setText(const std::string& text);
 		const std::string& text() const;
 
+		//! Category of earthquake description.
 		void setType(EventDescriptionType type);
 		EventDescriptionType type() const;
 

@@ -33,8 +33,9 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor_mBc : public AmplitudeProcessor_mB
 		bool computeAmplitude(const DoubleArray &data,
 		                      size_t i1, size_t i2,
 		                      size_t si1, size_t si2,
-		                      double offset, double *dt,
-		                      double *amplitude, double *width,
+		                      double offset,
+		                      AmplitudeIndex *dt,
+		                      AmplitudeValue *amplitude,
 		                      double *period, double *snr);
 };
 
