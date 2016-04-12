@@ -53,10 +53,16 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		bool setTimeWindow(const Seiscomp::Core::TimeWindow&);
 
 		//! Sets whether to start the acquisition automatically
-		//! before the run loop or not
-		//! This method has to be called before run()
-		//! The default is true
+		//! before the run loop or not. This method has to be called before run().
+		//! The default is true. If set to false then the acquisition needs
+		//! to be started with readRecords or startRecordThread and
+		//! autoCloseOnAcquisitionFinished is also set to false.
 		void setAutoAcquisitionStart(bool);
+
+		//! Sets the application close flag when acquisition is finished.
+		//! The default is true as auto start is true. If setAutoAcquisitionStart
+		//! is changed this flag is set as well.
+		void setAutoCloseOnAcquisitionFinished(bool);
 
 		//! Request locking of record thread and send a sync request to the
 		//! application after the last record has been flushed.
@@ -65,6 +71,11 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 		//! Sets the storage hint of incoming records.
 		//! The default is: DATA_ONLY
 		void setRecordInputHint(Record::Hint hint);
+
+
+		void startRecordThread();
+		void waitForRecordThread();
+		bool isRecordThreadActive() const;
 
 
 	// ----------------------------------------------------------------------
@@ -78,11 +89,7 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 
 		bool dispatch(Core::BaseObject* obj);
 
-		void startRecordThread();
-		void waitForRecordThread();
-		bool isRecordThreadActive() const;
-
-		void readRecords();
+		void readRecords(bool sendEndNotification);
 
 		//! This method gets called when the acquisition is finished
 		//! The default implementation closes the objects queue and
@@ -105,6 +112,7 @@ class SC_SYSTEM_CLIENT_API StreamApplication : public Application {
 
 	private:
 		bool                _startAcquisition;
+		bool                _closeOnAcquisitionFinished;
 		Record::Hint        _recordInputHint;
 		IO::RecordStreamPtr _recordStream;
 		boost::thread      *_recordThread;

@@ -34,12 +34,11 @@ Example
 
 http://localhost:8080/fdsnws/dataselect/1/query?net=GE&sta=BKNI&cha=BH?&start=2013-04-11T00:00:00&end=2013-04-11T12:00:00
 
-To summit POST request the command line tool ``wget`` in combination with the
-parameter ``post-data`` or ``post-file`` may be used.
+To summit POST request the command line tool ``curl`` may be used.
 
 .. code-block:: sh
 
-   sysop@host:~$ wget --post-file=request.txt "http://localhost:8080/fdsnws/dataselect/1/query" -O output.mseed
+   sysop@host:~$ curl -X POST --data-binary @request.txt "http://localhost:8080/fdsnws/dataselect/1/query"
 
 Feature Notes
 ^^^^^^^^^^^^^
@@ -49,16 +48,12 @@ Feature Notes
 * ``longestonly`` parameter is not implemented
 * access to restricted networks and stations is only granted through the
   ``queryauth`` method
-* additional request parameters:
-
-  * ``nodata: [204, 404]``, default: ``204``, HTTP-GET only, defines the HTTP
-    error code the server should respond with if no data was found
 
 Station
 -------
 
 * network, station, channel, response metadata
-* request type: HTTP-GET
+* request type: HTTP-GET, HTTP-POST
 * stations may be filtered e.g. by geographic region and time, also the
   information depth level is selectable
 
@@ -77,19 +72,24 @@ Example
 Feature Notes
 ^^^^^^^^^^^^^
 
+* to enable FDSNXML or StationXML support the plugins ``fdsnxml`` resp.
+  ``staxml`` have to be loaded
 * ``updatedafter`` request parameter not implemented: The last modification time
   in SeisComP is tracked on the object level. If a child of an object is updated
   the update time is not propagated to all parents. In order to check if a
   station was updated all children must be evaluated recursively. This operation
   would be much too expensive.
-* to enable FDSNXML or StationXML support the plugins ``fdsnxml`` resp.
-  ``staxml`` have to be loaded
-* additional request parameters:
+* ``includeavailability`` request parameter not implemented
+* ``matchtimeseries`` request parameter not implemented
+* ``formatted``: boolean, default: ``false``
+* additional values of request parameters:
 
-  * ``format: [fdsnxml, stationxml, sc3ml]``, default: ``fdsnxml``
-  * ``formatted``: boolean, default: ``false``
-  * ``nodata: [204, 404]``, default: ``204``, defines the HTTP error code the
-    server should respond with if no data was found
+  * format:
+
+    * standard: ``[xml, text]``
+    * additional: ``[fdsnxml (=xml), stationxml, sc3ml]``
+    * default: ``xml``
+
 
 Event
 -----
@@ -116,21 +116,32 @@ Example
 Feature Notes
 ^^^^^^^^^^^^^
 
-* ``catalog`` request parameter is not implemented (information not available in
-  SeisComP)
-* ``contributor`` request parameter is mapped to the ``agencyID``, the file
+* SeisComP does not distinguish between catalogs and contributors, but
+  supports agencyIDs. Hence, if specified, the value of the ``contributor``
+  parameter is mapped to the agencyID. The file
   ``@DATADIR@/share/fdsn/contributors.xml`` has to be filled manually with all
   available agency ids
+* origin and magnitude filter parameters are always applied to preferred origin
+  resp. preferred magnitude
+* ``updatedafter`` request parameter not implemented: The last modification time
+  in SeisComP is tracked on the object level. If a child of an object is updated
+  the update time is not propagated to all parents. In order to check if a
+  station was updated all children must be evaluated recursively. This operation
+  would be much too expensive.
 * additional request parameters:
 
-  * ``format: [qml, qml-rt, sc3ml, csv]``, default: ``qml``
-  * ``includecomments``: boolean, default: ``true``
   * ``includepicks``: boolean, default: ``false``, works only in combination
     with ``includearrivals`` set to ``true``
+  * ``includecomments``: boolean, default: ``true``
   * ``formatted``: boolean, default: ``false``
-  * ``nodata: [204, 404]``, default: ``204``, defines the HTTP error code the
-    server should respond with if no data was found
 
+* additional values of request parameters:
+
+  * format:
+
+    * standard: ``[xml, text]``
+    * additional: ``[qml (=xml), qml-rt, sc3ml, csv]``
+    * default: ``xml``
 
 .. _sec-port:
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #***************************************************************************** 
-# sync_arcb.py
+# sync_arc.py
 #
 # Merges remote ArcLink/SC3 database locally by following a master table located
 # in a different server

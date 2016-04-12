@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="author" content="gempa GmbH">
-  <title>FDSNWS - DataSelect</title>
+  <title>SeisComP3 FDSNWS - DataSelect</title>
 </head>
 <body>
-  <h1>FDSNWS DataSelect Web Service</h1>
+  <h1>SeisComP3 FDSNWS DataSelect Web Service</h1>
   <p>The dataselect Web service provides access to time series data in <a
   href="http://www.iris.edu/data/miniseed.htm">miniSEED</a> format. The data may
   be filtered e.g. by time, station and network parameters. The request type is
@@ -17,7 +17,7 @@
   <h2>Available URLs</h2>
   <ul>
     <li><a href="query">/query</a></li>
-    <li><a href="catalogs">/queryauth</a></li>
+    <li><a href="queryauth">/queryauth</a></li>
     <li><a href="version">/version</a></li>
     <li><a href="application.wadl">/application.wadl</a></li>
   </ul>
@@ -31,11 +31,6 @@
     <li><em>longestonly</em> request parameter not implemented</li>
     <li>access to restricted networks and stations is only granted through the
       <em>queryauth</em> method</li>
-    <li>additional request parameters:
-      <ul>
-        <li><em>nodata</em>: integer [204, 404], default: <em>204</em></li>
-      </ul>
-    </li>
   </ul>
 </body>
 </html>

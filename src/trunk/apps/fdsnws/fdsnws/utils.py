@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # Common utility functions
 #
@@ -14,99 +14,17 @@ from twisted.web import http
 
 from seiscomp3 import Logging
 from seiscomp3.Client import Application
-from seiscomp3.Core import Time, TimeSpan
+from seiscomp3.Core import Time, TimeSpan, ValueException
 from seiscomp3.IO import ExportSink
 
 
 #-------------------------------------------------------------------------------
-# Filtered network iterator which yields networks matching request options
-def networkIter(inv, ro):
-	for i in xrange(inv.networkCount()):
-		net = inv.network(i)
-
-		# network code
-		if ro.channel and not ro.channel.matchNet(net.code()):
-			continue
-
-		# start and end time
-		if ro.time:
-			try: end = net.end()
-			except: end = None
-			if not ro.time.match(net.start(), end):
-				continue
-
-		yield net
-
-
-#-------------------------------------------------------------------------------
-# Filtered station iterator which yields stations of a particular network
-# matching request options
-def stationIter(net, ro, matchGeo=False):
-	for i in xrange(net.stationCount()):
-		sta = net.station(i)
-
-		# station code
-		if ro.channel and not ro.channel.matchSta(sta.code()):
-			continue
-
-		# start and end time
-		if ro.time:
-			try: end = sta.end()
-			except: end = None
-			if not ro.time.match(sta.start(), end):
-				continue
-
-		# geographic location
-		if matchGeo and ro.geo:
-			try:
-				lat = sta.latitude()
-				lon = sta.longitude()
-			except: continue
-			if not ro.geo.match(lat, lon):
-				continue
-
-		yield sta
-
-
-#-------------------------------------------------------------------------------
-# Filtered location iterator which yields locations of a particular station
-# matching request options
-def locationIter(sta, ro):
-	for i in xrange(sta.sensorLocationCount()):
-		loc = sta.sensorLocation(i)
-
-		# location code
-		if ro.channel and not ro.channel.matchLoc(loc.code()):
-			continue
-
-		# start and end time
-		if ro.time:
-			try: end = loc.end()
-			except: end = None
-			if not ro.time.match(loc.start(), end):
-				continue
-
-		yield loc
-
-#-------------------------------------------------------------------------------
-# Filtered stream iterator which yields channels of a particular location
-# matching request options
-def streamIter(loc, ro):
-	for i in xrange(loc.streamCount()):
-		stream = loc.stream(i)
-
-		# stream code
-		if ro.channel and not ro.channel.matchCha(stream.code()):
-			continue
-
-		# start and end time
-		if ro.time:
-			try: end = stream.end()
-			except: end = None
-			if not ro.time.match(stream.start(), end):
-				continue
-
-		yield stream
+# Tests if a SC3 inventory object is restricted
+def isRestricted(obj):
+	try:
+		return obj.restricted()
+	except ValueException:
+		return False
 
 
 #-------------------------------------------------------------------------------
@@ -163,6 +81,7 @@ class Sink(ExportSink):
 		writeTS(self.request, data[:size])
 		self.written += size
 		return size
+
 
 ################################################################################
 class AccessLogEntry:

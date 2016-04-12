@@ -89,7 +89,8 @@ class App : public Processing::Application {
 		                  const std::string &channelCode,
 		                  const Core::Time &time);
 
-		void addSecondaryPicker(const Core::Time &onset, const Record *rec);
+		void addSecondaryPicker(const Core::Time &onset, const Record *rec,
+		                        const std::string& pickID);
 		void addAmplitudeProcessor(Processing::AmplitudeProcessorPtr proc,
 		                           const Record *rec,
 		                           const std::string& pickID);

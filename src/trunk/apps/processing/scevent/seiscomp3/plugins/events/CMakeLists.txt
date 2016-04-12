@@ -1,9 +1,11 @@
 SET(EVPLUGIN_HEADERS
 	eventprocessor.h
+	scoreprocessor.h
 )
 
 SET(EVPLUGIN_SOURCES
 	eventprocessor.cpp
+	scoreprocessor.cpp
 )
 
 # Install the headers in install/seiscomp3/plugins/events

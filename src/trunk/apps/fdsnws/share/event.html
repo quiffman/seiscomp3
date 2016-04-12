@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="author" content="gempa GmbH">
-  <title>FDSNWS - Event</title>
+  <title>SeisComP3 FDSNWS - Event</title>
 </head>
 <body>
-  <h1>FDSNWS Event Web Service</h1>
+  <h1>SeisComP3 FDSNWS Event Web Service</h1>
   <p>The event Web service provides access to contributed origin and magnitude
   estimates in <a href="https://quake.ethz.ch/quakeml">QuakeML</a> format.
   Events may be filtered e.g. by hypocenter, time and magnitude parameters. The
-  request type is <em>HTTP-GET</em>. Please refer to
-  <a href="http://www.fdsn.org/webservices">http://www.fdsn.org/webservice</a> for
+  request type is <em>HTTP-GET</em> and <em>HTTP-POST</em>. Please refer to <a
+  href="http://www.fdsn.org/webservices">http://www.fdsn.org/webservice</a> for
   a complete service description.</p>
 
   <h2>Available URLs</h2>
@@ -30,14 +30,27 @@
       available in SeisComP)</li>
     <li><em>contributor</em> request parameter is mapped to the
       <em>agencyID</em></li>
-    <li>additional request parameters:
+    <li><em>updatedafter</em> request parameter not implemented: The last
+      modification time in SeisComP is tracked on the object level. If a child
+      of an object is updated the update time is not propagated to all parents.
+      In order to check if a station was updated all children must be evaluated
+      recursively. This operation would be much to expensive.</li>
+    <li>additional request parameters, effective only for xml output:
       <ul>
-        <li><em>format</em>: string [qml, qml-rt, sc3ml, csv], default:
-          <em>qml</em></li>
         <li><em>includecomments</em>: boolean, default: <em>true</em></li>
-        <li><em>formatted</em>: boolean, default: <em>false</em></li>
-        <li><em>nodata</em>: integer [204, 404], default: <em>204</em></li>
         <li><em>includepicks</em>: boolean, default: <em>false</em></li>
+        <li><em>formatted</em>: boolean, default: <em>false</em></li>
+      </ul>
+    </li>
+    <li>additional values of request parameters:
+      <ul>
+        <li><em>format</em>
+          <ul>
+            <li>standard: [xml, text]</li>
+            <li>additional: [qml (=xml), qml-rt, sc3ml, csv]</li>
+            <li>default: xml</li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>

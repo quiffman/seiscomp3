@@ -482,7 +482,7 @@ void AmpTool::process(Origin *origin) {
 
 	SEISCOMP_INFO("Starting timeout monitor");
 	_timer.start();
-	readRecords();
+	readRecords(false);
 	if ( _timer.isActive() ) _timer.stop();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -944,7 +944,7 @@ void AmpTool::handleTimeout() {
 		if ( _noDataTimer.elapsed().seconds() >= _acquisitionTimeout ) {
 			boost::mutex::scoped_lock l(_acquisitionMutex);
 			if ( recordStream() ) {
-				SEISCOMP_INFO("[data acquisition monitor] timout reached: closing stream");
+				SEISCOMP_INFO("[data acquisition monitor] timeout reached: closing stream");
 				recordStream()->close();
 			}
 		}

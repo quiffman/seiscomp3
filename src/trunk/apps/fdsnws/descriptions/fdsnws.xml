@@ -91,19 +91,24 @@
 				Path to access log file. If unset no access log is created.
 				</description>
 			</parameter>
+			<parameter name="allowRestricted" type="boolean" default="true">
+				<description>
+				Enables/disables access to restricted inventory data
+				</description>
+			</parameter>
 			<parameter name="serveDataSelect" type="boolean" default="true">
 				<description>
-				Enables/Disables the DataSelect service.
+				Enables/disables the DataSelect service.
 				</description>
 			</parameter>
 			<parameter name="serveEvent" type="boolean" default="true">
 				<description>
-				Enables/Disables the Event service.
+				Enables/disables the Event service.
 				</description>
 			</parameter>
 			<parameter name="serveStation" type="boolean" default="true">
 				<description>
-				Enables/Disables the Station service.
+				Enables/disables the Station service.
 				</description>
 			</parameter>
 		</configuration>

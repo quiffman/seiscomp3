@@ -404,7 +404,7 @@ def _check_time(beg_time, end_time):
 	Checks the validity of the given time span.
 	
 	@arguments: beg_time, a datetime object storing the start of time window
-				end_time, a datetime object storing the end of time window
+	            end_time, a datetime object storing the end of time window
 	@return: True if valid; False otherwise
 	"""
 	if beg_time > end_time or beg_time > datetime.datetime.today():

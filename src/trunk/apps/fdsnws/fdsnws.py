@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # FDSNWS -- Implements FDSN Web Service interface, see
 # http://www.fdsn.org/webservices/
@@ -37,7 +37,8 @@ except ImportError, e:
 from seiscomp3.fdsnws.dataselect import FDSNDataSelect, FDSNDataSelectRealm
 from seiscomp3.fdsnws.event import FDSNEvent
 from seiscomp3.fdsnws.station import FDSNStation
-from seiscomp3.fdsnws.http import HTTP, NoResource, Site, ServiceVersion
+from seiscomp3.fdsnws.http import HTTP, ListingResource, NoResource, Site, \
+                                  ServiceVersion
 from seiscomp3.fdsnws.log import Log
 
 def logSC3(entry):
@@ -84,13 +85,13 @@ class BugfixedDigest(credentials.DigestCredentialFactory):
 
 		username = auth.get('username')
 		if not username:
-			raise error.LoginFailed('Invalid response, no user name given.')
+			raise error.LoginFailed("invalid response, no user name given")
 
 		if 'opaque' not in auth:
-			raise error.LoginFailed('Invalid response, no opaque given.')
+			raise error.LoginFailed("invalid response, no opaque given")
 
 		if 'nonce' not in auth:
-			raise error.LoginFailed('Invalid response, no nonce given.')
+			raise error.LoginFailed("invalid response, no nonce given.")
 
 		# Now verify the nonce/opaque values for this client
 		if self._verifyOpaque(auth.get('opaque'), auth.get('nonce'), host):
@@ -111,15 +112,16 @@ class FDSNWS(Application):
 		self.setRecordStreamEnabled(True)
 
 		self._serverRoot    = os.path.dirname(__file__)
-		self._listenAddress = "0.0.0.0" # all interfaces
+		self._listenAddress = '0.0.0.0' # all interfaces
 		self._port          = 8080
 		self._connections   = 5
-		self._queryObjects  = 10000     # maximum number of objects per query
+		self._queryObjects  = 100000    # maximum number of objects per query
 		self._realtimeGap   = None      # minimum data age: 5min
 		self._samplesM      = None      # maximum number of samples per query
-		self._htpasswd      = "@CONFIGDIR@/fdsnws.htpasswd"
-		self._accessLogFile = ""
+		self._htpasswd      = '@CONFIGDIR@/fdsnws.htpasswd'
+		self._accessLogFile = ''
 
+		self._allowRestricted = True
 		self._serveDataSelect = True
 		self._serveEvent      = True
 		self._serveStation    = True
@@ -139,48 +141,52 @@ class FDSNWS(Application):
 		cfg = self.configuration()
 
 		# bind address and port
-		try: self._listenAddress = cfg.getString("listenAddress")
+		try: self._listenAddress = cfg.getString('listenAddress')
 		except ConfigException: pass
-		try: self._port = cfg.getInt("port")
+		try: self._port = cfg.getInt('port')
 		except ConfigException: pass
 
 		# maximum number of connections
-		try: self._connections = cfg.getInt("connections")
+		try: self._connections = cfg.getInt('connections')
 		except ConfigException: pass
 
 		# maximum number of objects per query, used in fdsnws-station and
 		# fdsnws-event to limit main memory consumption
-		try: self._queryObjects = cfg.getInt("queryObjects")
+		try: self._queryObjects = cfg.getInt('queryObjects')
 		except ConfigException: pass
 
 		# restrict end time of request to now-realtimeGap seconds, used in
 		# fdsnws-dataselect
-		try: self._realtimeGap = cfg.getInt("realtimeGap")
+		try: self._realtimeGap = cfg.getInt('realtimeGap')
 		except ConfigException: pass
 
 		# maximum number of samples (in units of million) per query, used in
 		# fdsnws-dataselect to limit bandwidth
-		try: self._samplesM = cfg.getDouble("samplesM")
+		try: self._samplesM = cfg.getDouble('samplesM')
 		except ConfigException: pass
 
 		# location of htpasswd file
 		try:
-			self._htpasswd = cfg.getString("htpasswd")
+			self._htpasswd = cfg.getString('htpasswd')
 		except ConfigException: pass
 		self._htpasswd = Environment.Instance().absolutePath(self._htpasswd)
 
 		# location of access log file
 		try:
 			self._accessLogFile = Environment.Instance().absolutePath(
-			                      cfg.getString("accessLog"))
+			                      cfg.getString('accessLog'))
 		except ConfigException: pass
 
+		# access to restricted inventory information
+		try: self._allowRestricted = cfg.getBool('allowRestricted')
+		except: pass
+
 		# services to enable
-		try: self._serveDataSelect = cfg.getBool("serveDataSelect")
+		try: self._serveDataSelect = cfg.getBool('serveDataSelect')
 		except: pass
-		try: self._serveEvent = cfg.getBool("serveEvent")
+		try: self._serveEvent = cfg.getBool('serveEvent')
 		except: pass
-		try: self._serveStation = cfg.getBool("serveStation")
+		try: self._serveStation = cfg.getBool('serveStation')
 		except: pass
 
 		return True
@@ -203,21 +209,23 @@ class FDSNWS(Application):
 		Logging.notice("\n" \
 		               "configuration read:\n" \
 		               "  serve\n" \
-		               "    dataselect : %s\n" \
-		               "    event      : %s\n" \
-		               "    station    : %s\n" \
-		               "  listenAddress: %s\n" \
-		               "  port         : %i\n" \
-		               "  connections  : %i\n" \
-		               "  htpasswd     : %s\n" \
-		               "  accessLog    : %s\n" \
-		               "  queryObjects : %i\n" \
-		               "  realtimeGap  : %s\n" \
-		               "  samples (M)  : %s\n" % (
+		               "    dataselect    : %s\n" \
+		               "    event         : %s\n" \
+		               "    station       : %s\n" \
+		               "  listenAddress   : %s\n" \
+		               "  port            : %i\n" \
+		               "  connections     : %i\n" \
+		               "  htpasswd        : %s\n" \
+		               "  accessLog       : %s\n" \
+		               "  queryObjects    : %i\n" \
+		               "  realtimeGap     : %s\n" \
+		               "  samples (M)     : %s\n" \
+		               "  allowRestricted : %s\n" % (
 		               self._serveDataSelect, self._serveEvent,
 		               self._serveStation, self._listenAddress, self._port,
 		               self._connections, self._htpasswd, self._accessLogFile,
-		               self._queryObjects, self._realtimeGap, self._samplesM))
+		               self._queryObjects, self._realtimeGap, self._samplesM,
+		               self._allowRestricted))
 
 		if not self._serveDataSelect and not self._serveEvent and \
 		   not self._serveStation:
@@ -234,84 +242,85 @@ class FDSNWS(Application):
 
 		DataModel.PublicObject.SetRegistrationEnabled(False)
 
-		shareDir = os.path.join(Environment.Instance().shareDir(), "fdsnws")
+		shareDir = os.path.join(Environment.Instance().shareDir(), 'fdsnws')
 
 		# Overwrite/set mime type of *.wadl and *.xml documents. Instead of
 		# using the official types defined in /etc/mime.types 'application/xml'
 		# is used as enforced by the FDSNWS spec.
-		static.File.contentTypes[".wadl"] = "application/xml"
-		static.File.contentTypes[".xml"] = "application/xml"
+		static.File.contentTypes['.wadl'] = 'application/xml'
+		static.File.contentTypes['.xml'] = 'application/xml'
 
 		# create resource tree /fdsnws/...
-		root = NoResource()
+		root = ListingResource()
 
-		fileName = os.path.join(shareDir, "favicon.ico")
-		fileRes = static.File(fileName, "image/x-icon")
+		fileName = os.path.join(shareDir, 'favicon.ico')
+		fileRes = static.File(fileName, 'image/x-icon')
 		fileRes.childNotFound = NoResource()
-		root.putChild("favicon.ico", fileRes)
+		fileRes.isLeaf = True
+		root.putChild('favicon.ico', fileRes)
 
-		prefix = NoResource()
-		root.putChild("fdsnws", prefix)
+		prefix = ListingResource()
+		root.putChild('fdsnws', prefix)
 
 		# right now service version is shared by all services
 		serviceVersion = ServiceVersion()
 
 		# dataselect
 		if self._serveDataSelect:
-			dataselect = NoResource()
-			prefix.putChild("dataselect", dataselect)
+			dataselect = ListingResource()
+			prefix.putChild('dataselect', dataselect)
 			dataselect1 = NoResource()
-			dataselect.putChild("1", dataselect1)
+			dataselect.putChild('1', dataselect1)
 
-			fileRes = static.File(os.path.join(shareDir, "dataselect.html"))
+			fileRes = static.File(os.path.join(shareDir, 'dataselect.html'))
 			fileRes.childNotFound = NoResource()
-			dataselect1.putChild("", fileRes)
-			dataselect1.putChild("query", FDSNDataSelect())
-			msg = "Authorization for restricted time series data required"
+			dataselect1.putChild('', fileRes)
+			dataselect1.putChild('query', FDSNDataSelect())
+			msg = 'authorization for restricted time series data required'
 			authSession = self._getAuthSessionWrapper(FDSNDataSelectRealm(), msg)
-			dataselect1.putChild("queryauth", authSession)
-			dataselect1.putChild("version", serviceVersion)
-			fileRes = static.File(os.path.join(shareDir, "dataselect.wadl"))
+			dataselect1.putChild('queryauth', authSession)
+			dataselect1.putChild('version', serviceVersion)
+			fileRes = static.File(os.path.join(shareDir, 'dataselect.wadl'))
 			fileRes.childNotFound = NoResource()
-			dataselect1.putChild("application.wadl", fileRes)
+			dataselect1.putChild('application.wadl', fileRes)
 
 		# event
 		if self._serveEvent:
-			event = NoResource()
-			prefix.putChild("event", event)
+			event = ListingResource()
+			prefix.putChild('event', event)
 			event1 = NoResource()
-			event.putChild("1", event1)
+			event.putChild('1', event1)
 
-			fileRes = static.File(os.path.join(shareDir, "event.html"))
+			fileRes = static.File(os.path.join(shareDir, 'event.html'))
 			fileRes.childNotFound = NoResource()
-			event1.putChild("", fileRes)
-			event1.putChild("query", FDSNEvent())
-			fileRes = static.File(os.path.join(shareDir, "catalogs.xml"))
+			event1.putChild('', fileRes)
+			event1.putChild('query', FDSNEvent())
+			fileRes = static.File(os.path.join(shareDir, 'catalogs.xml'))
 			fileRes.childNotFound = NoResource()
-			event1.putChild("catalogs", fileRes)
-			fileRes = static.File(os.path.join(shareDir, "contributors.xml"))
+			event1.putChild('catalogs', fileRes)
+			fileRes = static.File(os.path.join(shareDir, 'contributors.xml'))
 			fileRes.childNotFound = NoResource()
-			event1.putChild("contributors", fileRes)
-			event1.putChild("version", serviceVersion)
-			fileRes = static.File(os.path.join(shareDir, "event.wadl"))
+			event1.putChild('contributors', fileRes)
+			event1.putChild('version', serviceVersion)
+			fileRes = static.File(os.path.join(shareDir, 'event.wadl'))
 			fileRes.childNotFound = NoResource()
-			event1.putChild("application.wadl", fileRes)
+			event1.putChild('application.wadl', fileRes)
 
 		# station
 		if self._serveStation:
-			station = NoResource()
-			prefix.putChild("station", station)
+			station = ListingResource()
+			prefix.putChild('station', station)
 			station1 = NoResource()
-			station.putChild("1", station1)
+			station.putChild('1', station1)
 
-			fileRes = static.File(os.path.join(shareDir, "station.html"))
+			fileRes = static.File(os.path.join(shareDir, 'station.html'))
 			fileRes.childNotFound = NoResource()
-			station1.putChild("", fileRes)
-			station1.putChild("query", FDSNStation())
-			station1.putChild("version", serviceVersion)
-			fileRes = static.File(os.path.join(shareDir, "station.wadl"))
+			station1.putChild('', fileRes)
+			station1.putChild('query', FDSNStation())
+			station1.putChild('version', serviceVersion)
+			fileRes = static.File(os.path.join(shareDir, 'station.wadl'))
 			fileRes.childNotFound = NoResource()
-			station1.putChild("application.wadl", fileRes)
+			station1.putChild('application.wadl', fileRes)
 
 		retn = False
 		try:
@@ -371,6 +380,7 @@ class FDSNWS(Application):
 		f = guard.DigestCredentialFactory('md5', msg)
 		f.digest = BugfixedDigest('md5', msg)
 		return guard.HTTPAuthSessionWrapper(p, [f])
+
 
 
 app = FDSNWS()

@@ -856,7 +856,7 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
+void App::addSecondaryPicker(const Core::Time &onset, const Record *rec, const std::string &pickID) {
 	// Add secondary picker
 	SecondaryPickerPtr proc = SecondaryPickerFactory::Create(_config.secondaryPickerType.c_str());
 	if ( proc == NULL ) {
@@ -869,6 +869,7 @@ void App::addSecondaryPicker(const Core::Time &onset, const Record *rec) {
 	trigger.onset = onset;
 	proc->setTrigger(trigger);
 	proc->setPublishFunction(boost::bind(&App::emitSPick, this, _1, _2));
+	proc->setReferencingPickID(pickID);
 
 	if ( !initProcessor(proc.get(), proc->usedComponent(),
 	                    onset, rec->streamID(),
@@ -1189,7 +1190,7 @@ void App::emitPPick(const Processing::Picker *proc,
 	}
 
 	if ( !_config.secondaryPickerType.empty() )
-		addSecondaryPicker(res.time, res.record);
+		addSecondaryPicker(res.time, res.record, pick->publicID());
 
 	if ( _config.calculateAmplitudes ) {
 		for ( StringSet::iterator it = _config.amplitudeList.begin();
@@ -1287,6 +1288,15 @@ void App::emitSPick(const Processing::SecondaryPicker *proc,
 		DataModel::NotifierPtr n = new DataModel::Notifier("EventParameters", DataModel::OP_ADD, pick.get());
 		DataModel::NotifierMessagePtr m = new DataModel::NotifierMessage;
 		m->attach(n.get());
+
+		if ( !proc->referencingPickID().empty() ) {
+			DataModel::CommentPtr c = new DataModel::Comment;
+			c->setId("RefPickID");
+			c->setText(proc->referencingPickID());
+			n = new DataModel::Notifier(pick->publicID(), DataModel::OP_ADD, c.get());
+			m->attach(n.get());
+		}
+
 		connection()->send(m.get());
 		++_sentMessages;
 	}
@@ -1363,7 +1373,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 	}
 
 	if ( !_config.secondaryPickerType.empty() )
-		addSecondaryPicker(time, rec);
+		addSecondaryPicker(time, rec, pick->publicID());
 
 	if ( _config.calculateAmplitudes ) {
 		for ( StringSet::iterator it = _config.amplitudeList.begin();

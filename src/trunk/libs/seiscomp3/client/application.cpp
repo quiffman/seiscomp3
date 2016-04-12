@@ -1820,6 +1820,13 @@ void Application::handleEndSync() {}
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::handleEndAcquisition() {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Application::run() {
 	if ( _connection )
 		startMessageThread();
@@ -1880,6 +1887,10 @@ bool Application::processEvent() {
 
 			case Notification::Sync:
 				sync();
+				break;
+
+			case Notification::AcquisitionFinished:
+				handleEndAcquisition();
 				break;
 
 			default:

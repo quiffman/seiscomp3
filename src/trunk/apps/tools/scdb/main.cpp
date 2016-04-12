@@ -244,6 +244,10 @@ class DBTool : public Seiscomp::Client::Application {
 		
 				DataModel::Notifier* notifier = DataModel::Notifier::Cast(*it);
 				if ( notifier != NULL && notifier->object() != NULL ) {
+					DataModel::PublicObject *po = DataModel::PublicObject::Cast(notifier->object());
+					if ( po != NULL )
+						SEISCOMP_DEBUG("%s %s", notifier->operation().toString(), po->publicID().data());
+
 					switch ( notifier->operation() ) {
 						case DataModel::OP_ADD:
 							writer(notifier->object(), notifier->parentID());

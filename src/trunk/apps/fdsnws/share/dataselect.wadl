@@ -36,6 +36,9 @@
 				<option value="B"/>
 				<option value="M"/>
 			</param>
+			<param name="format" style="query" type="xsd:string" default="miniseed">
+				<option value="miniseed"/>
+			</param>
 			<param name="nodata" style="query" type="xsd:int" default="204">
 				<option value="204"/>
 				<option value="404"/>
@@ -44,7 +47,7 @@
 		<response status="200">
 			<representation mediaType="application/vnd.fdsn.mseed"/>
 		</response>
-		<response status="204 400 404 413 414 500 503">
+		<response status="204 400 401 403 404 413 414 500 503">
 			<representation mediaType="text/plain"/>
 		</response>
 	</method>
@@ -52,7 +55,7 @@
 		<response status="200">
 			<representation mediaType="application/vnd.fdsn.mseed"/>
 		</response>
-		<response status="204 400 404 413 414 500 503">
+		<response status="204 400 401 403 404 413 414 500 503">
 			<representation mediaType="text/plain"/>
 		</response>
 	</method>

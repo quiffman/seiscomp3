@@ -728,7 +728,7 @@ DataModel::Origin* LocSAT::loc2Origin(Internal::Loc* loc){
 	double M4d[16] = {	loc->origerr->syy, loc->origerr->sxy, loc->origerr->syz,loc->origerr->sty,
 						loc->origerr->sxy, loc->origerr->sxx, loc->origerr->sxz,loc->origerr->stx,
 						loc->origerr->syz, loc->origerr->sxz, loc->origerr->szz,loc->origerr->stz,
-						loc->origerr->sty, loc->origerr->sxz, loc->origerr->szz,loc->origerr->stt
+						loc->origerr->sty, loc->origerr->stx, loc->origerr->stz,loc->origerr->stt
 					 };
 
 	// M3d is the matrix in space
@@ -789,7 +789,6 @@ DataModel::Origin* LocSAT::loc2Origin(Internal::Loc* loc){
 		double sx, sy, smajax, sminax, strike;
 
 		// 1D confidence intervals
-		// Take into account fixed depth: LocSAT's szz = -1
 		sx     = kppf[0] * pow(M4d[0], 0.5); // sxx
 		sy     = kppf[0] * pow(M4d[5], 0.5); // syy
 
@@ -870,89 +869,88 @@ DataModel::Origin* LocSAT::loc2Origin(Internal::Loc* loc){
 		origin->setUncertainty(originUncertainty);
 
 #ifdef LOCSAT_TESTING
-        SEISCOMP_DEBUG("Origin quality:");
-        SEISCOMP_DEBUG("    Orig. time error:       %+14.5f s", loc->origerr->stime);
-        SEISCOMP_DEBUG("    Semi-major axis:        %+14.5f km", loc->origerr->smajax);
-        SEISCOMP_DEBUG("    Semi-minor axis:        %+14.5f km", loc->origerr->sminax);
-        SEISCOMP_DEBUG("    Major axis strike:      %+14.5f deg clockwise from North", loc->origerr->strike);
-        SEISCOMP_DEBUG("    Depth error:            %+14.5f km", loc->origerr->sdepth);
-        SEISCOMP_DEBUG("    AzimuthalGap:           %+14.5f deg", originQuality.azimuthalGap());
-        SEISCOMP_DEBUG("    setMinimumDistance:     %+14.5f deg", originQuality.minimumDistance());
-        SEISCOMP_DEBUG("    setMaximumDistance:     %+14.5f deg", originQuality.maximumDistance());
-        SEISCOMP_DEBUG("    setMedianDistance:      %+14.5f deg", originQuality.medianDistance());
-        SEISCOMP_DEBUG("IGN's origin uncertainty computation:");
-        SEISCOMP_DEBUG("  LocSAT uncentainties:");
-        SEISCOMP_DEBUG("    Semi-Major axis:        %+14.5f m", loc->origerr->smajax * 1000.0);
-        SEISCOMP_DEBUG("    Semi-minor axis:        %+14.5f m", loc->origerr->sminax * 1000.0);
-        SEISCOMP_DEBUG("    Major axis strike:      %+14.5f deg clockwise from North", loc->origerr->strike);
-        SEISCOMP_DEBUG("    Depth error:            %+14.5f m", loc->origerr->sdepth * 1000.0);
-        SEISCOMP_DEBUG("    Orig. time error:       %+14.5f s", loc->origerr->stime);
-        SEISCOMP_DEBUG("  Confidence level: %4.2f %%", _locator_params->conf_level * 100.0);
-        SEISCOMP_DEBUG("  Covariance matrix:");
-        SEISCOMP_DEBUG("    1D uncertainties:");
-        SEISCOMP_DEBUG("       Orig. time error:    %+14.5f s", stime);
-        SEISCOMP_DEBUG("       X axis (S-N):        %+14.5f m", sx * 1000.0);
-        SEISCOMP_DEBUG("       Y axis (W-E):        %+14.5f m", sy * 1000.0);
-        SEISCOMP_DEBUG("       Depth error:         %+14.5f m", sdepth * 1000.0);
-        SEISCOMP_DEBUG("    2D uncertainties:");
-        SEISCOMP_DEBUG("       Semi-major axis:     %+14.5f m", smajax * 1000.0);
-        SEISCOMP_DEBUG("       Semi-minor axis:     %+14.5f m", sminax * 1000.0);
-        SEISCOMP_DEBUG("       Major axis strike:   %+14.5f deg clockwise from North", strike);
-        SEISCOMP_DEBUG("    3D uncertainties / QuakeML:");
-        SEISCOMP_DEBUG("       semiMinorAxisLength: %+14.5f m", s3dMinAxis * 1000.0);
-        SEISCOMP_DEBUG("       semiMajorAxisLength: %+14.5f m", s3dMajAxis * 1000.0);
-        SEISCOMP_DEBUG("       semiInterAxisLength: %+14.5f m", s3dIntAxis * 1000.0);
-        SEISCOMP_DEBUG("       majorAxisPlunge:     %+14.5f deg", MajAxisPlunge);
-        SEISCOMP_DEBUG("       majorAxisAzimuth:    %+14.5f deg", MajAxisAzimuth);
-        SEISCOMP_DEBUG("       majorAxisRotation:   %+14.5f deg", MajAxisRotation);
-        SEISCOMP_DEBUG("DEBUG INFO:");
-        SEISCOMP_DEBUG("  LocSAT values:");
-        SEISCOMP_DEBUG("    stx: %+14.5f", loc->origerr->stx);
-        SEISCOMP_DEBUG("    sty: %+14.5f", loc->origerr->sty);
-        SEISCOMP_DEBUG("    stz: %+14.5f", loc->origerr->stz);
-        SEISCOMP_DEBUG("    stt: %+14.5f", loc->origerr->stt);
-        SEISCOMP_DEBUG("    sxx: %+14.5f", loc->origerr->sxx);
-        SEISCOMP_DEBUG("    sxy: %+14.5f", loc->origerr->sxy);
-        SEISCOMP_DEBUG("    sxz: %+14.5f", loc->origerr->sxz);
-        SEISCOMP_DEBUG("    syy: %+14.5f", loc->origerr->syy);
-        SEISCOMP_DEBUG("    syz: %+14.5f", loc->origerr->syz);
-        SEISCOMP_DEBUG("    szz: %+14.5f", loc->origerr->szz);
-        SEISCOMP_DEBUG("  4D matrix:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f %+14.5f", M4d[0], M4d[1], M4d[2], M4d[3]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f %+14.5f", M4d[4], M4d[5], M4d[6], M4d[7]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f %+14.5f", M4d[8], M4d[9], M4d[10], M4d[11]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f %+14.5f", M4d[12], M4d[13], M4d[14], M4d[15]);
-        SEISCOMP_DEBUG("  3D matrix:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", M3d[0], M3d[1], M3d[2]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", M3d[3], M3d[4], M3d[5]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", M3d[6], M3d[7], M3d[8]);
-        SEISCOMP_DEBUG("  2D matrix:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f", M2d[0], M2d[1]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f", M2d[2], M2d[3]);
-        SEISCOMP_DEBUG("  3D eigenvalues:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", eigval3d[0], eigval3d[1],eigval3d[2]);
-        SEISCOMP_DEBUG("  3D eigenvectors:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", eigvec3d[0], eigvec3d[1],eigvec3d[2]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", eigvec3d[3], eigvec3d[4],eigvec3d[5]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f %+14.5f", eigvec3d[6], eigvec3d[7],eigvec3d[8]);
-        SEISCOMP_DEBUG("  2D eigenvalues:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f", eigval2d[0], eigval2d[1]);
-        SEISCOMP_DEBUG("  2D eigenvectors:");
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f", eigvec2d[0], eigvec2d[1]);
-        SEISCOMP_DEBUG("    %+14.5f %+14.5f", eigvec2d[2], eigvec2d[3]);
-        SEISCOMP_DEBUG("  Chi2 Percent point function:");
-        SEISCOMP_DEBUG("    1D: %+10.5f", kppf[0]);
-        SEISCOMP_DEBUG("    2D: %+10.5f", kppf[1]);
-        SEISCOMP_DEBUG("    3D: %+10.5f", kppf[2]);
+		SEISCOMP_DEBUG("Origin quality:");
+		SEISCOMP_DEBUG("    Orig. time error:       %+17.8f s", loc->origerr->stime);
+		SEISCOMP_DEBUG("    Semi-major axis:        %+17.8f km", loc->origerr->smajax);
+		SEISCOMP_DEBUG("    Semi-minor axis:        %+17.8f km", loc->origerr->sminax);
+		SEISCOMP_DEBUG("    Major axis strike:      %+17.8f deg clockwise from North", loc->origerr->strike);
+		SEISCOMP_DEBUG("    Depth error:            %+17.8f km", loc->origerr->sdepth);
+		SEISCOMP_DEBUG("    AzimuthalGap:           %+17.8f deg", originQuality.azimuthalGap());
+		SEISCOMP_DEBUG("    setMinimumDistance:     %+17.8f deg", originQuality.minimumDistance());
+		SEISCOMP_DEBUG("    setMaximumDistance:     %+17.8f deg", originQuality.maximumDistance());
+		SEISCOMP_DEBUG("    setMedianDistance:      %+17.8f deg", originQuality.medianDistance());
+		SEISCOMP_DEBUG("IGN's origin uncertainty computation:");
+		SEISCOMP_DEBUG("  LocSAT uncentainties:");
+		SEISCOMP_DEBUG("    Semi-Major axis:        %+17.8f m", loc->origerr->smajax * 1000.0);
+		SEISCOMP_DEBUG("    Semi-minor axis:        %+17.8f m", loc->origerr->sminax * 1000.0);
+		SEISCOMP_DEBUG("    Major axis strike:      %+17.8f deg clockwise from North", loc->origerr->strike);
+		SEISCOMP_DEBUG("    Depth error:            %+17.8f m", loc->origerr->sdepth * 1000.0);
+		SEISCOMP_DEBUG("    Orig. time error:       %+17.8f s", loc->origerr->stime);
+		SEISCOMP_DEBUG("  Confidence level: %4.2f %%", _locator_params->conf_level * 100.0);
+		SEISCOMP_DEBUG("  Covariance matrix:");
+		SEISCOMP_DEBUG("    1D uncertainties:");
+		SEISCOMP_DEBUG("       Orig. time error:    %+17.8f s", stime);
+		SEISCOMP_DEBUG("       X axis (S-N):        %+17.8f m", sx * 1000.0);
+		SEISCOMP_DEBUG("       Y axis (W-E):        %+17.8f m", sy * 1000.0);
+		SEISCOMP_DEBUG("       Depth error:         %+17.8f m", sdepth * 1000.0);
+		SEISCOMP_DEBUG("    2D uncertainties:");
+		SEISCOMP_DEBUG("       Semi-major axis:     %+17.8f m", smajax * 1000.0);
+		SEISCOMP_DEBUG("       Semi-minor axis:     %+17.8f m", sminax * 1000.0);
+		SEISCOMP_DEBUG("       Major axis strike:   %+17.8f deg clockwise from North", strike);
+		SEISCOMP_DEBUG("    3D uncertainties / QuakeML:");
+		SEISCOMP_DEBUG("       semiMinorAxisLength: %+17.8f m", s3dMinAxis * 1000.0);
+		SEISCOMP_DEBUG("       semiMajorAxisLength: %+17.8f m", s3dMajAxis * 1000.0);
+		SEISCOMP_DEBUG("       semiInterAxisLength: %+17.8f m", s3dIntAxis * 1000.0);
+		SEISCOMP_DEBUG("       majorAxisPlunge:     %+17.8f deg", MajAxisPlunge);
+		SEISCOMP_DEBUG("       majorAxisAzimuth:    %+17.8f deg", MajAxisAzimuth);
+		SEISCOMP_DEBUG("       majorAxisRotation:   %+17.8f deg", MajAxisRotation);
+		SEISCOMP_DEBUG("DEBUG INFO:");
+		SEISCOMP_DEBUG("  LocSAT values:");
+		SEISCOMP_DEBUG("    stx: %+17.8f", loc->origerr->stx);
+		SEISCOMP_DEBUG("    sty: %+17.8f", loc->origerr->sty);
+		SEISCOMP_DEBUG("    stz: %+17.8f", loc->origerr->stz);
+		SEISCOMP_DEBUG("    stt: %+17.8f", loc->origerr->stt);
+		SEISCOMP_DEBUG("    sxx: %+17.8f", loc->origerr->sxx);
+		SEISCOMP_DEBUG("    sxy: %+17.8f", loc->origerr->sxy);
+		SEISCOMP_DEBUG("    sxz: %+17.8f", loc->origerr->sxz);
+		SEISCOMP_DEBUG("    syy: %+17.8f", loc->origerr->syy);
+		SEISCOMP_DEBUG("    syz: %+17.8f", loc->origerr->syz);
+		SEISCOMP_DEBUG("    szz: %+17.8f", loc->origerr->szz);
+		SEISCOMP_DEBUG("  4D matrix:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f %+17.8f", M4d[0], M4d[1], M4d[2], M4d[3]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f %+17.8f", M4d[4], M4d[5], M4d[6], M4d[7]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f %+17.8f", M4d[8], M4d[9], M4d[10], M4d[11]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f %+17.8f", M4d[12], M4d[13], M4d[14], M4d[15]);
+		SEISCOMP_DEBUG("  3D matrix:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", M3d[0], M3d[1], M3d[2]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", M3d[3], M3d[4], M3d[5]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", M3d[6], M3d[7], M3d[8]);
+		SEISCOMP_DEBUG("  2D matrix:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f", M2d[0], M2d[1]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f", M2d[2], M2d[3]);
+		SEISCOMP_DEBUG("  3D eigenvalues:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", eigval3d[0], eigval3d[1],eigval3d[2]);
+		SEISCOMP_DEBUG("  3D eigenvectors:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", eigvec3d[0], eigvec3d[3],eigvec3d[6]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", eigvec3d[1], eigvec3d[4],eigvec3d[7]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f %+17.8f", eigvec3d[2], eigvec3d[5],eigvec3d[8]);
+		SEISCOMP_DEBUG("  2D eigenvalues:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f", eigval2d[0], eigval2d[1]);
+		SEISCOMP_DEBUG("  2D eigenvectors:");
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f", eigvec2d[0], eigvec2d[2]);
+		SEISCOMP_DEBUG("    %+17.8f %+17.8f", eigvec2d[1], eigvec2d[3]);
+		SEISCOMP_DEBUG("  Chi2 Percent point function:");
+		SEISCOMP_DEBUG("    1D: %+10.5f", kppf[0]);
+		SEISCOMP_DEBUG("    2D: %+10.5f", kppf[1]);
+		SEISCOMP_DEBUG("    3D: %+10.5f", kppf[2]);
 #endif
 
 
-	}
-	else {
+	} else {
 		SEISCOMP_DEBUG("Unable to calculate eigenvalues/eigenvectors. No Origin uncertainty will be computed");
 	}
 
-	}
+	} // Closing bracket for _computeConfidenceEllipsoid == true
 
 	origin->setQuality(originQuality);
 

@@ -29,6 +29,24 @@ REGISTER_POSTPICKPROCESSOR(ARAICPicker, "AIC");
 
 namespace {
 
+template<typename TYPE>
+static double
+maeda_aic_snr_const(int n, const TYPE *data, int onset, int margin)
+{
+	// expects a properly filtered and demeaned trace
+	double snr=0, noise=0, signal=0;
+	for (int i=margin; i<onset; i++)
+		noise += data[i]*data[i];
+	noise = sqrt(noise/(onset-margin));
+	for (int i=onset; i<n-margin; i++) {
+		double a=fabs(data[i]);
+		if (a>signal) signal=a;
+	}
+	snr = 0.707*signal/noise;
+
+	return snr;
+}
+
 
 //
 // AIC repicker using the simple non-AR algorithm of Maeda (1985),
@@ -69,7 +87,7 @@ maeda_aic(int n, TYPE *data, int &kmin, double &snr, int margin=10)
 		if ( aic < minaic ) {
 			minaic = aic;
 			kmin = k;
-			snr = var2/var1;
+//			snr = sqrt(var2/var1);
 		}
 	}
 
@@ -78,6 +96,7 @@ maeda_aic(int n, TYPE *data, int &kmin, double &snr, int margin=10)
 	for ( int k = 0; k < imin; ++k ) {
 		data[k] = data[n-k-1] = maxaic;
 	}
+	snr = maeda_aic_snr_const(n, data, kmin, margin);
 }
 
 
@@ -111,9 +130,10 @@ maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 		if ( aic < minaic ) {
 			minaic = aic;
 			kmin = k;
-			snr = var2/var1;
+//			snr = sqrt(var2/var1);
 		}
 	}
+	snr = maeda_aic_snr_const(n, data, kmin, margin);
 }
 
 

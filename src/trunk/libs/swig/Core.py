@@ -733,13 +733,13 @@ class Array(BaseObject):
     def slice(self, *args): return _Core.Array_slice(self, *args)
     def str(self): return _Core.Array_str(self)
     def numpy(self): return _Core.Array_numpy(self)
+    def setNumpy(self, *args): return _Core.Array_setNumpy(self, *args)
     def __str__(self):
     	return self.str()
     def numeric(self):
     	import sys
     	sys.stderr.write("Use of Array.numeric() is deprecated - use numpy() instead\n")
     	return self.numpy()
-
 
 Array_swigregister = _Core.Array_swigregister
 Array_swigregister(Array)

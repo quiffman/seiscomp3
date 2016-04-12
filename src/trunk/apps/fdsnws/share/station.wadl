@@ -29,37 +29,45 @@
 						<option value="response"/>
 					</param>
 					<param name="includerestricted" style="query" type="xsd:boolean" default="false"/>
-					<!-- additional, non standard parameters -->
-					<param name="output" style="query" type="xsd:string" default="fdsnxml">
-						<option value="fdsnxml"/>
-						<option value="stationxml"/>
-						<option value="sc3ml"/>
-					</param>
-					<param name="formatted" style="query" type="xsd:boolean" default="false"/>
 					<param name="nodata" style="query" type="xsd:int" default="204">
 						<option value="204"/>
 						<option value="404"/>
 					</param>
+					<param name="format" style="query" type="xsd:string" default="xml">
+						<option value="xml"/>
+						<option value="text"/>
+
+						<!-- additional, non standard options -->
+						<option value="fdsnxml"/>
+						<option value="stationxml"/>
+						<option value="sc3ml"/>
+					</param>
+
+					<!-- additional, non standard parameters -->
+					<param name="formatted" style="query" type="xsd:boolean" default="false">
+						<doc>
+							Controls formatted (pretty print) output.
+						</doc>
+					</param>
+
+					<!-- not implemented -->
+					<!--param name="updateafter" style="query" type="xsd:dateTime"/-->
 				</request>
 				<response status="200">
 					<representation mediaType="application/xml"/>
+					<representation mediaType="text/plain"/>
 				</response>
-				<response status="204 400 404 413 414 500 503">
+				<response status="204 400 401 403 404 413 414 500 503">
 					<representation mediaType="text/plain"/>
 				</response>
 			</method>
-		</resource>
-		<resource path="catalogs">
-			<method name="GET">
-				<response>
+			<method name="POST">
+				<response status="200">
 					<representation mediaType="application/xml"/>
+					<representation mediaType="text/plain"/>
 				</response>
-			</method>
-		</resource>
-		<resource path="contributors">
-			<method name="GET">
-				<response>
-					<representation mediaType="application/xml"/>
+				<response status="204 400 401 403 404 413 414 500 503">
+					<representation mediaType="text/plain"/>
 				</response>
 			</method>
 		</resource>

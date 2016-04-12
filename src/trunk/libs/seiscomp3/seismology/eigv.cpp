@@ -1,8 +1,6 @@
 #include <iostream>
-#include <cmath>
-
+#include <math.h>
 using namespace std;
-
 #include "eigv.h"
 
 
@@ -75,10 +73,6 @@ int rs ( int n, double a[], double w[], double z[] )
   fv1 = new double[n];
 
   tred2 ( n, a, w, fv1, z );
- 
-  fv1[1] = a[1];
-  z[0] = 1.;
-  z[3] = 1.;
   ierr = tql2 ( n, w, fv1, z );
 
   delete [] fv1;

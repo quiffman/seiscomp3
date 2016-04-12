@@ -98,7 +98,8 @@ struct SC_SYSTEM_CLIENT_API Notification {
 		Reconnect,
 		Close,
 		Timeout,
-		Sync
+		Sync,
+		AcquisitionFinished
 	};
 
 	Notification() : object(NULL), type(Object) {}
@@ -618,6 +619,13 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		 * does nothing.
 		 */
 		virtual void handleEndSync();
+
+		/**
+		 * Called when the application received the AcquisitionFinished event.
+		 * This is most likely send from the readRecords thread of the
+		 * StreamApplication. The default implementation does nothing.
+		 */
+		virtual void handleEndAcquisition();
 
 
 	// ----------------------------------------------------------------------

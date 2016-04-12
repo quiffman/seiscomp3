@@ -3682,6 +3682,51 @@ SWIGINTERN PyObject *Seiscomp_Array_numpy(Seiscomp::Array *self){
 		fail:
 			return NULL;
 	}
+SWIGINTERN PyObject *Seiscomp_Array_setNumpy(Seiscomp::Array *self,PyObject *obj){
+#ifdef HAVE_NUMPY
+		PyArrayObject *arr;
+		switch ( self->dataType() ) {
+			case Seiscomp::Array::CHAR:
+				arr = (PyArrayObject*) PyArray_ContiguousFromObject(obj, PyArray_CHAR, 1, 1);
+				if ( arr == NULL )
+					return PyErr_Format(PyExc_TypeError,
+						"Unable to convert object to 1-D char array");
+				static_cast<Seiscomp::CharArray*>(self)->setData(arr->dimensions[0],(char *)(arr->data));
+				break;
+			case Seiscomp::Array::INT:
+				arr = (PyArrayObject*) PyArray_ContiguousFromObject(obj, PyArray_INT, 1, 1);
+				if ( arr == NULL )
+					return PyErr_Format(PyExc_TypeError,
+						"Unable to convert object to 1-D int array");
+				static_cast<Seiscomp::IntArray*>(self)->setData(arr->dimensions[0],(int *)(arr->data));
+				break;
+			case Seiscomp::Array::FLOAT:
+				arr = (PyArrayObject*) PyArray_ContiguousFromObject(obj, PyArray_FLOAT, 1, 1);
+				if ( arr == NULL )
+					return PyErr_Format(PyExc_TypeError,
+						"Unable to convert object to 1-D float array");
+				static_cast<Seiscomp::FloatArray*>(self)->setData(arr->dimensions[0],(float *)(arr->data));
+				break;
+			case Seiscomp::Array::DOUBLE:
+				arr = (PyArrayObject*) PyArray_ContiguousFromObject(obj, PyArray_DOUBLE, 1, 1);
+				if ( arr == NULL )
+					return PyErr_Format(PyExc_TypeError,
+						"Unable to convert object to 1-D double array");
+				static_cast<Seiscomp::DoubleArray*>(self)->setData(arr->dimensions[0],(double *)(arr->data));
+				break;
+			default:
+				SWIG_exception(SWIG_TypeError, "unsupported array type");
+				goto fail;
+		}
+
+		Py_XDECREF(arr);
+		Py_RETURN_NONE;
+#else
+		SWIG_exception(SWIG_SystemError, "missing support for NumPy");
+#endif
+		fail:
+			Py_RETURN_NONE;
+	}
 SWIGINTERN void Seiscomp_Core_MessageIterator_step(Seiscomp::Core::MessageIterator *self){
 		++(*self);
 	}
@@ -13110,6 +13155,31 @@ SWIGINTERN PyObject *_wrap_Array_numpy(PyObject *SWIGUNUSEDPARM(self), PyObject 
   }
   arg1 = reinterpret_cast< Seiscomp::Array * >(argp1);
   result = (PyObject *)Seiscomp_Array_numpy(arg1);
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Array_setNumpy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Array *arg1 = (Seiscomp::Array *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Array_setNumpy",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Array, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Array_setNumpy" "', argument " "1"" of type '" "Seiscomp::Array *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Array * >(argp1);
+  arg2 = obj1;
+  result = (PyObject *)Seiscomp_Array_setNumpy(arg1,arg2);
   resultobj = result;
   return resultobj;
 fail:
@@ -30906,6 +30976,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Array_slice", _wrap_Array_slice, METH_VARARGS, NULL},
 	 { (char *)"Array_str", _wrap_Array_str, METH_VARARGS, NULL},
 	 { (char *)"Array_numpy", _wrap_Array_numpy, METH_VARARGS, NULL},
+	 { (char *)"Array_setNumpy", _wrap_Array_setNumpy, METH_VARARGS, NULL},
 	 { (char *)"Array_swigregister", Array_swigregister, METH_VARARGS, NULL},
 	 { (char *)"Record_ClassName", _wrap_Record_ClassName, METH_VARARGS, NULL},
 	 { (char *)"Record_TypeInfo", _wrap_Record_TypeInfo, METH_VARARGS, NULL},

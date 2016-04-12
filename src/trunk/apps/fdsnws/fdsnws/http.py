@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # HTTP -- Utility methods which generate HTTP result strings
 #
@@ -13,7 +13,7 @@ from seiscomp3 import Core, Logging
 
 import utils
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 ################################################################################
 class HTTP:
@@ -26,6 +26,8 @@ Error %i: %s
 
 %s
 
+Usage details are available from %s
+
 Request:
 %s
 
@@ -36,17 +38,20 @@ Service Version:
 %s
 """
 
-		# rewrite response code if requested an no data was found
+		# rewrite response code if requested and no data was found
 		if ro is not None and code == http.NO_CONTENT:
 			code = ro.noData
 
-		request.setHeader("Content-Type", "text/plain")
+		request.setHeader('Content-Type', 'text/plain')
 		request.setResponseCode(code)
+
+		reference = "%s/" % (request.path.rpartition('/')[0])
 
 		codeStr = http.RESPONSES[code]
 		Logging.warning("responding with error: %i (%s)" % (code, codeStr))
 		date = Core.Time.GMT().toString("%FT%T.%f")
-		response = resp % (code, codeStr, msg, request.uri, date, VERSION)
+		response = resp % (code, codeStr, msg, reference, request.uri, date,
+		                   VERSION)
 		utils.accessLog(request, ro, code, len(response), msg)
 		return response
 
@@ -97,11 +102,52 @@ class NoResource(resource.Resource):
 
 
 ################################################################################
+class ListingResource(resource.Resource):
+
+	html = """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="gempa GmbH">
+  <title>SeisComP3 FDSNWS Implementation</title>
+</head>
+<body>
+  <h1>SeisComP3 FDSNWS Web Service</h1>
+  <p>Index of %s</p>
+  <ul>
+%s
+  </ul>
+</body>"""
+
+
+	#---------------------------------------------------------------------------
+	def render(self, request):
+		lis = ""
+		path = request.path
+		if path[-1:] == '/':
+			path = path[:-1]
+		for child in self.children.items():
+			if child[1].isLeaf:
+				continue
+			name = child[0]
+			lis += """<li><a href="%s/%s/">%s/</a></li>\n""" % (path, name, name)
+		return ListingResource.html % (request.path, lis)
+
+
+	#---------------------------------------------------------------------------
+	def getChild(self, chnam, request):
+		if not chnam:
+			return self
+		return NoResource()
+
+
+
+################################################################################
 class Site(server.Site):
 
 	#---------------------------------------------------------------------------
 	def getResourceFor(self, request):
 		Logging.debug("request (%s): %s" % (request.getClientIP(),
 		              request.uri))
-		request.setHeader("Server", "SeisComP3-FDSNWS/%s" % VERSION)
+		request.setHeader('Server', "SeisComP3-FDSNWS/%s" % VERSION)
 		return server.Site.getResourceFor(self, request)

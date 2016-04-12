@@ -32,6 +32,7 @@ StreamApplication::StreamApplication(int argc, char **argv)
 	: Client::Application(argc, argv), _recordThread(NULL) {
 	setRecordStreamEnabled(true);
 	_startAcquisition = true;
+	_closeOnAcquisitionFinished = true;
 	_recordInputHint = Record::DATA_ONLY;
 	_logRecords = NULL;
 	_receivedRecords = 0;
@@ -170,6 +171,16 @@ void StreamApplication::handleMonitorLog(const Core::Time &timestamp) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void StreamApplication::setAutoAcquisitionStart(bool e) {
 	_startAcquisition = e;
+	_closeOnAcquisitionFinished = _startAcquisition;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void StreamApplication::setAutoCloseOnAcquisitionFinished(bool e) {
+	_closeOnAcquisitionFinished = e;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -187,7 +198,7 @@ void StreamApplication::setRecordInputHint(Record::Hint hint) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void StreamApplication::startRecordThread() {
-	_recordThread = new boost::thread(boost::bind(&StreamApplication::readRecords, this));
+	_recordThread = new boost::thread(boost::bind(&StreamApplication::readRecords, this, true));
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -317,7 +328,7 @@ void StreamApplication::closeStream() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void StreamApplication::readRecords() {
+void StreamApplication::readRecords(bool sendEndNotification) {
 	SEISCOMP_INFO("Starting record acquisition");
 
 	IO::RecordInput recInput(_recordStream.get(), Array::FLOAT, _recordInputHint);
@@ -349,6 +360,9 @@ void StreamApplication::readRecords() {
 		SEISCOMP_ERROR("Exception in acquisition: '%s'", e.what());
 	}
 
+	if ( sendEndNotification )
+		sendNotification(Notification::AcquisitionFinished);
+
 	SEISCOMP_INFO("Finished acquisition");
 	acquisitionFinished();
 }
@@ -359,8 +373,10 @@ void StreamApplication::readRecords() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void StreamApplication::acquisitionFinished() {
-	SEISCOMP_INFO("Sending close event after finishing acquisition");
-	sendNotification(Notification::Close);
+	if ( _closeOnAcquisitionFinished ) {
+		SEISCOMP_INFO("Sending close event after finishing acquisition");
+		sendNotification(Notification::Close);
+	}
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

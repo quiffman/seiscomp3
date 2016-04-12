@@ -76,6 +76,7 @@ struct Config {
 	StringList      agencies;
 	StringList      authors;
 	StringList      methods;
+	std::string     score;
 
 	StringList      priorities;
 

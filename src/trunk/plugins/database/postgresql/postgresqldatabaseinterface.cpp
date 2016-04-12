@@ -26,7 +26,7 @@ IMPLEMENT_SC_CLASS_DERIVED(PostgreSQLDatabase,
                            "postgresql_database_interface");
 
 REGISTER_DB_INTERFACE(PostgreSQLDatabase, "postgresql");
-ADD_SC_PLUGIN("PostgreSQL database driver", "GFZ Potsdam <seiscomp-devel@gfz-potsdam.de>", 0, 9, 0)
+ADD_SC_PLUGIN("PostgreSQL database driver", "GFZ Potsdam <seiscomp-devel@gfz-potsdam.de>", 0, 9, 1)
 
 PostgreSQLDatabase::PostgreSQLDatabase()
  : _handle(NULL), _result(NULL) {}
@@ -226,10 +226,13 @@ void PostgreSQLDatabase::endQuery() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 unsigned long PostgreSQLDatabase::lastInsertId(const char* table) {
-	if ( !execute((std::string("select currval('") + table + "_seq')").c_str()) )
+	if ( !beginQuery((std::string("select currval('") + table + "_seq')").c_str()) )
 		return 0;
 
 	char* value = PQgetvalue(_result, 0, 0);
+
+	endQuery();
+
 	return value?atoi(value):0;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

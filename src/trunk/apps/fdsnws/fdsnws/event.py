@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # FDSNEvent -- Implements the fdsnws-event Web service, see
 #   http://www.fdsn.org/webservices/
@@ -10,11 +10,16 @@
 #     parameter is mapped to the agencyID.
 #   - origin and magnitude filter parameters are always applied to
 #     preferred origin resp. preferred magnitude
+#   - 'updateafter' request parameter not implemented
 #   - additional request parameters:
-#     - format:          [qml, qml-rt, sc3ml], default: qml
 #     - includepicks:    boolean, default: false
 #     - includecomments: boolean, default: true
 #     - formatted:       boolean, default: false
+#   - additional values of request parameters:
+#     - format
+#       - standard:      [xml, text]
+#       - additional:    [qml (=xml), qml-rt, sc3ml, csv]
+#       - default:       xml
 #
 # Author:  Stephan Herrnkind
 # Email:   herrnkind@gempa.de
@@ -25,7 +30,7 @@ from twisted.web import http, resource, server
 
 from seiscomp3 import DataModel, Logging
 from seiscomp3.Client import Application
-from seiscomp3.Core import Time
+from seiscomp3.Core import Time, ValueException
 from seiscomp3.IO import Exporter
 
 from http import HTTP, NoResource
@@ -38,10 +43,41 @@ DBMaxUInt = 18446744073709551615 # 2^64 - 1
 ################################################################################
 class _EventRequestOptions(RequestOptions):
 
-	Exporters = { "qml"    : "qml1.2",
-	              "qml-rt" : "qml1.2rt",
-	              "sc3ml"  : "trunk",
-	              "csv"    : "csv" }
+	Exporters = { 'xml'    : 'qml1.2',
+	              'qml'    : 'qml1.2',
+	              'qml-rt' : 'qml1.2rt',
+	              'sc3ml'  : 'trunk',
+	              'csv'    : 'csv' }
+	VText          = [ 'text' ]
+	VOrderBy       = [ 'time', 'time-asc', 'magnitude', 'magnitude-asc' ]
+	OutputFormats  = Exporters.keys() + VText
+
+
+	PMinDepth      = [ 'mindepth' ]
+	PMaxDepth      = [ 'maxdepth' ]
+	PMinMag        = [ 'minmagnitude', 'minmag' ]
+	PMaxMag        = [ 'maxmagnitude', 'maxmag' ]
+	PMagType       = [ 'magnitudetype', 'magtype' ]
+
+	PAllOrigins    = [ 'includeallorigins', 'allorigins' ]
+	PAllMags       = [ 'includeallmagnitudes', 'allmagnitudes', 'allmags' ]
+	PArrivals      = [ 'includearrivals', 'allarrivals' ]
+
+	PEventID       = [ 'eventid' ]
+
+	PLimit         = [ 'limit' ]
+	POffset        = [ 'offset' ]
+	POrderBy       = [ 'orderby' ]
+
+	PContributor   = [ 'contributor' ]
+	PCatalog       = [ 'catalog' ]
+	PUpdateAfter   = [ 'updateafter' ]
+
+	# non standard par ameters
+	PPicks         = [ 'includepicks', 'picks' ]
+	PComments      = [ 'includecomments', 'comments' ]
+	PFormatted     = [ 'formatted' ]
+
 
 	#---------------------------------------------------------------------------
 	class Depth:
@@ -60,14 +96,14 @@ class _EventRequestOptions(RequestOptions):
 	#---------------------------------------------------------------------------
 	def __init__(self, args):
 		RequestOptions.__init__(self, args)
-		self.service = "fdsnws-event"
+		self.service = 'fdsnws-event'
 
 		self.depth        = None
 		self.mag          = None
 
-		self.allOrigins   = False
-		self.allMags      = False
-		self.arrivals     = False
+		self.allOrigins   = None
+		self.allMags      = None
+		self.arrivals     = None
 
 		self.limit        = None   # event limit, if defined: min 1
 		self.offset       = None   # start at specific event count position,
@@ -84,110 +120,84 @@ class _EventRequestOptions(RequestOptions):
 
 
 		# non standard parameters
-		self.output       = "qml"
-		self.comments     = True
-		self.formatted    = False
-		self.picks        = False
+		self.comments     = None
+		self.formatted    = None
+		self.picks        = None
 
 
 	#---------------------------------------------------------------------------
 	def parse(self):
-		self.parseNoData()
 		self.parseTime()
 		self.parseGeo()
+		self.parseOutput()
 
 		# depth
 		d = self.Depth()
-		if "mindepth" in self._args:
-			d.min = self.parseFloat("mindepth")
-		if "maxdepth" in self._args:
-			d.max = self.parseFloat("maxdepth")
+		d.min = self.parseFloat(self.PMinDepth)
+		d.max = self.parseFloat(self.PMaxDepth)
 		if d.min is not None and d.max is not None and d.min > d.max:
-			raise ValueError, "Mindepth exceeds maxdepth"
+			raise ValueError, "%s exceeds %s" % (
+			                  self.PMinDepth[0], self.PMaxDepth[0])
 		if d.min is not None or d.max:
 			self.depth = d
 
 		# magnitude
 		m = self.Magnitude()
-		if "minmag" in self._args:
-			m.min = self.parseFloat("minmag")
-		elif "minmagnitude" in self._args:
-			m.min = self.parseFloat("minmagnitude")
-		if "maxmag" in self._args:
-			m.max = self.parseFloat("maxmag")
-		elif "maxmagnitude" in self._args:
-			m.max = self.parseFloat("maxmagnitude")
+		m.min = self.parseFloat(self.PMinMag)
+		m.max = self.parseFloat(self.PMaxMag)
 		if m.min is not None and m.max is not None and m.min > m.max:
-			raise ValueError, "Minmagnitude exceeds maxmagnitude"
-		if "magtype" in self._args:
-			m.type = self._args["magtype"][0]
-		elif "magnitudetype" in self._args:
-			m.type = self._args["magnitudetype"][0]
+			raise ValueError, "%s exceeds %s" % (
+			                  self.PMinMag[0], self.PMaxMag[0])
+		key, m.type = self.getFirstValue(self.PMagType)
 		if m.min is not None or m.max is not None or m.type is not None:
 			self.mag = m
 
 		# output components
-		if "includeallorigins" in self._args:
-			self.allOrigins = self.parseBoolean("includeallorigins")
-		if "includeallmagnitudes" in self._args:
-			self.allMags = self.parseBoolean("includeallmagnitudes")
-		if "includearrivals" in self._args:
-			self.arrivals = self.parseBoolean("includearrivals")
-		if "includepicks" in self._args:
-			self.picks = self.parseBoolean("includepicks")
-		if "includecomments" in self._args:
-			self.comments = self.parseBoolean("includecomments")
+		self.allOrigins = self.parseBool(self.PAllOrigins)
+		self.allMags    = self.parseBool(self.PAllMags)
+		self.arrivals   = self.parseBool(self.PArrivals)
+		self.picks      = self.parseBool(self.PPicks)
+		self.comments   = self.parseBool(self.PComments)
 
-		# limit, orderBy, updatedAfter
-		if "limit" in self._args:
-			self.limit = self.parseLong("limit", 1, DBMaxUInt)
-		if "offset" in self._args:
+		# limit, offset, orderBy, updatedAfter
+		self.limit = self.parseInt(self.PLimit, 1, DBMaxUInt)
+		self.offset = self.parseInt(self.POffset, 1, DBMaxUInt)
+		if self.offset is not None:
 			# the offset is decremented by one since spec uses a weird offset
 			# where an offset of '1' should return the first element instead of
 			# the second one
-			self.offset = self.parseLong("offset", 1, DBMaxUInt) - 1
-		if "orderby" in self._args:
-			value = self._args["orderby"][0].lower()
-			if value in ("time", "time-asc", "magnitude", "magnitude-asc"):
+			self.offset -= 1
+		key, value = self.getFirstValue(self.POrderBy)
+		if value is not None:
+			if value in self.VOrderBy:
 				self.orderBy = value
 			else:
-				raise ValueError, "Invalid value in parameter: orderby"
-		if "updatedafter" in self._args:
-			self.updatedAfter = self.parseTimeStr("updatedafter")
+				self.raiseValueError(key)
 
 		# catalogs and contributors
-		if "catalog" in self._args:
-			self.catalogs = self._args["catalog"]
-		if "contributor" in self._args:
-			self.contributors = self._args["contributor"]
+		self.catalogs = self.getValues(self.PCatalog)
+		self.contributors = self.getValues(self.PContributor)
+		self.updatedAfter = self.parseTimeStr(self.PUpdateAfter)
 
 		# eventID(s)
 		filterParams = self.time or self.geo or self.depth or self.mag or \
 		               self.limit is not None or self.offset is not None or \
 		               self.orderBy or self.catalogs or self.contributors or \
 		               self.updatedAfter
-		if "eventid" in self._args:
-			# eventID, MUST NOT be combined with above parameters
-			if filterParams:
-				raise ValueError, "Invalid mixture of parameters. The " \
-				      "parameter 'eventid' may only be combined with: " \
-				      "includeallorigins, includeallmagnitudes, " \
-				      "includearrival, and includecomments"
-			self.eventIDs = self._args["eventid"]
-
-		# format exporter
-		if "format" in self._args:
-			self.output = self._args["format"][0].lower()
-			if not self.output in self.Exporters:
-				raise ValueError, "Invalid value in parameter: format"
+		self.eventIDs = self.getValues(self.PEventID)
+		# eventID, MUST NOT be combined with above parameters
+		if filterParams and self.eventIDs:
+			raise ValueError, "invalid mixture of parameters, the parameter " \
+			      "'%s' may only be combined with: includeallorigins, " \
+			      "includeallmagnitudes, includearrival and includecomments" % (
+			      self.PEventID[0], self.PAllOrigins[0], self.PAllMags[0],
+			      self.PArrivals[0], self.PPicks)
 
 		# include comments
-		if "comments" in self._args:
-			self.comments = self.parseBoolean("comments")
+		self.comments = self.parseBool(self.PComments)
 
 		# format XML
-		if "formatted" in self._args:
-			self.formatted = self.parseBoolean("formatted")
+		self.formatted = self.parseBool(self.PFormatted)
 
 
 ################################################################################
@@ -206,22 +216,30 @@ class FDSNEvent(resource.Resource):
 
 		# Catalog filter is not supported, any filter value will result in 204
 		if ro.catalogs:
-			msg = "No matching events found"
+			msg = "no matching events found"
 			return HTTP.renderErrorPage(req, http.NO_CONTENT, msg, ro)
 
-		# Exporter
-		exp = Exporter.Create(ro.Exporters[ro.output])
-		if exp:
-			exp.setFormattedOutput(ro.formatted)
-		else:
-			msg = "Output format '%s' no available. Export module '%s' could " \
-			      "not be loaded." % (ro.output, ro.Exporters[ro.output])
+        # updateafter not implemented
+		if ro.updatedAfter:
+			msg = "filtering based on update time not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
+
+		# Exporter, 'None' is used for text output
+		if ro.format in ro.VText:
+			exp = None
+		else:
+			exp = Exporter.Create(ro.Exporters[ro.format])
+			if exp:
+				exp.setFormattedOutput(ro.formatted)
+			else:
+				msg = "output format '%s' no available, export module '%s' could " \
+				      "not be loaded." % (ro.output, ro.Exporters[ro.output])
+				return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		# Create database query
 		dbq = DataModel.DatabaseQuery(Application.Instance().database())
 		if dbq.hasError():
-			msg = "Could not connect to database: %s" % dbq.errorMsg()
+			msg = "could not connect to database: %s" % dbq.errorMsg()
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		# Process request in separate thread
@@ -234,38 +252,19 @@ class FDSNEvent(resource.Resource):
 
 
 	#---------------------------------------------------------------------------
-	def _processRequest(self, req, ro, dbq, exp):
-		if req._disconnected:
-			return False
-
-		DataModel.PublicObject.SetRegistrationEnabled(False)
+	def _processRequestExp(self, req, ro, dbq, exp, ep):
+		objCount = ep.eventCount()
 		maxObj = Application.Instance()._queryObjects
 
-		# query event(s)
-		ep = DataModel.EventParameters()
-		if ro.eventIDs:
-			for eID in ro.eventIDs:
-				event = dbq.getEventByPublicID(eID)
-				event = DataModel.Event.Cast(event)
-				if event:
-					ep.add(event)
-		else:
-			self._findEvents(ep, ro, dbq)
-
-		if ep.eventCount() == 0:
-			msg = "No matching events found"
-			utils.writeTS(req,
-			              HTTP.renderErrorPage(req, http.NO_CONTENT, msg, ro))
-			return False
-
-		objCount = ep.eventCount()
-		Logging.debug("events found: %i" % objCount)
 		if not HTTP.checkObjects(req, objCount, maxObj): return False
 
 		pickIDs = set()
+		if ro.picks is None:
+			ro.picks = True
 
 		# add related information
 		for iEvent in xrange(ep.eventCount()):
+			if req._disconnected: return False
 			e = ep.event(iEvent)
 			eID = e.publicID()
 
@@ -292,6 +291,7 @@ class FDSNEvent(resource.Resource):
 
 			# origins
 			for iORef in xrange(e.originReferenceCount()):
+				if req._disconnected: return False
 				oID = e.originReference(iORef).originID()
 				obj = dbq.getObject(DataModel.Origin.TypeInfo(), oID)
 				o = DataModel.Origin.Cast(obj)
@@ -344,20 +344,127 @@ class FDSNEvent(resource.Resource):
 				if pick is not None:
 					ep.add(pick)
 
-
-		if ro.output == "csv":
-			req.setHeader("Content-Type", "text/plain")
-		else:
-			req.setHeader("Content-Type", "application/xml")
+		# write response
 		sink = utils.Sink(req)
 		if not exp.write(sink, ep):
 			return False
-
 		Logging.notice("%s: returned %i events and %i origins (total " \
 		               "objects/bytes: %i/%i)" % (ro.service, ep.eventCount(),
 		               ep.originCount(), objCount, sink.written))
 		utils.accessLog(req, ro, http.OK, sink.written, None)
 		return True
+
+
+	#---------------------------------------------------------------------------
+	def _processRequestText(self, req, ro, dbq, ep):
+		lineCount = 0
+
+		line = "#EventID|Time|Latitude|Longitude|Depth/km|Author|Catalog|" \
+		       "Contributor|ContributorID|MagType|Magnitude|MagAuthor|" \
+		       "EventLocationName\n"
+		df = "%FT%T.%f"
+		req.write(line)
+		byteCount = len(line)
+
+		# add related information
+		for iEvent in xrange(ep.eventCount()):
+			e = ep.event(iEvent)
+			eID = e.publicID()
+
+			# query for preferred origin
+			obj = dbq.getObject(DataModel.Origin.TypeInfo(),
+			                    e.preferredOriginID())
+			o = DataModel.Origin.Cast(obj)
+			if o is None:
+				Logging.warning("preferred origin of event '%s' not found" % (
+				                eID, e.preferredOriginID()))
+				continue
+
+			# depth
+			try: depth = str(o.depth().value())
+			except ValueException: depth = ''
+
+			# author
+			try: author = o.creationInfo().author()
+			except ValueException: author = ''
+
+			# contributor
+			try: contrib = e.creationInfo().agencyID()
+			except ValueException: contrib = ''
+
+			# query for preferred magnitude (if any)
+			mType, mVal, mAuthor = '', '', ''
+			if e.preferredMagnitudeID():
+				obj = dbq.getObject(DataModel.Magnitude.TypeInfo(),
+				                    e.preferredMagnitudeID())
+				m = DataModel.Magnitude.Cast(obj)
+				if m is not None:
+					mType = m.type()
+					mVal = str(m.magnitude().value())
+					try: mAuthor = m.creationInfo().author()
+					except ValueException: pass
+
+			# event description
+			dbq.loadEventDescriptions(e)
+			region = ''
+			for i in xrange(e.eventDescriptionCount()):
+				ed = e.eventDescription(i)
+				if ed.type() == DataModel.REGION_NAME:
+					region = ed.text()
+					break
+
+			if req._disconnected:
+				return False
+			line = "%s|%s|%f|%f|%s|%s||%s|%s|%s|%s|%s|%s\n" % (
+			       eID, o.time().value().toString(df), o.latitude().value(),
+			       o.longitude().value(), depth, author, contrib, eID,
+			       mType, mVal, mAuthor, region)
+			req.write(line)
+			lineCount +=1
+			byteCount += len(line)
+
+		# write response
+		Logging.notice("%s: returned %i events (total bytes: %i) " % (
+		               ro.service, lineCount, byteCount))
+		utils.accessLog(req, ro, http.OK, byteCount, None)
+		return True
+
+
+	#---------------------------------------------------------------------------
+	def _processRequest(self, req, ro, dbq, exp):
+		if req._disconnected:
+			return False
+
+		DataModel.PublicObject.SetRegistrationEnabled(False)
+
+		# query event(s)
+		ep = DataModel.EventParameters()
+		if ro.eventIDs:
+			for eID in ro.eventIDs:
+				event = dbq.getEventByPublicID(eID)
+				event = DataModel.Event.Cast(event)
+				if event:
+					ep.add(event)
+		else:
+			self._findEvents(ep, ro, dbq)
+
+		if ep.eventCount() == 0:
+			msg = "no matching events found"
+			utils.writeTS(req,
+			              HTTP.renderErrorPage(req, http.NO_CONTENT, msg, ro))
+			return False
+
+		Logging.debug("events found: %i" % ep.eventCount())
+
+		if ro.format == 'csv' or not exp:
+			req.setHeader('Content-Type', 'text/plain')
+		else:
+			req.setHeader('Content-Type', 'application/xml')
+
+		if exp:
+			return self._processRequestExp(req, ro, dbq, exp, ep)
+
+		return self._processRequestText(req, ro, dbq, ep)
 
 
 	#---------------------------------------------------------------------------
@@ -368,11 +475,11 @@ class FDSNEvent(resource.Resource):
 		def _time(time):
 			return db.timeToString(time)
 
-		reqMag = ro.mag or (ro.orderBy and ro.orderBy.startswith("magnitude"))
+		reqMag = ro.mag or (ro.orderBy and ro.orderBy.startswith('magnitude'))
 		reqDist = ro.geo and ro.geo.bCircle
-		colPID = _T("publicID")
-		colTime = _T("time_value")
-		colMag = _T("magnitude_value")
+		colPID = _T('publicID')
+		colTime = _T('time_value')
+		colMag = _T('magnitude_value')
 		if reqMag:
 			colOrderBy = "m.%s" % colMag
 		else:
@@ -380,7 +487,7 @@ class FDSNEvent(resource.Resource):
 
 		bBox = None
 		if ro.geo:
-			colLat, colLon = _T("latitude_value"), _T("longitude_value")
+			colLat, colLon = _T('latitude_value'), _T('longitude_value')
 			if ro.geo.bBox:
 				bBox = ro.geo.bBox
 			else:
@@ -408,16 +515,16 @@ class FDSNEvent(resource.Resource):
 		# event information filter
 		if ro.contributors:
 			q += " AND e.%s AND upper(e.%s) IN('%s')" % (
-			     _T("creationinfo_used"), _T("creationinfo_agencyid"),
+			     _T('creationinfo_used'), _T('creationinfo_agencyid'),
 			     "', '".join(ro.contributors).upper())
 
 		# origin information filter
 		q += " AND o._oid = po._oid AND po.%s = e.%s" % (
-		       colPID, _T("preferredOriginID"))
+		       colPID, _T('preferredOriginID'))
 
 		# time
 		if ro.time:
-			colTimeMS = _T("time_value_ms")
+			colTimeMS = _T('time_value_ms')
 			if ro.time.start is not None:
 				t = _time(ro.time.start)
 				ms = ro.time.start.microseconds()
@@ -447,7 +554,7 @@ class FDSNEvent(resource.Resource):
 		# depth
 		if ro.depth:
 			q += " AND o.%s" % _T("depth_used")
-			colDepth = _T("depth_value")
+			colDepth = _T('depth_value')
 			if ro.depth.min is not None:
 				q += " AND o.%s >= %s" % (colDepth, ro.depth.min)
 			if ro.depth.max is not None:
@@ -457,10 +564,10 @@ class FDSNEvent(resource.Resource):
 		if ro.updatedAfter:
 			t = _time(ro.updatedAfter)
 			ms = ro.updatedAfter.microseconds()
-			colCTime   = _T("creationinfo_creationtime")
-			colCTimeMS = _T("creationinfo_creationtime_ms")
-			colMTime   = _T("creationinfo_modificationtime")
-			colMTimeMS = _T("creationinfo_modificationtime_ms")
+			colCTime   = _T('creationinfo_creationtime')
+			colCTimeMS = _T('creationinfo_creationtime_ms')
+			colMTime   = _T('creationinfo_modificationtime')
+			colMTimeMS = _T('creationinfo_modificationtime_ms')
 			tFilter = "(o.%s > '%s' OR (o.%s = '%s' AND o.%s > %i))"
 
 			q += " AND ("
@@ -472,11 +579,11 @@ class FDSNEvent(resource.Resource):
 			q += " AND m._oid = pm._oid AND "
 			if ro.mag and ro.mag.type:
 				# join magnitude table on oID of origin and magnitude type
-				q += "m._parent_oid = o._oid AND m.%s = '%s'" % (_T("type"),
+				q += "m._parent_oid = o._oid AND m.%s = '%s'" % (_T('type'),
 				                                                 ro.mag.type)
 			else:
 				# join magnitude table on preferred magnitude id of event
-				q += "pm.%s = e.%s" % (colPID, _T("preferredMagnitudeID"))
+				q += "pm.%s = e.%s" % (colPID, _T('preferredMagnitudeID'))
 
 			if ro.mag and ro.mag.min is not None:
 				q += " AND m.%s >= %s" % (colMag, ro.mag.min)
@@ -485,7 +592,7 @@ class FDSNEvent(resource.Resource):
 
 		# ORDER BY ------------------------------
 		q += " ORDER BY %s" % colOrderBy
-		if ro.orderBy and ro.orderBy.endswith("-asc"):
+		if ro.orderBy and ro.orderBy.endswith('-asc'):
 			q += " ASC"
 		else:
 			q += " DESC"

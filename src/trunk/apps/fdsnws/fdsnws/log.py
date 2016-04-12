@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # Thread-safe file logger
 #
@@ -68,7 +68,7 @@ class Log:
 		except Exception, e:
 			print >> sys.stderr, "failed to rotate access log: %s\n" % str(e)
 
-		self._fd = open(self._filePath, "w")
+		self._fd = open(self._filePath, 'w')
 
 
 	#---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ class Log:
 			if self._fd is None:
 				if self._basePath and not os.path.exists(self._basePath):
 					os.path.mkdirs(self._basePath)
-				self._fd = open(self._filePath, "a")
+				self._fd = open(self._filePath, 'a')
 			elif self._archiveSize > 0 and self._lastLogTime is not None and \
 			     (self._lastLogTime.tm_yday != now.tm_yday or \
 			      self._lastLogTime.tm_year != now.tm_year):

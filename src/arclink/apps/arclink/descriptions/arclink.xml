@@ -141,7 +141,7 @@
 			<parameter name="swapout_time" type="int" default="600">
 				<description>
 					Delete completed requests from RAM when not used (STATUS, DOWNLOAD or BDOWNLOAD commands)
-					after the given time span in seconds (0-never delete requests).
+					after the given time span in seconds (0 - never delete requests).
 				</description>
 			</parameter>
 
@@ -149,7 +149,7 @@
 				<description>
 					Delete finished requests and data products also from the request directory when not
 					used (STATUS, DOWNLOAD or BDOWNLOAD commands) after the given time span in
-					seconds (0-never delete requests).
+					seconds (0 - never delete requests).
 				</description>
 			</parameter>
 
@@ -191,12 +191,12 @@
 				<struct type="routes" link="routes">
 					<parameter name="streams" type="list:string" default="">
 						<description>
-							List of streams this route applies to (optional, Wildcarded). When indicated the streamCode will be generated in the routing entries.
+							List of streams this route applies to (optional, wildcarded). When indicated the streamCode will be generated in the routing entries.
 						</description>
 					</parameter>
 					<parameter name="disableStationCode" type="boolean" default="false">
 						<description>
-							When disableStationCode option is true the routings entries for this block are generated only for the network level (and optionally stream level), no station code will be filled (this can potentially reduce the number of entries on the routing table, this is an optional entry).
+							When disableStationCode is true the routings entries for this block are generated only for the network level (and optionally stream level), no station code will be filled. (This optional entry can potentially reduce the number of entries on the routing table.)
 						</description>
 					</parameter>
 
@@ -206,7 +206,7 @@
 						</description>
 						<parameter name="address" type="string" default="">
 							<description>
-								address:port of Arclink server (required to enable the binding block).
+								host:port of Arclink server (required to enable the binding block).
 							</description>
 						</parameter>
 						<parameter name="start" type="datetime" default="">
@@ -232,7 +232,7 @@
 						</description>
 						<parameter name="address" type="string" default="">
 							<description>
-								address:port of Seedlink server (required to enable the binding block).
+								host:port of Seedlink server (required to enable the binding block).
 							</description>
 						</parameter>
 						<parameter name="priority" type="int" default="">

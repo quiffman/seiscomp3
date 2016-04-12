@@ -426,6 +426,7 @@ class Notification(_object):
     Close = _Client.Notification_Close
     Timeout = _Client.Notification_Timeout
     Sync = _Client.Notification_Sync
+    AcquisitionFinished = _Client.Notification_AcquisitionFinished
     def __init__(self, *args): 
         """
         __init__(self) -> Notification
@@ -880,6 +881,10 @@ class Application(Core.InterruptibleObject):
         """handleEndSync(self)"""
         return _Client.Application_handleEndSync(self)
 
+    def handleEndAcquisition(self):
+        """handleEndAcquisition(self)"""
+        return _Client.Application_handleEndAcquisition(self)
+
     def dispatch(self, *args):
         """dispatch(self, BaseObject arg0) -> bool"""
         return _Client.Application_dispatch(self, *args)
@@ -1086,6 +1091,10 @@ class StreamApplication(Application):
         """setAutoAcquisitionStart(self, bool arg0)"""
         return _Client.StreamApplication_setAutoAcquisitionStart(self, *args)
 
+    def setAutoCloseOnAcquisitionFinished(self, *args):
+        """setAutoCloseOnAcquisitionFinished(self, bool arg0)"""
+        return _Client.StreamApplication_setAutoCloseOnAcquisitionFinished(self, *args)
+
     def requestSync(self):
         """requestSync(self)"""
         return _Client.StreamApplication_requestSync(self)
@@ -1093,6 +1102,18 @@ class StreamApplication(Application):
     def setRecordInputHint(self, *args):
         """setRecordInputHint(self, Hint hint)"""
         return _Client.StreamApplication_setRecordInputHint(self, *args)
+
+    def startRecordThread(self):
+        """startRecordThread(self)"""
+        return _Client.StreamApplication_startRecordThread(self)
+
+    def waitForRecordThread(self):
+        """waitForRecordThread(self)"""
+        return _Client.StreamApplication_waitForRecordThread(self)
+
+    def isRecordThreadActive(self):
+        """isRecordThreadActive(self) -> bool"""
+        return _Client.StreamApplication_isRecordThreadActive(self)
 
     def init(self):
         """init(self) -> bool"""
@@ -1169,6 +1190,10 @@ class StreamApplication(Application):
     def handleStartSync(self):
         """handleStartSync(self)"""
         return _Client.StreamApplication_handleStartSync(self)
+
+    def handleEndAcquisition(self):
+        """handleEndAcquisition(self)"""
+        return _Client.StreamApplication_handleEndAcquisition(self)
 
     def dispatchNotification(self, *args):
         """dispatchNotification(self, int type, BaseObject arg0) -> bool"""

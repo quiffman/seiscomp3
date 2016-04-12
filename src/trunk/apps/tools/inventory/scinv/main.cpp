@@ -585,6 +585,7 @@ class InventoryManager : public Client::Application,
 						}
 
 						cerr << endl;
+						sync();
 
 						doSyncKeys = true;
 					}
@@ -1035,6 +1036,8 @@ class InventoryManager : public Client::Application,
 							sync();
 						}
 					}
+
+					sync();
 
 					if ( !tmp->empty() ) {
 						connection()->send(tmp.get());

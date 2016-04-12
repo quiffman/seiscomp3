@@ -180,7 +180,7 @@ class BreqParser(object):
 					loc = cha_list.pop()
 				for cha in cha_list:
 					cha = re.sub("[?]+","*",cha)
-					self.reqlist.append((str(network),str(station),cha,loc,beg_time,end_time, {}, set()))
+					self.reqlist.append(RequestLine(beg_time,end_time,str(network),str(station),cha,loc))
 					logs.debug("reqlist.append: %s %s %s %s" % (str(network),str(station),cha,loc))
 		else:
 			self.failstr = "%s%s\n" % (self.failstr,line)

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # FDSNStation -- Implements the fdsnws-station Web service, see
 #   http://www.fdsn.org/webservices/
@@ -11,9 +11,14 @@
 #     check if a station was updated all children must be evaluated recursively.
 #     This operation would be much to expensive.
 #   - 'includeavailability' request parameter not implemented
+#   - 'matchtimeseries' request parameter not implemented
 #   - additional request parameters:
-#     - format:          [fdsnxml, stationxml, sc3ml], default: fdsnxml
 #     - formatted:       boolean, default: false
+#   - additional values of request parameters:
+#     - format
+#       - standard:      [xml, text]
+#       - additional:    [fdsnxml (=xml), stationxml, sc3ml]
+#       - default:       xml
 #
 # Author:  Stephan Herrnkind
 # Email:   herrnkind@gempa.de
@@ -35,66 +40,177 @@ import utils
 ################################################################################
 class _StationRequestOptions(RequestOptions):
 
-	Exporters = { "fdsnxml"   : "fdsnxml",
-	              "stationxml": "staxml",
-	              "sc3ml"     : "trunk" }
+	Exporters      = { 'xml'       : 'fdsnxml',
+	                   'fdsnxml'   : 'fdsnxml',
+	                   'stationxml': 'staxml',
+	                   'sc3ml'     : 'trunk' }
+	MinTime        = Time(0, 1)
+
+	VText          = [ 'text' ]
+	OutputFormats  = Exporters.keys() + VText
+
+	PLevel                = [ 'level' ]
+	PIncludeRestricted    = [ 'includerestricted' ]
+	PIncludeAvailability  = [ 'includeavailability' ]
+	PUpdateAfter          = [ 'updateafter' ]
+	PMatchTimeSeries      = [ 'matchtimeseries' ]
+
+	# non standard parameters
+	PFormatted     = [ 'formatted' ]
+
+	POSTParams     = RequestOptions.POSTParams + RequestOptions.GeoParams + \
+	                 PLevel + PIncludeRestricted + PIncludeAvailability + \
+	                 PUpdateAfter + PMatchTimeSeries + PFormatted
+
 
 	#---------------------------------------------------------------------------
-	def __init__(self, args):
+	def __init__(self, args=None):
 		RequestOptions.__init__(self, args)
-		self.service = "fdsnws-station"
+		self.service = 'fdsnws-station'
+
+		self.streams = []
 
 		self.includeSta = True
 		self.includeCha = False
 		self.includeRes = False
 
-		self.restricted   = False
-		self.availability = False
-		self.updatedAfter = None
+		self.restricted      = None
+		self.availability    = None
+		self.updatedAfter    = None
+		self.matchtimeseries = None
 
 		# non standard parameters
-		self.output     = "fdsnxml"
-		self.formatted  = False
+		self.formatted  = None
+
 
 	#---------------------------------------------------------------------------
 	def parse(self):
-		self.parseNoData()
-		self.parseChannel()
 		self.parseTime(True)
+		self.parseChannel()
 		self.parseGeo()
+		self.parseOutput()
 
 		# level: [network, station, channel, response]
-		if "level" in self._args:
-			value = self._args["level"][0].lower()
-			if value ==  "network" or value == "net":
+		key, value = self.getFirstValue(self.PLevel)
+		if value is not None:
+			value = value.lower()
+			if value ==  'network' or value == 'net':
 				self.includeSta = False
-			elif value == "channel" or value == "cha" or value == "chan":
+			elif value == 'channel' or value == 'cha' or value == 'chan':
 				self.includeCha = True
-			elif value == "response" or value == "res" or value == "resp":
+			elif value == 'response' or value == 'res' or value == 'resp':
 				self.includeCha = True
 				self.includeRes = True
-			elif value != "station" and value != "sta":
-				raise ValueError, "Invalid value in parameter: level"
+			elif value != 'station' and value != 'sta':
+				self.raiseValueError(key)
 
 		# includeRestricted (optional)
-		if "includerestricted" in self._args:
-			self.restricted = self.parseBoolean("includerestricted")
-		# includeAvailability (optional), currently not supported
-		if "includeavailability" in self._args:
-			self.availability = self.parseBoolean("includeavailability")
-		# updatedAfter (optional), currently not supported
-		if "updatedafter" in self._args:
-			self.updatedAfter = self.parseTimeStr("updatedafter")
+		self.restricted = self.parseBool(self.PIncludeRestricted)
 
-		# output exporter
-		if "format" in self._args:
-			self.output = self._args["format"][0].lower()
-			if not self.output in self.Exporters:
-				raise ValueError, "Invalid value in parameter: format"
+		# includeAvailability (optional), currently not supported
+		self.availability = self.parseBool(self.PIncludeAvailability)
+
+		# updatedAfter (optional), currently not supported
+		self.updatedAfter = self.parseTimeStr(self.PUpdateAfter)
+
+		# includeAvailability (optional), currently not supported
+		self.matchTimeSeries = self.parseBool(self.PMatchTimeSeries)
 
 		# format XML
-		if "formatted" in self._args:
-			self.formatted = self.parseBoolean("formatted")
+		self.formatted = self.parseBool(self.PFormatted)
+
+
+	#---------------------------------------------------------------------------
+	def networkIter(self, inv, matchTime=False):
+		for i in xrange(inv.networkCount()):
+			net = inv.network(i)
+
+			for ro in self.streams:
+				# network code
+				if ro.channel and not ro.channel.matchNet(net.code()):
+					continue
+
+				# start and end time
+				if matchTime and ro.time:
+					try: end = net.end()
+					except ValueException: end = None
+					if not ro.time.match(net.start(), end):
+						continue
+
+				yield net
+				break
+
+
+	#---------------------------------------------------------------------------
+	def stationIter(self, net, matchTime=False):
+		for i in xrange(net.stationCount()):
+			sta = net.station(i)
+
+			for ro in self.streams:
+				# station code
+				if ro.channel and not ro.channel.matchSta(sta.code()):
+					continue
+
+				# start and end time
+				if matchTime and ro.time:
+					try: end = sta.end()
+					except ValueException: end = None
+					if not ro.time.match(sta.start(), end):
+						continue
+
+				# geographic location
+				if ro.geo:
+					try:
+						lat = sta.latitude()
+						lon = sta.longitude()
+					except ValueException: continue
+					if not ro.geo.match(lat, lon):
+						continue
+
+				yield sta
+				break
+
+
+	#---------------------------------------------------------------------------
+	def locationIter(self, sta, matchTime=False):
+		for i in xrange(sta.sensorLocationCount()):
+			loc = sta.sensorLocation(i)
+
+			for ro in self.streams:
+				# location code
+				if ro.channel and not ro.channel.matchLoc(loc.code()):
+					continue
+
+				# start and end time
+				if matchTime and ro.time:
+					try: end = loc.end()
+					except ValueException: end = None
+					if not ro.time.match(loc.start(), end):
+						continue
+
+				yield loc
+				break
+
+
+	#---------------------------------------------------------------------------
+	def streamIter(self, loc, matchTime=False):
+		for i in xrange(loc.streamCount()):
+			stream = loc.stream(i)
+
+			for ro in self.streams:
+				# stream code
+				if ro.channel and not ro.channel.matchCha(stream.code()):
+					continue
+
+				# start and end time
+				if matchTime and ro.time:
+					try: end = stream.end()
+					except ValueException: end = None
+					if not ro.time.match(stream.start(), end):
+						continue
+
+				yield stream
+				break
 
 
 ################################################################################
@@ -109,9 +225,11 @@ class FDSNStation(resource.Resource):
 		inv = Application.Instance()._inv
 		self._resLevelCount = inv.responsePAZCount() + inv.responseFIRCount() \
 		                      + inv.responsePolynomialCount()
-
 		for i in xrange(inv.dataloggerCount()):
 			self._resLevelCount += inv.datalogger(i).decimationCount()
+
+		self.allowRestricted = Application.Instance()._allowRestricted
+
 
 	#---------------------------------------------------------------------------
 	def render_GET(self, req):
@@ -119,29 +237,65 @@ class FDSNStation(resource.Resource):
 		ro = _StationRequestOptions(req.args)
 		try:
 			ro.parse()
+			# the GET operation supports exactly one stream filter
+			ro.streams.append(ro)
 		except ValueError, e:
 			Logging.warning(str(e))
 			return HTTP.renderErrorPage(req, http.BAD_REQUEST, str(e), ro)
 
+		return self._prepareRequest(req, ro)
+
+
+	#---------------------------------------------------------------------------
+	def render_POST(self, req):
+		# Parse and validate POST parameters
+		ro = _StationRequestOptions()
+		try:
+			ro.parsePOST(req.content)
+			ro.parse()
+		except ValueError, e:
+			Logging.warning(str(e))
+			return HTTP.renderErrorPage(req, http.BAD_REQUEST, str(e), ro)
+
+		return self._prepareRequest(req, ro)
+
+
+	#---------------------------------------------------------------------------
+	def _prepareRequest(self, req, ro):
 		if ro.availability:
-			msg = "Including of availability information not supported"
+			msg = "including of availability information not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		if ro.updatedAfter:
-			msg = "Filtering based on update time not supported"
+			msg = "filtering based on update time not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
-		# Exporter
-		exp = Exporter.Create(ro.Exporters[ro.output])
-		if exp:
-			exp.setFormattedOutput(ro.formatted)
-		else:
-			msg = "Output format '%s' no available. Export module '%s' could " \
-			      "not be loaded." % (ro.output, ro.Exporters[ro.output])
+		if ro.matchTimeSeries:
+			msg = "filtering based on available time series not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
+
+		# Exporter, 'None' is used for text output
+		if ro.format in ro.VText:
+			if ro.includeRes:
+				msg = "response level output not available in text format"
+				return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE,
+				       msg, ro)
+			req.setHeader('Content-Type', 'text/plain')
+			d = deferToThread(self._processRequestText, req, ro)
+		else:
+			exp = Exporter.Create(ro.Exporters[ro.format])
+			if exp is None:
+				msg = "output format '%s' no available, export module '%s' " \
+				      "could not be loaded." % (
+				      ro.output, ro.Exporters[ro.output])
+				return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE,
+				                            msg, ro)
+
+			req.setHeader('Content-Type', 'application/xml')
+			exp.setFormattedOutput(ro.formatted)
+			d = deferToThread(self._processRequestExp, req, ro, exp)
 
 		# Process request in separate thread
-		d = deferToThread(self._processRequest, req, ro, exp)
 		d.addCallback(utils.onRequestServed, req)
 		d.addErrback(utils.onRequestError, req)
 
@@ -150,31 +304,36 @@ class FDSNStation(resource.Resource):
 
 
 	#---------------------------------------------------------------------------
-	def _processRequest(self, req, ro, exp):
-		if req._disconnected:
-			return False
+	def _processRequestExp(self, req, ro, exp):
+		if req._disconnected: return False
 
-		DataModel.PublicObject.SetRegistrationEnabled(False)
 		maxObj = Application.Instance()._queryObjects
 		staCount, locCount, chaCount, objCount = 0, 0, 0, 0
 
 		DataModel.PublicObject.SetRegistrationEnabled(False)
 		inv = Application.Instance()._inv
 		newInv = DataModel.Inventory()
-		filterChannel = ro.channel and (ro.channel.loc or ro.channel.cha)
 		dataloggers, sensors = set(), set()
 
+		skipRestricted = not self.allowRestricted or \
+		                 (ro.restricted is not None and not ro.restricted)
+		levelNet = not ro.includeSta
+		levelSta = ro.includeSta and not ro.includeCha
+
 		# iterate over inventory networks
-		for net in utils.networkIter(inv, ro):
-			if not ro.restricted and net.restricted(): continue
+		for net in ro.networkIter(inv, levelNet):
+			if req._disconnected: return False
+			if skipRestricted and utils.isRestricted(net): continue
 			newNet = DataModel.Network(net)
 
 			# iterate over inventory stations of current network
-			for sta in utils.stationIter(net, ro, matchGeo=True):
-				if not ro.restricted and sta.restricted(): continue
+			for sta in ro.stationIter(net, levelSta):
+				if req._disconnected: return False
+				if skipRestricted and utils.isRestricted(sta): continue
 				if not HTTP.checkObjects(req, objCount, maxObj): return False
 				if ro.includeCha:
-					numCha, numLoc, d, s = self._processStation(newNet, sta, ro)
+					numCha, numLoc, d, s = \
+						self._processStation(newNet, sta, ro, skipRestricted)
 					if numCha > 0:
 						locCount += numLoc
 						chaCount += numCha
@@ -187,8 +346,8 @@ class FDSNStation(resource.Resource):
 					if ro.includeSta:
 						newNet.add(DataModel.Station(sta))
 					else:
-						# no station output requested: one matching station is
-						# sufficient to include the network
+						# no station output requested: one matching station
+						# is sufficient to include the network
 						newInv.add(newNet)
 						objCount += 1
 						break
@@ -201,7 +360,7 @@ class FDSNStation(resource.Resource):
 		# Return 204 if no matching inventory was found
 		if newInv.networkCount() == 0:
 			utils.writeTS(req, HTTP.renderErrorPage(req, http.NO_CONTENT,
-			              "No matching inventory found", ro))
+			              "no matching inventory found", ro))
 			return False
 
 		# Copy references (dataloggers, responses, sensors)
@@ -218,10 +377,13 @@ class FDSNStation(resource.Resource):
 				objCount += resCount + decCount + newInv.dataloggerCount() + \
 				            newInv.sensorCount()
 
-		req.setHeader("Content-Type", "application/xml")
-		sink = utils.Sink(req)
-		if not exp.write(sink, newInv):
-			return False
+		if exp:
+			sink = utils.Sink(req)
+			if not exp.write(sink, newInv):
+				return False
+		else:
+			req.setHeader('Content-Type', 'text/plain')
+			raise ValueError, "TODO"
 
 		Logging.notice("%s: returned %iNet, %iSta, %iLoc, %iCha, " \
 		               "%iDL, %iDec, %iSen, %iRes (total objects/bytes: " \
@@ -229,6 +391,156 @@ class FDSNStation(resource.Resource):
 		               locCount, chaCount, newInv.dataloggerCount(), decCount,
 		               newInv.sensorCount(), resCount, objCount, sink.written))
 		utils.accessLog(req, ro, http.OK, sink.written, None)
+		return True
+
+
+	#---------------------------------------------------------------------------
+	def _processRequestText(self, req, ro):
+		if req._disconnected: return False
+
+		inv = Application.Instance()._inv
+
+		lineCount, byteCount = 0, 0
+		skipRestricted = not self.allowRestricted or \
+		                 (ro.restricted is not None and not ro.restricted)
+
+		headerNet = "#Network|Description|StartTime|EndTime|TotalStations\n"
+		headerSta = "#Network|Station|Latitude|Longitude|Elevation|" \
+		            "SiteName|StartTime|EndTime\n"
+		headerCha = "#Network|Station|Location|Channel|Latitude|Longitude|" \
+		            "Elevation|Depth|Azimuth|Dip|SensorDescription|Scale|" \
+		            "ScaleFreq|ScaleUnits|SampleRate|StartTime|EndTime\n"
+		df = "%FT%T"
+
+		# level = network
+		if not ro.includeSta:
+			# iterate over inventory networks
+			for net in ro.networkIter(inv, True):
+				if req._disconnected: return False
+				if skipRestricted and utils.isRestricted(net): continue
+
+				# at least one matching station is required
+				stationFound = False
+				for sta in ro.stationIter(net, False):
+					if self._matchStation(sta, ro):
+						stationFound = True
+						break
+				if not stationFound: continue
+
+				if lineCount == 0:
+					req.write(headerNet)
+					byteCount = len(headerNet)
+				try: end = net.end().toString(df)
+				except ValueException: end = ''
+
+				line = "%s|%s|%s|%s|%i\n" % (net.code(),
+				       net.description(), net.start().toString(df), end,
+				       net.stationCount())
+				req.write(line)
+				lineCount += 1
+				byteCount += len(line)
+
+		# level = station
+		elif not ro.includeCha:
+			# iterate over inventory networks
+			for net in ro.networkIter(inv, False):
+				if req._disconnected: return False
+				if skipRestricted and utils.isRestricted(net): continue
+				# iterate over inventory stations
+				for sta in ro.stationIter(net, True):
+					if not self._matchStation(sta, ro): continue
+
+					if lineCount == 0:
+						req.write(headerSta)
+						byteCount = len(headerSta)
+					try: lat = str(sta.latitude())
+					except ValueException: lat = ''
+					try: lon = str(sta.longitude())
+					except ValueException: lon = ''
+					try: elev = str(sta.elevation())
+					except ValueException: elev = ''
+					try: desc = sta.description()
+					except ValueException: desc = ''
+					try: end = sta.end().toString(df)
+					except ValueException: end = ''
+
+					line = "%s|%s|%s|%s|%s|%s|%s|%s\n" % (
+					       net.code(), sta.code(), lat, lon, elev, desc,
+					       sta.start().toString(df), end)
+					req.write(line)
+					lineCount += 1
+					byteCount += len(line)
+
+		# level = channel|response
+		else:
+			lineFmt = "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n"
+			# iterate over inventory networks
+			for net in ro.networkIter(inv, False):
+				if req._disconnected: return False
+				if skipRestricted and utils.isRestricted(net): continue
+				# iterate over inventory stations, locations, streams
+				for sta in ro.stationIter(net, False):
+					for loc in ro.locationIter(sta, True):
+						for stream in ro.streamIter(loc, True):
+							if skipRestricted and utils.isRestricted(stream): continue
+							sensor = stream.sensor()
+
+							if lineCount == 0:
+								req.write(headerCha)
+								byteCount = len(headerSta)
+							try: lat = str(loc.latitude())
+							except ValueException: lat = ''
+							try: lon = str(loc.longitude())
+							except ValueException: lon = ''
+							try: elev = str(loc.elevation())
+							except ValueException: elev = ''
+							try: depth = str(stream.depth())
+							except ValueException: depth = ''
+							try: azi = str(stream.azimuth())
+							except ValueException: azi = ''
+							try: dip = str(stream.dip())
+							except ValueException: dip = ''
+
+							desc = ''
+							try:
+								sensor = inv.findSensor(stream.sensor())
+								if sensor is not None:
+									desc = sensor.description()
+							except ValueException: pass
+
+							try: scale = str(stream.gain())
+							except ValueException: scale = ''
+							try: scaleFreq = str(stream.gainFrequency())
+							except ValueException: scaleFreq = ''
+							try: scaleUnit = str(stream.gainUnit())
+							except ValueException: scaleUnit = ''
+							try:
+								sr = str(stream.sampleRateNumerator() /
+								     float(stream.sampleRateDenominator()))
+							except ValueException, ZeroDevisionError:
+								sr = ''
+							try: end = stream.end().toString(df)
+							except ValueException: end = ''
+
+							line = lineFmt % (net.code(), sta.code(),
+							       loc.code(), stream.code(), lat, lon,
+							       elev, depth, azi, dip, desc, scale,
+							       scaleFreq, scaleUnit, sr,
+							       stream.start().toString(df), end)
+							req.write(line)
+							lineCount += 1
+							byteCount += len(line)
+
+		# Return 204 if no matching inventory was found
+		if lineCount == 0:
+			req.write(HTTP.renderErrorPage(req, http.NO_CONTENT,
+			          "no matching inventory found", ro))
+			return False
+
+
+		Logging.notice("%s: returned %i lines (total bytes: %i)" % (
+		               ro.service, lineCount, byteCount))
+		utils.accessLog(req, ro, http.OK, byteCount, None)
 		return True
 
 
@@ -241,11 +553,11 @@ class FDSNStation(resource.Resource):
 		if not ro.channel or (not ro.channel.loc and not ro.channel.cha):
 			return True
 
-		for loc in utils.locationIter(sta, ro):
+		for loc in ro.locationIter(sta, False):
 			if not ro.channel.cha and not ro.time:
 				return True
 
-			for stream in utils.streamIter(loc, ro):
+			for stream in ro.streamIter(loc, False):
 				return True
 
 		return False
@@ -255,13 +567,14 @@ class FDSNStation(resource.Resource):
 	# Adds a deep copy of the specified station to the new network if the
 	# location and channel combination matches the request options (if any)
 	@staticmethod
-	def _processStation(newNet, sta, ro):
+	def _processStation(newNet, sta, ro, skipRestricted):
 		chaCount = 0
 		dataloggers, sensors = set(), set()
 		newSta = DataModel.Station(sta)
-		for loc in utils.locationIter(sta, ro):
+		for loc in ro.locationIter(sta, True):
 			newLoc = DataModel.SensorLocation(loc)
-			for stream in utils.streamIter(loc, ro):
+			for stream in ro.streamIter(loc, True):
+				if skipRestricted and utils.isRestricted(stream): continue
 				newLoc.add(DataModel.Stream(stream))
 				dataloggers.add(stream.datalogger())
 				sensors.add(stream.sensor())
@@ -289,6 +602,7 @@ class FDSNStation(resource.Resource):
 
 		# datalogger
 		for i in xrange(inv.dataloggerCount()):
+			if req._disconnected: return None
 			logger = inv.datalogger(i)
 			if logger.publicID() not in dataloggers:
 				continue
@@ -307,11 +621,11 @@ class FDSNStation(resource.Resource):
 					try: filterStr += decimation.digitalFilterChain().content()
 					except ValueException: pass
 					for resp in filterStr.split():
-						if resp.startswith("ResponsePAZ"):
+						if resp.startswith('ResponsePAZ'):
 							respPAZ.add(resp)
-						elif resp.startswith("ResponseFIR"):
+						elif resp.startswith('ResponseFIR'):
 							respFIR.add(resp)
-						elif resp.startswith("ResponsePolynomial"):
+						elif resp.startswith('ResponsePolynomial'):
 							respPoly.add(resp)
 				decCount += newLogger.decimationCount()
 
@@ -322,6 +636,7 @@ class FDSNStation(resource.Resource):
 
 		# sensor
 		for i in xrange(inv.sensorCount()):
+			if req._disconnected: return None
 			sensor = inv.sensor(i)
 			if sensor.publicID() not in sensors:
 				continue
@@ -330,11 +645,11 @@ class FDSNStation(resource.Resource):
 			resp = newSensor.response()
 			if resp:
 				if ro.includeRes:
-					if resp.startswith("ResponsePAZ"):
+					if resp.startswith('ResponsePAZ'):
 						respPAZ.add(resp)
-					elif resp.startswith("ResponseFIR"):
+					elif resp.startswith('ResponseFIR'):
 						respFIR.add(resp)
-					elif resp.startswith("ResponsePolynomial"):
+					elif resp.startswith('ResponsePolynomial'):
 						respPoly.add(resp)
 				else:
 					# no responses: remove response reference to avoid missing
@@ -348,14 +663,17 @@ class FDSNStation(resource.Resource):
 
 		# responses
 		if ro.includeRes:
+			if req._disconnected: return None
 			for i in xrange(inv.responsePAZCount()):
 				resp = inv.responsePAZ(i)
 				if resp.publicID() in respPAZ:
 					newInv.add(DataModel.ResponsePAZ(resp))
+			if req._disconnected: return None
 			for i in xrange(inv.responseFIRCount()):
 				resp = inv.responseFIR(i)
 				if resp.publicID() in respFIR:
 					newInv.add(DataModel.ResponseFIR(resp))
+			if req._disconnected: return None
 			for i in xrange(inv.responsePolynomialCount()):
 				resp = inv.responsePolynomial(i)
 				if resp.publicID() in respPoly:

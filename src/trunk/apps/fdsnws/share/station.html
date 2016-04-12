@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="author" content="gempa GmbH">
-  <title>FDSNWS - Station</title>
+  <title>SeisComP3 FDSNWS - Station</title>
 </head>
 <body>
-  <h1>FDSNWS Station Web Service</h1>
+  <h1>SeisComP3 FDSNWS Station Web Service</h1>
   <p>The station Web service provides access to network, station, channel and
   response metadata in <a href="http://www.fdsn.org/xml/station">FDSN Station
   XML</a> format. The metadata may be filtered e.g. by geographic region and
@@ -25,18 +25,27 @@
   <h2>Feature Notes</h2>
   <ul>
     <li>back-end software: <a href="http://www.seiscomp3.org">SeisComP3</a></li>
+    <li><em>includeavailability</em> request parameter not implemented</li>
     <li><em>updatedafter</em> request parameter not implemented: The last
       modification time in SeisComP is tracked on the object level. If a child
       of an object is updated the update time is not propagated to all parents.
       In order to check if a station was updated all children must be evaluated
       recursively. This operation would be much to expensive.</li>
-    <li><em>includeavailability</em> request parameter not implemented</li>
-    <li>additional request parameters:
+    <li><em>matchtimeseries</em> request parameter not implemented</li>
+    <li>additional request parameters, effective only for xml output:
       <ul>
-        <li><em>format</em>: <em>string [fdsnxml, stationxml, sc3ml]</em>, default:
-          <em>fdsnxml</em></li>
         <li><em>formatted</em>: boolean, default: <em>false</em></li>
-        <li><em>nodata</em>: integer [204, 404], default: <em>204</em></li>
+      </ul>
+    </li>
+    <li>additional values of request parameters:
+      <ul>
+        <li><em>format</em>
+          <ul>
+            <li>standard: [xml, text]</li>
+            <li>additional: [fdsnxml (=xml), stationxml, sc3ml]</li>
+            <li>default: xml</li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>

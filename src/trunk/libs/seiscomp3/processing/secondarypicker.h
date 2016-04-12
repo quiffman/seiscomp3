@@ -116,6 +116,9 @@ class SC_SYSTEM_CLIENT_API SecondaryPicker : public TimeWindowProcessor {
 
 		void setPublishFunction(const PublishFunc& func);
 
+		void setReferencingPickID(const std::string&);
+		const std::string& referencingPickID() const;
+
 
 	// ----------------------------------------------------------------------
 	//  Protected Interface
@@ -148,6 +151,7 @@ class SC_SYSTEM_CLIENT_API SecondaryPicker : public TimeWindowProcessor {
 	// ----------------------------------------------------------------------
 	private:
 		PublishFunc _func;
+		std::string _pickID;
 };
 
 

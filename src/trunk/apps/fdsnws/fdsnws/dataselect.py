@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2013 by gempa GmbH
+# Copyright (C) 2013-2014 by gempa GmbH
 #
 # FDSNDataSelect -- Implements the fdsnws-dataselect Web service, see
 #   http://www.fdsn.org/webservices/
@@ -36,24 +36,32 @@ import utils
 class _DataSelectRequestOptions(RequestOptions):
 
 	MinTime        = Time(0, 1)
-	PQuality       = "quality"
-	PMinimumLength = "minimumlength"
-	PLongestOnly   = "longestonly"
+
+	PQuality       = [ 'quality' ]
+	PMinimumLength = [ 'minimumlength' ]
+	PLongestOnly   = [ 'longestonly' ]
+
+	QualityValues  = [ 'B', 'D', 'M', 'Q', 'R' ]
+	OutputFormats  = [ 'miniseed', 'mseed' ]
+
+	POSTParams     = RequestOptions.POSTParams + \
+	                 PQuality + PMinimumLength + PLongestOnly
 
 
 	#---------------------------------------------------------------------------
 	def __init__(self, args=None):
 		RequestOptions.__init__(self, args)
-		self.service = "fdsnws-dataselect"
+		self.service = 'fdsnws-dataselect'
 
-		self.streams = []
-		self.quality = "B"
-		self.minimumlength = 0.0
-		self.longestonly = False
+		self.streams = [] # 1 entry for GET, multiple entries for POST requests
+
+		self.quality = self.QualityValues[0]
+		self.minimumLength = None
+		self.longestOnly = None
 
 
 	#---------------------------------------------------------------------------
-	def checkTimes(self, realtimeGap):
+	def _checkTimes(self, realtimeGap):
 		maxEndTime = Time(self.accessTime)
 		if realtimeGap is not None:
 			maxEndTime -= Time(realtimeGap, 0)
@@ -73,140 +81,123 @@ class _DataSelectRequestOptions(RequestOptions):
 
 
 	#---------------------------------------------------------------------------
-	def parseQuality(self, value):
-		value = value.upper()
-		if value in ('B', 'D', 'M', 'Q', 'R'):
-			self.quality = value
-		else:
-			raise ValueError, "Invalid value in parameter: " + self.PQuality
-
-
-	#---------------------------------------------------------------------------
-	def parseGET(self):
+	def parse(self):
 		# quality (optional), currently not supported
-		if self.PQuality in self._args:
-			self.parseQuality(self._args[self.PQuality][0])
+		key, value = self.getFirstValue(self.PQuality)
+		if value is not None:
+			value = value.upper()
+			if value in self.QualityValues:
+				self.quality = value
+			else:
+				self.raiseValueError(key)
 
 		# minimumlength(optional), currently not supported
-		if self.PMinimumLength in self._args:
-			self.minimumlength = self.parseFloat(self.PMinimumLength, 0)
+		self.minimumLength = self.parseFloat(self.PMinimumLength, 0)
 
 		# longestonly (optional), currently not supported
-		if self.PLongestOnly in self._args:
-			self.longestonly = self.parseBoolean(self.PLongestOnly)
+		self.longestOnly = self.parseBool(self.PLongestOnly)
 
-		self.parseNoData()
-		self.parseChannel()
+		# generic parameters
 		self.parseTime()
-
-		# this request option is the one and only
-		self.streams.append(self)
-
-
-	#---------------------------------------------------------------------------
-	def _getValue(self, line):
-		toks = line.split("=", 1)
-		if len(toks) < 2:
-			raise ValueError, "Invalid key=value pair"
-		return toks[1].strip()
+		self.parseChannel()
+		self.parseOutput()
 
 
-	#---------------------------------------------------------------------------
-	def parsePOST(self, content):
-		nLine = 0
+	#-----------------------------------------------------------------------
+	def networkIter(self, inv):
+		for i in xrange(inv.networkCount()):
+			net = inv.network(i)
 
-		for line in content:
-			nLine += 1
-			line = line.strip()
-
-			# ignore empty and comment lines
-			if len(line) == 0 or line[0] == '#':
+			# network code
+			if self.channel and not self.channel.matchNet(net.code()):
 				continue
 
-			# optional key=value parameters
-			try:
-				# quality (optional), currently not supported
-				if line.lower().startswith(self.PQuality):
-					self.parseQuality(self._getValue(line))
+			# start and end time
+			if self.time:
+				try: end = net.end()
+				except ValueException: end = None
+				if not self.time.match(net.start(), end):
 					continue
-				# minimumlength(optional), currently not supported
-				if line.lower().startswith(self.PMinimumLength):
-					value = self._getValue(line).lower()
-					try:
-						p.minimumlength = float(self._args[key][0])
-					except ValueError:
-						raise ValueError, "Invalid float value in " \
-						                  "parameter: " + self.PMinimumLength
+
+			yield net
+
+
+	#---------------------------------------------------------------------------
+	def stationIter(self, net):
+		for i in xrange(net.stationCount()):
+			sta = net.station(i)
+
+			# station code
+			if self.channel and not self.channel.matchSta(sta.code()):
+				continue
+
+			# start and end time
+			if self.time:
+				try: end = sta.end()
+				except ValueException: end = None
+				if not self.time.match(sta.start(), end):
 					continue
-				# longestonly (optional), currently not supported
-				if line.lower().startswith(self.PLongestOnly):
-					value = self._getValue(line).lower()
-					if value in self.BooleanTrueValues:
-						self.longestonly = True
-					elif value not in self.BooleanFalseValues:
-						raise ValueError, "Invalid boolean value in " \
-						                  "parameter: " + self.PLongestOnly
+
+			# geographic location
+			if self.geo:
+				try:
+					lat = sta.latitude()
+					lon = sta.longitude()
+				except ValueException: continue
+				if not self.geo.match(lat, lon):
 					continue
-			except ValueError, e:
-				raise ValueError, "%s (line %i)" % (str(e), nLine)
 
-			# stream parameters
-			toks = line.upper().split()
-			nToks = len(toks)
-			if nToks != 5 and nToks != 6:
-				raise ValueError, "Invalid number of stream components in " \
-				                  "line %i" % nLine
+			yield sta
 
-			ro = RequestOptions()
 
-			# net, sta, loc, cha
-			ro.channel = RequestOptions.Channel()
-			ro.channel.net = toks[0].split(",")
-			ro.channel.sta = toks[1].split(",")
-			ro.channel.loc = toks[2].split(",")
-			ro.channel.cha = toks[3].split(",")
+	#---------------------------------------------------------------------------
+	def locationIter(self, sta):
+		for i in xrange(sta.sensorLocationCount()):
+			loc = sta.sensorLocation(i)
 
-			msg = "Invalid %s value in line %i"
-			for net in ro.channel.net:
-				if ro.ChannelChars(net):
-					raise ValueError, msg % ("network", nLine)
-			for sta in ro.channel.sta:
-				if ro.ChannelChars(sta):
-					raise ValueError, msg % ("station", nLine)
-			for loc in ro.channel.loc:
-				if loc != "--" and ro.ChannelChars(loc):
-					raise ValueError, msg % ("location", nLine)
-			for cha in ro.channel.cha:
-				if ro.ChannelChars(cha):
-					raise ValueError, msg % ("channel", nLine)
+			# location code
+			if self.channel and not self.channel.matchLoc(loc.code()):
+				continue
 
-			# start/end time
-			ro.time = RequestOptions.Time()
-			ro.time.start = Time()
-			for fmt in RequestOptions.TimeFormats:
-				if ro.time.start.fromString(toks[4], fmt): break
-			if len(toks) > 5:
-				ro.time.end = Time()
-				for fmt in RequestOptions.TimeFormats:
-					if ro.time.end.fromString(toks[5], fmt): break
+			# start and end time
+			if self.time:
+				try: end = loc.end()
+				except ValueException: end = None
+				if not self.time.match(loc.start(), end):
+					continue
 
-			Logging.debug("ro: %s.%s.%s.%s %s" % (ro.channel.net,
-			              ro.channel.sta, ro.channel.loc, ro.channel.cha,
-			              ro.time.start.iso()))
-			self.streams.append(ro)
+			yield loc
 
-		if len(self.streams) == 0:
-			raise ValueError, "At least one stream line is required"
+
+	#---------------------------------------------------------------------------
+	def streamIter(self, loc):
+		for i in xrange(loc.streamCount()):
+			stream = loc.stream(i)
+
+			# stream code
+			if self.channel and not self.channel.matchCha(stream.code()):
+				continue
+
+			# start and end time
+			if self.time:
+				try: end = stream.end()
+				except ValueException: end = None
+				if not self.time.match(stream.start(), end):
+					continue
+
+			yield stream
 
 
 ################################################################################
 class _WaveformProducer:
-	def __init__(self, req, ro, rsInput, fileName):
+	def __init__(self, req, ro, rs, fileName):
 		self.req = req
 		self.ro = ro
-		self.rsInput = rsInput
+		self.rsInput = RecordInput(rs, Array.INT, Record.SAVE_RAW)
+
 		self.fileName = fileName
 		self.written = 0
+
 
 	def resumeProducing(self):
 		rec = None
@@ -217,15 +208,15 @@ class _WaveformProducer:
 		if self.written == 0:
 			# read first record to test if any data exists at all
 			if not rec:
-				msg = "No waveform data found"
+				msg = "no waveform data found"
 				self.req.write(HTTP.renderErrorPage(self.req, http.NO_CONTENT,
 				               msg, self.ro))
 				self.req.unregisterProducer()
 				self.req.finish()
 				return
 
-			self.req.setHeader("Content-Type", "application/vnd.fdsn.mseed")
-			self.req.setHeader("Content-Disposition", "attachment; " \
+			self.req.setHeader('Content-Type', 'application/vnd.fdsn.mseed')
+			self.req.setHeader('Content-Disposition', "attachment; " \
 			                   "filename=%s" % self.fileName)
 
 		if not rec:
@@ -274,7 +265,9 @@ class FDSNDataSelect(resource.Resource):
 		ro = _DataSelectRequestOptions(req.args)
 		ro.userName = self.userName
 		try:
-			ro.parseGET()
+			ro.parse()
+			# the GET operation supports exactly one stream filter
+			ro.streams.append(ro)
 		except ValueError, e:
 			Logging.warning(str(e))
 			return HTTP.renderErrorPage(req, http.BAD_REQUEST, str(e), ro)
@@ -289,6 +282,7 @@ class FDSNDataSelect(resource.Resource):
 		ro.userName = self.userName
 		try:
 			ro.parsePOST(req.content)
+			ro.parse()
 		except ValueError, e:
 			Logging.warning(str(e))
 			return HTTP.renderErrorPage(req, http.BAD_REQUEST, str(e), ro)
@@ -299,25 +293,25 @@ class FDSNDataSelect(resource.Resource):
 	#---------------------------------------------------------------------------
 	def _processRequest(self, req, ro):
 
-		if ro.quality != "B" and ro.quality != "M":
-			msg = "Quality other than 'B' or 'M' not supported"
+		if ro.quality != 'B' and ro.quality != 'M':
+			msg = "quality other than 'B' or 'M' not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
-		if ro.minimumlength > 0:
-			msg = "Enforcing of minimum record length not supported"
+		if ro.minimumLength:
+			msg = "enforcing of minimum record length not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
-		if ro.longestonly:
-			msg = "Limitation to longest segment not supported"
+		if ro.longestOnly:
+			msg = "limitation to longest segment not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		app = Application.Instance()
-		ro.checkTimes(app._realtimeGap)
+		ro._checkTimes(app._realtimeGap)
 
 		# Open record stream
 		rs = RecordStream.Open(self._rsURL)
 		if rs is None:
-			msg = "Could not open record stream"
+			msg = "could not open record stream"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		maxSamples = None
@@ -329,14 +323,14 @@ class FDSNDataSelect(resource.Resource):
 		# iterate over inventory networks
 		inv = Application.Instance()._inv
 		for s in ro.streams:
-			for net in utils.networkIter(inv, s):
-				if ro.userName is None and net.restricted():
+			for net in s.networkIter(inv):
+				if ro.userName is None and utils.isRestricted(net):
 					continue
-				for sta in utils.stationIter(net, s):
-					if ro.userName is None and sta.restricted():
+				for sta in s.stationIter(net):
+					if ro.userName is None and utils.isRestricted(sta):
 						continue
-					for loc in utils.locationIter(sta, s):
-						for cha in utils.streamIter(loc, s):
+					for loc in s.locationIter(sta):
+						for cha in s.streamIter(loc):
 							# enforce maximum sample per request restriction
 							if maxSamples is not None:
 								try:
@@ -355,7 +349,7 @@ class FDSNDataSelect(resource.Resource):
 								diffSec = (s.time.end - s.time.start).length()
 								samples += int(diffSec * n / d)
 								if samples > maxSamples:
-									msg = "Maximum number of %sM samples " \
+									msg = "maximum number of %sM samples " \
 									      "exceeded" % str(app._samplesM)
 									return HTTP.renderErrorPage(req,
 									       http.REQUEST_ENTITY_TOO_LARGE, msg,
@@ -368,14 +362,11 @@ class FDSNDataSelect(resource.Resource):
 							rs.addStream(net.code(), sta.code(), loc.code(),
 							             cha.code(), s.time.start, s.time.end)
 
-		rsInput = RecordInput(rs, Array.INT, Record.SAVE_RAW)
-
 		# Build output filename
-		fileName = "sc3.mseed"
+		fileName = 'sc3.mseed'
 
 		# Create producer for async IO
-		req.registerProducer(_WaveformProducer(req, ro, rsInput, fileName),
-		                     False)
+		req.registerProducer(_WaveformProducer(req, ro, rs, fileName), False)
 
 		# The request is handled by the deferred object
 		return server.NOT_DONE_YET

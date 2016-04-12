@@ -723,7 +723,8 @@ action_table = {
 
 def handler(obj):
     try:
-        item = action_table.get(obj.filename.split("/")[-1])
+        fname = obj.filename.split("/")[-1]
+        item = action_table.get(fname)
         if item == None:
             return apache.HTTP_NOT_FOUND
 
@@ -754,9 +755,14 @@ def handler(obj):
         logs.debug("unauthorized")
         return apache.HTTP_UNAUTHORIZED
     except (ArclinkError, socket.error), e:
-        logs.error(str(e))
+        #
+        # PLE 2013-03-13: This is where that message
+        # "Error: missing user ID (email address)"
+        # escapes from, but how does it get raised?
+        # 
+        logs.error(fname+":"+str(e))
         obj.content_type = "text/plain"
-        obj.write("Error: " + str(e))
+        obj.write("Error: " + "(%s) " % fname + str(e))
     except apache.SERVER_RETURN:
         raise
     except Exception, e:
