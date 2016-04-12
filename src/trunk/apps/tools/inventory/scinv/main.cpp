@@ -124,6 +124,10 @@ class InventoryManager : public Client::Application,
 			                        &_level);
 			commandline().addOption("Manager", "compact",
 			                        "Enabled compact output for ls.");
+			commandline().addOption("Manager", "no-purge-keys",
+			                        "Do not delete key files if a station does not exist in inventory");
+			commandline().addOption("Manager", "purge-keys",
+			                        "(default) Delete key files if a station does not exist in inventory");
 			commandline().addGroup("Merge");
 			commandline().addOption("Merge", "strip",
 			                        "Remove unreferenced objects (dataloggers, "
@@ -891,6 +895,8 @@ class InventoryManager : public Client::Application,
 				}
 			}
 
+			bool allowPurge = !commandline().hasOption("no-purge-keys");
+
 			// Collect all station key files
 			map<string, string> oldFiles;
 			try {
@@ -930,11 +936,13 @@ class InventoryManager : public Client::Application,
 				}
 			}
 
-			// Delete remaining files
-			map<string, string>::iterator it;
-			for ( it = oldFiles.begin(); it != oldFiles.end(); ++it ) {
-				unlink(it->second.c_str());
-				++removed;
+			if ( allowPurge ) {
+				// Delete remaining files
+				map<string, string>::iterator it;
+				for ( it = oldFiles.begin(); it != oldFiles.end(); ++it ) {
+					unlink(it->second.c_str());
+					++removed;
+				}
 			}
 
 			if ( added > 0 )

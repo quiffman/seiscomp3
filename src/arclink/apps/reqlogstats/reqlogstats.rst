@@ -100,6 +100,18 @@ What DB:
       so collect files, transfer by rsync, and process the entire set?
       DB can be on a different host than collector, report generator.
 
+    - for now, SQLite on geofon-open*.
+      DB should *not* be under DocumentRoot for Apache. It contains
+      usernames of Arclink requestors, and more detail than is presented
+      on the report generator web pages. So try
+        ~/reqlogstats/var/{name}.db  
+
+Images:
+
+    - SVG looks sharp.
+    - Need to be under DocumentRoot.
+    - Put under /srv/www/webdc/eida/data/ analogous to /srv/www/geofon/data/*
+
 Key tasks
 ~~~~~~~~~
 
@@ -115,7 +127,8 @@ Key tasks
 
  4. Extend different components for:
      a. network code summary
-     b. aggregating visitors by category (location, region)
+     b. graphs of monthly usage.
+     c. aggregating visitors by category (location, region)
      
 Schema design
 ~~~~~~~~~~~~~

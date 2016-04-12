@@ -123,41 +123,10 @@ string encodeHex(uint64_t x, int len, uint64_t *width) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-string allocateEventID(DatabaseArchive *ar, const Origin *origin, const std::string &prefix) {
-	if ( !origin )
-		return "";
-
-	time_t t = origin->time().value();
-	tm t_parts;
-	memcpy(&t_parts,gmtime(&t),sizeof(struct tm));
-
-	int evslot = (((t_parts.tm_yday * 24 + t_parts.tm_hour) * 60 + t_parts.tm_min) * 60 + t_parts.tm_sec) / 70;
-
-	for ( int i = 0; i < 5; ++i ) {
-		string eventID = prefix + toString(t_parts.tm_year + 1900) + encodeChar(evslot - i, 4);
-		ObjectPtr o = ar?ar->getObject(Event::TypeInfo(), eventID):NULL;
-		if ( !o )
-			return eventID;
-	}
-
-	for ( int i = 1; i < 5; ++i ) {
-		string eventID = prefix + toString(t_parts.tm_year + 1900) + encodeChar(evslot + i, 4);
-		ObjectPtr o = ar?ar->getObject(Event::TypeInfo(), eventID):NULL;
-		if ( !o )
-			return eventID;
-	}
-
-	return "";
-}
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 std::string generateEventID(int year, uint64_t x, const std::string &prefix,
-                            const string &pattern, uint64_t *width) {
+                            const string &pattern, std::string &textBlock, uint64_t *width) {
 	string evtID;
+	textBlock = "";
 
 	for ( size_t i = 0; i < pattern.size(); ++i ) {
 		if ( pattern[i] != '%' )
@@ -175,16 +144,26 @@ std::string generateEventID(int year, uint64_t x, const std::string &prefix,
 				else if ( pattern[i] == '%' ) {
 					evtID += pattern[i];
 				}
-				else if ( pattern[i] == 'c' )
-					evtID += encodeChar(x, len, width);
-				else if ( pattern[i] == 'C' )
-					evtID += makeUpper(encodeChar(x, len, width));
-				else if ( pattern[i] == 'd' )
-					evtID += encodeInt(x, len, width);
-				else if ( pattern[i] == 'x' )
-					evtID += encodeHex(x, len, width);
-				else if ( pattern[i] == 'X' )
-					evtID += makeUpper(encodeHex(x, len, width));
+				else if ( pattern[i] == 'c' ) {
+					textBlock = encodeChar(x, len, width);
+					evtID += textBlock;
+				}
+				else if ( pattern[i] == 'C' ) {
+					textBlock = makeUpper(encodeChar(x, len, width));
+					evtID += textBlock;
+				}
+				else if ( pattern[i] == 'd' ) {
+					textBlock = encodeInt(x, len, width);
+					evtID += textBlock;
+				}
+				else if ( pattern[i] == 'x' ) {
+					textBlock = encodeHex(x, len, width);
+					evtID += textBlock;
+				}
+				else if ( pattern[i] == 'X' ) {
+					textBlock = makeUpper(encodeHex(x, len, width));
+					evtID += textBlock;
+				}
 				else if ( pattern[i] == 'Y' )
 					evtID += toString(year);
 				else if ( pattern[i] == 'p' )
@@ -206,7 +185,8 @@ std::string generateEventID(int year, uint64_t x, const std::string &prefix,
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 string allocateEventID(DatabaseArchive *ar, const Origin *origin,
-                       const string &prefix, const string &pattern) {
+                       const string &prefix, const string &pattern,
+                       const Client::Config::StringSet *blackList) {
 	if ( !origin )
 		return "";
 
@@ -219,23 +199,32 @@ string allocateEventID(DatabaseArchive *ar, const Origin *origin,
 	// Maximum precission is 1 millisecond
 	uint64_t x = uint64_t((((yday*24)+hour)*60+min)*60+sec)*1000 + usec/1000;
 
-	string eventID = generateEventID(year, x, prefix, pattern, &width);
+	string text;
+	string eventID = generateEventID(year, x, prefix, pattern, text, &width);
 	ObjectPtr o = ar?ar->getObject(Event::TypeInfo(), eventID):NULL;
-	if ( !o )
+	bool blocked = (blackList != NULL) && (blackList->find(text) != blackList->end());
+
+	if ( !o && !blocked )
 		return eventID;
 
+	if ( blocked ) SEISCOMP_WARNING("Blocked ID: %s (rejected %s)", eventID.c_str(), text.c_str());
+
 	for ( int i = 1; i < 5; ++i ) {
-		eventID = generateEventID(year, x+i*width, prefix, pattern);
+		eventID = generateEventID(year, x+i*width, prefix, pattern, text);
+		blocked = (blackList != NULL) && (blackList->find(text) != blackList->end());
 		o = ar?ar->getObject(Event::TypeInfo(), eventID):NULL;
-		if ( !o )
+		if ( !o && !blocked )
 			return eventID;
+		if ( blocked ) SEISCOMP_WARNING("Blocked ID: %s (rejected %s)", eventID.c_str(), text.c_str());
 	}
 
 	for ( int i = 1; i < 5; ++i ) {
-		eventID = generateEventID(year, x-i*width, prefix, pattern);
+		eventID = generateEventID(year, x-i*width, prefix, pattern, text);
+		blocked = (blackList != NULL) && (blackList->find(text) != blackList->end());
 		o = ar?ar->getObject(Event::TypeInfo(), eventID):NULL;
-		if ( !o )
+		if ( !o && !blocked )
 			return eventID;
+		if ( blocked ) SEISCOMP_WARNING("Blocked ID: %s (rejected %s)", eventID.c_str(), text.c_str());
 	}
 
 	return "";

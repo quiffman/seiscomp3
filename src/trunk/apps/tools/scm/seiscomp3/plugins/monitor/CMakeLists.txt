@@ -11,4 +11,4 @@ SET(MPLUGIN_SOURCES
 # Install the headers in install/seiscomp3/plugins/monitor
 SC_ADD_LIBRARY(MPLUGIN mplugin)
 SC_LIB_INSTALL_HEADERS(MPLUGIN seiscomp3/plugins/monitor)
-SC_LIB_LINK_LIBRARIES_INTERNAL(mplugin config)
+SC_LIB_LINK_LIBRARIES_INTERNAL(mplugin core)

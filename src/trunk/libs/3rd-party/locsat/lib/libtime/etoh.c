@@ -12,7 +12,24 @@ static char *month_name[] =
 {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 
 #define mod(a,b)	a - ((int)(a/b)) * b
-etoh(dt)
+void month_day(dt)
+register struct date_time *dt;
+{
+	int i,dim,leap;
+
+	leap = isleap(dt->year);
+	dt->day = dt->doy;
+	for( i = 0 ; i < 12 ; i ++ ){
+		dim = days_in_month[i];
+		if( leap && i == 1 ) dim++;
+		if( dt->day <= dim ) break;
+		dt->day -= dim;
+	}
+	dt->month = i + 1;
+	strcpy(dt->mname,month_name[i]);
+}
+
+void etoh(dt)
 register struct date_time *dt;
 {
 	int diy;
@@ -51,20 +68,4 @@ register struct date_time *dt;
 	dt->date = dt->year * 1000 + dt->doy;
 	month_day(dt);
 	return;
-}
-month_day(dt)
-register struct date_time *dt;
-{
-	int i,dim,leap;
-
-	leap = isleap(dt->year);
-	dt->day = dt->doy;
-	for( i = 0 ; i < 12 ; i ++ ){
-		dim = days_in_month[i];
-		if( leap && i == 1 ) dim++;
-		if( dt->day <= dim ) break;
-		dt->day -= dim;
-	}
-	dt->month = i + 1;
-	strcpy(dt->mname,month_name[i]);
 }

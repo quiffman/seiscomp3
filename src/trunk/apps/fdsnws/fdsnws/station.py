@@ -32,7 +32,7 @@ from seiscomp3.Client import Application
 from seiscomp3.Core import Time, ValueException
 from seiscomp3.IO import Exporter
 
-from http import HTTP, NoResource
+from http import HTTP
 from request import RequestOptions
 import utils
 
@@ -68,8 +68,6 @@ class _StationRequestOptions(RequestOptions):
 		RequestOptions.__init__(self, args)
 		self.service = 'fdsnws-station'
 
-		self.streams = []
-
 		self.includeSta = True
 		self.includeCha = False
 		self.includeRes = False
@@ -77,7 +75,7 @@ class _StationRequestOptions(RequestOptions):
 		self.restricted      = None
 		self.availability    = None
 		self.updatedAfter    = None
-		self.matchtimeseries = None
+		self.matchTimeSeries = None
 
 		# non standard parameters
 		self.formatted  = None
@@ -287,7 +285,7 @@ class FDSNStation(resource.Resource):
 			if exp is None:
 				msg = "output format '%s' no available, export module '%s' " \
 				      "could not be loaded." % (
-				      ro.output, ro.Exporters[ro.output])
+				      ro.format, ro.Exporters[ro.format])
 				return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE,
 				                            msg, ro)
 
@@ -483,7 +481,6 @@ class FDSNStation(resource.Resource):
 					for loc in ro.locationIter(sta, True):
 						for stream in ro.streamIter(loc, True):
 							if skipRestricted and utils.isRestricted(stream): continue
-							sensor = stream.sensor()
 
 							if lineCount == 0:
 								req.write(headerCha)
@@ -610,9 +607,9 @@ class FDSNStation(resource.Resource):
 			newInv.add(newLogger)
 			# decimations are only needed for responses
 			if ro.includeRes:
-				for i in xrange(logger.decimationCount()):
-					decimation = logger.decimation(i)
-					newLogger.add(DataModel.Decimation(logger.decimation(i)))
+				for j in xrange(logger.decimationCount()):
+					decimation = logger.decimation(j)
+					newLogger.add(DataModel.Decimation(logger.decimation(j)))
 
 					# collect response ids
 					filterStr = ""

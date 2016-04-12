@@ -85,6 +85,9 @@ class SC_SYSTEM_CLIENT_API Picker : public TimeWindowProcessor {
 
 		void setMinSNR(double snr) { _config.snrMin = snr; }
 
+		//! Returns the current configuration
+		const Config &config() const { return _config; }
+
 		//! This method has to be called when all configuration
 		//! settings has been set to calculate the timewindow
 		void computeTimeWindow();

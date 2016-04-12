@@ -15,27 +15,43 @@ SET(GEN_VERSION ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
 SET_SOURCE_FILES_PROPERTIES(${GEN_VERSION} PROPERTIES GENERATED true)
 
-ADD_DEFINITIONS(-DWITH_BUILD_INFOS)
-ADD_CUSTOM_COMMAND(
-        OUTPUT  ${GEN_VERSION}
-        COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* build_system\(void\) {char const* BUILD_SYSTEM = \"' > ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo_append `uname -sr` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo '\"\; return BUILD_SYSTEM\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+        ADD_DEFINITIONS(-DWITH_SVN_REVISION -DWITH_BUILD_INFOS)
+        ADD_CUSTOM_COMMAND(
+                OUTPUT  ${GEN_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E echo_append 'const char* git_revision\(void\)  {const char* GIT_REVISION= \"'  > ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND bash -c 'echo -n `git --git-dir="${CMAKE_SOURCE_DIR}/.git"  --work-tree="${CMAKE_SOURCE_DIR}" rev-parse HEAD`' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo '\"\; return GIT_REVISION\; }' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* build_system\(void\) {char const* BUILD_SYSTEM = \"' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append `uname -sr` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo '\"\; return BUILD_SYSTEM\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
 
-        COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* compiler_version\(void\) {char const* COMPILER_VERSION = \"' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo_append `${CMAKE_CXX_COMPILER} --version | head -1` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo '\"\; return COMPILER_VERSION\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* compiler_version\(void\) {char const* COMPILER_VERSION = \"' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append `${CMAKE_CXX_COMPILER} --version | head -1` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo '\"\; return COMPILER_VERSION\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
 
-        COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* os_version\(void\) {char const* OS_VERSION = \"' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo_append `lsb_release -sd | sed 's/\"//g'` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo_append '/' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo_append '${BUILD_ARCH}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMAND ${CMAKE_COMMAND} -E echo '\"\; return OS_VERSION\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append 'char const* os_version\(void\) {char const* OS_VERSION = \"' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append `lsb_release -sd | sed 's/\"//g'` >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append '/' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo_append '${BUILD_ARCH}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo '\"\; return OS_VERSION\;}' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
 
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different  ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp ${GEN_VERSION}
-	COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
-        COMMENT "create ${GEN_VERSION}"
-)
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different  ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp ${GEN_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMENT "create ${GEN_VERSION} for debug-mode"
+        )
+else(CMAKE_BUILD_TYPE STREQUAL Debug)
+        ADD_DEFINITIONS(-DWITH_SVN_REVISION)
+        ADD_CUSTOM_COMMAND(
+                OUTPUT ${GEN_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E echo_append 'const char* git_revision\(void\)  {const char* GIT_REVISION= \"'  > ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND bash -c 'echo -n `git --git-dir="${CMAKE_SOURCE_DIR}/.git"  --work-tree="${CMAKE_SOURCE_DIR}" rev-parse HEAD`' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E echo '\"\; return GIT_REVISION\; }' >> ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different  ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp ${GEN_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/version_pre.cpp
+                COMMENT "create ${GEN_VERSION} for release"
+        )
+endif(CMAKE_BUILD_TYPE STREQUAL Debug)
 
 SET(SYSTEM_CORE_SOURCES ${SYSTEM_CORE_SOURCES} ${GEN_VERSION})
 
@@ -70,11 +86,6 @@ AUX_SOURCE_DIRECTORY(${LIBLOCSAT_PATH}/libtime LIBTIME_SOURCES)
 AUX_SOURCE_DIRECTORY(${LIBLOCSAT_PATH}/libf2c LIBF2C_SOURCES)
 
 SET(SYSTEM_CORE_SOURCES ${SYSTEM_CORE_SOURCES}
-	${THIRD_PARTY_DIRECTORY}/tau/libtau/emiasp91.c
-	${THIRD_PARTY_DIRECTORY}/tau/libtau/libtau.c
-	${THIRD_PARTY_DIRECTORY}/tau/libtau/tauint.c
-	${THIRD_PARTY_DIRECTORY}/tau/libtau/tauspl.c
-
 	${LIBGEOG_SOURCES}
 	${LIBINTERP_SOURCES}
 	${LIBLOC_SOURCES}
@@ -98,6 +109,7 @@ SC_LIB_LINK_LIBRARIES(
 		${Boost_filesystem_LIBRARY}
 		${Boost_regex_LIBRARY}
 		${Boost_LIBRARIES}
+		tau_internal
 )
 
 SC_LIB_LINK_LIBRARIES(core ${LIBXML2_LIBRARIES})

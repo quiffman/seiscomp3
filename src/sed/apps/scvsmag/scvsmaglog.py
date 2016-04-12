@@ -30,16 +30,17 @@ import datetime
 from dateutil import tz
 import random
 
+
 class Listener(seiscomp3.Client.Application):
 
     def __init__(self, argc, argv):
         seiscomp3.Client.Application.__init__(self, argc, argv)
         self.setMessagingEnabled(True)
-        self.setDatabaseEnabled(False, False)
+        self.setDatabaseEnabled(True, True)
         self.setPrimaryMessagingGroup(seiscomp3.Communication.Protocol.LISTENER_GROUP)
-        self.addMessagingSubscription("LOCATIONVS")
-        self.addMessagingSubscription("MAGNITUDEVS")
-        self.addMessagingSubscription("EVENTVS")
+        self.addMessagingSubscription("LOCATION")
+        self.addMessagingSubscription("MAGNITUDE")
+        self.addMessagingSubscription("EVENT")
 
         self.cache = PublicObjectTimeSpanBuffer()
         self.expirationtime = 3600.
@@ -48,12 +49,12 @@ class Listener(seiscomp3.Client.Application):
         self.event_lookup = {}
         self.latest_event = Time.Null
         # report settings
-        ei = System.Environment.Instance()
+        self.ei = System.Environment.Instance()
         self.report_head = "Mag.|Lat.  |Lon.  |tdiff |Depth |creation time (UTC)" + " "*6 + "|"
         self.report_head += "origin time (UTC)" + " "*8 + "|likeh." + "|#st.(org.) "
         self.report_head += "|#st.(mag.)" + "\n"
         self.report_head += "-"*114 + "\n"
-        self.report_directory = os.path.join(ei.logDir(), 'VS_reports')
+        self.report_directory = os.path.join(self.ei.logDir(), 'VS_reports')
         # email settings
         self.sendemail = True
         self.smtp_server = None
@@ -68,13 +69,12 @@ class Listener(seiscomp3.Client.Application):
         self.username = None
         self.password = None
         self.auth = False
+        self.magThresh = 0.0
+        # UserDisplay interface
         self.udevt = None
 
     def handleTimeout(self):
-        try:
-            self.hb.send_hb()
-        except:
-            pass
+        self.hb.send_hb()
 
     def validateParameters(self):
         try:
@@ -82,6 +82,8 @@ class Listener(seiscomp3.Client.Application):
                 return False
             if self.commandline().hasOption('savedir'):
                 self.report_directory = self.commandline().optionString('savedir')
+            if self.commandline().hasOption('playback'):
+                self.setDatabaseEnabled(False, False)
             return True
         except:
             info = traceback.format_exception(*sys.exc_info())
@@ -95,6 +97,8 @@ class Listener(seiscomp3.Client.Application):
         try:
             self.commandline().addGroup("Reports")
             self.commandline().addStringOption("Reports", "savedir", "Directory to save reports to.")
+            self.commandline().addGroup("Mode")
+            self.commandline().addOption("Mode", "playback", "Disable database connection.")
         except:
             seiscomp3.Logging.warning("caught unexpected error %s" % sys.exc_info())
             info = traceback.format_exception(*sys.exc_info())
@@ -105,7 +109,9 @@ class Listener(seiscomp3.Client.Application):
         """
         Read configuration file.
         """
-        if not seiscomp3.Client.Application.initConfiguration(self): return False
+        if not seiscomp3.Client.Application.initConfiguration(self):
+            return False
+
         try:
             self.smtp_server = self.configGetString("email.smtpserver")
             self.email_port = self.configGetInt("email.port")
@@ -125,13 +131,24 @@ class Listener(seiscomp3.Client.Application):
             self.email_recipients = self.configGetStrings("email.recipients")
             self.email_subject = self.configGetString("email.subject")
             self.hostname = self.configGetString("email.host")
-            self.udcf_file = self.configGetString("userdisplay.configfile")
-        except:
+            self.magThresh = self.configGetDouble("email.magThresh")
+        except Exception, e:
+            seiscomp3.Logging.info('Some configuration parameters could not be read: %s' % e)
             self.sendemail = False
 
         try:
+            self.amqHost = self.configGetString('ActiveMQ.hostname')
+            self.amqPort = self.configGetInt('ActiveMQ.port')
+            self.amqTopic = self.configGetString('ActiveMQ.topic')
+            self.amqHbTopic = self.configGetString('ActiveMQ.hbtopic')
+            self.amqUser = self.configGetString('ActiveMQ.username')
+            self.amqPwd = self.configGetString('ActiveMQ.password')
+        except:
+            pass
+
+        try:
             self.expirationtime = self.configGetDouble("report.eventbuffer")
-            self.report_directory = self.configGetString("report.directory")
+            self.report_directory = self.ei.absolutePath(self.configGetString("report.directory"))
         except:
             pass
         return True
@@ -143,24 +160,29 @@ class Listener(seiscomp3.Client.Application):
         if not seiscomp3.Client.Application.init(self):
             return False
 
+        if not self.sendemail:
+            seiscomp3.Logging.info('Sending email has been disabled.')
+        else:
+            self.sendMail({}, test=True)
+
         self.cache.setTimeSpan(TimeSpan(self.expirationtime))
+        if self.isDatabaseEnabled():
+            self.cache.setDatabaseArchive(self.query());
+            seiscomp3.Logging.info('Cache connected to database.')
+
         seiscomp3.Logging.info("Reports are stored in %s" % self.report_directory)
         try:
-            from ud_interface import CoreEventInfo, HeartBeat
-            cf = seiscomp3.Config.Config()
-            cf.readConfig(self.udcf_file)
-            host = cf.getString('host')
-            port = cf.getInt('port')
-            username = cf.getString('username')
-            password = cf.getString('password')
-            topic = cf.getString('topic')
-            topichb = cf.getString('topichb')
-            self.udevt = CoreEventInfo(host, port, topic, username, password)
-            self.hb = HeartBeat(host, port, topichb, username, password)
+            import ud_interface
+            self.udevt = ud_interface.CoreEventInfo(self.amqHost, self.amqPort,
+                                                    self.amqTopic, self.amqUser,
+                                                    self.amqPwd)
+            self.hb = ud_interface.HeartBeat(self.amqHost, self.amqPort,
+                                             self.amqHbTopic, self.amqUser,
+                                             self.amqPwd)
             self.enableTimer(5)
+            seiscomp3.Logging.info('ActiveMQ interface is running.')
         except Exception, e:
-            seiscomp3.Logging.info('UserDisplay interface cannot be loaded: %s' % e)
-
+            seiscomp3.Logging.warning('ActiveMQ interface cannot be loaded: %s' % e)
         return True
 
     def generateReport(self, evID):
@@ -169,9 +191,13 @@ class Listener(seiscomp3.Client.Application):
         it as an email.
         """
         sout = self.report_head
+        threshold_exceeded = False
         for _i in sorted(self.event_dict[evID]['updates'].keys()):
             ed = self.event_dict[evID]['updates'][_i]
-            sout += "%4.2f|" % ed['magnitude']
+            mag = ed['magnitude']
+            if mag > self.magThresh:
+                threshold_exceeded = True
+            sout += "%4.2f|" % mag
             sout += "%6.2f|" % ed['lat']
             sout += "%6.2f|" % ed['lon']
             sout += "%6.2f|" % ed['diff'].toDouble()
@@ -191,7 +217,7 @@ class Listener(seiscomp3.Client.Application):
         f.close()
         self.event_dict[evID]['magnitude'] = ed['magnitude']
         seiscomp3.Logging.info("\n" + sout)
-        if self.sendemail:
+        if self.sendemail and threshold_exceeded:
             self.sendMail(self.event_dict[evID])
         self.event_dict[evID]['published'] = True
 
@@ -224,7 +250,6 @@ class Listener(seiscomp3.Client.Application):
         """
         tcutoff = self.latest_event - TimeSpan(self.expirationtime)
         for evID in self.event_dict.keys():
-            evt = self.cache.get(seiscomp3.DataModel.Event, evID)
             if self.event_dict[evID]['timestamp'] < tcutoff:
                 self.event_dict.pop(evID)
 
@@ -251,14 +276,18 @@ class Listener(seiscomp3.Client.Application):
         # delete old events
         self.garbageCollector()
 
-    def sendMail(self, evt, subject="VS message"):
+    def sendMail(self, evt, test=False):
         """
         Email reports.
         """
-        msg = MIMEText(evt['report'])
-        subject = self.email_subject + ' / %s / ' % self.hostname
-        subject += '%.2f' % evt['magnitude']
-        msg['Subject'] = subject
+        if test:
+            msg = MIMEText('scvsmaglog was started.')
+            msg['Subject'] = 'scvsmaglog startup message'
+        else:
+            msg = MIMEText(evt['report'])
+            subject = self.email_subject + ' / %s / ' % self.hostname
+            subject += '%.2f' % evt['magnitude']
+            msg['Subject'] = subject
         msg['From'] = self.email_sender
         msg['To'] = self.email_recipients[0]
         utc_date = datetime.datetime.utcnow()
@@ -274,11 +303,11 @@ class Listener(seiscomp3.Client.Application):
         except Exception, e:
             seiscomp3.Logging.warning('Cannot connect to smtp server: %s' % e)
             return
-        if self.tls:
-            s.starttls()
-        if self.auth:
-            s.login(self.username, self.password)
         try:
+            if self.tls:
+                s.starttls()
+            if self.auth:
+                s.login(self.username, self.password)
             s.sendmail(self.email_sender, self.email_recipients, msg.as_string())
         except Exception, e:
             seiscomp3.Logging.warning('Email could not be sent: %s' % e)

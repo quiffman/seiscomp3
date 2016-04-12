@@ -102,7 +102,7 @@ class CfgMap
     class ci_less
       {
       public:
-        bool operator()(const string &s1, const string &s2)
+        bool operator()(const string &s1, const string &s2) const
           {
             return (strcasecmp(s1.c_str(), s2.c_str()) < 0);
           }

@@ -1290,9 +1290,13 @@ class Station(Core.BaseObject):
     def readConfig(self, *args): return _System.Station_readConfig(self, *args)
     def writeConfig(self, *args): return _System.Station_writeConfig(self, *args)
     def setConfig(self, *args): return _System.Station_setConfig(self, *args)
+    def compareTag(self, *args): return _System.Station_compareTag(self, *args)
     __swig_setmethods__["config"] = _System.Station_config_set
     __swig_getmethods__["config"] = _System.Station_config_get
     if _newclass:config = _swig_property(_System.Station_config_get, _System.Station_config_set)
+    __swig_setmethods__["tags"] = _System.Station_tags_set
+    __swig_getmethods__["tags"] = _System.Station_tags_get
+    if _newclass:tags = _swig_property(_System.Station_tags_get, _System.Station_tags_set)
     __swig_destroy__ = _System.delete_Station
     __del__ = lambda self : None;
 Station_swigregister = _System.Station_swigregister

@@ -13,7 +13,7 @@
  * GNU General Public License for more details.                         *
  *                                                                      *
  * This program is part of 'Projet TSUAREG - INTERREG IV Caraïbes'.     *
- * It has been co-financed by the European Union and le Minitère de     *
+ * It has been co-financed by the European Union and le Ministère de    *
  * l'Ecologie, du Développement Durable, des Transports et du Logement. *
  *                                                                      *
  ************************************************************************/
@@ -22,6 +22,7 @@
 #define SEISCOMP_COMPONENT Md
 
 #include "md.h"
+#include "l4c1hz.h"
 #include <seiscomp3/processing/waveformprocessor.h>
 #include <seiscomp3/math/filter/stalta.h>
 #include <seiscomp3/math/filter/iirfilter.h>
@@ -61,12 +62,16 @@
  * 6 for Butterworth Low Pass ? filter
  * 7 for Butterwoth High Pass ? filter
  * 8 for Butterworth Band Pass ? filter
+ * 9 for L4C 1Hz seismometer
  **/
-#define _SEISMO 1
-#define _BUTTERWORTH "3,1,15"
+#define _SEISMO 9
+#define _BUTTERWORTH ""
 
+ADD_SC_PLUGIN("Md duration magnitude plugin", "IPGP <www.ipgp.fr>", 0, 1, 1)
 
-ADD_SC_PLUGIN("Md duration magnitude plugin", "IPGP <www.ipgp.fr>", 0, 1, 0)
+#define AMPTAG "[Amp] [Md]"
+#define MAGTAG "[Mag] [Md]"
+
 
 using namespace Seiscomp;
 using namespace Seiscomp::Math;
@@ -107,8 +112,7 @@ AmplitudeProcessor_Md::AmplitudeProcessor_Md() :
 	setMinSNR(aFile.SNR_MIN);
 	setMaxDist(8);
 	_computeAbsMax = true;
-
-	SEISCOMP_DEBUG("[plugin] [Md] Initialized using default constructor");
+	_isInitialized = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -124,9 +128,9 @@ AmplitudeProcessor_Md::AmplitudeProcessor_Md(const Core::Time& trigger) :
 	setMinSNR(aFile.SNR_MIN);
 	setMaxDist(8);
 	_computeAbsMax = true;
-	computeTimeWindow();
+	_isInitialized = false;
 
-	SEISCOMP_DEBUG("[plugin] [Md] Initialized using Time constructor");
+	computeTimeWindow();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -136,6 +140,9 @@ AmplitudeProcessor_Md::AmplitudeProcessor_Md(const Core::Time& trigger) :
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool AmplitudeProcessor_Md::setup(const Settings& settings) {
 
+	if ( !AmplitudeProcessor::setup(settings) )
+		return false;
+
 	bool isButterworth = false;
 	try {
 		aFile.SEISMO = settings.getInt("md.seismo");
@@ -143,154 +150,157 @@ bool AmplitudeProcessor_Md::setup(const Settings& settings) {
 		switch ( aFile.SEISMO ) {
 			case 1:
 				type = "WoodAnderson";
-				break;
+			break;
 			case 2:
 				type = "Seismo5sec";
-				break;
+			break;
 			case 3:
 				type = "WWSSN LP";
-				break;
+			break;
 			case 4:
 				type = "WWSSN SP";
-				break;
+			break;
 			case 5:
 				type = "Generic Seismometer";
-				break;
+			break;
 			case 6:
 				type = "Butterworth Low Pass";
 				isButterworth = true;
-				break;
+			break;
 			case 7:
 				type = "Butterworth High Pass";
 				isButterworth = true;
-				break;
+			break;
 			case 8:
 				type = "Butterworth Band Pass";
 				isButterworth = true;
-				break;
+			break;
+			case 9:
+				type = "L4C 1Hz Seismometer";
+			break;
 			default:
 				break;
 		}
-		SEISCOMP_DEBUG("[plugin] [Md] sets SEISMO to  %s [%s.%s]", type.c_str(),
+		SEISCOMP_DEBUG("%s sets SEISMO to  %s [%s.%s]", AMPTAG, type.c_str(),
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.SEISMO = _SEISMO;
-		SEISCOMP_ERROR("[plugin] [Md] can not read SEISMO value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read SEISMO value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	if ( isButterworth == true ) {
 		try {
 			aFile.BUTTERWORTH = settings.getString("md.butterworth");
-			SEISCOMP_DEBUG("[plugin] [Md] sets Butterworth filter to  %s [%s.%s]",
+			SEISCOMP_DEBUG("%s sets Butterworth filter to  %s [%s.%s]", AMPTAG,
 			    aFile.BUTTERWORTH.c_str(), settings.networkCode.c_str(),
 			    settings.stationCode.c_str());
 		}
 		catch ( ... ) {
 			aFile.BUTTERWORTH = _BUTTERWORTH;
-			SEISCOMP_ERROR("[plugin] [Md] can not read Butterworth filter value from configuration file [%s.%s]",
+			SEISCOMP_ERROR("%s can not read Butterworth filter value from configuration file [%s.%s]", AMPTAG,
 			    settings.networkCode.c_str(), settings.stationCode.c_str());
 		}
 	}
 
 	try {
 		aFile.DEPTH_MAX = settings.getDouble("md.depthmax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets DEPTH MAX to  %.2f [%s.%s]", aFile.DEPTH_MAX,
+		SEISCOMP_DEBUG("%s sets DEPTH MAX to  %.2f [%s.%s]", AMPTAG, aFile.DEPTH_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.DEPTH_MAX = _DEPTH_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read DEPTH MAX value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read DEPTH MAX value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.DELTA_MAX = settings.getDouble("md.deltamax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets DELTA MAX to  %.2f [%s.%s]", aFile.DELTA_MAX,
+		SEISCOMP_DEBUG("%s sets DELTA MAX to  %.2f [%s.%s]", AMPTAG, aFile.DELTA_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.DELTA_MAX = _DELTA_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read DELTA MAX value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read DELTA MAX value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.SNR_MIN = settings.getDouble("md.snrmin");
-		SEISCOMP_DEBUG("[plugin] [Md] sets SNR MIN to  %.2f [%s.%s]", aFile.SNR_MIN,
+		SEISCOMP_DEBUG("%s sets SNR MIN to  %.2f [%s.%s]", AMPTAG, aFile.SNR_MIN,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.SNR_MIN = _SNR_MIN;
-		SEISCOMP_ERROR("[plugin] [Md] can not read SNR MIN value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read SNR MIN value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.MD_MAX = settings.getDouble("md.mdmax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets MD MAX to  %.2f [%s.%s]", aFile.MD_MAX,
+		SEISCOMP_DEBUG("%s sets MD MAX to  %.2f [%s.%s]", AMPTAG, aFile.MD_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.MD_MAX = _MD_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read MD MAX value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read MD MAX value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.FMA = settings.getDouble("md.fma");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMA to  %.4f [%s.%s]", aFile.FMA,
+		SEISCOMP_DEBUG("%s sets FMA to  %.4f [%s.%s]", AMPTAG, aFile.FMA,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.FMA = _FMA;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMA value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read FMA value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.FMB = settings.getDouble("md.fmb");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMB to  %.4f [%s.%s]", aFile.FMB,
+		SEISCOMP_DEBUG("%s sets FMB to  %.4f [%s.%s]", AMPTAG, aFile.FMB,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.FMB = _FMB;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMB value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read FMB value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.FMD = settings.getDouble("md.fmd");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMD to  %.4f [%s.%s]", aFile.FMD,
+		SEISCOMP_DEBUG("%s sets FMD to  %.4f [%s.%s]", AMPTAG, aFile.FMD,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.FMD = _FMD;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMD value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read FMD value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.FMF = settings.getDouble("md.fmf");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMF to  %.4f [%s.%s]", aFile.FMF,
+		SEISCOMP_DEBUG("%s sets FMF to  %.4f [%s.%s]", AMPTAG, aFile.FMF,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.FMF = _FMF;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMF value from configuration file [%s.%s]",
+		SEISCOMP_ERROR("%s can not read FMF value from configuration file [%s.%s]", AMPTAG,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		aFile.FMZ = settings.getDouble("md.fmz");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMZ to  %.4f [%s.%s]", aFile.FMZ,
+		SEISCOMP_DEBUG("%s sets FMZ to  %.4f [%s.%s]", AMPTAG, aFile.FMZ,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		aFile.FMZ = _FMZ;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMZ value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMZ value from configuration file [%s.%s]",
+		    AMPTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	_isInitialized = true;
@@ -307,43 +317,50 @@ void AmplitudeProcessor_Md::initFilter(double fsamp) {
 
 	if ( !_enableResponses ) {
 
+		SEISCOMP_DEBUG("Using custom responses");
+
 		Math::Filtering::InPlaceFilter<double>* f;
 		switch ( aFile.SEISMO ) {
 			case 1:
 				AmplitudeProcessor::setFilter(new Filtering::IIR::WoodAndersonFilter<
 				        double>(Velocity));
-				break;
+			break;
 			case 2:
 				AmplitudeProcessor::setFilter(new Filtering::IIR::Seismometer5secFilter<
 				        double>(Velocity));
-				break;
+			break;
 			case 3:
 				AmplitudeProcessor::setFilter(new Filtering::IIR::WWSSN_LP_Filter<
 				        double>(Velocity));
-				break;
+			break;
 			case 4:
 				AmplitudeProcessor::setFilter(new Filtering::IIR::WWSSN_SP_Filter<
 				        double>(Velocity));
-				break;
+			break;
 			case 5:
 				AmplitudeProcessor::setFilter(new Filtering::IIR::GenericSeismometer<
 				        double>(Velocity));
-				break;
+			break;
 			case 6:
 				f = new Math::Filtering::IIR::ButterworthLowpass<double>(3, 1, 15);
 				AmplitudeProcessor::setFilter(f);
-				break;
+			break;
 			case 7:
 				f = new Math::Filtering::IIR::ButterworthHighpass<double>(3, 1, 15);
 				AmplitudeProcessor::setFilter(f);
-				break;
+			break;
 			case 8:
 				f = new Math::Filtering::IIR::ButterworthBandpass<double>(3, 1, 15, 1, true);
 				AmplitudeProcessor::setFilter(f);
-				break;
+			break;
+			case 9:
+				AmplitudeProcessor::setFilter(new Filtering::IIR::L4C_1Hz_Filter<
+				        double>(Velocity));
+			break;
 			default:
-				SEISCOMP_ERROR("[plugin] [Md] can not initialize the chosen filter, please review your configuration file");
-				break;
+				SEISCOMP_ERROR("%s can not initialize the chosen filter, "
+					"please review your configuration file", AMPTAG);
+			break;
 		}
 	}
 	else
@@ -412,27 +429,43 @@ bool AmplitudeProcessor_Md::deconvolveData(Response* resp,
                                            DoubleArray& data,
                                            int numberOfIntegrations) {
 
+	SEISCOMP_DEBUG("Inside deconvolve function");
+
 	double m, n;
 	Math::Restitution::FFT::TransferFunctionPtr tf = resp->getTransferFunction(numberOfIntegrations);
-	if ( tf == NULL ) {
+
+	if ( !tf ) {
 		setStatus(DeconvolutionFailed, 0);
 		return false;
 	}
+
 	Math::Restitution::FFT::TransferFunctionPtr cascade;
-	Math::Restitution::FFT::PolesAndZeros woodAnderson(Math::SeismometerResponse::WoodAnderson(Math::Velocity));
-	Math::Restitution::FFT::PolesAndZeros seis5sec(Math::SeismometerResponse::Seismometer5sec(Math::Velocity));
+	Math::SeismometerResponse::WoodAnderson woodAndersonResp(Math::Velocity);
+	Math::SeismometerResponse::Seismometer5sec seis5sResp(Math::Velocity);
+	Math::SeismometerResponse::L4C_1Hz l4c1hzResp(Math::Velocity);
+
+	Math::Restitution::FFT::PolesAndZeros woodAnderson(woodAndersonResp);
+	Math::Restitution::FFT::PolesAndZeros seis5sec(seis5sResp);
+	Math::Restitution::FFT::PolesAndZeros l4c1hz(l4c1hzResp);
+
+	SEISCOMP_DEBUG("SEISMO = %d", aFile.SEISMO);
 
 	switch ( aFile.SEISMO ) {
 		case 1:
 			cascade = *tf / woodAnderson;
-			break;
+		break;
 		case 2:
 			cascade = *tf / seis5sec;
-			break;
+		break;
+		case 9:
+			SEISCOMP_INFO("%s Applying filter L4C 1Hz to data", AMPTAG);
+			cascade = *tf / l4c1hz;
+		break;
 		default:
-			SEISCOMP_INFO("[plugin] [Md] filter hasn't been set, applying Wood-Anderson");
+			cascade = tf;
+			SEISCOMP_INFO("%s No seismometer specified, no signal reconvolution performed", AMPTAG);
 			return false;
-			break;
+		break;
 	}
 
 	// Remove linear trend
@@ -459,7 +492,7 @@ bool AmplitudeProcessor_Md::computeAmplitude(const DoubleArray& data, size_t i1,
 	DoubleArrayPtr d;
 
 	if ( *snr < aFile.SNR_MIN )
-		SEISCOMP_DEBUG("[plugin] [Md] computed snr is under configured SNR MIN");
+		SEISCOMP_DEBUG("%s computed SNR is under configured SNR MIN", AMPTAG);
 
 	if ( _computeAbsMax ) {
 		size_t imax = find_absmax(data.size(), data.typedData(), si1, si2, offset);
@@ -477,7 +510,7 @@ bool AmplitudeProcessor_Md::computeAmplitude(const DoubleArray& data, size_t i1,
 
 	Imax = dt->index;
 
-	SEISCOMP_DEBUG("[plugin] [Md] Amax: %.2f", amax);
+	SEISCOMP_DEBUG("%s Amplitude max: %.2f", AMPTAG, amax);
 
 	//! searching for Coda second by second through the end of the window
 	//! TODO: elevate accuracy by using a nanometers scale (maybe)
@@ -497,7 +530,7 @@ bool AmplitudeProcessor_Md::computeAmplitude(const DoubleArray& data, size_t i1,
 		amp_sig = 2 * d->rms(ofs_sig);
 
 		if ( amp_sig / *_noiseAmplitude <= _config.snrMin ) {
-			SEISCOMP_DEBUG("[plugin] [Md] End of signal found! (%.2f <= %.2f)",
+			SEISCOMP_DEBUG("%s End of signal found! (%.2f <= %.2f)", AMPTAG,
 			    (amp_sig / *_noiseAmplitude), _config.snrMin);
 			hasEndSignal = true;
 			calculatedSnr = amp_sig / *_noiseAmplitude;
@@ -506,7 +539,8 @@ bool AmplitudeProcessor_Md::computeAmplitude(const DoubleArray& data, size_t i1,
 	}
 
 	if ( !hasEndSignal ) {
-		SEISCOMP_ERROR("[plugin] [Md] SNR stayed over configured SNR_MIN! (%.2f > %.2f), skipping magnitude calculation for this station",
+		SEISCOMP_ERROR("%s SNR stayed over configured SNR_MIN! (%.2f > %.2f), "
+			"skipping magnitude calculation for this station", AMPTAG,
 		    calculatedSnr, _config.snrMin);
 		return false;
 	}
@@ -526,11 +560,10 @@ bool AmplitudeProcessor_Md::computeAmplitude(const DoubleArray& data, size_t i1,
 	// Convert m/s to nm/s
 	amplitude->value *= 1.E09;
 
-
 	*period = i - i1 + (_config.signalBegin * _stream.fsamp);
 
-	SEISCOMP_DEBUG("[plugin] [Md] calculated event amplitude = %.2f", amplitude->value);
-	SEISCOMP_DEBUG("[plugin] [Md] calculated signal end at %.2f ms from P phase", *period);
+	SEISCOMP_DEBUG("%s calculated event amplitude = %.2f", AMPTAG, amplitude->value);
+	SEISCOMP_DEBUG("%s calculated signal end at %.2f ms from P phase", AMPTAG, *period);
 
 	return true;
 }
@@ -564,7 +597,7 @@ double AmplitudeProcessor_Md::timeWindowLength(double distance_deg) const {
 	        - aFile.STACOR - (aFile.FMD * distance_km)) / (aFile.FMB + aFile.FMF);
 
 	windowLength = pow(10, windowLength) + aFile.SIGNAL_WINDOW_END;
-	SEISCOMP_DEBUG("[plugin] [Md] Requesting stream of %.2fsec for current station", windowLength);
+	SEISCOMP_DEBUG("%s Requesting stream of %.2fsec for current station", AMPTAG, windowLength);
 
 	return windowLength;
 }
@@ -615,124 +648,125 @@ bool MagnitudeProcessor_Md::setup(const Settings& settings) {
 
 	try {
 		mFile.DELTA_MAX = settings.getDouble("md.deltamax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets DELTA MAX to  %.2f [%s.%s]", mFile.DELTA_MAX,
+		SEISCOMP_DEBUG("%s sets DELTA MAX to  %.2f [%s.%s]", MAGTAG, mFile.DELTA_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.DELTA_MAX = _DELTA_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read DELTA MAX value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read DELTA MAX value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.DEPTH_MAX = settings.getDouble("md.depthmax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets DEPTH MAX to  %.2f [%s.%s]", mFile.DEPTH_MAX,
+		SEISCOMP_DEBUG("%s sets DEPTH MAX to  %.2f [%s.%s]", MAGTAG, mFile.DEPTH_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.DEPTH_MAX = _DEPTH_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read DEPTH MAX value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read DEPTH MAX value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.MD_MAX = settings.getDouble("md.mdmax");
-		SEISCOMP_DEBUG("[plugin] [Md] sets MD MAX to  %.2f [%s.%s]", mFile.MD_MAX,
+		SEISCOMP_DEBUG("%s sets MD MAX to  %.2f [%s.%s]", MAGTAG, mFile.MD_MAX,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.MD_MAX = _MD_MAX;
-		SEISCOMP_ERROR("[plugin] [Md] can not read MD MAX value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read MD MAX value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.LINEAR_CORRECTION = settings.getDouble("md.linearcorrection");
-		SEISCOMP_DEBUG("[plugin] [Md] sets LINEAR CORRECTION to  %.2f [%s.%s]",
+		SEISCOMP_DEBUG("%s sets LINEAR CORRECTION to  %.2f [%s.%s]", MAGTAG,
 		    mFile.LINEAR_CORRECTION, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.LINEAR_CORRECTION = _LINEAR_CORRECTION;
-		SEISCOMP_ERROR("[plugin] [Md] can not read LINEAR CORRECTION value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read LINEAR CORRECTION value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.OFFSET = settings.getDouble("md.offset");
-		SEISCOMP_DEBUG("[plugin] [Md] sets OFFSET to  %.2f [%s.%s]", mFile.OFFSET,
+		SEISCOMP_DEBUG("%s sets OFFSET to  %.2f [%s.%s]", MAGTAG, mFile.OFFSET,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.OFFSET = _OFFSET;
-		SEISCOMP_ERROR("[plugin] [Md] can not read OFFSET value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read OFFSET value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.FMA = settings.getDouble("md.fma");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMA to  %.4f [%s.%s]", mFile.FMA,
+		SEISCOMP_DEBUG("%s sets FMA to  %.4f [%s.%s]", MAGTAG, mFile.FMA,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.FMA = _FMA;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMA value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMA value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.FMB = settings.getDouble("md.fmb");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMB to  %.4f [%s.%s]", mFile.FMB,
+		SEISCOMP_DEBUG("%s sets FMB to  %.4f [%s.%s]", MAGTAG, mFile.FMB,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.FMB = _FMB;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMB value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMB value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.FMD = settings.getDouble("md.fmd");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMD to  %.4f [%s.%s]", mFile.FMD,
+		SEISCOMP_DEBUG("%s sets FMD to  %.4f [%s.%s]", MAGTAG, mFile.FMD,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.FMD = _FMD;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMD value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMD value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.FMF = settings.getDouble("md.fmf");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMF to  %.4f [%s.%s]", mFile.FMF,
+		SEISCOMP_DEBUG("%s sets FMF to  %.4f [%s.%s]", MAGTAG, mFile.FMF,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.FMF = _FMF;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMF value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMF value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.FMZ = settings.getDouble("md.fmz");
-		SEISCOMP_DEBUG("[plugin] [Md] sets FMZ to  %.4f [%s.%s]", mFile.FMZ,
+		SEISCOMP_DEBUG("%s sets FMZ to  %.4f [%s.%s]", MAGTAG, mFile.FMZ,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.FMZ = _FMZ;
-		SEISCOMP_ERROR("[plugin] [Md] can not read FMZ value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read FMZ value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 
 	try {
 		mFile.STACOR = settings.getDouble("md.stacor");
-		SEISCOMP_DEBUG("[plugin] [Md] sets STACOR to  %.4f [%s.%s]", mFile.STACOR,
+		SEISCOMP_DEBUG("%s sets STACOR to  %.4f [%s.%s]", MAGTAG, mFile.STACOR,
 		    settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
 	catch ( ... ) {
 		mFile.STACOR = _STACOR;
-		SEISCOMP_ERROR("[plugin] [Md] can not read STACOR value from configuration file [%s.%s]",
-		    settings.networkCode.c_str(), settings.stationCode.c_str());
+		SEISCOMP_ERROR("%s can not read STACOR value from configuration file [%s.%s]",
+		    MAGTAG, settings.networkCode.c_str(), settings.stationCode.c_str());
 	}
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -749,32 +783,34 @@ MagnitudeProcessor_Md::computeMagnitude(double amplitude, double period,
 	double epdistkm;
 	epdistkm = Math::Geo::deg2km(delta);
 
-	SEISCOMP_DEBUG("[plugin] [Md] --------------------------------");
-	SEISCOMP_DEBUG("[plugin] [Md] |    PARAMETERS   |    VALUE   |");
-	SEISCOMP_DEBUG("[plugin] [Md] --------------------------------");
-	SEISCOMP_DEBUG("[plugin] [Md] | delta max       | %.2f ", mFile.DELTA_MAX);
-	SEISCOMP_DEBUG("[plugin] [Md] | depth max       | %.2f ", mFile.DEPTH_MAX);
-	SEISCOMP_DEBUG("[plugin] [Md] | md max          | %.2f ", mFile.MD_MAX);
-	SEISCOMP_DEBUG("[plugin] [Md] | fma             | %.4f ", mFile.FMA);
-	SEISCOMP_DEBUG("[plugin] [Md] | fmb             | %.4f ", mFile.FMB);
-	SEISCOMP_DEBUG("[plugin] [Md] | fmd             | %.4f ", mFile.FMD);
-	SEISCOMP_DEBUG("[plugin] [Md] | fmf             | %.4f ", mFile.FMF);
-	SEISCOMP_DEBUG("[plugin] [Md] | fmz             | %.4f ", mFile.FMZ);
-	SEISCOMP_DEBUG("[plugin] [Md] | stacor          | %.4f ", mFile.STACOR);
-	SEISCOMP_DEBUG("[plugin] [Md] --------------------------------");
-	SEISCOMP_DEBUG("[plugin] [Md] | (f-p)           | %.2f sec ", period);
-	SEISCOMP_DEBUG("[plugin] [Md] | seismic depth   | %.2f km ", depth);
-	SEISCOMP_DEBUG("[plugin] [Md] | epicenter dist  | %.2f km ", epdistkm);
-	SEISCOMP_DEBUG("[plugin] [Md] --------------------------------");
+	SEISCOMP_DEBUG("%s --------------------------------", MAGTAG);
+	SEISCOMP_DEBUG("%s |    PARAMETERS   |    VALUE   |", MAGTAG);
+	SEISCOMP_DEBUG("%s --------------------------------", MAGTAG);
+	SEISCOMP_DEBUG("%s | delta max       | %.2f ", MAGTAG, mFile.DELTA_MAX);
+	SEISCOMP_DEBUG("%s | depth max       | %.2f ", MAGTAG, mFile.DEPTH_MAX);
+	SEISCOMP_DEBUG("%s | md max          | %.2f ", MAGTAG, mFile.MD_MAX);
+	SEISCOMP_DEBUG("%s | fma             | %.4f ", MAGTAG, mFile.FMA);
+	SEISCOMP_DEBUG("%s | fmb             | %.4f ", MAGTAG, mFile.FMB);
+	SEISCOMP_DEBUG("%s | fmd             | %.4f ", MAGTAG, mFile.FMD);
+	SEISCOMP_DEBUG("%s | fmf             | %.4f ", MAGTAG, mFile.FMF);
+	SEISCOMP_DEBUG("%s | fmz             | %.4f ", MAGTAG, mFile.FMZ);
+	SEISCOMP_DEBUG("%s | stacor          | %.4f ", MAGTAG, mFile.STACOR);
+	SEISCOMP_DEBUG("%s --------------------------------", MAGTAG);
+	SEISCOMP_DEBUG("%s | (f-p)           | %.2f sec ", MAGTAG, period);
+	SEISCOMP_DEBUG("%s | seismic depth   | %.2f km ", MAGTAG, depth);
+	SEISCOMP_DEBUG("%s | epicenter dist  | %.2f km ", MAGTAG, epdistkm);
+	SEISCOMP_DEBUG("%s --------------------------------", MAGTAG);
 
 	if ( amplitude <= 0. ) {
 		value = 0;
-		SEISCOMP_ERROR("[plugin] [Md] calculated amplitude is wrong, no magnitude will be calculated");
+		SEISCOMP_ERROR("%s calculated amplitude is wrong, "
+			"no magnitude will be calculated", MAGTAG);
 		return Error;
 	}
 
 	if ( (mFile.DELTA_MAX) < epdistkm ) {
-		SEISCOMP_ERROR("[plugin] [Md] epicenter distance is out of configured range, no magnitude will be calculated");
+		SEISCOMP_ERROR("%s epicenter distance is out of configured range, "
+			"no magnitude will be calculated", MAGTAG);
 		return DistanceOutOfRange;
 	}
 
@@ -782,7 +818,9 @@ MagnitudeProcessor_Md::computeMagnitude(double amplitude, double period,
 	        + (mFile.FMD * epdistkm) + (mFile.FMZ * depth) + mFile.STACOR;
 
 	if ( value > mFile.MD_MAX )
-		SEISCOMP_WARNING("[plugin] [Md] calculated magnitude is beyond max Md value [value= %.2f]", value);
+		SEISCOMP_WARNING("%s Calculated magnitude is beyond max Md value [value= %.2f]",
+		    MAGTAG, value);
+
 	return OK;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

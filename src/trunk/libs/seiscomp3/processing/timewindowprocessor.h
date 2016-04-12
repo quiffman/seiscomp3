@@ -43,7 +43,6 @@ class SC_SYSTEM_CLIENT_API TimeWindowProcessor : public WaveformProcessor {
 	//  Public Interface
 	// ----------------------------------------------------------------------
 	public:
-		virtual bool feed(const Record *record);
 		virtual void reset();
 
 		//! Sets the time window for the data to be fed
@@ -73,6 +72,7 @@ class SC_SYSTEM_CLIENT_API TimeWindowProcessor : public WaveformProcessor {
 	// ----------------------------------------------------------------------
 	protected:
 		virtual void fill(size_t n, double *samples);
+		virtual bool store(const Record *rec);
 
 
 	// ----------------------------------------------------------------------

@@ -13,7 +13,7 @@
  * GNU General Public License for more details.                         *
  *                                                                      *
  * This program is part of 'Projet TSUAREG - INTERREG IV Caraïbes'.     *
- * It has been co-financed by the European Union and le Minitère de     *
+ * It has been co-financed by the European Union and le Ministère de    *
  * l'Ecologie, du Développement Durable, des Transports et du Logement. *
  *                                                                      *
  ************************************************************************/
@@ -23,9 +23,14 @@
 
 #include <seiscomp3/logging/filerotator.h>
 #include <seiscomp3/logging/channel.h>
+#include <seiscomp3/client/inventory.h>
 #include <seiscomp3/datamodel/magnitude.h>
+#include <seiscomp3/datamodel/notifier.h>
+#include <seiscomp3/datamodel/network.h>
+#include <seiscomp3/datamodel/sensorlocation.h>
 #include <seiscomp3/math/geo.h>
 #include <seiscomp3/utils/files.h>
+
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -36,6 +41,12 @@
 #include "config.h"
 
 
+#define MSGID 14
+#define INST_WILDCARD 0
+#define INST_UNKNOWN 255
+#define MOD_WILDCARD 0
+
+
 using namespace std;
 using namespace Seiscomp;
 using namespace Seiscomp::Core;
@@ -44,9 +55,11 @@ using namespace Seiscomp::DataModel;
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-EW2SC3::EW2SC3(int argc, char **argv) :
+EW2SC3::EW2SC3(int argc, char** argv) :
 		Application(argc, argv) {
 
+	setLoadInventoryEnabled(false);
+	setLoadStationsEnabled(true);
 	setAutoApplyNotifierEnabled(true);
 	setInterpretNotifierEnabled(true);
 	setPrimaryMessagingGroup("EVENT");
@@ -55,8 +68,9 @@ EW2SC3::EW2SC3(int argc, char **argv) :
 	addMessagingSubscription("MAGNITUDE");
 	setConnectionRetries(0xFFFFFFFF);
 
-	std::string appnameinfo = (string) argv[0] + "-processing-info";
-	std::string appnameerror = (string) argv[0] + "-processing-error";
+	string appnameinfo = (string) argv[0] + "-processing-info";
+	string appnameerror = (string) argv[0] + "-processing-error";
+
 	// Processing log file
 	_infoChannel = SEISCOMP_DEF_LOGCHANNEL("info", Logging::LL_INFO);
 	_infoOutput = new Logging::FileRotatorOutput(
@@ -82,6 +96,9 @@ EW2SC3::~EW2SC3() {
 
 	delete _errorChannel;
 	delete _errorOutput;
+
+	SEISCOMP_DEBUG("Number of remaining objects before destroying application: %d",
+	    BaseObject::ObjectCount());
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -104,7 +121,7 @@ bool EW2SC3::config() {
 		}
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'configPath' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.configPath' variable");
 		error++;
 	}
 
@@ -112,71 +129,55 @@ bool EW2SC3::config() {
 		senderPort = configGetInt("ew2sc3.senderPort");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'senderport' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.senderPort' variable");
 		error++;
 	}
 
 	try {
-		modId = configGetInt("ew2sc3.modID");
+		_modID = configGetInt("ew2sc3.modID");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'modid' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3._modID' variable");
 		error++;
 	}
 
 	try {
-		instId = configGetInt("ew2sc3.instID");
+		_instID = configGetInt("ew2sc3.instID");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'instid' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3._instID' variable");
 		error++;
 	}
 
 	try {
-		msgId = configGetInt("ew2sc3.msgID");
+		_instAuthor = configGetString("ew2sc3.author");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'msgid' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.author' variable");
 		error++;
 	}
 
 	try {
-		instName = configGetString("ew2sc3.name");
+		_senderHostName = configGetString("ew2sc3.hostname");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'name' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.hostname' variable");
 		error++;
 	}
 
 	try {
-		instAuthor = configGetString("ew2sc3.author");
+		_defaultLatitude = configGetString("ew2sc3.defaultLatitude");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'author' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.defaultLatitude' variable");
 		error++;
 	}
 
 	try {
-		senderHostName = configGetString("ew2sc3.hostname");
+		_defaultLongitude = configGetString("ew2sc3.defaultLongitude");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'hostname' variable");
-		error++;
-	}
-
-	try {
-		defaultLatitude = configGetString("ew2sc3.defaultLatitude");
-	}
-	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'latitude' variable");
-		error++;
-	}
-
-	try {
-		defaultLongitude = configGetString("ew2sc3.defaultLongitude");
-	}
-	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'longitude' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.defaultLongitude' variable");
 		error++;
 	}
 
@@ -184,14 +185,14 @@ bool EW2SC3::config() {
 		_locProfile = configGetString("ew2sc3.locatorProfile");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'locatorProfile' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.locatorProfile' variable");
 		error++;
 	}
 	try {
 		_archive = configGetBool("ew2sc3.enableArchiving");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Can't read 'enableArchiving' variable");
+		SEISCOMP_ERROR("Can't read 'ew2sc3.enableArchiving' variable");
 		error++;
 	}
 
@@ -199,7 +200,7 @@ bool EW2SC3::config() {
 		myAliveInt = configGetInt("ew2sc3.myAliveInt");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'myAliveInt' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.myAliveInt' variable");
 		error++;
 	}
 
@@ -207,7 +208,7 @@ bool EW2SC3::config() {
 		senderTimeout = configGetInt("ew2sc3.senderTimeout");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'senderTimeout' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.senderTimeout' variable");
 		error++;
 	}
 
@@ -215,7 +216,7 @@ bool EW2SC3::config() {
 		maxMsgSize = configGetInt("ew2sc3.maxMsgSize");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'maxMsgSize' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.maxMsgSize' variable");
 		error++;
 	}
 
@@ -223,7 +224,7 @@ bool EW2SC3::config() {
 		_myAliveString = configGetString("ew2sc3.myAliveString");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'myAliveString' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.myAliveString' variable");
 		error++;
 	}
 
@@ -231,7 +232,7 @@ bool EW2SC3::config() {
 		_senderAliveString = configGetString("ew2sc3.myAliveString");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'myAliveString' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.myAliveString' variable");
 		error++;
 	}
 
@@ -239,7 +240,7 @@ bool EW2SC3::config() {
 		_enableUncertainties = configGetBool("ew2sc3.enableUncertainties");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'enableUncertainties' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.enableUncertainties' variable");
 		error++;
 	}
 
@@ -247,7 +248,7 @@ bool EW2SC3::config() {
 		_uncertainties = configGetDoubles("ew2sc3.pickerUncertainties");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'pickerUncertainties' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.pickerUncertainties' variable");
 		error++;
 	}
 
@@ -255,9 +256,13 @@ bool EW2SC3::config() {
 		_uncertaintyMax = configGetDouble("ew2sc3.maxUncertainty");
 	}
 	catch ( ... ) {
-		SEISCOMP_ERROR("Cant read 'maxUncertainty' variable");
+		SEISCOMP_ERROR("Cant read 'ew2sc3.maxUncertainty' variable");
 		error++;
 	}
+
+	try {
+		_customAgencyID = configGetString("ew2sc3.customAgencyID");
+	} catch ( ... ) {}
 
 	messageReceiverStatus = 1;
 	heartThreadStatus = 1;
@@ -278,25 +283,25 @@ bool EW2SC3::config() {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool EW2SC3::initConfiguration() {
 
-	if ( !Client::Application::initConfiguration() )
+	if ( !Application::initConfiguration() )
 		return false;
 
 	SEISCOMP_LOG(_infoChannel, "-------------------------------------------------------");
 	SEISCOMP_LOG(_infoChannel, "Starting...");
 
-	if ( !EW2SC3::config() ) {
+	if ( !config() ) {
 		SEISCOMP_LOG(_errorChannel, "Application initialization failed... Check configuration!");
 		return false;
 	}
 
 	SEISCOMP_LOG(_infoChannel, "Application initialized with parameters:");
 	SEISCOMP_LOG(_infoChannel, "  [configPath]        [%s]", _configPath.c_str());
-	SEISCOMP_LOG(_infoChannel, "  [modID]             [%d]", modId);
-	SEISCOMP_LOG(_infoChannel, "  [instID]            [%d]", instId);
-	SEISCOMP_LOG(_infoChannel, "  [msgID]             [%d]", msgId);
-	SEISCOMP_LOG(_infoChannel, "  [name]              [%s]", instName.c_str());
-	SEISCOMP_LOG(_infoChannel, "  [author]            [%s]", instAuthor.c_str());
-	SEISCOMP_LOG(_infoChannel, "  [senderHostname]    [%s]", senderHostName.c_str());
+	SEISCOMP_LOG(_infoChannel, "  [modID]             [%d]", _modID);
+	SEISCOMP_LOG(_infoChannel, "  [instID]            [%d]", _instID);
+	SEISCOMP_LOG(_infoChannel, "  [author]            [%s]", _instAuthor.c_str());
+	if ( !_customAgencyID.empty() )
+		SEISCOMP_LOG(_infoChannel, "  [agency]            [%s]", _customAgencyID.c_str());
+	SEISCOMP_LOG(_infoChannel, "  [senderHostName]    [%s]", _senderHostName.c_str());
 	SEISCOMP_LOG(_infoChannel, "  [senderPort]        [%d]", senderPort);
 	SEISCOMP_LOG(_infoChannel, "  [senderAliveString] [%s]", senderHeartText);
 	SEISCOMP_LOG(_infoChannel, "  [senderTimeout]     [%d]", senderTimeout);
@@ -318,17 +323,21 @@ bool EW2SC3::run() {
 
 		::usleep(100 * 1000);
 
-		if ( !connected )
+		if ( !_connected )
 			ew_connect();
 
-		if ( connected && messageReceiverStatus != 0 )
+		if ( _connected && messageReceiverStatus != 0 )
 			startListenerThread();
 
-		if ( connected && heartThreadStatus != 0 )
+		if ( _connected && heartThreadStatus != 0 )
 			startHeartbeatThread();
 	}
 
 	close(socketDescriptor);
+
+	messageReceiverStatus = -1;
+	heartThreadStatus = -1;
+	_connected = false;
 
 	SEISCOMP_LOG(_infoChannel, "Received application stop request. Leaving...");
 
@@ -343,8 +352,7 @@ bool EW2SC3::run() {
 void EW2SC3::runListenerThread() {
 
 	SEISCOMP_LOG(_infoChannel, "Earthworm listener thread launched");
-	while ( ew_read() ) {
-	}
+	while ( ew_read() ) {}
 	SEISCOMP_LOG(_infoChannel, "Earthworm listener thread stopped");
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -356,8 +364,7 @@ void EW2SC3::runListenerThread() {
 void EW2SC3::runHeartbeatThread() {
 
 	SEISCOMP_LOG(_infoChannel, "Earthworm heartbeat thread launched");
-	while ( sendHeartbeat() ) {
-	}
+	while ( sendHeartbeat() ) {}
 	SEISCOMP_LOG(_infoChannel, "Earthworm heartbeat thread stopped");
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -387,7 +394,7 @@ void EW2SC3::startHeartbeatThread() {
 int EW2SC3::ew_connect() {
 
 	SEISCOMP_LOG(_infoChannel, "Trying to connect to %s on port %d",
-	    senderHostName.c_str(), senderPort);
+	    _senderHostName.c_str(), senderPort);
 
 	socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -396,19 +403,19 @@ int EW2SC3::ew_connect() {
 	else
 		SEISCOMP_LOG(_infoChannel, "Received socket description, proceeding with connection");
 
-	server = gethostbyname(senderHostName.c_str());
+	server = gethostbyname(_senderHostName.c_str());
 	if ( !server ) {
 		SEISCOMP_ERROR("Host %s is not responding, hostname resolving failed",
-		    senderHostName.c_str());
+		    _senderHostName.c_str());
 		exit(0);
 	}
 
-	bzero((char *) &serv_addr, sizeof(serv_addr));
+	bzero((char*) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	bcopy((char *) server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
+	bcopy((char*) server->h_addr, (char*) &serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(senderPort);
 
-	if ( connect(socketDescriptor, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0 ) {
+	if ( connect(socketDescriptor, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0 ) {
 
 		// Bugfix!
 		// Threads never get restarted if one of those is not properly reseted
@@ -416,19 +423,19 @@ int EW2SC3::ew_connect() {
 		messageReceiverStatus = -1;
 		heartThreadStatus = -1;
 
-		connected = false;
+		_connected = false;
 
 		SEISCOMP_LOG(_errorChannel, "Can't connect to %s:%d. New attempt in 10 seconds",
-		    senderHostName.c_str(), senderPort);
+		    _senderHostName.c_str(), senderPort);
 
 		sleep(9);
 	}
 	else {
-		connected = true;
+		_connected = true;
 
 		SEISCOMP_LOG(_infoChannel, "Network socket opened to Earthworm [%s]",
-		    senderHostName.c_str());
-		SEISCOMP_LOG(_infoChannel, "      ...Now waiting for events...");
+		    _senderHostName.c_str());
+		SEISCOMP_LOG(_infoChannel, "      ...Now awaiting events...");
 	}
 
 	return EXIT_SUCCESS;
@@ -443,20 +450,20 @@ int EW2SC3::sendHeartbeat() {
 
 	time_t now;
 	heartThreadStatus = 0;
-	time(&lastSocketBeat);
+	time(&_lastSocketBeat);
 
-	while ( connected ) {
+	while ( _connected ) {
 		sleep(1);
 		time(&now);
-		if ( difftime(now, lastSocketBeat) > (double) myAliveInt && myAliveInt != 0 ) {
+		if ( difftime(now, _lastSocketBeat) > (double) myAliveInt && myAliveInt != 0 ) {
 			if ( ew_write(socketDescriptor, myAliveString) != 0 ) {
 				SEISCOMP_ERROR("Problem sending alive msg to socket");
 				heartThreadStatus = -1;
 				_heartbeatThread->join();
 			}
 
-			SEISCOMP_DEBUG("Heartbeat sent to %s", senderHostName.c_str());
-			lastSocketBeat = now;
+			SEISCOMP_DEBUG("Heartbeat sent to %s", _senderHostName.c_str());
+			_lastSocketBeat = now;
 		}
 	}
 
@@ -488,10 +495,10 @@ int EW2SC3::ew_read() {
 	messageReceiverStatus = 0;
 
 	// Allocating the message buffer thru memory
-	if ( (msgBuffer = (char *) malloc(maxMsgSize)) == (char *) NULL )
+	if ( (msgBuffer = (char*) malloc(maxMsgSize)) == (char*) NULL )
 		SEISCOMP_LOG(_errorChannel, "Can't allocate buffer size %d", maxMsgSize);
 
-	while ( connected ) {
+	while ( _connected ) {
 
 		if ( ++inchar == nr ) {
 			nr = read(socketDescriptor, inBuffer, INBUFFERSIZE);
@@ -499,7 +506,7 @@ int EW2SC3::ew_read() {
 				SEISCOMP_ERROR("Failed to read socket content");
 				messageReceiverStatus = -1;
 				heartThreadStatus = -1;
-				connected = false;
+				_connected = false;
 				continue;
 			}
 			inchar = 0;
@@ -525,7 +532,7 @@ int EW2SC3::ew_read() {
 			}
 			else {
 				SEISCOMP_ERROR("Unexpected character from client. Re-synching");
-				connected = false;
+				_connected = false;
 				state = SEARCHING_FOR_MESSAGE_START;
 				continue;
 			}
@@ -538,16 +545,16 @@ int EW2SC3::ew_read() {
 
 				if ( strcmp(&msgBuffer[9], senderHeartText) == 0 ) {
 					// Damn! This message is just an heartbeat :(
-					SEISCOMP_DEBUG("Received heartbeat from %s", senderHostName.c_str());
-					time((time_t*) &lastServerBeat);
+					SEISCOMP_DEBUG("Received heartbeat from %s", _senderHostName.c_str());
+					time((time_t*) &_lastServerBeat);
 					state = EXPECTING_MESSAGE_START;
 					msgBuffer[0] = ' ';
 					msgBuffer[9] = ' ';
 
 				}
 				else {
-					SEISCOMP_DEBUG("Received non-heartbeat from %s", senderHostName.c_str());
-					time((time_t*) &lastServerBeat);
+					SEISCOMP_DEBUG("Received non-heartbeat from %s", _senderHostName.c_str());
+					time((time_t*) &_lastServerBeat);
 
 					char msg_inst[4], msg_mod[4], msg_type[4];
 
@@ -560,19 +567,37 @@ int EW2SC3::ew_read() {
 					strncpy(msg_type, &msgBuffer[6], 3);
 					msg_type[3] = 0;
 
-					if ( (atoi(msg_type) == msgId) && (atoi(msg_inst) == instId) ) {
-						// Checking module id is not mandatory anymore since several
-						// modules may produce origins in earthworm... Otherwise replace
-						// line by the following:
-						// if ((atoi(msg_type) == msgId) && (atoi(msg_inst) == instId) && (atoi(msg_mod) == modId)) {
-						SEISCOMP_LOG(_infoChannel, "Incoming origin from Earthworm [msgID: %d | instID: %d | modID: %d]",
-						    atoi(msg_type), atoi(msg_inst), atoi(msg_mod));
-						extractOrigin(msgBuffer);
+					// Accept only ew_export messages which ID is 14
+					if ( atoi(msg_type) == MSGID ) {
+
+						// Accept messages which institudeID matches 0 (earthworm WILDCARD),
+						// 255 (earthworm UNKNOWN) or specified ID only.
+						if ( (atoi(msg_inst) == _instID) || (atoi(msg_inst) == INST_WILDCARD)
+						        || (atoi(msg_inst) == INST_UNKNOWN) ) {
+
+							// Accept messages which moduleID is 0 (earthworm WILDCARD)
+							// or specified ID only.
+							if ( (atoi(msg_mod) == _modID) || (atoi(msg_mod) == MOD_WILDCARD) ) {
+
+								SEISCOMP_LOG(_infoChannel, "Incoming origin from Earthworm "
+									"[msgID: %d | instID: %d | modID: %d]",
+								    atoi(msg_type), atoi(msg_inst), atoi(msg_mod));
+
+								extractOrigin(msgBuffer);
+							}
+							else
+								SEISCOMP_LOG(_errorChannel, "Incoming trace has been ignored "
+									"[modID: %d != %d or %d]", atoi(msg_mod), _modID, MOD_WILDCARD);
+						}
+						else
+							SEISCOMP_LOG(_errorChannel, "Incoming trace has been ignored "
+								"[instID: %d != %d or %d or %d]",
+							    atoi(msg_inst), _instID, INST_WILDCARD, INST_UNKNOWN);
 					}
-					else {
-						SEISCOMP_LOG(_errorChannel, "Incoming trace has been ignored [msgID: %d != %d | instID: %d != %d | modID: %d != %d]",
-						    atoi(msg_type), msgId, atoi(msg_inst), instId, atoi(msg_mod), modId);
-					}
+					else
+						SEISCOMP_LOG(_errorChannel, "Incoming stream has been ignored "
+							"[msgID: %d != %d]", atoi(msg_type), MSGID);
+
 				}
 				state = EXPECTING_MESSAGE_START;
 				continue;
@@ -582,9 +607,10 @@ int EW2SC3::ew_read() {
 					if ( ++inchar == nr ) {
 						nr = read(socketDescriptor, inBuffer, INBUFFERSIZE);
 						if ( nr <= 0 ) {
-							// The socket is closed, we need to kill ourself and tell the main thread restart us
+							// The socket is closed, we need to kill ourself and
+							// tell the main thread to restart us
 							SEISCOMP_ERROR("Can not read from network. Restarting");
-							messageReceiverStatus = -1; /* file a complaint to the main thread */
+							messageReceiverStatus = -1;
 							heartThreadStatus = -1;
 							_heartbeatThread->join();
 							_listenerThread->join();
@@ -621,7 +647,8 @@ int EW2SC3::ew_read() {
 					continue;
 				}
 
-				// So it's not a naked start, escape, or a naked end. Hey, it's just a normal byte
+				// So it's not a naked start, escape, or a naked end.
+				// Hey, it's just a normal byte
 				msgBuffer[nchar++] = chr;
 				if ( nchar > maxMsgSize ) {
 					SEISCOMP_ERROR("Received buffer overflow after %d bytes", maxMsgSize);
@@ -643,7 +670,7 @@ int EW2SC3::ew_read() {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-int EW2SC3::ew_write(int sock, char *msg) {
+int EW2SC3::ew_write(int sock, char* msg) {
 
 	char asciilogo[11]; // ascii version of outgoing logo
 	char startmsg = STX; // flag for beginning of message
@@ -653,7 +680,7 @@ int EW2SC3::ew_write(int sock, char *msg) {
 	msglength = strlen(msg); // assumes msg is null terminated
 
 	// "start of transmission" flag & ascii representation of logo
-	sprintf(asciilogo, "%c%3d%3d%3d", startmsg, instId, modId, msgId);
+	sprintf(asciilogo, "%c%3d%3d%3d", startmsg, _instID, _modID, MSGID);
 	rc = sendMessage(sock, asciilogo, 10, 0, senderTimeout);
 	if ( rc != 10 ) {
 		SEISCOMP_ERROR("write() %s", strerror(errno));
@@ -682,7 +709,7 @@ int EW2SC3::ew_write(int sock, char *msg) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-int EW2SC3::sendMessage(int sock, char *buf, int buflen, int flags,
+int EW2SC3::sendMessage(int sock, char* buf, int buflen, int flags,
                         int timeout_msecs) {
 
 	int bytesjustsent = 0;
@@ -760,16 +787,19 @@ int EW2SC3::extractOrigin(char* msg) {
 	string neventSec;
 	string tmpFile = _configPath + "arc.tmp";
 
-
-	// temp arc file writing
+	// Write temporary archive file
 	try {
 		ofstream out(tmpFile.c_str());
 		out << &msg[9];
 		out.close();
 	}
-	catch ( exception &e ) {
-		SEISCOMP_LOG(_errorChannel, "Tmp Arc exception; %s", e.what());
+	catch ( exception& e ) {
+		SEISCOMP_LOG(_errorChannel, "Tmp arc file exception; %s", e.what());
 	}
+
+
+	InventoryPtr inv = Client::Inventory::Instance()->inventory();
+	std::vector<PickPtr> pickList;
 
 	string line;
 	ifstream in(tmpFile.c_str());
@@ -784,8 +814,11 @@ int EW2SC3::extractOrigin(char* msg) {
 	CreationInfo oci;
 
 	oci.setCreationTime(Core::Time::GMT());
-	oci.setAuthor(instAuthor);
-	oci.setAgencyID(agencyID());
+	oci.setAuthor(_instAuthor);
+	if ( !_customAgencyID.empty() )
+		oci.setAgencyID(_customAgencyID);
+	else
+		oci.setAgencyID(agencyID());
 	origin->setCreationInfo(oci);
 	origin->setEarthModelID(_locProfile);
 	origin->setMethodID("Earthworm");
@@ -830,8 +863,8 @@ int EW2SC3::extractOrigin(char* msg) {
 			else
 				eventLonSit = "W";
 			eventLonMin = line.substr(27, 4);
-			eventErh = line.substr(85, 4);
-			eventErz = line.substr(89, 4);
+			eventErh = line.substr(85, 2) + "." + line.substr(87, 2);
+			eventErz = line.substr(89, 2) + "." + line.substr(91, 2);
 
 			eventCodaDurationMagnitude = line.substr(70, 1) + "." + line.substr(71, 2);
 			eventCodaDurationMagnitude = blank_replace(eventCodaDurationMagnitude, zero);
@@ -839,7 +872,7 @@ int EW2SC3::extractOrigin(char* msg) {
 			eventPreferredMagnitude = blank_replace(eventPreferredMagnitude, zero);
 			eventPreferredMagnitudeLabel = "M" + line.substr(146, 1);
 
-			// Archiving enabled ?
+			// If arching is enabled, export the file in archive folder
 			if ( _archive ) {
 
 				if ( !Util::pathExists(_configPath + "archive/") )
@@ -854,7 +887,7 @@ int EW2SC3::extractOrigin(char* msg) {
 					arc.close();
 					SEISCOMP_LOG(_infoChannel, "Origin archived under %s", archiveFile.c_str());
 				}
-				catch ( exception &e ) {
+				catch ( exception& e ) {
 					SEISCOMP_LOG(_errorChannel, "Archiving exception; %s", e.what());
 				}
 			}
@@ -868,8 +901,8 @@ int EW2SC3::extractOrigin(char* msg) {
 				    eventLonSit);
 			}
 			else {
-				eventLatitude = defaultLatitude;
-				eventLongitude = defaultLongitude;
+				eventLatitude = _defaultLatitude;
+				eventLongitude = _defaultLongitude;
 			}
 
 			// Hypo71 ERH to SeisComP3 ERZ conversion
@@ -888,7 +921,6 @@ int EW2SC3::extractOrigin(char* msg) {
 			connection()->send("LOCATION", nmsg.get());
 		}
 
-
 		// This is the station archive section of the arc file
 		if ( (line.substr(0, 1) != "$") && (line.substr(0, 2) != "$1")
 		        && (start_line != 0) && (line.length() > 1)
@@ -905,8 +937,10 @@ int EW2SC3::extractOrigin(char* msg) {
 			string loc = line.substr(111, 2);
 			string azimuth = line.substr(91, 3);
 			string epdist = line.substr(74, 3) + "." + line.substr(77, 1);
-			string pPhase = line.substr(14, 1);
-			string sPhase = line.substr(47, 1);
+			string pPhase = line.substr(14, 2);
+			string pPhasePolarity = line.substr(16, 1);
+			string sPhase = line.substr(47, 2);
+			string sPhasePolarity = line.substr(50, 1);
 
 			psec = blank_replace(psec, zero);
 			pres = blank_replace(pres, zero);
@@ -914,14 +948,57 @@ int EW2SC3::extractOrigin(char* msg) {
 			azimuth = blank_replace(azimuth, zero);
 			epdist = blank_replace(epdist, zero);
 
+			// If station is present in the inventory, use the location code from
+			// this instance instead of the one in earthworm which may not
+			// be the same ('--' instead of blank '')
+			SensorLocationPtr sensor = NULL;
+			if ( inv ) {
+				for (size_t i = 0; i < inv->networkCount(); ++i) {
+					NetworkPtr n = inv->network(i);
+
+					if ( n->code() != network )
+						continue;
+
+					for (size_t j = 0; j < n->stationCount(); ++j) {
+						StationPtr station = n->station(j);
+
+						if ( station->code() != site )
+							continue;
+
+						for (size_t l = 0; l < station->sensorLocationCount();
+						        ++l) {
+							SensorLocationPtr sloc = station->sensorLocation(l);
+
+							// sensor's is finished (out of date)
+							try {
+								if ( sloc->end() <= ot )
+									continue;
+							} catch ( ... ) {}
+
+							// sensor's hasn't even begin yet
+							if ( sloc->start() > ot )
+								continue;
+
+							sensor = sloc;
+						}
+					}
+				}
+			}
+			else
+				SEISCOMP_LOG(_errorChannel, "No inventory acquired when trying to locate station %s/%s",
+				    network.c_str(), site.c_str());
+
 			CreationInfo ci;
 			ci.setCreationTime(Time::GMT());
-			ci.setAgencyID(agencyID());
-			ci.setAuthor(instAuthor);
+			if ( !_customAgencyID.empty() )
+				ci.setAgencyID(_customAgencyID);
+			else
+				ci.setAgencyID(agencyID());
+			ci.setAuthor(_instAuthor);
 			ci.setModificationTime(Time::GMT());
 
 			Time time = Time::GMT();
-			StationPtr station = NULL;
+			StationPtr station;
 			station = query()->getStation(network, site, time);
 
 			double dist, azi1, azi2;
@@ -935,7 +1012,7 @@ int EW2SC3::extractOrigin(char* msg) {
 				azi1 = to_double(azimuth);
 			}
 
-			if ( pPhase.compare("P") == 0 ) {
+			if ( pPhase.find("P") != string::npos ) {
 
 				double res = getResidual(pres);
 				PickPtr pPick = Pick::Create();
@@ -948,9 +1025,25 @@ int EW2SC3::extractOrigin(char* msg) {
 				    (int) ((to_double(psec) - floor(to_double(psec))) * 1.0E6));
 				pPick->setTime(pt);
 				pPick->setEvaluationMode(EvaluationMode(AUTOMATIC));
-				pPick->setPhaseHint(DataModel::Phase("P"));
-				pPick->setWaveformID(DataModel::WaveformStreamID(strip_space(network),
-				    strip_space(site), strip_space(loc), strip_space(component), ""));
+				pPick->setPhaseHint(Phase("P"));
+
+				if ( strip_space(pPhasePolarity) != "" ) {
+					if ( pPhasePolarity == "U" or pPhasePolarity == "u" )
+						pPick->setPolarity(PickPolarity(POSITIVE));
+					else if ( pPhasePolarity == "D" or pPhasePolarity == "d" )
+						pPick->setPolarity(PickPolarity(NEGATIVE));
+				}
+
+				if ( sensor )
+					pPick->setWaveformID(WaveformStreamID(strip_space(network),
+					    strip_space(site), sensor->code(), strip_space(component), ""));
+				else {
+					loc = strip_space(loc);
+					if ( loc == "--" )
+						loc = "";
+					pPick->setWaveformID(WaveformStreamID(strip_space(network),
+					    strip_space(site), loc, strip_space(component), ""));
+				}
 
 				if ( _enableUncertainties ) {
 					string pWeight = line.substr(16, 1);
@@ -959,7 +1052,7 @@ int EW2SC3::extractOrigin(char* msg) {
 					pPick->time().setUncertainty(getSeiscompUncertainty(to_double(pWeight)));
 				}
 
-				PickList.push_back(pPick);
+				pickList.push_back(pPick);
 
 				ArrivalPtr pArrival = new Arrival();
 				pArrival->setPickID(pPick->publicID());
@@ -978,7 +1071,7 @@ int EW2SC3::extractOrigin(char* msg) {
 				p_idx++;
 			}
 
-			if ( sPhase.compare("S") == 0 ) {
+			if ( pPhase.find("S") != string::npos ) {
 
 				Time st;
 				st.set(to_int(year), to_int(mdhm.substr(0, 2)),
@@ -994,9 +1087,25 @@ int EW2SC3::extractOrigin(char* msg) {
 				sPick->setEvaluationStatus(EvaluationStatus(PRELIMINARY));
 				sPick->setTime(st);
 				sPick->setEvaluationMode(EvaluationMode(AUTOMATIC));
-				sPick->setPhaseHint(DataModel::Phase("S"));
-				sPick->setWaveformID(DataModel::WaveformStreamID(strip_space(network),
-				    strip_space(site), strip_space(loc), strip_space(component), ""));
+				sPick->setPhaseHint(Phase("S"));
+
+				if ( strip_space(sPhasePolarity) != "" ) {
+					if ( sPhasePolarity == "U" or sPhasePolarity == "u" )
+						sPick->setPolarity(PickPolarity(POSITIVE));
+					else if ( sPhasePolarity == "D" or sPhasePolarity == "d" )
+						sPick->setPolarity(PickPolarity(NEGATIVE));
+				}
+
+				if ( sensor )
+					sPick->setWaveformID(WaveformStreamID(strip_space(network),
+					    strip_space(site), sensor->code(), strip_space(component), ""));
+				else {
+					loc = strip_space(loc);
+					if ( loc == "--" )
+						loc = "";
+					sPick->setWaveformID(WaveformStreamID(strip_space(network),
+					    strip_space(site), loc, strip_space(component), ""));
+				}
 
 				if ( _enableUncertainties ) {
 					string sWeight = line.substr(49, 1);
@@ -1005,7 +1114,7 @@ int EW2SC3::extractOrigin(char* msg) {
 					sPick->time().setUncertainty(getSeiscompUncertainty(to_double(sWeight)));
 				}
 
-				PickList.push_back(sPick);
+				pickList.push_back(sPick);
 
 				ArrivalPtr sArrival = new Arrival();
 				sArrival->setPickID(sPick->publicID());
@@ -1031,8 +1140,11 @@ int EW2SC3::extractOrigin(char* msg) {
 
 	CreationInfo mci;
 	mci.setCreationTime(Time::GMT());
-	mci.setAgencyID(agencyID());
-	mci.setAuthor(instAuthor);
+	if ( !_customAgencyID.empty() )
+		mci.setAgencyID(_customAgencyID);
+	else
+		mci.setAgencyID(agencyID());
+	mci.setAuthor(_instAuthor);
 	mci.setModificationTime(Time::GMT());
 
 	// Amplitude magnitude
@@ -1070,8 +1182,8 @@ int EW2SC3::extractOrigin(char* msg) {
 	origin->update();
 
 	// Sending picks in a compact way
-	for (unsigned int i = 0; i < PickList.size(); i++) {
-		NotifierPtr n = new Notifier("EventParameters", DataModel::OP_ADD, PickList.at(i).get());
+	for (size_t i = 0; i < pickList.size(); ++i) {
+		NotifierPtr n = new Notifier("EventParameters", OP_ADD, pickList.at(i).get());
 		NotifierMessagePtr m = new NotifierMessage;
 		m->attach(n.get());
 		connection()->send(m.get());
@@ -1104,10 +1216,10 @@ int EW2SC3::extractOrigin(char* msg) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-double EW2SC3::getResidual(string &res) {
+double EW2SC3::getResidual(const string& res) {
 
 	int pos = -1;
-	for (unsigned int i = 0; i < res.size(); i++) {
+	for (size_t i = 0; i < res.size(); ++i) {
 		if ( res.substr(i, 1).compare("-") == 0 )
 			pos = i;
 	}
@@ -1117,9 +1229,9 @@ double EW2SC3::getResidual(string &res) {
 		value = res.substr(0, pos) + "." + res.substr(pos + 1, res.size());
 		value = "-" + value;
 	}
-	else {
+	else
 		value = res.substr(0, 2) + "." + res.substr(2, 2);
-	}
+
 
 	return to_double(value);
 }
@@ -1129,7 +1241,7 @@ double EW2SC3::getResidual(string &res) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-double EW2SC3::getSeiscompUncertainty(double value) {
+const double EW2SC3::getSeiscompUncertainty(const double& value) {
 
 	double weight;
 
@@ -1146,7 +1258,9 @@ double EW2SC3::getSeiscompUncertainty(double value) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-string EW2SC3::sexagesimal_to_decimal(double deg, double min, string pol) {
+const string EW2SC3::sexagesimal_to_decimal(const double& deg,
+                                            const double& min,
+                                            const string& pol) {
 
 	string value;
 	double x = min / 60;
@@ -1164,7 +1278,7 @@ string EW2SC3::sexagesimal_to_decimal(double deg, double min, string pol) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 template<typename T>
-string EW2SC3::to_string(const T &value) {
+string EW2SC3::to_string(const T& value) {
 
 	stringstream sstr;
 	sstr << value;
@@ -1177,7 +1291,7 @@ string EW2SC3::to_string(const T &value) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-double EW2SC3::to_double(const string &value) {
+const double EW2SC3::to_double(const string& value) {
 
 	stringstream ss(value);
 	double f;
@@ -1191,7 +1305,7 @@ double EW2SC3::to_double(const string &value) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-int EW2SC3::to_int(const string &value) {
+const int EW2SC3::to_int(const string& value) {
 
 	int number;
 	istringstream iss(value);
@@ -1205,9 +1319,9 @@ int EW2SC3::to_int(const string &value) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-string EW2SC3::blank_replace(string &str, string &str1) {
+string EW2SC3::blank_replace(string& str, string& str1) {
 
-	for (unsigned int i = 0; i < str.length(); i++) {
+	for (size_t i = 0; i < str.length(); ++i) {
 		if ( str[i] == ' ' ) {
 			str.replace(i, str1.length(), str1);
 			i--;
@@ -1222,9 +1336,9 @@ string EW2SC3::blank_replace(string &str, string &str1) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-string EW2SC3::strip_space(string &str) {
+string EW2SC3::strip_space(string& str) {
 
-	for (unsigned int i = 0; i < str.length(); i++) {
+	for (size_t i = 0; i < str.length(); ++i) {
 		if ( str[i] == ' ' ) {
 			str.erase(i, 1);
 			i--;
@@ -1239,7 +1353,7 @@ string EW2SC3::strip_space(string &str) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-void EW2SC3::strExplode(const string &s, char c, vector<string> &v) {
+void EW2SC3::strExplode(const string& s, char c, vector<string>& v) {
 
 	string::size_type i = 0;
 	string::size_type j = s.find(c);

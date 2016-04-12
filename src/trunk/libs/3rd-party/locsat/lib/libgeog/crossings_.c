@@ -61,7 +61,8 @@ static  char	SccsId[] = "@(#)crossings_.c	40.1	12/28/90";
 #define DEG_TO_RAD	0.017453293
 #define	SIGN(a1, a2)	((a2) >= 0 ? -(a1) : (a1))
 
-crossings_ (olat1, olon1, olat2, olon2, rsmall, rlarge, xlat1, xlon1, 
+void
+crossings_ (olat1, olon1, olat2, olon2, rsmall, rlarge, xlat1, xlon1,
 		xlat2, xlon2, icerr)
  
 int	*icerr;

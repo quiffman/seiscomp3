@@ -21,6 +21,7 @@ IF ( NOT MACOSX )
 		scream_plugin
 		scream2_plugin
 		wave24_plugin
+		minilogger_plugin
 		mseedscan_plugin
 		fs_plugin
 		win_plugin

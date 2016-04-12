@@ -56,6 +56,9 @@ class SC_SYSTEM_CLIENT_API WaveformOperator : public Core::BaseObject {
 		//! into the WaveformProcessor's status.
 		virtual WaveformProcessor::Status feed(const Record *record) = 0;
 
+		//! Resets the operator.
+		virtual void reset() = 0;
+
 
 	protected:
 		bool store(const Record *rec) {

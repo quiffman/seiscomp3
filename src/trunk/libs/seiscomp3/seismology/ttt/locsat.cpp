@@ -37,8 +37,83 @@ char **phase_types();
 }
 
 
+/*
+namespace {
+
+
+bool get_vel(std::vector<Locsat::Velocity> &lay, float depth, float *vp, float *vs) {
+	bool ldep = false;
+	size_t i = 0;
+
+	if ( lay.empty() ) return false;
+
+	if ( depth < 0 ) depth = 0;
+
+	while ( !ldep && i < lay.size() ) {
+		if ( lay[i].depth <= depth ) {
+			if ( lay[i].depth == depth) {
+				*vp = lay[i].vp;
+				*vs = lay[i].vs;
+				return true;
+			}
+
+			++i;
+		}
+		else
+			ldep = true;
+	}
+
+	if ( ldep ) {
+		*vp = lay[i-1].vp+(lay[i].vp-lay[i-1].vp)*(depth-lay[i-1].depth)/(lay[i].depth-lay[i-1].depth);
+		*vs = lay[i-1].vs+(lay[i].vs-lay[i-1].vs)*(depth-lay[i-1].depth)/(lay[i].depth-lay[i-1].depth);
+	}
+	else {
+		*vp = lay.back().vp;
+		*vs = lay.back().vs;
+	}
+
+	return true;
+}
+
+
+bool read_tvel(std::vector<Locsat::Velocity> &velocities, const char *path) {
+	FILE *fp;
+	char *line = NULL;
+	size_t len;
+	std::string filename = path;
+
+	filename += ".tvel";
+
+	fp = fopen(filename.c_str(), "r");
+	if ( fp == NULL )
+		return false;
+
+	// Skip the first two lines
+	getline(&line, &len, fp);
+	getline(&line, &len, fp);
+
+	while ( getline(&line, &len, fp) > 0 ) {
+		float z,p,s;
+		if ( sscanf(line, "%f %f %f", &z, &p, &s) == 3 ) {
+			velocities.push_back(Locsat::Velocity(z,p,s));
+		}
+	}
+
+	fclose(fp);
+	if ( line != NULL ) free(line);
+
+	return true;
+}
+
+
+}
+*/
+
+
 std::string Locsat::_model;
 int Locsat::_tabinCount = 0;
+//std::vector<Locsat::Velocity> Locsat::_velocities;
+
 
 Locsat::Locsat() : _initialized(false), _Pindex(-1) {}
 
@@ -50,9 +125,9 @@ Locsat::Locsat(const Locsat &other) {
 
 Locsat &Locsat::operator=(const Locsat &other) {
 	_initialized = other._initialized;
-	if ( _initialized ) {
+	_Pindex = other._Pindex;
+	if ( _initialized )
 		++_tabinCount;
-	}
 
 	return *this;
 }
@@ -62,22 +137,33 @@ Locsat::~Locsat() {
 	if ( _initialized ) {
 		--_tabinCount;
 
-		if ( !_tabinCount ) {
+		if ( !_tabinCount )
 			_model.clear();
-		}
 	}
 }
 
 
 bool Locsat::setModel(const std::string &model) {
+	if ( _model != model ) {
+		if ( _initialized ) {
+			--_tabinCount;
+
+			if ( !_tabinCount )
+				_model.clear();
+
+			_initialized = false;
+		}
+	}
+
 	if ( _tabinCount && _model != model ) return false;
 
 	if ( !_tabinCount )
 		InitPath(model);
 
-	++_tabinCount;
-
-	_initialized = true;
+	if ( !_initialized ) {
+		++_tabinCount;
+		_initialized = true;
+	}
 
 	return _Pindex != -1;
 }
@@ -96,7 +182,11 @@ void Locsat::InitPath(const std::string &model)
 		return;
 	}
 
+	//_velocities.clear();
+
 	setup_tttables_dir((Environment::Instance()->shareDir() + "/locsat/tables/" + model).c_str());
+	//read_tvel(_velocities, (Environment::Instance()->shareDir() + "/locsat/tables/" + model).c_str());
+
 	_model = model;
 
 	int nphases = num_phases();
@@ -117,17 +207,32 @@ void Locsat::InitPath(const std::string &model)
 TravelTimeList *Locsat::compute(double delta, double depth) {
 	int nphases = num_phases();
 	char **phases = phase_types();
+	//float vp, vs;
+	float takeoff;
 
 	TravelTimeList *ttlist = new TravelTimeList;
 	ttlist->delta = delta;
 	ttlist->depth = depth;
 
+	//bool has_vel = get_vel(depth, &vp, &vs);
+
 	for ( int i = 0; i < nphases; ++i ) {
 		char *phase = phases[i];
 		double ttime = compute_ttime(delta, depth, phase, 1);
-		if ( ttime < 0 ) continue;
+		// This comparison is there to also skip NaN values
+		if ( !(ttime > 0) ) continue;
 
-		ttlist->push_back(TravelTime(phase, ttime, 0, 0, 0, 0));
+		/*
+		if ( has_vel ) {
+			float v = (phase[i][0]=='s' || phase[i][0]=='S') ? vs : vp;
+			takeoff = takeoff_angle(dtdd[i], depth, v);
+			if ( dtdh[i] > 0. )
+				takeoff = 180.-takeoff;
+		}
+		else*/
+			takeoff = 0;
+
+		ttlist->push_back(TravelTime(phase, ttime, 0, 0, 0, takeoff));
 	}
 
 	ttlist->sortByTime();

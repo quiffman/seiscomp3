@@ -61,8 +61,8 @@
 				</option>
 				<option long-flag="rc-dir" argument="dir">
 					<description>
-					If given, rc (ressource) files will be created in this directory for
-					each station. The stations desciption will be from the last available
+					If given, rc (resource) files will be created in this directory for
+					each station. The station descriptions will be from the last available
 					epoch.
 					</description>
 				</option>
@@ -78,12 +78,13 @@
 				</option>
 				<option long-flag="level" argument="int">
 					<description>
-					Information level (net, sta, cha or resp) used by ls.
+					Information level reported by ls. One of "net", "sta",
+					"cha" or "resp". Default is "cha".
 					</description>
 				</option>
 				<option long-flag="compact">
 					<description>
-					Enabled compact output for ls: each object one line.
+					Enable compact output for ls: each object one line.
 					</description>
 				</option>
 			</group>
@@ -113,7 +114,7 @@
 				</option>
 				<option long-flag="test">
 					<description>
-					Does not send any notifiers and just outputs resulting operations and
+					Do not send any notifiers and just output resulting operations and
 					conflicts.
 					</description>
 				</option>

@@ -600,8 +600,9 @@ class ArclinkManager(object):
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
-                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = 0
+                                    # auxStream doesn't have sample rate info, so this wouldn't work
+                                    # self.__estimate_size(strm, rl.start_time, rl.end_time)
 
             for net in sum([i.values() for i in inv.network.itervalues()], []):
                 if not fnmatch.fnmatchcase(net.code, rl.net):
@@ -638,8 +639,9 @@ class ArclinkManager(object):
                                     elif self.__spfr_diff(strm, spfr) > spfr_diff:
                                         continue
 
-                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = \
-                                    self.__estimate_size(strm, rl.start_time, rl.end_time)
+                                expanded[(rl.start_time, rl.end_time, net.code, sta.code, strm.code, _dot(loc.code))] = 0
+                                    # auxStream doesn't have sample rate info, so this wouldn't work
+                                    # self.__estimate_size(strm, rl.start_time, rl.end_time)
 
             if expanded:
                 for (x, estimated_size) in expanded.iteritems():

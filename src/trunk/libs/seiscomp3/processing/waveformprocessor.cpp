@@ -140,6 +140,8 @@ void WaveformProcessor::reset() {
 
 	_stream = StreamState();
 
+	if ( _operator ) _operator->reset();
+
 	if ( tmp != NULL ) {
 		_stream.filter = tmp->clone();
 		delete tmp;
@@ -231,7 +233,8 @@ const Record *WaveformProcessor::lastRecord() const {
 void WaveformProcessor::initFilter(double fsamp) {
 	_stream.fsamp = fsamp;
 	_stream.neededSamples = static_cast<size_t>(_initTime * _stream.fsamp + 0.5);
-	if ( _stream.filter ) _stream.filter->setSamplingFrequency(fsamp);
+	if ( _stream.filter )
+		_stream.filter->setSamplingFrequency(fsamp);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

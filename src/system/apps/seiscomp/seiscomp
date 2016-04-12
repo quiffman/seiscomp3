@@ -2,6 +2,10 @@
 
 import os, sys, signal, subprocess, pipes, glob, shutil, imp, traceback
 
+if sys.platform == "darwin":
+    SysLibraryPathVar = "DYLD_FALLBACK_LIBRARY_PATH"
+else:
+    SysLibraryPathVar = "LD_LIBRARY_PATH"
 
 # ------------------------------------------------------------------------------
 # Helper functions
@@ -114,7 +118,7 @@ def dump_paths():
   print "--------------------"
   print "SEISCOMP_ROOT=%s" % SEISCOMP_ROOT
   print "PATH=%s" % os.environ["PATH"]
-  print "LD_LIBRARY_PATH=%s" % os.environ["LD_LIBRARY_PATH"]
+  print "%s=%s" % (SysLibraryPathVar, os.environ[SysLibraryPathVar])
   print "PYTHONPATH=%s" % sys.path
   print "CWD=%s" % os.getcwd()
   print "--------------------"
@@ -476,7 +480,7 @@ def on_print(args, flags):
   elif args[0] == "env":
     print "export SEISCOMP_ROOT=%s" % SEISCOMP_ROOT
     print "export PATH=%s:$PATH" % BIN_PATH
-    print "export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH" % LD_LIBRARY_PATH
+    print "export %s=%s:%s" % (SysLibraryPathVar, LD_LIBRARY_PATH, SysLibraryPathVar)
     print "export PYTHONPATH=%s:$PYTHONPATH" % PYTHONPATH
     print "export MANPATH=%s:$MANPATH" % MANPATH
     print "export LC_ALL=C"
@@ -918,8 +922,8 @@ except: pass
 if not isWrapped:
   try: os.environ["PATH"] = BIN_PATH + ":" + os.environ["PATH"]
   except: os.environ["PATH"] = BIN_PATH
-  try: os.environ["LD_LIBRARY_PATH"] = LD_LIBRARY_PATH + ":" + os.environ["LD_LIBRARY_PATH"]
-  except: os.environ["LD_LIBRARY_PATH"] = LD_LIBRARY_PATH
+  try: os.environ[SysLibraryPathVar] = LD_LIBRARY_PATH + ":" + os.environ[SysLibraryPathVar]
+  except: os.environ[SysLibraryPathVar] = LD_LIBRARY_PATH
   try: os.environ["PYTHONPATH"] = PYTHONPATH + ":" + os.environ["PYTHONPATH"]
   except: os.environ["PYTHONPATH"] = PYTHONPATH
   try: os.environ["MANPATH"] = MANPATH + ":" + os.environ["MANPATH"]

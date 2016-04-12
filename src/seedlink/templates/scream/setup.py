@@ -26,6 +26,8 @@ class SeedlinkPluginHandler:
     try:
       if seedlink.param('sources.scream.tcp').lower() in ("yes","true","1"):
         seedlink.setParam('sources.scream.tcpFlag',' -tcp')
+      else:
+        seedlink.setParam('sources.scream.tcpFlag','')
     except:
       seedlink.setParam('sources.scream.tcpFlag','')
 

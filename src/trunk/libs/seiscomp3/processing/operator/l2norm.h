@@ -37,11 +37,9 @@ struct L2Norm<T,2> {
 	bool publish(int c) const { return c == 0; }
 
 	void operator()(T *data[2], int n, const Core::Time &stime, double sfreq) const {
-		for ( int i = 0; i < n; ++i ) {
-			*data[0] = sqrt(*data[0] * *data[0] +
-			                *data[1] * *data[1]);
-			++data[0]; ++data[1];
-		}
+		for ( int i = 0; i < n; ++i )
+			data[0][i] = sqrt(data[0][i] * data[0][i] +
+			                  data[1][i] * data[1][i]);
 	}
 };
 
@@ -51,11 +49,9 @@ struct L2Norm<T,3> {
 	bool publish(int c) const { return c == 0; }
 
 	void operator()(T *data[3], int n, const Core::Time &stime, double sfreq) const {
-		for ( int i = 0; i < n; ++i ) {
-			*data[0] = sqrt(*data[0] * *data[0] +
-			                *data[1] * *data[1]);
-			++data[0]; ++data[1];
-		}
+		for ( int i = 0; i < n; ++i )
+			data[0][i] = sqrt(data[0][i] * data[0][i] +
+			                  data[1][i] * data[1][i]);
 	}
 };
 

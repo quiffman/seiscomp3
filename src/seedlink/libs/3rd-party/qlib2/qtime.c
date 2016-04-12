@@ -154,7 +154,7 @@ int init_leap_second_table ()
     else strcpy(leap_file, LEAPSECONDS);
     if ((lf=fopen(leap_file, "r"))==NULL) {
 	fprintf (stderr, "Warning: unable to open leap second file: %s\n",leap_file);
-	return;
+	return (status);
     }
 
     while (fgets(line,LEAPLINELEN,lf)!=NULL) {

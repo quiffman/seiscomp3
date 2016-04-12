@@ -126,36 +126,25 @@ void Criterion::setAgencyIDs(const AgencyIDs& ids)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool Criterion::isInLatitudeRange(double lat)
+bool Criterion::isInLatLonRange(double lat, double lon)
 {
-	bool result = false;
-	if (lat >= _latitudeRange.first && lat <= _latitudeRange.second)
-		result = !result;
-	else
+	bool result = true;
+	if (lat < _latitudeRange.first || lat > _latitudeRange.second)
 	{
+		result = false;
 		std::ostringstream ss;
 		ss << "Latitude " << lat << " not in [" << _latitudeRange.first << ":" << _latitudeRange.second << "]";
 		append(ss.str());
 	}
-	return result;
-}
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool Criterion::isInLongitudeRange(double lon)
-{
-	bool result = false;
-	if (lon >= _longitudeRange.first && lon <= _longitudeRange.second)
-		result = !result;
-	else
+	if (lon < _longitudeRange.first || lon > _longitudeRange.second)
 	{
+		result = false;
 		std::ostringstream ss;
 		ss << "Longitude " << lon << " not in [" << _longitudeRange.first << ":" << _longitudeRange.second << "]";
 		append(ss.str());
 	}
+
 	return result;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

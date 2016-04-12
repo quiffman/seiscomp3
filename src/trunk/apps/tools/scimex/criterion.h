@@ -36,8 +36,7 @@ class CriterionInterface : public Utils::LeExpression {
 		virtual ~CriterionInterface() {}
 
 	public:
-		virtual bool isInLatitudeRange(double lat) = 0;
-		virtual bool isInLongitudeRange(double lon) = 0;
+		virtual bool isInLatLonRange(double lat, double lon) = 0;
 		virtual bool isInMagnitudeRange(double mag) = 0;
 		virtual bool checkArrivalCount(size_t count) = 0;
 		virtual bool checkAgencyID(const std::string& id) = 0;
@@ -87,8 +86,7 @@ class Criterion : public CriterionInterface {
 		const AgencyIDs& agencyIDs() const;
 		void setAgencyIDs(const AgencyIDs& ids);
 
-		virtual bool isInLatitudeRange(double lat);
-		virtual bool isInLongitudeRange(double lon);
+		virtual bool isInLatLonRange(double lat, double lon);
 		virtual bool isInMagnitudeRange(double mag);
 		virtual bool checkArrivalCount(size_t count);
 		virtual bool checkAgencyID(const std::string& id);
@@ -151,14 +149,12 @@ class UnaryOperator : public Criterion {
 
 class AndOperator : public BinaryOperator<CriterionInterface> {
 	public:
-		virtual bool isInLatitudeRange(double lat)  {
-			_boolean = _lhs->isInLatitudeRange(lat) && _rhs->isInLatitudeRange(lat);
-			if (!_boolean) missmatch("lat", lat);
-			return _boolean;
-		}
-		virtual bool isInLongitudeRange(double lon) {
-			_boolean = _lhs->isInLongitudeRange(lon) && _rhs->isInLongitudeRange(lon);
-			if (!_boolean) missmatch("lon", lon);
+		virtual bool isInLatLonRange(double lat, double lon)  {
+			_boolean = _lhs->isInLatLonRange(lat, lon) && _rhs->isInLatLonRange(lat, lon);
+			if (!_boolean) {
+				missmatch("lat", lat);
+				missmatch("lon", lon);
+			}
 			return _boolean;
 		}
 		virtual bool isInMagnitudeRange(double mag) {
@@ -196,14 +192,12 @@ class AndOperator : public BinaryOperator<CriterionInterface> {
 
 class OrOperator : public BinaryOperator<CriterionInterface> {
 	public:
-		virtual bool isInLatitudeRange(double lat) {
-			_boolean = _lhs->isInLatitudeRange(lat) || _rhs->isInLatitudeRange(lat);
-			if (!_boolean) missmatch("lat", lat);
-			return _boolean;
-		}
-		virtual bool isInLongitudeRange(double lon) {
-			_boolean = _lhs->isInLongitudeRange(lon) || _rhs->isInLongitudeRange(lon);
-			if (!_boolean) missmatch("lon", lon);
+		virtual bool isInLatLonRange(double lat, double lon) {
+			_boolean = _lhs->isInLatLonRange(lat, lon) || _rhs->isInLatLonRange(lat, lon);
+			if (!_boolean) {
+				missmatch("lat", lat);
+				missmatch("lon", lon);
+			}
 			return _boolean;
 		}
 		virtual bool isInMagnitudeRange(double mag) {
@@ -243,14 +237,12 @@ class OrOperator : public BinaryOperator<CriterionInterface> {
 
 class NotOperator : public UnaryOperator<CriterionInterface> {
 	public:
-		virtual bool isInLatitudeRange(double lat) {
-			_boolean = !_rhs->isInLatitudeRange(lat);
-			if (!_boolean) missmatch("lat", lat);
-			return _boolean;
-		}
-		virtual bool isInLongitudeRange(double lon) {
-			_boolean = !_rhs->isInLongitudeRange(lon);
-			if (!_boolean) missmatch("lon", lon);
+		virtual bool isInLatLonRange(double lat, double lon) {
+			_boolean = !_rhs->isInLatLonRange(lat, lon);
+			if (!_boolean) {
+				missmatch("lat", lat);
+				missmatch("lon", lon);
+			}
 			return _boolean;
 		}
 		virtual bool isInMagnitudeRange(double mag) {

@@ -105,8 +105,8 @@ void notifierMessageInfo(DataModel::NotifierMessage* notifierMessage) {
 			DataModel::Arrival* arrival = DataModel::Arrival::Cast(object);
 			if ( arrival )
 				SEISCOMP_INFO("Sending %s for pick %s and operation %s",
-					          arrival->className(), arrival->pickID().c_str(),
-					          (*notifierIt)->operation().toString());
+				              arrival->className(), arrival->pickID().c_str(),
+				              (*notifierIt)->operation().toString());
 		}
 		else if ( className == DataModel::StationMagnitude::ClassName() ) {
 			DataModel::StationMagnitude* sm = DataModel::StationMagnitude::Cast(object);
@@ -117,7 +117,7 @@ void notifierMessageInfo(DataModel::NotifierMessage* notifierMessage) {
 			if ( smc )
 				SEISCOMP_INFO("Sending %s for stationmagnitude %s and operation %s",
 				              smc->className(), smc->stationMagnitudeID().c_str(),
-							  (*notifierIt)->operation().toString());
+				              (*notifierIt)->operation().toString());
 		}
 		else if ( className == DataModel::Magnitude::ClassName() ) {
 			DataModel::Magnitude* magnitude = DataModel::Magnitude::Cast(object);
@@ -610,16 +610,8 @@ bool ImExImpl::fillRoutingTable(std::vector<std::string>& src, RoutingTable& des
 		Core::split(tokens, src[i].c_str(), ":");
 		if ( tokens.size() != 2 )
 			SEISCOMP_INFO("Malformed routing table entry: %s", src[i].c_str());
-		else {
-			if ( _imex->mode() == ImEx::EXPORT ) {
-				if ( tokens[1] != "IMPORT" && tokens[1] != "NULL" ) {
-					SEISCOMP_ERROR("The export routing table has a wrong destination entry %s. \n "
-							"The destination can be either IMPORT or NULL!", tokens[1].c_str());
-					return false;
-				}
-			}
+		else
 			dest[tokens[0]] = tokens[1];
-		}
 	}
 	return true;
 }
@@ -955,7 +947,7 @@ bool ImExImpl::isOriginEligibleExport(const DataModel::Origin* origin)
 bool ImExImpl::isOriginEligibleImport(const DataModel::Origin* origin)
 {
 	SEISCOMP_DEBUG("(Import) Checking if origin %s is eligible", origin->publicID().c_str());
-	if ( origin->magnitudeCount() == 0 || origin->stationMagnitudeCount() == 0 ) {
+	if ( origin->magnitudeCount() == 0 /*|| origin->stationMagnitudeCount() == 0*/ ) {
 		SEISCOMP_DEBUG("Origin is not eligible");
 		return false;
 	}
@@ -1042,8 +1034,7 @@ bool ImExImpl::filter(DataModel::Origin* origin)
 
 	SEISCOMP_DEBUG("Filtering origin: %s", origin->publicID().c_str());
 	SEISCOMP_DEBUG("Checking latitude/longitude");
-	if ( !_criterion->isInLatitudeRange(origin->latitude()) ||
-	     !_criterion->isInLongitudeRange(origin->longitude()) ) {
+	if ( !_criterion->isInLatLonRange(origin->latitude(), origin->longitude()) ) {
 		SEISCOMP_DEBUG("= latitude/longitude mismatch =");
 		SEISCOMP_DEBUG("%s", _criterion->what().c_str());
 		_criterion->clearError();
@@ -1201,24 +1192,44 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 		);
 	}
 
-	// Send Arrivals
+	const std::string &originTarget = _routingTable[DataModel::Origin::ClassName()];
+	const std::string &arrivalTarget = _routingTable[DataModel::Arrival::ClassName()];
+	bool separateOrigin = originTarget != arrivalTarget;
+
+	// Send origin
+	if ( separateOrigin ) {
+		SEISCOMP_DEBUG("Sending %sorigin %s to %s",
+		               update?"update for ":"",
+		               originID.c_str(), originTarget.c_str());
+		SEND_MSG(originTarget, &imexMessage);
+		imexMessage.clear();
+	}
+
+	// Attach arrivals
 	if ( !update ) {
 		for ( size_t i = 0; i < origin->arrivalCount(); ++i ) {
 			imexMessage.notifierMessage().attach(
 				new DataModel::Notifier(
 					origin->publicID(), DataModel::OP_ADD, origin->arrival(i)));
 		}
-		SEISCOMP_DEBUG("Sending %d %s and origin %s to %s",
-				imexMessage.size(),
-				DataModel::Arrival::ClassName(), originID.c_str(),
-				_routingTable[DataModel::Arrival::ClassName()].c_str());
-	}
-	else
-		SEISCOMP_DEBUG("Sending update for origin %s to %s",
-				originID.c_str(),
-				_routingTable[DataModel::Arrival::ClassName()].c_str());
 
-	SEND_MSG(_routingTable[DataModel::Arrival::ClassName()], &imexMessage);
+		if ( separateOrigin )
+			SEISCOMP_DEBUG("Sending %d %s for origin %s to %s",
+			               imexMessage.size(), DataModel::Arrival::ClassName(),
+			               originID.c_str(), originTarget.c_str());
+		else
+			SEISCOMP_DEBUG("Sending %d %s and origin %s to %s",
+			               imexMessage.size(), DataModel::Arrival::ClassName(),
+			               originID.c_str(), originTarget.c_str());
+
+		SEND_MSG(arrivalTarget, &imexMessage);
+	}
+	else {
+		SEISCOMP_DEBUG("Sending update for origin %s to %s", originID.c_str(),
+		               originTarget.c_str());
+		SEND_MSG(originTarget, &imexMessage);
+	}
+
 	imexMessage.clear();
 
 	if ( !update ) {
@@ -1266,6 +1277,9 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 		SEND_MSG(_routingTable[DataModel::StationMagnitude::ClassName()], &imexMessage);
 		imexMessage.clear();
 
+		const std::string &staMagContribTarget = _routingTable[DataModel::StationMagnitudeContribution::ClassName()];
+		bool sendStaMagContribs = staMagContribTarget != "NULL";
+
 		// send NetworkMagnitudes
 		size_t stationMagnitudeContributionCount = 0;
 		for ( size_t i = 0; i < origin->magnitudeCount(); ++i ) {
@@ -1275,6 +1289,8 @@ void ImExImpl::sendOrigin(DataModel::Origin* origin, bool update)
 						origin->publicID(), DataModel::OP_ADD, magnitude
 					)
 			);
+
+			if ( !sendStaMagContribs ) continue;
 
 			stationMagnitudeContributionCount += magnitude->stationMagnitudeContributionCount();
 			for ( size_t j = 0; j < magnitude->stationMagnitudeContributionCount(); ++j ) {
@@ -1385,6 +1401,7 @@ void ImExImpl::sendMessageRaw() {
 		}
 		catch ( Core::GeneralException& ex ) {
 			SEISCOMP_INFO("(%s) Exception: %s, returning", _sinkName.c_str(), ex.what());
+			break;
 		}
 	}
 }

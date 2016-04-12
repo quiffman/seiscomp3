@@ -53,7 +53,7 @@ void SecondaryPicker::computeTimeWindow() {
 		return;
 	}
 
-	Core::Time startTime = _trigger.onset + Core::TimeSpan(_config.signalBegin);
+	Core::Time startTime = _trigger.onset + Core::TimeSpan(std::min(_config.noiseBegin, _config.signalBegin));
 	Core::Time   endTime = _trigger.onset + Core::TimeSpan(_config.signalEnd);
 
 	setTimeWindow(Core::TimeWindow(startTime, endTime));

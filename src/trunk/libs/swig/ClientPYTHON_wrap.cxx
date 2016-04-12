@@ -18206,6 +18206,50 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Application_configUnset(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Application_configUnset",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Seiscomp__Client__Application, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Application_configUnset" "', argument " "1"" of type '" "Seiscomp::Client::Application *""'"); 
+  }
+  arg1 = reinterpret_cast< Seiscomp::Client::Application * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Application_configUnset" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Application_configUnset" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->configUnset((std::string const &)*arg2); 
+    }
+    catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Application_saveConfiguration(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Seiscomp::Client::Application *arg1 = (Seiscomp::Client::Application *) 0 ;
@@ -23592,6 +23636,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Application_configSetInts", _wrap_Application_configSetInts, METH_VARARGS, (char *)"Application_configSetInts(Application self, string query, vectorInt arg2)"},
 	 { (char *)"Application_configSetDoubles", _wrap_Application_configSetDoubles, METH_VARARGS, (char *)"Application_configSetDoubles(Application self, string query, vectorDouble arg2)"},
 	 { (char *)"Application_configSetStrings", _wrap_Application_configSetStrings, METH_VARARGS, (char *)"Application_configSetStrings(Application self, string query, vectorStr arg2)"},
+	 { (char *)"Application_configUnset", _wrap_Application_configUnset, METH_VARARGS, (char *)"Application_configUnset(Application self, string query)"},
 	 { (char *)"Application_saveConfiguration", _wrap_Application_saveConfiguration, METH_VARARGS, (char *)"Application_saveConfiguration(Application self) -> bool"},
 	 { (char *)"disown_Application", _wrap_disown_Application, METH_VARARGS, NULL},
 	 { (char *)"Application_handleAlarm", _wrap_Application_handleAlarm, METH_VARARGS, (char *)"Application_handleAlarm(Application self)"},

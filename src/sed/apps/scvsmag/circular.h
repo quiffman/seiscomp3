@@ -19,6 +19,7 @@
 #define CIRCULAR_BUFFER_H
 
 #include <exception>
+#include <stdexcept>
 #include <iterator>
 #include <memory>
 
@@ -376,8 +377,8 @@ private:
     }
 
     reference at_checked(size_type index) const {
-        if ( size >= contents_size_ ) {
-            throw std::out_of_range();
+        if ( index >= contents_size_ ) {
+            throw std::out_of_range("index out of bounds");
         }
         return at_unchecked(index);
     }

@@ -14,8 +14,9 @@
 #ifndef __SEISOMP_SERVICES_DATABASE_MYSQL_INTERFACE_H__
 #define __SEISOMP_SERVICES_DATABASE_MYSQL_INTERFACE_H__
 
+#include <seiscomp3/core/platform/platform.h>
 #include <seiscomp3/io/database.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(MACOSX)
 #include <mysql.h>
 #else
 #include <mysql/mysql.h>

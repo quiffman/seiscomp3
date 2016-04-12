@@ -1,5 +1,10 @@
-scvsmag is a new implementation of the Virtual Seismologist (:ref:`VS`)
-Earthquake Early Warning algorithm (Cua, 2005; Cua and Heaton, 2007). For a
+Part of the :ref:`VS` package.
+
+scvsmag is part of a new SeisComp3 implementation of the
+`Virtual Seismologist <http://www.seismo.ethz.ch/research/vs>`_
+(VS) Earthquake Early Warning algorithm (Cua, 2005; Cua and Heaton, 2007) released
+under the `'SED Public License for SeisComP3 Contributions'
+<http://www.seismo.ethz.ch/static/seiscomp_contrib/license.txt>`_. For a
 given origin it estimates single station magnitudes and a network magnitude
 based on  the envelope attenuation relationship and ground motion amplitude
 ratio derived  by Cua (2005). The original VS algorithm applies the Bayesian
@@ -103,7 +108,29 @@ The following table comments each line in the above output.
 | 26      | End of the log message for the event with the given event ID.       |
 +---------+---------------------------------------------------------------------+
 
+Logging envelope messages
+-------------------------
+The envelope messages received by scvsmag can optionally be written to the log-file 
+:file:`envelope-logging-info.log` by setting:
+
+.. code-block:: sh
+
+   vsmag.logenvelopes=true 
+
+The format of :file:`envelope-logging-info.log` is self-explanatory, note however 
+that the timestamp of the envelope value marks the start time of the 1 s waveform 
+window over which the envelope value was computed. Depending on the size of your 
+seismic network, :file:`envelope-logging-info.log` might quickly use a lot of disk
+space.
+
 References
 ==========
 
 Borcherdt, R. D., 1994: Estimates of Site-Dependent Response Spectra for Design (Methodology and Justification), Earthquake Spectra
+
+.. note::
+   If scvsmag receives identical picks from different pipelines, the internal 
+   buffering fails. The missing picks are automatically retrieved from the 
+   database if necessary and if a connection to the database has been established. 
+   Alternatively, if picking is done on the same streams in several pipelines they
+   can be distinguished by modifying their respective public IDs.

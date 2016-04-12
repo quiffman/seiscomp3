@@ -50,6 +50,7 @@ struct Config {
 	};
 
 	typedef std::vector<std::string> StringList;
+	typedef std::set<std::string> StringSet;
 
 	size_t          minAutomaticArrivals;
 	size_t          minMatchingPicks;
@@ -77,6 +78,7 @@ struct Config {
 	StringList      authors;
 	StringList      methods;
 	std::string     score;
+	StringSet       blacklistIDs;
 
 	StringList      priorities;
 

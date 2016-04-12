@@ -126,13 +126,12 @@ maeda_aic_const(int n, const TYPE *data, int &kmin, double &snr, int margin=10)
 		sumwin1 += squared;
 		sumwin2 -= squared;
 
-		if ( k == imin ) minaic = aic;
-		if ( aic < minaic ) {
+		if ( (k == imin) || (aic < minaic) ) {
 			minaic = aic;
 			kmin = k;
-//			snr = sqrt(var2/var1);
 		}
 	}
+
 	snr = maeda_aic_snr_const(n, data, kmin, margin);
 }
 

@@ -1551,24 +1551,44 @@ bool Station::readConfig(const char *filename) {
 		// Skip comments
 		if ( line[0] == '#' ) continue;
 
-		size_t pos = line.find(':');
+		size_t pos_colon = line.find(':');
+		size_t pos_assign = line.find('=');
 		string mod, profile;
+		string name, value;
 
-		if ( pos == string::npos )
+		if ( pos_colon != string::npos ) {
+			mod = line.substr(0, pos_colon);
+			profile = line.substr(pos_colon+1);
+			Core::trim(mod);
+			Core::trim(profile);
+		}
+		else if ( pos_assign != string::npos ) {
+			name = line.substr(0, pos_assign);
+			value = line.substr(pos_assign+1);
+			Core::trim(name);
+			Core::trim(value);
+		}
+		else
 			mod = line;
-		else {
-			mod = line.substr(0, pos);
-			profile = line.substr(pos+1);
+
+		if ( !mod.empty() ) {
+			if ( mods.find(mod) != mods.end() ) {
+				cerr << filename << ": duplicate module entry for '" << mod << "': ignoring" << endl;
+				continue;
+			}
+
+			mods.insert(mod);
+
+			config.push_back(ModuleConfig(mod, profile));
 		}
+		else if ( !name.empty() ) {
+			if ( tags.find(name) != tags.end() ) {
+				cerr << filename << ": duplicate tag entry for '" << name << "': ignoring" << endl;
+				continue;
+			}
 
-		if ( mods.find(mod) != mods.end() ) {
-			cerr << filename << ": duplicate module entry: ignoring" << endl;
-			continue;
+			tags[name] = value;
 		}
-
-		mods.insert(mod);
-
-		config.push_back(ModuleConfig(mod, profile));
 	}
 
 	return true;
@@ -1579,12 +1599,22 @@ bool Station::writeConfig(const char *filename) const {
 	ofstream ofs(filename, ios::out);
 	if ( !ofs.is_open() ) return false;
 
-	ModuleConfigs::const_iterator it;
-	for ( it = config.begin(); it != config.end(); ++it ) {
-		ofs << it->moduleName;
-		if ( !it->profile.empty() )
-			ofs << ":" << it->profile;
-		ofs << endl;
+	if ( !tags.empty() ) {
+		ofs << "# Station tags" << endl;
+		Tags::const_iterator it;
+		for ( it = tags.begin(); it != tags.end(); ++it )
+			ofs << it->first << " = " << it->second << endl;
+	}
+
+	if ( !config.empty() ) {
+		ofs << "# Binding references" << endl;
+		ModuleConfigs::const_iterator it;
+		for ( it = config.begin(); it != config.end(); ++it ) {
+			ofs << it->moduleName;
+			if ( !it->profile.empty() )
+				ofs << ":" << it->profile;
+			ofs << endl;
+		}
 	}
 
 	return true;
@@ -1603,6 +1633,12 @@ void Station::setConfig(const std::string &module, const std::string &profile) {
 	config.push_back(ModuleConfig(module, profile));
 }
 
+
+bool Station::compareTag(const std::string &name, const std::string &value) const {
+	Tags::const_iterator it = tags.find(name);
+	if ( it == tags.end() ) return false;
+	return it->second == value;
+}
 
 
 Module *Model::module(const std::string &name) const {

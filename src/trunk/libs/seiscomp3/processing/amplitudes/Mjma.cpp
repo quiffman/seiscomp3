@@ -89,9 +89,9 @@ bool AmplitudeProcessor_Mjma::deconvolveData(Response *resp,
 		return false;
 	}
 
-	Math::Restitution::FFT::PolesAndZeros seis5sec(
-		Math::SeismometerResponse::Seismometer5sec(Math::Velocity)
-	);
+	
+	Math::SeismometerResponse::Seismometer5sec paz(Math::Velocity);
+	Math::Restitution::FFT::PolesAndZeros seis5sec(paz);
 
 	Math::Restitution::FFT::TransferFunctionPtr cascade =
 		*tf / seis5sec;

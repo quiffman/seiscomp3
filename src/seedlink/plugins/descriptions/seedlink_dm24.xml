@@ -15,6 +15,29 @@
 				raw streams (streams submitted by a plugin as raw samples).
 				</description>
 			</parameter>
+			<group name="channels">
+				<group name="z">
+					<parameter name="sid" type="string">
+						<description>
+							ID of Z channel
+						</description>
+					</parameter>
+				</group>
+				<group name="n">
+					<parameter name="sid" type="string">
+						<description>
+							ID of N channel
+						</description>
+					</parameter>
+				</group>
+				<group name="e">
+					<parameter name="sid" type="string">
+						<description>
+							ID of E channel
+						</description>
+					</parameter>
+				</group>
+			</group>
 		</configuration>
 	</binding>
 </seiscomp>

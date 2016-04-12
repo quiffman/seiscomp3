@@ -22,23 +22,20 @@ SET(MAIN_PY scvsmaglog.py)
 SET(VSMAGLOG_TARGET scvsmaglog)
 
 SET(
-    VSMAGLOG_FILES
-        scvsmaglog.py
+	VSMAGLOG_FILES
+		scvsmaglog.py
 )
 
 SC_ADD_PYTHON_EXECUTABLE(VSMAGLOG)
+SC_INSTALL_INIT(${VSMAGLOG_TARGET} ../../../trunk/apps/templates/initd.py)
 
 # UD interface
-SET(MAIN_PY ud_interface.py)
-SET(UDINTERFACE_TARGET ud_interface)
-
-SET(
-    UDINTERFACE_FILES
-        ud_interface.py
+INSTALL(FILES
+			ud_interface.py
+		DESTINATION 
+			${PYTHON_LIBRARY_PATH}
 )
 
-SC_ADD_PYTHON_EXECUTABLE(UDINTERFACE)
-SC_INSTALL_INIT(${VSMAGLOG_TARGET} ../../../trunk/apps/templates/initd.py)
 
 FILE(GLOB descs "${CMAKE_CURRENT_SOURCE_DIR}/descriptions/*.xml")
 INSTALL(FILES ${descs} DESTINATION ${SC3_PACKAGE_APP_DESC_DIR})

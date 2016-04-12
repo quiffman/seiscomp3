@@ -943,6 +943,12 @@ void WFParam::handleTimeout() {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool WFParam::addProcess(DataModel::Event *evt) {
+	if ( !_config.eventID.empty() && (evt->publicID() != _config.eventID) ) {
+		SEISCOMP_NOTICE("%s: event ignored: only event %s is allowed for processing",
+		                evt->publicID().c_str(), _config.eventID.c_str());
+		return false;
+	}
+
 	if ( _processedEvents.find(evt->publicID()) != _processedEvents.end() ) {
 		SEISCOMP_DEBUG("%s: event has been completely processed already",
 		               evt->publicID().c_str());
@@ -983,7 +989,7 @@ bool WFParam::addProcess(DataModel::Event *evt) {
 			DatabaseIterator it;
 			JournalEntryPtr entry;
 			it = query()->getJournalAction(evt->publicID(), JOURNAL_ACTION);
-			while ( entry = static_cast<JournalEntry*>(*it) ) {
+			while ( (entry = static_cast<JournalEntry*>(*it)) != NULL ) {
 				if ( entry->parameters() == JOURNAL_ACTION_COMPLETED ) {
 					SEISCOMP_INFO("%s: found journal entry \"completely processed\", ignoring event",
 					              evt->publicID().c_str());
@@ -1116,6 +1122,8 @@ void WFParam::stopProcess(Process *proc) {
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void WFParam::removeProcess(WFParam::Crontab::iterator &it, Process *proc) {
+	bool doExit = !_config.eventID.empty() && proc->event->publicID() == _config.eventID;
+
 	// Remove process from process map
 	Processes::iterator pit = _processes.find(proc->event->publicID());
 	if ( pit != _processes.end() ) _processes.erase(pit);
@@ -1127,6 +1135,8 @@ void WFParam::removeProcess(WFParam::Crontab::iterator &it, Process *proc) {
 
 	// Remove cronjob
 	_crontab.erase(it++);
+
+	if ( doExit ) quit();
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

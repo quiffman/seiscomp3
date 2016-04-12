@@ -58,7 +58,7 @@
 #include "plugin.h"
 #include "diag.h"
 
-#define MYVERSION "3.1 (2013.231)"
+#define MYVERSION "3.2 (2014.071)"
 
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/home/sysop/config/seedlink.ini"
@@ -768,10 +768,17 @@ void Station::send_mseed(const void *rec)
     if(backfill_capacity > 0)
       {
         const sl_fsdh_s* fsdh = static_cast<const sl_fsdh_s *>(rec);
+
+	if(packet_type(fsdh, MAX_HEADER_LEN) != SLDATA)
+          {
+            commit_mseed(rec);
+            return;
+          }
+
         INT_TIME stime = packet_begin_time(fsdh);
         INT_TIME etime = packet_end_time(fsdh);
         char id[6];
-        id[6] = '\0';
+        id[5] = '\0';
         memcpy(id, fsdh->location, 2);
         memcpy(id+2, fsdh->channel, 3);
         rc_ptr<MSEEDBackfilling> backfilling = get_mseed_backfilling(id);

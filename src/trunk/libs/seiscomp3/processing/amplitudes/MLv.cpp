@@ -138,10 +138,8 @@ bool AmplitudeProcessor_MLv::deconvolveData(Response *resp,
 		return false;
 	}
 
-	Math::Restitution::FFT::PolesAndZeros woodAnderson(
-		Math::SeismometerResponse::WoodAnderson(Math::Velocity)
-	);
-
+	Math::SeismometerResponse::WoodAnderson paz(Math::Velocity);
+	Math::Restitution::FFT::PolesAndZeros woodAnderson(paz);
 	Math::Restitution::FFT::TransferFunctionPtr cascade =
 		*tf / woodAnderson;
 

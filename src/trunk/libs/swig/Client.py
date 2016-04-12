@@ -1009,6 +1009,10 @@ class Application(Core.InterruptibleObject):
         """configSetStrings(self, string query, vectorStr arg1)"""
         return _Client.Application_configSetStrings(self, *args)
 
+    def configUnset(self, *args):
+        """configUnset(self, string query)"""
+        return _Client.Application_configUnset(self, *args)
+
     def saveConfiguration(self):
         """saveConfiguration(self) -> bool"""
         return _Client.Application_saveConfiguration(self)

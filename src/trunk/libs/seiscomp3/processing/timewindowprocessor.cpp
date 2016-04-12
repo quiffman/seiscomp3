@@ -41,7 +41,7 @@ TimeWindowProcessor::~TimeWindowProcessor() {}
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool TimeWindowProcessor::feed(const Record *record) {
+bool TimeWindowProcessor::store(const Record *record) {
 	if ( !record->timeWindow().overlaps(_safetyTimeWindow) ) {
 		if ( status() > InProgress ) return false;
 
@@ -55,7 +55,7 @@ bool TimeWindowProcessor::feed(const Record *record) {
 		return false;
 	}
 
-	return WaveformProcessor::feed(record);
+	return WaveformProcessor::store(record);
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

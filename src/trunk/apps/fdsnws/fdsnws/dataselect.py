@@ -14,20 +14,17 @@
 # Email:   herrnkind@gempa.de
 ################################################################################
 
-import os
-
 from twisted.cred import portal
-from twisted.protocols.basic import FileSender
 from twisted.web import http, resource, server
 
 from zope.interface import implements
 
-from seiscomp3 import DataModel, Logging
+from seiscomp3 import Logging
 from seiscomp3.Client import Application
 from seiscomp3.Core import Array, Record, Time, ValueException
 from seiscomp3.IO import RecordInput, RecordStream
 
-from http import HTTP, NoResource
+from http import HTTP
 from request import RequestOptions
 import utils
 
@@ -52,8 +49,6 @@ class _DataSelectRequestOptions(RequestOptions):
 	def __init__(self, args=None):
 		RequestOptions.__init__(self, args)
 		self.service = 'fdsnws-dataselect'
-
-		self.streams = [] # 1 entry for GET, multiple entries for POST requests
 
 		self.quality = self.QualityValues[0]
 		self.minimumLength = None
@@ -240,15 +235,6 @@ class FDSNDataSelect(resource.Resource):
 				if not ro.time.match(sta.start(), end):
 					continue
 
-			# geographic location
-			if ro.geo:
-				try:
-					lat = sta.latitude()
-					lon = sta.longitude()
-				except ValueException: continue
-				if not ro.geo.match(lat, lon):
-					continue
-
 			yield sta
 
 
@@ -341,7 +327,7 @@ class FDSNDataSelect(resource.Resource):
 									      "rate definition: %s.%s.%s.%s" % (
 									      net.code(), sta.code(), loc.code(),
 									      cha.code())
-									Logging.waring(msg)
+									Logging.warning(msg)
 									continue
 
 								# calculate number of samples for requested

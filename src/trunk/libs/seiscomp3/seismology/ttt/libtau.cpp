@@ -13,6 +13,7 @@
 
 
 #include <math.h>
+#include <string.h>
 #include <iostream>
 #include <stdexcept>
 
@@ -45,8 +46,6 @@ double takeoff_angle(double p, double zs, double vzs) {
 
 extern "C" {
 
-#include <libtau/tau.h>
-
 void distaz2_(double *lat1, double *lon1, double *lat2, double *lon2, double *delta, double *azi1, double *azi2);
 
 }
@@ -56,13 +55,9 @@ namespace Seiscomp {
 namespace TTT {
 
 
-
-std::string LibTau::_model;
-int LibTau::_tabinCount = 0;
-double LibTau::_depth = -1;
-
-
-LibTau::LibTau() : _initialized(false) {}
+LibTau::LibTau() : _initialized(false) {
+	_depth = -1;
+}
 
 
 LibTau::LibTau(const LibTau &other) {
@@ -71,39 +66,21 @@ LibTau::LibTau(const LibTau &other) {
 
 
 LibTau &LibTau::operator=(const LibTau &other) {
-	_initialized = other._initialized;
-	if ( _initialized )
-		++_tabinCount;
-
+	_handle = other._handle;
+	_depth = -1;
+	_initialized = false;
 	return *this;
 }
 
 
 LibTau::~LibTau() {
 	if ( !_initialized ) return;
-
-	if ( _tabinCount > 0 ) {
-		--_tabinCount;
-		if ( _tabinCount < 1 )
-			_tabinCount = 1;
-	}
-
-	if ( !_tabinCount ) {
-		_model.clear();
-		_depth = -1;
-		tabout();
-	}
+	tabout(&_handle);
 }
 
 
 bool LibTau::setModel(const std::string &model) {
-	if ( _tabinCount && _model != model ) return false;
-
-	_initialized = true;
-
-	InitPath(model);
-	++_tabinCount;
-
+	initPath(model);
 	return true;
 }
 
@@ -113,17 +90,21 @@ const std::string &LibTau::model() const {
 }
 
 
-void LibTau::InitPath(const std::string &model) {
-	if ( _tabinCount ) {
-		if ( model != _model )
-			throw MultipleModelsError(_model);
-		return;
+void LibTau::initPath(const std::string &model) {
+	if ( _model != model ) {
+		if ( _initialized ) {
+			tabout(&_handle);
+			_initialized = false;
+		}
 	}
+	else if ( _initialized ) return;
 
 	std::string tablePath = Environment::Instance()->shareDir() +
 	                        "/ttt/" + model;
 
-	int err = tabin(tablePath.c_str());
+	// Fill the handle structure with zeros
+	memset(&_handle, 0, sizeof(_handle));
+	int err = tabin(&_handle, tablePath.c_str());
 	if ( err ) {
 		std::ostringstream errmsg;
 		errmsg  << tablePath << ".hed and "
@@ -131,11 +112,13 @@ void LibTau::InitPath(const std::string &model) {
 		throw FileNotFoundError(errmsg.str());
 	}
 
-	brnset("all");
+	_initialized = true;
+	brnset(&_handle, "all");
 	_model = model;
 }
 
-void LibTau::SetDepth(double depth) {
+
+void LibTau::setDepth(double depth) {
 	if ( depth <= 0. ) depth = 0.01; // XXX Hack!!!
 
 	if ( depth <= 0. || depth > 800 ) {
@@ -148,7 +131,7 @@ void LibTau::SetDepth(double depth) {
 
 	if ( depth != _depth ) {
 		_depth = depth;
-		depset(_depth);
+		depset(&_handle, _depth);
 	}
 }
 
@@ -161,24 +144,28 @@ TravelTimeList *LibTau::compute(double delta, double depth) {
 	ttlist->delta = delta;
 	ttlist->depth = depth;
 
-	SetDepth(depth);
+	setDepth(depth);
 
 	for(int i=0; i<100; i++)
 		phase[i] = &ph[10*i];
 
-	trtm(delta, &n, time, p, dtdd, dtdh, dddp, phase);
-	emdlv(6371-depth, &vp, &vs);
+	trtm(&_handle, delta, &n, time, p, dtdd, dtdh, dddp, phase);
+	bool has_vel = emdlv(6371-depth, &vp, &vs) == 0;
 
 	for(int i=0; i<n; i++) {
-		float v = (phase[i][0]=='s' || phase[i][0]=='S') ? vs : vp;
-		float takeoff = takeoff_angle(dtdd[i], depth, v);
+		float takeoff;
+		if(has_vel) {
+			float v = (phase[i][0]=='s' || phase[i][0]=='S') ? vs : vp;
+			takeoff = takeoff_angle(dtdd[i], depth, v);
+			if (dtdh[i] > 0.)
+				takeoff = 180.-takeoff;
+		}
+		else
+			takeoff = 0;
 
-		if (dtdh[i] > 0.)
-			takeoff = 180.-takeoff;
 		ttlist->push_back(
-			TravelTime(phase[i],
-				   time[i], dtdd[i], dtdh[i], dddp[i],
-				   takeoff) );
+			TravelTime(phase[i], time[i], dtdd[i], dtdh[i], dddp[i], takeoff)
+		);
 	}
 
 	ttlist->sortByTime();
@@ -190,7 +177,7 @@ TravelTimeList *LibTau::compute(double delta, double depth) {
 TravelTimeList *LibTau::compute(double lat1, double lon1, double dep1,
                                 double lat2, double lon2, double alt2,
                                 int ellc /* by now always 0 */) {
-	if ( !_tabinCount ) setModel("iasp91");
+	if ( !_initialized ) setModel("iasp91");
 
 	double delta, azi1, azi2;
 
@@ -203,8 +190,7 @@ TravelTimeList *LibTau::compute(double lat1, double lon1, double dep1,
 	ttlist->delta = delta;
 	ttlist->depth = dep1;
 	TravelTimeList::iterator it;
-        for (it = ttlist->begin(); it != ttlist->end(); ++it) {
-
+	for (it = ttlist->begin(); it != ttlist->end(); ++it) {
 		double ecorr = 0.;
 		if (ellipcorr((*it).phase, lat1, lon1, lat2, lon2, dep1, ecorr)) {
 //			fprintf(stderr, " %7.3f %5.1f  TT = %.3f ecorr = %.3f\n", delta, dep1, (*it).time, ecorr);
@@ -220,12 +206,12 @@ TravelTime LibTau::computeFirst(double delta, double depth) throw(std::exception
 	char ph[1000], *phase[100];
 	float time[100], p[100], dtdd[100], dtdh[100], dddp[100], vp, vs;
 
-	SetDepth(depth);
+	setDepth(depth);
 
 	for(int i=0; i<100; i++)
 		phase[i] = &ph[10*i];
 
-	trtm(delta, &n, time, p, dtdd, dtdh, dddp, phase);
+	trtm(&_handle, delta, &n, time, p, dtdd, dtdh, dddp, phase);
 	emdlv(6371-depth, &vp, &vs);
 
 	if (n) {
@@ -242,9 +228,9 @@ TravelTime LibTau::computeFirst(double delta, double depth) throw(std::exception
 
 
 TravelTime LibTau::computeFirst(double lat1, double lon1, double dep1,
-                                   double lat2, double lon2, double alt2,
-                                   int ellc) throw(std::exception) {
-	if ( !_tabinCount ) setModel("iasp91");
+                                double lat2, double lon2, double alt2,
+                                int ellc) throw(std::exception) {
+	if ( !_initialized ) setModel("iasp91");
 
 	double delta, azi1, azi2;
 

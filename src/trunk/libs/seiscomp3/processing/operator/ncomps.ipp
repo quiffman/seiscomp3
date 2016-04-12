@@ -272,5 +272,16 @@ WaveformProcessor::Status NCompsOperator<T,N,PROC,BSIZE>::feed(const Record *rec
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+template <typename T, int N, class PROC, int BSIZE>
+void NCompsOperator<T,N,PROC,BSIZE>::reset() {
+	for ( int i = 0; i < N; ++i )
+		_states[i] = State();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 }
 }

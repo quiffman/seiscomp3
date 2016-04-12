@@ -1,19 +1,25 @@
+Part of the :ref:`VS` package.
+
 scvsmaglog is part of a new SeisComp3 implementation of the
-[Virtual Seismologist]( http://www.seismo.ethz.ch/research/vs)
+`Virtual Seismologist <http://www.seismo.ethz.ch/research/vs>`_
 (VS) Earthquake Early Warning algorithm (Cua, 2005; Cua and Heaton, 2007) released
-under the 'SED Public License for SeisComP3 Contributions'
-(http://www.seismo.ethz.ch/static/seiscomp_contrib/license.txt ).
+under the `'SED Public License for SeisComP3 Contributions'
+<http://www.seismo.ethz.ch/static/seiscomp_contrib/license.txt>`_. It requires 
+the Python package `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ to
+be installed.
 
 It logs the VS magnitude messages received from *scvsmag* and, once an event
 has timed out, generates report files. These report files are saved to disk and
 can also be sent via email.
 
-It also provides the possibility to send messages to the UserDisplay, a
-real-time EEW user interface developed by Caltech
-(http://www.eew.caltech.edu/research/userdisplay.html).
+It also implements an ActiveMQ interface which provides the possibility to send
+messages to the UserDisplay, a real-time EEW user interface developed by `Caltech
+<http://www.eew.caltech.edu/research/userdisplay.html>`_.
 While the UserDisplay is currently not openly available, the message stream from
 this interface can be used. The xml scheme and set-up of an ActiveMQ broker
-necessary to receive the messages is briefly discribed in section :ref:`ref_VS_UDI`.
+necessary to receive the messages is briefly described in section :ref:`ref_VS_UDI`.
+Note that the ActiveMQ interface requires the installation of the Python 
+package `stompy <https://pypi.python.org/pypi/stompy>`_. 
 
 
 Reports
@@ -23,7 +29,7 @@ Below is an example of the first few lines of a report file:
 
 .. code-block:: sh
 
-   Mag.|Lat.  |Lon.  |tdiff |Depth |creation time            |origin time              |likeh.|#st.(org.) |#st.(mag.)
+   Mag.|Lat.  |Lon.  |tdiff |Depth |creation time (UTC)      |origin time (UTC)        |likeh.|#st.(org.) |#st.(mag.)
    ------------------------------------------------------------------------------------------------------------------
    3.42| 47.15|  8.52| 12.73| 25.32|2012-02-11T22:45:39.0000Z|2012-02-11T22:45:26.2729Z|  0.99|          6|         6
    3.43| 47.15|  8.52| 13.73| 25.32|2012-02-11T22:45:40.0000Z|2012-02-11T22:45:26.2729Z|  0.99|          6|         6
@@ -43,48 +49,8 @@ that contributed to the magnitude.
 
 .. _ref_VS_UDI:
 
-UserDisplay interface
+ActiveMQ interface
 =====================
-
-Configuration
--------------
-
-.. confval:: host
-
-   Type: *string*
-
-   is the address of the server running the ActiveMQ broker
-
-.. confval:: port
-
-   Type: *int*
-
-   Port at which the ActiveMQ broker listens for messages.
-
-.. confval:: username
-
-   Type: *string*
-
-   Username necessary to connect to the ActiveMQ broker.
-
-.. confval:: password
-
-   Type: *string*
-
-   Password necessary to connect to the ActiveMQ broker.
-
-.. confval:: topic
-
-   Type: *string*
-
-   Broker topic to send event messages to.
-
-.. confval:: topicb
-
-   Type: *string*
-
-   Broker topic to send hearbeat messages to.
-
 
 Event messages
 --------------
@@ -138,3 +104,28 @@ to configuration of the ActiveMQ broker.
    <connector>
    <serverTransport uri="stomp://your-server-name:your-port"/>
    </connector>
+
+Please refer to `ActiveMQ <http://activemq.apache.org/>`_ for setting up an 
+ActiveMQ broker.
+
+Consumer example
+----------------
+The following listing shows a consumer that listens for heartbeats and alerts 
+and writes them to stdout.
+
+.. code-block:: python
+
+   #!/usr/bin/env python                                                                                 
+   from stompy.simple import Client
+   stomp = Client(host='your-server-name', port=your-port)
+   stomp.connect(username='username', password='password')
+
+   stomp.subscribe("/topic/heartbeat")
+   stomp.subscribe("/topic/alert")
+   while True:                                                                                           
+       message = stomp.get()                                                                             
+       print message.body                                                                                
+   stomp.unsubscribe("/topic/heartbeat")
+   stomp.unsubscribe("/topic/alerts")
+   stomp.disconnect()
+

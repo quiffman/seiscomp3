@@ -26,7 +26,7 @@ from seiscomp.db.generic.inventory import Inventory
 from seiscomp.mseedlite import Input as MSeedInput, MSeedError
 from seiscomp.fseed import SEEDVolume, SEEDError, _WaveformData
 
-VERSION = "1.2.7 (2013.084)"
+VERSION = "1.2.8 (2014.045)"
 
 ORGANIZATION = "EIDA"
 
@@ -182,7 +182,7 @@ def parse_native_from_handler(req, fd):
         for arg in rqsplit[i:]:
             pv = arg.split('=', 1)
             if len(pv) != 2:
-                raise ArclinkHandlerError, "invalid request syntax"
+                raise ArclinkError, "invalid request syntax"
             
             constraints[pv[0]] = pv[1]
 

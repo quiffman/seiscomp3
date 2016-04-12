@@ -438,24 +438,18 @@ void WWSSN_LP_Filter<T>::setInput(GroundMotion input) {
 	Filter<T>::poles.clear();
 	Filter<T>::zeros.clear();
 
-	// Poles according to Jim Dewey (NEIC)
-	Filter<T>::poles.push_back( Pole( -3.725, -6.220) );
-	Filter<T>::poles.push_back( Pole( -3.725, +6.220) );
-	Filter<T>::poles.push_back( Pole( -5.612) );
-	Filter<T>::poles.push_back( Pole(-13.240) );
-	Filter<T>::poles.push_back( Pole(-21.080) );
+        // This is the WWSSN-LP transfer function as defined by IASPEI
+	// http://www.iaspei.org/commissions/CSOI/Summary_WG-Recommendations_20110909.pdf
 
-/*	// Poles from Seismic Handler, also specified in NMSOP
-	poles.push_back( Pole(-3.367788, -3.731514) );
-	poles.push_back( Pole(-3.367788, +3.731514) );
-	poles.push_back( Pole(-7.037168, -4.545562) );
-	poles.push_back( Pole(-7.037168, +4.545562) );
-	double norm = 13.34714;
-*/
+	// Poles according to Jim Dewey (NEIC)
+	Filter<T>::poles.push_back( Pole( -0.40180, -0.08559) );
+	Filter<T>::poles.push_back( Pole( -0.40180, +0.08559) );
+	Filter<T>::poles.push_back( Pole( -0.04841) );
+	Filter<T>::poles.push_back( Pole( -0.08816) );
+
 	Filter<T>::zeros.push_back( 0. );
 
-	// make the *displacement* amplitude response 1 at 1 Hz
-	Filter<T>::norm = 532.1425713966;
+	Filter<T>::norm = 0.826835;
 
 	switch(input) {
 		case Displacement: Filter<T>::zeros.push_back( 0 );

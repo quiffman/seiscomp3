@@ -23,7 +23,6 @@
 #include <list>
 #include <set>
 #include <map>
-using namespace std;
 
 #include "datamodel.h"
 #include "locator.h"
@@ -61,7 +60,7 @@ class Nucleator
 		const StationDB *_stations;
 //		double _config_maxDistanceXXL;
 
-		set<string> _configuredStations;
+		std::set<std::string> _configuredStations;
 
 	public:
 		OriginDB _newOrigins;

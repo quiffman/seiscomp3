@@ -204,8 +204,8 @@ struct Generator {
 			}
 		}
 
-		size_t result = f->setParameters(parameters.size(), &parameters[0]);
-		if ( result != parameters.size() ) {
+		int result = f->setParameters(parameters.size(), &parameters[0]);
+		if ( result != (int)parameters.size() ) {
 			parameters.clear();
 			delete f;
 

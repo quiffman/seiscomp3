@@ -17,6 +17,7 @@
 
 
 #include <string>
+#include <vector>
 #include <seiscomp3/seismology/ttt.h>
 
 
@@ -30,6 +31,15 @@ namespace TTT {
  * A class to compute seismic travel times for 1D models like "iasp91".
  */
 class SC_SYSTEM_CORE_API Locsat : public TravelTimeTableInterface {
+	public:
+		struct Velocity {
+			Velocity() {}
+			Velocity(float z, float p, float s) : depth(z), vp(p), vs(s) {}
+			float depth;
+			float vp;
+			float vs;
+		};
+
 	public:
 		/**
 		 * Construct a TravelTimeTable object for the specified model.
@@ -87,6 +97,8 @@ class SC_SYSTEM_CORE_API Locsat : public TravelTimeTableInterface {
 
 		static std::string _model;
 		static int _tabinCount;
+
+		//static std::vector<Velocity> _velocities;
 
 		bool _initialized;
 		int  _Pindex;

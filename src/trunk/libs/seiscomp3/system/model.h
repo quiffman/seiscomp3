@@ -573,6 +573,9 @@ class SC_SYSTEM_CORE_API Station : public Core::BaseObject {
 
 		void setConfig(const std::string &module, const std::string &profile);
 
+		//! Returns whether a tag with name has a certain value
+		bool compareTag(const std::string &name, const std::string &value) const;
+
 
 	// ------------------------------------------------------------------
 	//  Attributes
@@ -581,14 +584,16 @@ class SC_SYSTEM_CORE_API Station : public Core::BaseObject {
 		struct ModuleConfig {
 			ModuleConfig() {}
 			ModuleConfig(const std::string &name, const std::string &prof = "")
-				: moduleName(name), profile(prof) {}
+			: moduleName(name), profile(prof) {}
 
 			std::string  moduleName;
 			std::string  profile;
 		};
 
 		typedef std::vector<ModuleConfig> ModuleConfigs;
+		typedef std::map<std::string, std::string> Tags;
 		ModuleConfigs config;
+		Tags          tags;
 };
 
 

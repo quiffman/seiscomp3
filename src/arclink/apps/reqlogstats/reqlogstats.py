@@ -1,13 +1,16 @@
 #
-# Populate an SQLite database from Arclink webreqlog statistics HTML pages. 
+# Populate an SQLite database from Arclink webreqlog statistics HTML pages.
 #
 import glob
+import email
 import os
 import sqlite3
+import sys
 import xml.etree.ElementTree as ET
 import xml
 
 DEBUG = False
+verbose = False
 
 # ----------- SQLite stuff ---------
 
@@ -22,7 +25,7 @@ def new_table(con):
                 if line1.startswith('/*') or line1.startswith('*'):
                     continue
                 linef += ' ' + line1
-                if line1.endswith(')') or line1.endswith(';'):
+                if line1 == ')' or line1.endswith(';'):
                     #print linef
                     cur.execute(linef)
                     linef = ""
@@ -45,7 +48,7 @@ def parse_table(table):
         if e.tag == "th":
             headers.append(e.text)
     result = [tuple(headers)]
-    
+
     tbody = table.find("tbody")
     for tr in tbody:
         rowdata = []
@@ -68,7 +71,7 @@ def parse_table(table):
 
 def parse_intro_text(text, attribs):
     """Handles all text between <h2>Arclink...Report</h2> and the first <table>."""
-    
+
     for line in text.splitlines():
         parts = line.split(":", 1)
         if len(parts) > 1:
@@ -77,25 +80,26 @@ def parse_intro_text(text, attribs):
             if tag == "Start" or tag == "End":
                 rest = " ".join(rest.split(" ", 2)[0:2])
             attribs[tag] = rest
-            
+
 def parse_html(data):
     """Extract everything of value from a report.
 
     data - a strung, not a file!
 
     result - a list of table dumps, plus any extra non-table stuff as a dictionary.
-    
+
     """
     attribs = {}
     result = [attribs]
-    
+
     parser = ET.XMLParser(html=1)
     try:
         parser.feed(data)
-    except (xml.parsers.expat.ExpatError, xml.etree.ElementTree.ParseError) as e:
-	print "Parser ExpatError while reading the file."
-	print e
-	return None
+    #except (xml.parsers.expat.ExpatError, xml.etree.ElementTree.ParseError) as e:
+    except (xml.parsers.expat.ExpatError) as e:
+        print "Parser ExpatError while reading the file."
+        print e
+        return None
 
     except:  ###  ParseError as e:
         print "Error while reading the file."
@@ -104,12 +108,12 @@ def parse_html(data):
     body = elem.find("body")
     if body is None:
         print "Got no body!"
-        
+
     parent = body
     table = parent.find("table")
     if table is None:
         bodydiv = parent.find("div")
-        print "bodydiv:",  bodydiv, bodydiv.attrib
+        #print "bodydiv:",  bodydiv, bodydiv.attrib
         #for e in bodydiv:
         #    print '('+e.tag+')'
         table = bodydiv.find("table")
@@ -141,19 +145,20 @@ def parse_html(data):
             print 50*"="
             print preamble
             print 50*"="
-        
+
         parse_intro_text(preamble, attribs)
-        print "Preamble: got", attribs
+        #print "Preamble: got", attribs
 
     verbose = False
     things = parent.findall("table")
-    print "Num tables:", len(things)
+    if (verbose):
+        print "Num <table>s:", len(things)
     for table in things:
-	if (verbose):
-	    print table.tag, table.attrib,
+        if (verbose):
+            print table.tag, table.attrib,
         stuff = parse_table(table)
         if (verbose):
-		print '\t|'.join(stuff[0])
+            print '\t|'.join(stuff[0])
         #print '\t+'.join(len(headers)*['-------'])
         #for row in stuff:
         #    print '\t|'.join(row)
@@ -164,7 +169,7 @@ def parse_html(data):
 # ---------- Connecting stuff -----------
 class ReportData(object):
     """Holds the contents of a report, but not its key."""
-    
+
     summary = {}
     user = {}
     request = {}
@@ -174,21 +179,27 @@ class ReportData(object):
     messages = {}
     clientIP = {}
     userIP = {}
-    
+
     def __init__(self, text):
         content = parse_html(text)
-	if content == None:
-		return  ## an empty object
+        if content == None:
+            return  ## an empty object
 
         attribs = content[0]
         tables = content[1:]
 
+        if attribs.has_key('TotalWaveformSize'):
+            ts = attribs['TotalWaveformSize']
+        elif attribs.has_key('TotalSize'):
+            ts = attribs['TotalSize']  # Not present after Jan 2014?
+        else:
+            ts = "0"
         self.summary = {'requests': attribs['Requests'],
                    'request_with_errors': attribs['withErrors'],
                    'error_count': attribs['ErrorCount'],
                    'users': attribs['Users'],
                    'lines': attribs['TotalLines'],
-                   'size': attribs['TotalSize'],
+                   'size': ts,  
                    'start': attribs['Start'],
                    'end': attribs['End']
                    }
@@ -208,7 +219,7 @@ class ReportData(object):
 
             if table[0][0] == "Request Type":
                 self.request = table
-        
+
                 # Three of these, type = { WAVEFORM | ROUTING | INVENTORY }
                 #request = {'type': t,
                 #    'requests': r,
@@ -235,18 +246,19 @@ class ReportData(object):
             if table[0][0] == "ClientIP":
                 self.clientIP = table
 
-        
-                
-def lookup_source(con, host, port, dcid):
+
+
+def lookup_source(con, host, port, dcid, description):
     """Return a source id - either an existing one, or a new one.
 
         con - Database connection cursor?
         host - varchar
         port - int
         dcid - varchar
+        description - what sort of source is this?
 
     Returns an int, index into db tables.
-    
+
     """
 
     constraints = " WHERE " + " AND ".join(["host = '%s'" % host,
@@ -261,24 +273,33 @@ def lookup_source(con, host, port, dcid):
     found = (result[0][0] != 0)
     #print result, 'found=', found
     if found == False:
-        q = "INSERT INTO ArcStatsSource VALUES (NULL, ?, ?, ?, 'sometext')"
-        v = (host, port, dcid)
+        q = "INSERT INTO ArcStatsSource (host, port, dcid, description) VALUES (?, ?, ?, ?)"
+        v = (host, port, dcid, description)
         print "SQLITE: %s" % q
         cursor.execute(q, v)
         result = cursor.fetchall()
         con.commit()
-        
+
     q = "SELECT id FROM `ArcStatsSource`" + constraints
     #print "SQLITE: %s" % q
     cursor.execute(q)
     result = cursor.fetchall()
-    print result
+    #print result
     assert len(result) == 1
 
     cursor.close()
-    
+
     return int(result[0][0])
 
+def has_summary(con, k):
+    cursor = con.cursor()
+    q = "SELECT COUNT(*) FROM `ArcStatsSummary` WHERE start_day = ? AND src = ?"
+    cursor.execute(q, k)
+    result = cursor.fetchall()  # Not present: get [(0,)]
+    assert len(result) == 1
+    
+    found = (result[0][0] != 0)
+    return found
 
 def insert_summary(con, k, summary):
     cursor = con.cursor()
@@ -292,7 +313,7 @@ def insert_summary(con, k, summary):
 
         if summary.has_key('stations'):
             st = summary['stations']
-            q = "INSERT INTO ArcStatsSummary VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            q = "INSERT INTO ArcStatsSummary (start_day, src, requests, requests_with_errors, error_count, users, stations, total_lines, total_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
             v = (k[0], k[1], r, rwe, e, u, st, tl, ts)
         else:
             q = "INSERT INTO ArcStatsSummary VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)"
@@ -304,14 +325,29 @@ def insert_summary(con, k, summary):
             print k,':', v
         return
 
-    cursor.execute(q, v)
-    con.commit()
+    try:
+        cursor.execute(q, v)
+        con.commit()
+    except sqlite3.IntegrityError as e:
+        print "In insert_summary:"
+        print "Start day:", k[0]
+        print "Source:   ", k[1]
+        print e
+       
+
+def report_insert(tablename, heads):
+    global verbose
+    if (verbose):
+        print "%s table: got" % (tablename), "|".join(heads)
+    else:
+        print "%s " % (tablename),
+
 
 def insert_user(con, k, user):
     cursor = con.cursor()
     q = "INSERT INTO ArcStatsUser VALUES (?, ?, ?, ?, ?, ?, ?)"
     heads = user[0]
-    print "User table: got", "|".join(heads)
+    report_insert('User', heads)
 
     for row in user[1:]:
         items = row[0:5]  # User  Requests  Lines  Nodata/Errors  Size
@@ -323,7 +359,7 @@ def insert_request(con, k, table):
     cursor = con.cursor()
     q = "INSERT INTO ArcStatsRequest VALUES (?, ?, ?, ?, ?, NULL, ?, NULL)"
     heads = table[0]
-    print "Request Type table: got", "|".join(heads)
+    report_insert('Request', heads)
     for row in table[1:]:
         items = row[0:4]  # Request Type    Requests    Lines    Nodata/Errors
         v = (k[0], k[1], items[0], items[1], items[2], items[3])
@@ -334,7 +370,7 @@ def insert_volume(con, k, table):
     cursor = con.cursor()
     q = "INSERT INTO ArcStatsVolume VALUES (?, ?, ?, ?, NULL, ?, ?)"
     heads = table[0]
-    print "Volume table: got", "|".join(heads)
+    report_insert('Volume', heads)
 
     for row in table[1:]:
         items = row[0:4]  # Volume    Count    Nodata/Errors    Size
@@ -344,14 +380,14 @@ def insert_volume(con, k, table):
 
 def insert_station(con, k, table):
     heads = table[0]
-    print "Station table: got", "|".join(heads), ' ...IGNORED'
-
+    report_insert('Station', heads)
+    print ' ...IGNORED'
 
 def insert_network(con, k, table):
     cursor = con.cursor()
     q = "INSERT INTO ArcStatsNetwork VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)"
     heads = table[0]
-    print "Network table: got", "|".join(heads)
+    report_insert('Network', heads)
 
     merged_errors_nodata = False;
     if heads[3] == "Errors/Nodata":
@@ -376,7 +412,7 @@ def insert_messages(con, k, table):
     cursor = con.cursor()
     q = "INSERT INTO ArcStatsMessages VALUES (?, ?, ?, ?)"
     heads = table[0]
-    print "Messages table: got", "|".join(heads)
+    report_insert("Messages", heads)
 
     for row in table[1:]:
         items = row[0:2]  # Count    Message
@@ -387,7 +423,7 @@ def insert_messages(con, k, table):
 def insert_clientIP(con, k, table):
     cursor = con.cursor()
     heads = table[0]
-    print "ClientIP table: got", "|".join(heads)
+    report_insert("ClientIP", heads)
     q = "INSERT INTO ArcStatsClientIP VALUES (?, ?, ?, ?, ?, ?, NULL)"
 
     for row in table[1:]:
@@ -399,7 +435,7 @@ def insert_clientIP(con, k, table):
 def insert_userIP(con, k, table):
     cursor = con.cursor()
     heads = table[0]
-    print "UserIP table: got", "|".join(heads)
+    report_insert("UserIP", heads)
     q = "INSERT INTO ArcStatsUserIP VALUES (?, ?, ?, ?, ?, ?, NULL)"
 
     for row in table[1:]:
@@ -408,16 +444,24 @@ def insert_userIP(con, k, table):
         cursor.execute(q, v)
     con.commit()
 
-def insert_data(db, rd, host, port, dcid, start_day):
+def insert_data(db, rd, host, port, dcid, description, start_day):
     """Insert the information found in a report into a database.
 
     db - database object to insert into
     rd - ReportData object
 
+    If a report was already received, nothing is inserted.
+    (In future: should replace previous data for this day and source?)
+
     """
     con = sqlite3.connect(db)
-    source_id = lookup_source(con, host, port, dcid)
+    source_id = lookup_source(con, host, port, dcid, description)
     k = (start_day, source_id)  ## SOME_KEY_IDENTIFYING_A_REPORT
+    if has_summary(con, k):
+        print " *** FOUND Existing summary in the db for", k, "; skipping ***"
+        return 0
+    
+    print "Inserting tables... ",
     insert_summary(con, k, rd.summary)
     insert_user(con, k, rd.user)
     insert_request(con, k, rd.request)
@@ -426,10 +470,17 @@ def insert_data(db, rd, host, port, dcid, start_day):
     if rd.network: insert_network(con, k, rd.network)
     if len(rd.messages) > 0:
         insert_messages(con, k, rd.messages)
-    insert_clientIP(con, k, rd.clientIP)
-    insert_userIP(con, k, rd.userIP)
+    if len(rd.clientIP) > 0:
+        insert_clientIP(con, k, rd.clientIP)
+    if rd.userIP:
+        insert_userIP(con, k, rd.userIP)
     con.close()
-    
+
+    global verbose
+    if (not verbose):
+        print
+    return 1
+
 def summary_data(db):
     """Quick overview of what's in a database.
 
@@ -450,28 +501,55 @@ def summary_data(db):
     con.close()
     return summary
 
-def process_file(f, host, port, dcid):
-
+def process_html_file(f, host, port, dcid, description):
+    """
+    Arguments:
+     f - HTML file
+    Returns:
+     0 - not inserted
+     1 - inserted
+     3 - no summary (unparsable?)
+    """
     text = open(f).read().replace("<hr>", "<hr/>")
     rd = ReportData(text)
 
     if len(rd.summary) == 0:
-	print "%s: empty summary" % (f)
-	return
+        print "%s: empty summary" % (f)
+        return 3
 
-    print rd.summary
-
+    try:
+        print "Covers %(s)s to %(e)s - %(req)s requests %(lines)s lines, size %(siz)s" % {'s': rd.summary['start'],
+                                                                                          'e': rd.summary['end'],
+                                                                                          'req': rd.summary['requests'],
+                                                                                          'lines': rd.summary['lines'],
+                                                                                          'siz': rd.summary['size']}
+    except KeyError as e:
+        print "Error reading summary object", e
+        print rd.summary
     start_day = rd.summary['start'].split(' ', 1)[0]
-    insert_data(db, rd, host, port, dcid, start_day)
+    return insert_data(db, rd, host, port, dcid, description, start_day)
 
-   
-db = 'test4.db'
-con = sqlite3.connect(db)
-# Only works if the tables exist:
-#print summary_data(db)
+# This directory must match where the PHP report
+# generator looks for SQLite DB files:
+reqlogstats_db_dir="/home/sysop/reqlogstats/var"
+if (not os.path.isdir(reqlogstats_db_dir)):
+    print " *** Configuration error: %s is not an existing directory." % (reqlogstats_db_dir)
+    raise IOError, 'No such directory.'
 
-print "Wiping old tables."
-new_table(con)
+year = 2014
+db = os.path.join(reqlogstats_db_dir, 'reqlogstats-%4i.db' % (year))
+scores = 4*[0]  # [0, 0]
+scores_labels = ("rejected", "inserted", "not found", "unparseable")
+unparsed_list = []
+
+if os.path.exists(db):
+    con = sqlite3.connect(db)
+    # Only works if the tables exist:
+    #print summary_data(db)
+else:
+    print "Creating new database file", db
+    con = sqlite3.connect(db)
+    new_table(con)
 
 # Now look at the report file(s),
 # and import their contents into our db.
@@ -482,27 +560,80 @@ if (DEBUG):
         print 'DUMP %03i:' % count, line
 
 
-# Given an input file, insert it:
-#myfile=os.path.join('eida_stats', 'sample-resif.html')
-#filelist = glob.glob("./eida_stats/sample-[f-z]*.html")
-filelist = [];
-filelist.extend(glob.glob("./eida_stats/[e-z]*.[0-9][0-9]-[0-9][0-9].html"))
-filelist.extend(glob.glob("./eida_stats/gfz.seq00[0-9][0-9].html"))
+filelist = []
+
+# Given input file(s) as a list of names on stdin, insert them:
+#filelist = glob.glob("./eida_stats/2014/01/*")
+#filelist.extend(glob.glob("./eida_stats/2014/02/*"))
+for line in sys.stdin.readlines():
+	filelist.append(line.strip())
+
+bodyfile="/tmp/reqlogstats.txt"
+
+source_dict = {"bgr": "BGR",
+               "ethz": "ETHZ",
+               "gfz-potsdam": "GFZ",
+               "ingv": "INGV",
+               "ipgp": "IPGP",
+               "resif": "RESIF",
+               "knmi": "ODC",
+               "uni-muenchen": "LMU"
+              }
 
 for myfile in filelist:
-    name = os.path.basename(myfile)
-    host = name.split('.', 1)[0]
-    port = -1
-    dcid = host.upper()  ## 'SOMEDCID'
-
-    print
     print 70*'-'
-    print "Processing %s : %s (%s:%i)" % (myfile, dcid, host, port)
-    
-    process_file(myfile, host, port, dcid)
-    
+
+    if not os.path.exists(myfile):
+	scores[2] += 1
+	continue
+
+    with open(myfile, 'r') as fid:
+        msg = email.message_from_file(fid)
+    who = msg['From']
+
+    # Heuristic to set DCID/source string from From:
+    emailaddr = email.utils.parseaddr(who)[1]  # Discard "realname" part
+    try:
+        host = emailaddr.split('@')[1]
+        d = host.split('.')[-2]
+    except IndexError:
+    	host = emailaddr
+	d = emailaddr    #???    
+
+    port = -1
+
+    try:
+        dcid = source_dict[d.lower()]
+    except KeyError:
+        dcid = emailaddr.lower()  ## Use the sender's name
+
+    print "Processing %s from %s: %s (%s:%i)" % (myfile, emailaddr, dcid, host, port)
+
+    with open(bodyfile, 'w') as fid:
+	buf = msg.get_payload()
+	# Replacements to make HTML pile of tags look like XHTML.
+	buf = buf.replace('""', '&quot;&quot;');
+        print >>fid, buf.replace("<hr>", "<hr />").replace("<br>", "<br />")
+    result = process_html_file(bodyfile, host, port, dcid, 'E-mail from ' + emailaddr)
+    os.unlink(bodyfile)
+    scores[result] += 1
+
+    if (result == 3):
+	unparsed_list.append(myfile)
+
+
 print 70*'-'
 print "Done with %i file(s)." % len(filelist)
+print "Scores:",
+for k in range(len(scores)):
+    print " %i %s," % (scores[k], scores_labels[k]),
+print
+
 summary = summary_data(db)
-print summary
+for (k, v) in summary.items():
+    print k ,":", v
 print "Database %s contains  %i source(s), and %i day summaries." % (db, summary['Source'], summary['Summary'])
+if (len(unparsed_list) > 0):
+   for f in sorted(unparsed_list):
+	print "Unparsed file", f
+

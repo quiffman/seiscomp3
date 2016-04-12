@@ -30,5 +30,11 @@ WaveformProcessor::Status PipeOperator::feed(const Record *rec) {
 }
 
 
+void PipeOperator::reset() {
+	if ( _op1 ) _op1->reset();
+	if ( _op2 ) _op2->reset();
+}
+
+
 }
 }

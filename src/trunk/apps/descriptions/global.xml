@@ -6,13 +6,13 @@
 			<parameter name="datacenterID" type="string">
 				<description>
 					Sets the datacenter ID which is primarily used by Arclink and
-					its tools.
+					its tools. Should not contain spaces.
 				</description>
 			</parameter>
 			<parameter name="agencyID" type="string" default="GFZ">
 				<description>
 					Defines the agency ID used to set creationInfo.agencyID in
-					data model objects.
+					data model objects. Should not contain spaces.
 				</description>
 			</parameter>
 			<parameter name="organization" type="string" default="Unset">
@@ -631,10 +631,18 @@
 					<description>
 					L2 is a algorithm to pick S-phases.
 					</description>
+					<parameter name="noiseBegin" type="double" default="-10" unit="s">
+						<description>
+						Overrides the relative data processing start time (relative to the triggering
+						pick). This adds a margin to the actual processing and is useful
+						to initialize the filter (e.g. STALTA). The data is not used
+						at all until signalBegin is reached.
+						</description>
+					</parameter>
 					<parameter name="signalBegin" type="double" default="0" unit="s">
 						<description>
 						Overrides the relative start time (relative to the triggering
-						pick) of the begin of the signal window used to pick.
+						pick) of the begin of the signal processing.
 						</description>
 					</parameter>
 					<parameter name="signalEnd" type="double" default="60" unit="s">
@@ -645,12 +653,14 @@
 					</parameter>
 					<parameter name="filter" type="string" default="BW(4,0.3,1.0)">
 						<description>
-						Configures the filter used to compute the L2 and to pick the onset after the detector triggered.
+						Configures the filter used to compute the L2 and to pick
+						the onset (with AIC) after the detector triggered.
 						</description>
 					</parameter>
-					<parameter name="detector" type="string" default="STALTA(1,10)">
+					<parameter name="detecFilter" type="string" default="STALTA(1,10)">
 						<description>
-						onfigures the detector in the filtered L2.
+						Configures the detector in the filtered L2. This filter is
+						applied on top of the base L2 filter.
 						</description>
 					</parameter>
 					<parameter name="threshold" type="double" default="3">
@@ -658,9 +668,10 @@
 						The detector threshold that triggers the AIC picker.
 						</description>
 					</parameter>
-					<parameter name="timeCorr" type="double" default="-0.4" unit="s">
+					<parameter name="timeCorr" type="double" default="0" unit="s">
 						<description>
-						The time correction (in seconds) added to the final pick time.
+						The time correction (in seconds) added to the detection time
+						before AIC time window is computed.
 						</description>
 					</parameter>
 					<parameter name="marginAIC" type="double" default="5" unit="s">
@@ -670,7 +681,7 @@
 					</parameter>
 					<parameter name="minSNR" type="double" default="15">
 						<description>
-						Defines the mininum SNR.
+						Defines the mininum SNR as returned from AIC.
 						</description>
 					</parameter>
 				</group>

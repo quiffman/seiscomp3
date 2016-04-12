@@ -7,14 +7,13 @@
 # Email:   herrnkind@gempa.de
 ################################################################################
 
-import socket, sys, traceback
+import socket, traceback
 
 from twisted.internet import reactor
-from twisted.web import http
 
 from seiscomp3 import Logging
 from seiscomp3.Client import Application
-from seiscomp3.Core import Time, TimeSpan, ValueException
+from seiscomp3.Core import Time, ValueException
 from seiscomp3.IO import ExportSink
 
 

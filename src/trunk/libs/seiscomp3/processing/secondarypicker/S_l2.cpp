@@ -78,6 +78,24 @@ class FilterWrapper {
 
 
 template<typename TYPE>
+double
+maeda_aic_snr_const(int n, const TYPE *data, int onset, int margin) {
+	// expects a properly filtered and demeaned trace
+	double snr=0, noise=0, signal=0;
+	for (int i=margin; i<onset; i++)
+		noise += data[i]*data[i];
+	noise = sqrt(noise/(onset-margin));
+	for (int i=onset; i<n-margin; i++) {
+		double a=fabs(data[i]);
+		if (a>signal) signal=a;
+	}
+	snr = 0.707*signal/noise;
+
+	return snr;
+}
+
+
+template<typename TYPE>
 void
 maeda_aic(int n, const TYPE *data, int &kmin, double &snr, int margin=10) {
 	// expects a properly filtered and demeaned trace
@@ -102,13 +120,13 @@ maeda_aic(int n, const TYPE *data, int &kmin, double &snr, int margin=10) {
 		sumwin1 += squared;
 		sumwin2 -= squared;
 
-		if ( k == imin ) minaic = aic;
-		if ( aic < minaic ) {
+		if ( (k == imin) || (aic < minaic) ) {
 			minaic = aic;
 			kmin = k;
-			snr = var2/var1;
 		}
 	}
+
+	snr = maeda_aic_snr_const(n, data, kmin, margin);
 }
 
 
@@ -122,19 +140,30 @@ REGISTER_SECONDARYPICKPROCESSOR(SL2Picker, "S-L2");
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+SL2Picker::State::State() : aicValid(false) {}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 SL2Picker::SL2Picker() {
 	// Request all three components
 	setUsedComponent(Horizontal);
-	// Check for S picks one minute after P
+	// Use ten seconds as noise to initialize the filter
+	setNoiseStart(-10);
+	// Start checking at onset time
 	setSignalStart(0);
+	// Check for S picks one minute after P
 	setSignalEnd(60);
 	setMargin(Core::TimeSpan(0,0));
-	_threshold = 3;
-	_timeCorr = -0.4;
-	_minSNR = 15;
-	_margin = 5.0;
+	_l2Config.threshold = 3;
+	_l2Config.timeCorr = 0;
+	_l2Config.minSNR = 15;
+	_l2Config.margin = 5.0;
 	_initialized = false;
 	_compFilter = NULL;
+	_saveIntermediate = false;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -183,46 +212,95 @@ bool SL2Picker::setup(const Settings &settings) {
 		}
 	}
 
+	try { setNoiseStart(settings.getDouble("spicker.L2.noiseBegin")); }
+	catch ( ... ) {}
+
 	try { setSignalStart(settings.getDouble("spicker.L2.signalBegin")); }
 	catch ( ... ) {}
 
 	try { setSignalEnd(settings.getDouble("spicker.L2.signalEnd")); }
 	catch ( ... ) {}
 
-	try { _threshold = settings.getDouble("spicker.L2.threshold"); }
+	try { _l2Config.threshold = settings.getDouble("spicker.L2.threshold"); }
 	catch ( ... ) {}
 
-	try { _minSNR = settings.getDouble("spicker.L2.minSNR"); }
+	try { _l2Config.minSNR = settings.getDouble("spicker.L2.minSNR"); }
 	catch ( ... ) {}
 
-	try { _margin = settings.getDouble("spicker.L2.marginAIC"); }
+	try { _l2Config.margin = settings.getDouble("spicker.L2.marginAIC"); }
 	catch ( ... ) {}
 
-	try { _timeCorr = settings.getDouble("spicker.L2.timeCorr"); }
+	try { _l2Config.timeCorr = settings.getDouble("spicker.L2.timeCorr"); }
 	catch ( ... ) {}
 
-	string fg;
+	try { _l2Config.filter = settings.getString("spicker.L2.filter"); }
+	catch ( ... ) { _l2Config.filter = "BW(4,0.3,1.0)"; }
 
-	try { fg = settings.getString("spicker.L2.filter"); }
-	catch ( ... ) { fg = "BW(4,0.3,1.0)"; }
+	try { _l2Config.detecFilter = settings.getString("spicker.L2.detecFilter"); }
+	catch ( ... ) { _l2Config.detecFilter = "STALTA(1,10)"; }
 
-	if ( !fg.empty() ) {
-		_compFilter = Filter::Create(fg.c_str());
+	return applyConfig();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void SL2Picker::setSaveIntermediate(bool e) {
+	_saveIntermediate = e;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const string &SL2Picker::methodID() const {
+	return MethodID;
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool SL2Picker::setL2Config(const L2Config &l2config) {
+	_l2Config = l2config;
+	return applyConfig();
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool SL2Picker::applyConfig() {
+	_initialized = false;
+	_state = State();
+	_detectionTrace.clear();
+
+	setOperator(NULL);
+
+	if ( _compFilter ) {
+		delete _compFilter;
+		_compFilter = NULL;
+	}
+
+	if ( !_l2Config.filter.empty() ) {
+		_compFilter = Filter::Create(_l2Config.filter.c_str());
 		if ( _compFilter == NULL ) {
 			SEISCOMP_WARNING("L2 spicker: wrong component filter definition: %s",
-			                 fg.c_str());
+			                 _l2Config.filter.c_str());
 			return false;
 		}
 	}
 
-	try { fg = settings.getString("spicker.L2.detecFilter"); }
-	catch ( ... ) { fg = "STALTA(1,10)"; }
-
-	if ( !fg.empty() ) {
-		Filter *filter = Filter::Create(fg.c_str());
+	if ( !_l2Config.detecFilter.empty() ) {
+		Filter *filter = Filter::Create(_l2Config.detecFilter.c_str());
 		if ( filter == NULL ) {
 			SEISCOMP_WARNING("L2 spicker: wrong filter definition: %s",
-			                 fg.c_str());
+			                 _l2Config.detecFilter.c_str());
 			return false;
 		}
 
@@ -239,17 +317,7 @@ bool SL2Picker::setup(const Settings &settings) {
 	setOperator(op.get());
 
 	_initialized = true;
-
 	return true;
-}
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const string &SL2Picker::methodID() const {
-	return MethodID;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -284,10 +352,15 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 	// The result of the L2 norm operator is stored in the vertical component
 	// and already sensitivity corrected.
 	size_t n = filteredData.size();
+	int ni = 0;
 	int si = 0;
 
-	if ( rec->startTime() < _trigger.onset )
-		si = (int)(double(_trigger.onset - rec->startTime()) * rec->samplingFrequency());
+	Core::Time noiseBegin = _trigger.onset + Core::TimeSpan(_config.noiseBegin);
+	Core::Time signalBegin = _trigger.onset + Core::TimeSpan(_config.signalBegin);
+	if ( rec->startTime() < noiseBegin )
+		ni = (int)(double(noiseBegin - rec->startTime()) * rec->samplingFrequency());
+	if ( rec->startTime() < signalBegin )
+		si = (int)(double(signalBegin - rec->startTime()) * rec->samplingFrequency());
 
 	double progress = (_config.signalEnd - _config.signalBegin) / double(dataTimeWindow().endTime() - _trigger.onset);
 	if ( progress < 0 ) progress = 0;
@@ -296,28 +369,46 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 	setStatus(InProgress, progress);
 
 	// Active trigger but AIC time window not filled during last call?
-	if ( _result.time.valid() && _margin > 0 ) {
+	if ( _result.time.valid() && _l2Config.margin > 0 ) {
 		int kmin;
 		double snr;
-		int ai = (int)(double(_result.time - dataTimeWindow().startTime()) * _stream.fsamp);
-		ai -= (int)(_margin*_stream.fsamp);
-		int ae = ai + (int)(_margin*2*_stream.fsamp);
+		double trigger = _result.time - _trigger.onset;
+		int ti = (int)(double(_result.time - dataTimeWindow().startTime()) * _stream.fsamp);
+		int ri = (int)(double(_trigger.onset - dataTimeWindow().startTime()) * _stream.fsamp);
+		int ai = ti - (int)(_l2Config.margin*_stream.fsamp);
+		int ae = ti + (int)(_l2Config.margin*_stream.fsamp);
+
+		_state.aicStart = trigger - _l2Config.margin;
+		_state.aicEnd = trigger + _l2Config.margin;
+		if ( _state.aicStart < _config.signalBegin ) _state.aicStart = _config.signalBegin;
+		if ( _state.aicEnd < _config.signalBegin ) _state.aicEnd = _config.signalBegin;
+
+		si = ri + (int)(_config.signalBegin*_stream.fsamp);
 		bool skip = ae > continuousData().size();
 
 		if ( skip ) return;
 
+		_state.aicValid = true;
+
+		// Clip to signal begin
+		if ( ai < si ) ai = si;
+
 		maeda_aic(ae-ai, continuousData().typedData()+ai, kmin, snr);
 
-		double t = (double)(kmin+ai)/(double)continuousData().size();
-		Core::Time tm = dataTimeWindow().startTime() + Core::TimeSpan(t*dataTimeWindow().length());
-		_result.time = tm + Core::TimeSpan(_timeCorr);
+		SEISCOMP_DEBUG("[S-L2] %s: AIC [%d;%d] = %d, ref: %d, si: %d, ri: %d, sb: %f",
+		               rec->streamID().c_str(), ai, ae, kmin+ai, ti, si, ri, _config.signalBegin);
 
-		if ( snr < _minSNR ) {
+		double t = (double)(kmin+ai)/(double)continuousData().size();
+		_result.time = dataTimeWindow().startTime() + Core::TimeSpan(t*dataTimeWindow().length());
+		_state.pick = _result.time;
+		_state.snr = snr;
+
+		if ( snr < _l2Config.minSNR ) {
 			_initialized = false;
 			SEISCOMP_DEBUG("[S-L2] %s: snr %f too low at %s, need %f",
 			               rec->streamID().c_str(), snr,
 			               _result.time.iso().c_str(),
-			               _minSNR);
+			               _l2Config.minSNR);
 			setStatus(LowSNR, snr);
 			_result = Result();
 			return;
@@ -338,53 +429,90 @@ void SL2Picker::process(const Record *rec, const DoubleArray &filteredData) {
 	}
 
 	size_t idx = si;
+	//std::cerr << n << " " << idx << "  " << ni << std::endl;
 
 	// If no pick has been found, check the data
 	if ( !_result.time.valid() ) {
+		if ( (si > 0) && _stream.filter ) {
+			size_t m = idx>n?n:idx;
+			//std::cerr << "Filter " << m-ni << " samples" << std::endl;
+			for ( size_t i = ni; i < m; ++i ) {
+				double fv = filteredData[i];
+				_stream.filter->apply(1, &fv);
+				if ( _saveIntermediate ) _detectionTrace.append(1, fv);
+				//std::cout << filteredData[i] << " " << fv << std::endl;
+			}
+		}
+
+		//std::cerr << "Work on " << n-idx << " samples" << std::endl;
 		for ( ; idx < n; ++idx ) {
 			double v = filteredData[idx];
 			double fv(v);
 
 			// Apply detection filter
-			if ( _stream.filter ) _stream.filter->apply(1, &fv);
+			if ( _stream.filter )
+				_stream.filter->apply(1, &fv);
+				if ( _saveIntermediate ) _detectionTrace.append(1, fv);
+
+			//std::cout << v << " " << fv << std::endl;
 
 			// Trigger detected
-			if ( fv >= _threshold ) {
+			if ( fv >= _l2Config.threshold ) {
 				double t = (double)idx/(double)n;
-				_result.time = rec->startTime() + Core::TimeSpan(rec->timeWindow().length() * t);
+				_result.time = rec->startTime() + Core::TimeSpan(rec->timeWindow().length() * t) + Core::TimeSpan(_l2Config.timeCorr);
 				_result.timeLowerUncertainty = _result.timeUpperUncertainty = -1;
 				_result.snr = -1;
+				_state.detection = _result.time;
 
-				if ( _margin > 0 ) {
+				SEISCOMP_DEBUG("[S-L2] %s: detection at %s with value %f",
+				               rec->streamID().c_str(), _result.time.iso().c_str(), fv);
+
+				if ( _l2Config.margin > 0 ) {
 					int kmin;
 					double snr;
-					int ai = (int)(double(_result.time - dataTimeWindow().startTime()) * _stream.fsamp);
-					ai -= (int)(_margin*_stream.fsamp);
-					int ae = ai + (int)(_margin*2*_stream.fsamp);
+					double trigger = _result.time - _trigger.onset;
+					int ti = (int)(double(_result.time - dataTimeWindow().startTime()) * _stream.fsamp);;
+					int ri = (int)(double(_trigger.onset - dataTimeWindow().startTime()) * _stream.fsamp);
+					int ai = ti - (int)(_l2Config.margin*_stream.fsamp);
+					int ae = ti + (int)(_l2Config.margin*_stream.fsamp);
+
+					_state.aicStart = trigger - _l2Config.margin;
+					_state.aicEnd = trigger + _l2Config.margin;
+					if ( _state.aicStart < _config.signalBegin ) _state.aicStart = _config.signalBegin;
+					if ( _state.aicEnd < _config.signalBegin ) _state.aicEnd = _config.signalBegin;
+
+					si = ri + (int)(_config.signalBegin*_stream.fsamp);
 					if ( ae > continuousData().size() )
 						return;
+
+					_state.aicValid = true;
+
+					// Clip to signal begin
+					if ( ai < si ) ai = si;
+
+					SEISCOMP_DEBUG("[S-L2] %s: AIC [%d;%d] = %d, ref: %d",
+					               rec->streamID().c_str(), ai, ae, kmin+ai, ti);
 
 					maeda_aic(ae-ai, continuousData().typedData()+ai, kmin, snr);
 
 					t = (double)(kmin+ai)/(double)continuousData().size();
-					Core::Time tm = dataTimeWindow().startTime() + Core::TimeSpan(t*dataTimeWindow().length());
-					_result.time = tm + Core::TimeSpan(_timeCorr);
+					_result.time = dataTimeWindow().startTime() + Core::TimeSpan(t*dataTimeWindow().length());
+					_state.pick = _result.time;
+					_state.snr = snr;
 
-					if ( snr < _minSNR ) {
+					if ( snr < _l2Config.minSNR ) {
 						_result = Result();
 						_initialized = false;
 						SEISCOMP_DEBUG("[S-L2] %s: snr %f too low at %s, need %f",
 						               rec->streamID().c_str(), snr,
 						               _result.time.iso().c_str(),
-						               _minSNR);
+						               _l2Config.minSNR);
 						setStatus(LowSNR, snr);
 						return;
 					}
 
 					_result.snr = snr;
 				}
-				else
-					_result.time +=  Core::TimeSpan(_timeCorr);
 
 				if ( _result.time <= _trigger.onset ) {
 					_result = Result();

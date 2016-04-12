@@ -24,6 +24,30 @@ namespace Processing {
 
 class SC_SYSTEM_CLIENT_API SL2Picker : public SecondaryPicker {
 	// ----------------------------------------------------------------------
+	//  Public types
+	// ----------------------------------------------------------------------
+	public:
+		struct L2Config {
+			double      threshold;
+			double      minSNR;
+			double      margin;
+			double      timeCorr;
+			std::string filter;
+			std::string detecFilter;
+		};
+
+		struct State {
+			State();
+			bool        aicValid;
+			double      aicStart;
+			double      aicEnd;
+			Core::Time  detection;
+			Core::Time  pick;
+			double      snr;
+		};
+
+
+	// ----------------------------------------------------------------------
 	//  X'truction
 	// ----------------------------------------------------------------------
 	public:
@@ -39,22 +63,35 @@ class SC_SYSTEM_CLIENT_API SL2Picker : public SecondaryPicker {
 	// ----------------------------------------------------------------------
 	public:
 		bool setup(const Settings &settings);
+		void setSaveIntermediate(bool);
 
 		const std::string &methodID() const;
 
+		bool setL2Config(const L2Config &l2config);
+
+		//! Returns the current configuration
+		const L2Config &l2Config() const { return _l2Config; }
+
+		const State &state() const { return _state; }
+		const Result &result() const { return _result; }
+
+		//! Returns detection data from noiseBegin if setSaveIntermediate
+		//! has been enabled before processing started.
+		const DoubleArray &processedData() const { return _detectionTrace; }
 
 	protected:
+		bool applyConfig();
 		void fill(size_t n, double *samples);
 		void process(const Record *rec, const DoubleArray &filteredData);
 
 	private:
-		bool    _initialized;
-		double  _threshold;
-		double  _minSNR;
-		double  _margin;
-		double  _timeCorr;
-		Result  _result;
-		Filter *_compFilter;
+		bool        _initialized;
+		L2Config    _l2Config;
+		State       _state;
+		Result      _result;
+		Filter     *_compFilter;
+		bool        _saveIntermediate;
+		DoubleArray _detectionTrace;
 };
 
 

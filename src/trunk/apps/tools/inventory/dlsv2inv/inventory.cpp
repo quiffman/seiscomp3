@@ -1066,7 +1066,7 @@ void Inventory::ProcessDatalogger(ChannelIdentifier& ci, DataModel::StreamPtr st
 {
 	SEISCOMP_DEBUG("Start processing datalogger information ");
 
-	string dataloggerName = station_name + "." + ci.GetChannel().substr(1,1) + strip(ci.GetLocation());
+	string dataloggerName = station_name + "." + ci.GetChannel() + strip(ci.GetLocation());
 
 	DataModel::DataloggerPtr dlg = inventory->datalogger(DataModel::DataloggerIndex(dataloggerName));
 	if(!dlg)

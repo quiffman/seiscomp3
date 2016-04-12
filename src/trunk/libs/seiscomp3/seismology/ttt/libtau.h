@@ -19,6 +19,12 @@
 #include <string>
 #include <seiscomp3/seismology/ttt.h>
 
+extern "C" {
+
+#include <libtau/tau.h>
+
+}
+
 
 namespace Seiscomp {
 namespace TTT {
@@ -101,13 +107,14 @@ class SC_SYSTEM_CORE_API LibTau : public TravelTimeTableInterface {
 		 * Sets the source depth.
 		 * @param depth The source depth in km
 		 */
-		static void SetDepth(double depth);
+		void setDepth(double depth);
 
-		void InitPath(const std::string &model);
+		void initPath(const std::string &model);
 
-		static double _depth;
-		static std::string _model;
-		static int _tabinCount;
+		libtau _handle;
+
+		double _depth;
+		std::string _model;
 
 		bool _initialized;
 };

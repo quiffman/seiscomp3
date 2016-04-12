@@ -762,6 +762,8 @@ class SC_SYSTEM_CLIENT_API Application : public Seiscomp::Core::InterruptibleObj
 		void configSetDoubles(const std::string& query, const std::vector<double>&);
 		void configSetStrings(const std::string& query, const std::vector<std::string>&);
 
+		void configUnset(const std::string& query);
+
 		bool saveConfiguration();
 
 

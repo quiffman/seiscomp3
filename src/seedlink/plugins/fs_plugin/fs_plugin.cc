@@ -458,7 +458,7 @@ void load_timestamp()
     
     if((f = fopen(timestamp_file.c_str(), "r")) == NULL) return;
 
-    time_t t1;
+    unsigned long t1;
     unsigned long t2;
     if(fscanf(f, "%lu.%lu", &t1, &t2) != 2)
       {

@@ -16,10 +16,10 @@
 ################################################################################
 
 
-import crypt, os, sys, time
+import os, sys
 
 try:
-	from twisted.cred import portal, checkers, credentials
+	from twisted.cred import checkers, credentials, error, portal
 	from twisted.internet import reactor, defer
 	from twisted.web import guard, resource, server, static
 	from twisted.python import log
@@ -37,7 +37,7 @@ except ImportError, e:
 from seiscomp3.fdsnws.dataselect import FDSNDataSelect, FDSNDataSelectRealm
 from seiscomp3.fdsnws.event import FDSNEvent
 from seiscomp3.fdsnws.station import FDSNStation
-from seiscomp3.fdsnws.http import HTTP, ListingResource, NoResource, Site, \
+from seiscomp3.fdsnws.http import ListingResource, NoResource, Site, \
                                   ServiceVersion
 from seiscomp3.fdsnws.log import Log
 
@@ -348,7 +348,7 @@ class FDSNWS(Application):
 		# Load networks and stations
 		staCount = 0
 		for i in xrange(dbr.loadNetworks(self._inv)):
-			staCount += dbr.load(self._inv.network(i));
+			staCount += dbr.load(self._inv.network(i))
 		Logging.debug("loaded %i stations from %i networks" % (
 		              staCount, self._inv.networkCount()))
 

@@ -1,11 +1,11 @@
-The Virtual Seismologist in SeisComP3 ("VS-in-SC3") provides near instantaneous
+The Virtual Seismologist in SeisComP3 (VS(SC3)) provides near instantaneous
 estimates of earthquake magnitude as soon as SeisComp3 origins are available. With a
 well-configured SeisComP3 system running on a dense network, magnitudes for
-local events can be available within 10-20 s of origin time. VS-in-SC3 can be a key
+local events can be available within 10-20 s of origin time. VS(SC3) can be a key
 component of an earthquake early warning system, and can be used to provide
 rapid earthquake notifications. With the capability to estimate magnitude
 (given a location estimate) with 3-seconds of P-wave information at a single
-station, VS-in-SC3 magnitude estimates are tens of seconds faster than
+station, VS(SC3) magnitude estimates are tens of seconds faster than
 conventional Ml calculations, which require waiting for the peak S-wave
 amplitudes. The VS magnitude estimation relationships consist of 1) a
 relationship between observed ground motion ratios (between vertical
@@ -19,7 +19,7 @@ can be computed with as little as 3 seconds of envelope data at a single
 station (i.e., 3 seconds after trigger time at a single station). Typically,
 usable envelope data is available at numerous stations by the time the first
 SeisComp3 origin is available. The VS magnitude estimates are then updated every
-second for 45 seconds (configurable). The SeisComp3 implementation allows for use of
+second for 30 seconds (configurable). The SeisComp3 implementation allows for use of
 broadband high-gain seismometers (with clipping value selected) as well as
 strong motion data. For co-located stations, VS magnitudes are calculated using
 the strong motion channels if the broadband channels saturate.
@@ -51,11 +51,12 @@ source estimation, was the result of the PhD research of Dr. Georgia Cua with
 Prof. Thomas Heaton at Caltech, from 1998 through 2004.
 
 The first real-time VS prototype system was developed by Georgia Cua and Michael
-Fischer at ETH Zurich from 2006-2012. This first prototype used location estimates generated
-by the Earthworm Binder modules (Dietz, 2002) as inputs to the VS magnitude
+Fischer at ETH Zurich from 2006-2012 (http://www.seismo.ethz.ch/research/vs). 
+This first prototype used location estimates generated
+by the Earthworm Binder module (Dietz, 2002) as inputs to the VS magnitude
 estimation. This architecture has been undergoing continuous real-time testing
 in California (since 2008) and Switzerland (since 2010). In California, VS is
-one of the 3 EEW algorithms that make up the CISN ShakeAlert EEW system
+one of the three EEW algorithms that make up the CISN ShakeAlert EEW system
 (http://www.cisn.org/eew/). The other algorithms are the ElarmS algorithm from
 UC Berkeley and the TauC/Pd OnSite algorithm from Caltech.
 In 2012/13, with funding from the EU projects NERA ("Network of European
@@ -71,34 +72,34 @@ VS and SeisComP3
 
 Although the codes were effectively re-written, the basic architecture used in
 the original Earthworm-based implementation is used in SeisComp3. The SeisComp3 modules
-scautopick, scautoloc, and scevent replace the Earthworm Binder modules for
+scautopick, scautoloc, and scevent replace the Earthworm Binder module for
 providing location estimates. Two new VS-specific modules were developed to
 continuously calculate envelope amplitudes and to calculate and update VS
-magnitudes (MVS) once an SeisComP3 origin is available.
+magnitudes (MVS) once a SeisComP3 origin is available.
 
 - :ref:`scenvelope`
 - :ref:`scvsmag`
 
 MVS is calculated and updated (with updates attached to the preferred origin)
-each second for 45 seconds (unless configured differently) after it is first
+each second for 30 seconds (unless configured differently) after it is first
 invoked by the availability of a new SeisComp3 event. If configured, Ml can also be
 calculated for these events.
 
-An additional module, :ref:`scvsmlog`, creates log output and mails solutions
-once a new event is fully processed.
+An additional module, :ref:`scvsmaglog`, creates log output and mails solutions
+once a new event is fully processed. It also provides an interface to send 
+alerts in real-time.
 
-
-Configuring and optimizing VS in SeisComP3 EEW
+Configuring and optimizing VS(S3) for EEW
 ----------------------------------------------
 
-The performance of VS-in-SC3 is strongly dependent on: 1) the quality and
+The performance of VS(SC3) is strongly dependent on: 1) the quality and
 density of the seismic network; 2) the configuration of the general SeisComp3 system.
 scautoloc requires at least 6 triggers to create an origin. Given the network
 geometry, maps of when VS estimates would be first available
 (indicative of the size of the blind zone as a function of earthquake location
-relative to stations) can be generated for regions where EEW is of interest. SeisComp3
-VS uses scautoloc, which was not built for EEW, so an
-additional delay of some seconds is required for origin processing. VS
+relative to stations) can be generated for regions where EEW is of interest. VS(SC3)
+uses scautoloc, which was not built for EEW, so an
+additional delay of at most a few seconds is required for origin processing. VS
 magnitudes (MVS) can be expected within 1-2 seconds after a SeisComp3 origin is
 available. In the densest part of the Swiss network, SeisComp3 origins are available
 within 10-15 seconds after origin time; MVS is typically available 1-2 seconds
@@ -112,7 +113,7 @@ between ground motion ratios and magnitude (6 coefficients) from a regional
 dataset. In practice, the VS magnitude estimation relationships derived from
 Southern California have been shown to work reasonably well in Northern
 California and Switzerland (Behr et al, 2012). The envelope and ground motion
-ratio coefficents from Cua (2005) are hard-coded in scvsmag, and should not be
+ratio coefficients from Cua (2005) are hard-coded in scvsmag, and should not be
 modified without full understanding of the VS methodology and potential
 consequences of the modifications.
 
@@ -151,9 +152,8 @@ VS License
 ----------
 
 The SeisComp3 VS modules are free and open source, and are part of the SeisComp3
-distribution from Seattle v2013.200. They are distributed under the 'SED Public
-License for SeisComP3 Contributions'
-(see http://www.seismo.ethz.ch/static/seiscomp_contrib/license.txt).
+distribution from Seattle v2013.200. They are distributed under the `'SED Public
+License for SeisComP3 Contributions' <see http://www.seismo.ethz.ch/static/seiscomp_contrib/license.txt>`_.
 
 
 References

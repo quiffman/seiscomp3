@@ -64,6 +64,16 @@ bool MagnitudeProcessor_MLv::setup(const Settings &settings) {
 		logA0_val.push_back(val);
 	}
 
+	try {
+		maxDistanceKm = settings.getDouble("MLv.maxDistanceKm");
+	}
+	catch ( ... ) {
+		maxDistanceKm = -1; // distance according to the logA0 range
+	}
+
+
+
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -97,17 +107,16 @@ MagnitudeProcessor::Status MagnitudeProcessor_MLv::computeMagnitude(
 	// Clip depth to 0
 	if ( depth < 0 ) depth = 0;
 
-	double distkm = Math::Geo::deg2km(delta);
+	double distanceKm = Math::Geo::deg2km(delta);
+	if (maxDistanceKm > 0 && distanceKm > maxDistanceKm)
+		return DistanceOutOfRange;
 
 	try {
-		value = log10(amplitude) - logA0(distkm);
+		value = log10(amplitude) - logA0(distanceKm);
 	}
 	catch ( Core::ValueException &e ) {
 		return DistanceOutOfRange;
 	}
-
-//	if ( !Magnitudes::compute_ML(amplitude, delta, depth, &value) )
-//		return Error;
 
 	value = correctMagnitude(value);
 

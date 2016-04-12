@@ -607,6 +607,9 @@ bool StreamSelector::init(const char *selstr)
         --len;
       }
 
+    if(len != (int) strspn(p, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?"))
+        return false;
+
     if(len == LOCLEN + CHLEN)
       {
         strncpy(loc, p, LOCLEN);
@@ -1333,7 +1336,7 @@ class SeqAttribute: public CfgAttribute
 
     bool assign(ostream &cfglog, const string &value)
       {
-        int n;
+        unsigned int n;
         char c;
         
         if(sscanf(value.c_str(), "%X%c", &n, &c) != 1 || (n & ~SEQ_MASK))

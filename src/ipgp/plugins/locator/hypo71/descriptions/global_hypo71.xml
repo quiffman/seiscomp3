@@ -22,18 +22,13 @@
 					Temporary output file to read Hypo71 localization data from
 					</description>
 				</parameter>
-				<parameter name="defaultControlFile" type="string">
+				<parameter name="defaultControlFile" type="string" default="${HOME}/hypo71/default.hypo71.conf">
 					<description>
 					Hypo71 default profile.
 					If no custom profile is specified, this profile will be used by the plugin when proceeding to a localization. 
 					</description>
 				</parameter>
-				<parameter name="hypo71BinaryFile" type="string">
-					<description>
-					Filepath to Hypo71 binary.
-					</description>
-				</parameter>
-				<parameter name="hypo71ScriptFile" type="string">
+				<parameter name="hypo71ScriptFile" type="string" default="${HOME}/hypo71/run.sh">
 					<description>
 					Bash script to use when calls have to be made by the plugin when proceeding to a localization
 					</description>
@@ -55,7 +50,7 @@
 							Profile's velocity model name
 							</description>
 						</parameter>
-						<parameter name="methodID" type="string">
+						<parameter name="methodID" type="string" default="Hypo71PC">
 							<description>
 							Profile's method.
 							It's generally the locator's name (Hypo71).
@@ -68,6 +63,10 @@
 						</parameter>
 					</struct>
 				</group>
+				<parameter name="publicID" type="string">
+					<description>Custom patternID to use when generating origin publicID</description></parameter>
+				<parameter name="useHypo71PatternID" type="bool">
+					<description>Specifies if the given publicD should be used for generating origin publicID</description></parameter>
 			</group>
 		</configuration>
 	</plugin>

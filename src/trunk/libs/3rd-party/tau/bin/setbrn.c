@@ -56,56 +56,72 @@ static FILE *fpin, *fp10, *fpout;
 
 int main(int argc, char *argv[])
 {
+	char filespec[100];
 	int i, j, k, l, m, n, nph, ndasr, nasgr, nrec, k1, m1, n1, ind,
-		len1, len0, len2, rb;
+	    len1, len0, len2;
 	float xn, tn, pn;
 	double d, cn;
 
-        for(i = 0; i < nbr1; i++)
-        {
-                v[0].code[i] = (char *)malloc(10);
-                v[1].code[i] = (char *)malloc(10);
-        }
-        for(i = 0; i < jbrn; i++) phcd[i] = (char *)malloc(10);
+	for(i = 0; i < nbr1; i++)
+	{
+		v[0].code[i] = (char *)malloc(10);
+		v[1].code[i] = (char *)malloc(10);
+	}
+	for(i = 0; i < jbrn; i++) phcd[i] = (char *)malloc(10);
 
 	deg = 180./3.1415927;
 
-	fpin = fopen("remodl.hed", "rb");
-        fread(&ndasr, 4, 1, fpin);
-        fread(modnam, 1, 20, fpin);
-        fread(&zmax, 8, 1, fpin);
-        fread(&zoc, 8, 1, fpin);
-        fread(&zic, 8, 1, fpin);
-        fread(kb, 4, 2, fpin);
-        fread(pb, 8, kb[1], fpin);
-        fread(mt, 4, 2, fpin);
-        fread(lt, 4, 2, fpin);
-        fread(lbb, 4, 2, fpin);
-        fread(lcb, 4, 2, fpin);
-        fread(&xn, 4, 1, fpin);
-        fread(&pn, 4, 1, fpin);
-        fread(&tn, 4, 1, fpin);
-        for(nph = 0; nph < 2; nph++)
-        {
-                fread(v[nph].lbrk, 4, lbb[nph], fpin);
-                for(i = 0; i < lcb[nph]; i++)
-                        fread(v[nph].code[i], 8, 1, fpin);
-                fread(v[nph].zm,   8, mt[nph], fpin);
-                fread(v[nph].pm,   8, mt[nph], fpin);
-                fread(v[nph].ndex, 4, mt[nph], fpin);
-                fread(v[nph].loc,  4, mt[nph], fpin);
-                fread(v[nph].lvz,  4, lt[nph], fpin);
-                fread(v[nph].taul, 8, lt[nph], fpin);
-                fread(v[nph].xl,   8, lt[nph], fpin);
-        }
+	if ( argc > 1 )
+		snprintf(filespec, sizeof(filespec)-1, "remodl_%s.hed", argv[1]);
+	else
+		strcpy(filespec, "remodl.hed");
+
+	fpin = fopen(filespec, "rb");
+	if ( !fpin ) {
+		fprintf(stderr, "could not open %s\n", filespec);
+		exit(-1);
+	}
+
+	fread(&ndasr, 4, 1, fpin);
+	fread(modnam, 1, 20, fpin);
+	fread(&zmax, 8, 1, fpin);
+	fread(&zoc, 8, 1, fpin);
+	fread(&zic, 8, 1, fpin);
+	fread(kb, 4, 2, fpin);
+	fread(pb, 8, kb[1], fpin);
+	fread(mt, 4, 2, fpin);
+	fread(lt, 4, 2, fpin);
+	fread(lbb, 4, 2, fpin);
+	fread(lcb, 4, 2, fpin);
+	fread(&xn, 4, 1, fpin);
+	fread(&pn, 4, 1, fpin);
+	fread(&tn, 4, 1, fpin);
+	for(nph = 0; nph < 2; nph++)
+	{
+		fread(v[nph].lbrk, 4, lbb[nph], fpin);
+		for(i = 0; i < lcb[nph]; i++)
+			fread(v[nph].code[i], 8, 1, fpin);
+		fread(v[nph].zm,   8, mt[nph], fpin);
+		fread(v[nph].pm,   8, mt[nph], fpin);
+		fread(v[nph].ndex, 4, mt[nph], fpin);
+		fread(v[nph].loc,  4, mt[nph], fpin);
+		fread(v[nph].lvz,  4, lt[nph], fpin);
+		fread(v[nph].taul, 8, lt[nph], fpin);
+		fread(v[nph].xl,   8, lt[nph], fpin);
+	}
 	fclose(fpin);
 
 	printf("ndasr = %d  modnam = %s\n", ndasr, modnam);
 
-	fpin = fopen("remodl.tbl", "rb");
+	if ( argc > 1 )
+		snprintf(filespec, sizeof(filespec)-1, "remodl_%s.tbl", argv[1]);
+	else
+		strcpy(filespec, "remodl.tbl");
+
+	fpin = fopen(filespec, "rb");
 	if(!fpin)
 	{
-		fprintf(stderr, "could not open remodl.tbl\n");
+		fprintf(stderr, "could not open %s\n", filespec);
 		exit(-1);
 	}
 
@@ -115,30 +131,29 @@ int main(int argc, char *argv[])
 		n1 = kb[nph];
 		ind = 0;
 		for(k = 0; k < n1; k++) v[nph].xm[k] = 0.;
-	    do
-	    {
-		for(;;)
-		{
-			nrec++;
-			fread(&z0, 8, 1, fpin);
-			fread(&n, 4, 1, fpin);			
-			fread(v[0].tmp, 8, n, fpin);
-			fread(v[1].tmp, 8, n, fpin);
-			if(ind > 0 || fabs(z0-zoc) <= dtol) break;
-			for(k = 1; k < n; k++)
+		do {
+			for(;;)
 			{
-			    d = fabs(v[1].tmp[k-1] - v[1].tmp[k]);
-			    if(d > v[nph].xm[k]) v[nph].xm[k] = d;
+				nrec++;
+				fread(&z0, 8, 1, fpin);
+				fread(&n, 4, 1, fpin);
+				fread(v[0].tmp, 8, n, fpin);
+				fread(v[1].tmp, 8, n, fpin);
+				if(ind > 0 || fabs(z0-zoc) <= dtol) break;
+				for(k = 1; k < n; k++)
+				{
+					d = fabs(v[1].tmp[k-1] - v[1].tmp[k]);
+					if(d > v[nph].xm[k]) v[nph].xm[k] = d;
+				}
+				if(n+1 == n1) v[nph].xm[n1-1] = v[1].tmp[n-1];
 			}
-			if(n+1 == n1) v[nph].xm[n1-1] = v[1].tmp[n-1];
-		}
-		ind++;
-		for(k = 0; k < n; k++)
-		{
-			v[nph].t[ind-1].taup[k] = v[0].tmp[k];
-			v[nph].t[ind-1].xp[k]   = v[1].tmp[k];
-		}
-	    } while(ind < 3);
+			ind++;
+			for(k = 0; k < n; k++)
+			{
+				v[nph].t[ind-1].taup[k] = v[0].tmp[k];
+				v[nph].t[ind-1].xp[k]   = v[1].tmp[k];
+			}
+		} while(ind < 3);
 	}
 	xmin *= xn;
 
@@ -282,7 +297,7 @@ int main(int argc, char *argv[])
 		"nseg nbrn mt ku km len len1 %d %d %d %d %d %d %d %d %d %d\n",
 		nseg, nbrn, mt[0], mt[1], ku[0], ku[1], km[0], km[1],len0,len1);
 	nasgr = len0;
-	printf("reclength for direct access %d\n", nasgr);
+	/*printf("reclength for direct access %d\n", nasgr);*/
 
 	strcpy(hedfile, modnam);
 	strcat(hedfile, ".hed");
@@ -306,35 +321,34 @@ int main(int argc, char *argv[])
 		{
 			if(v[nph].ndex[m] != v[nph].ndex[m-1])
 			{
-			    fseek(fpin, v[nph].loc[m], 0);
-			    fread(&z0, 8, 1, fpin);
-			    fread(&n, 4, 1, fpin);
-			    fread(v[0].tmp, 8, n, fpin);
-			    fread(v[1].tmp, 8, n, fpin);
-			    fprintf(fp10, "m nph ndex n %d %d %d %d\n",
-					m, nph, v[nph].ndex[m], n);
+				fseek(fpin, v[nph].loc[m], 0);
+				fread(&z0, 8, 1, fpin);
+				fread(&n, 4, 1, fpin);
+				fread(v[0].tmp, 8, n, fpin);
+				fread(v[1].tmp, 8, n, fpin);
+				fprintf(fp10, "m nph ndex n %d %d %d %d\n",
+				        m, nph, v[nph].ndex[m], n);
 		
-			    for(i = k = l = 0; i < n; i++)
-			    {
-				if(v[nph].kuse[i] >= 0)
-				{
-					if(fabs(v[nph].pux[l] - pb[i]) <= dtol)
+				for(i = k = l = 0; i < n; i++) {
+					if(v[nph].kuse[i] >= 0)
 					{
-						v[1].tmp[l++] = v[1].tmp[i];
+						if(fabs(v[nph].pux[l] - pb[i]) <= dtol)
+						{
+							v[1].tmp[l++] = v[1].tmp[i];
+						}
+						v[0].tmp[k++] = v[0].tmp[i];
 					}
-					v[0].tmp[k++] = v[0].tmp[i];
 				}
-			    }
-			    fprintf(fp10, "k l nrec %d %d %d %d %E\n",
+				fprintf(fp10, "k l nrec %d %d %d %d %E\n",
 				k, l, nrec+1, v[nph].ndx2[m], v[0].tmp[0]);
 
-			    for(; k < n1; k++) v[0].tmp[k] = 0.;
-			    for(; l < k1; l++) v[1].tmp[l] = 0.;
+				for(; k < n1; k++) v[0].tmp[k] = 0.;
+				for(; l < k1; l++) v[1].tmp[l] = 0.;
 
-			    v[nph].oloc[m] = ftell(fpout);
-			    fwrite(v[0].tmp, 8, n1, fpout);
-			    fwrite(v[1].tmp, 8, k1, fpout);
-			    nrec++;
+				v[nph].oloc[m] = ftell(fpout);
+				fwrite(v[0].tmp, 8, n1, fpout);
+				fwrite(v[1].tmp, 8, k1, fpout);
+				nrec++;
 			}
 			else
 			{

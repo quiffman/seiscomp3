@@ -65,11 +65,9 @@
 					A list of email addresses that receive the report emails.
 					</description>
 				</parameter>
-			</group>
-			<group name="userdisplay">
-				<parameter name="configfile" type="file">
+				<parameter name="magThresh" type="double" default="0.0">
 					<description>
-					Path to the configuration file that defines the UserDisplay interface.
+					Only send a notification email if the magnitude threshold is exceeded.
 					</description>
 				</parameter>
 			</group>
@@ -85,6 +83,39 @@
 					</description>
 				</parameter>
 			</group>
+			<group name="ActiveMQ">
+				<parameter name="hostname" type="string" default="localhost">
+					<description>
+					Server name that runs the ActiveMQ broker.
+					</description>
+				</parameter>
+				<parameter name="port" type="int" default="61619">
+					<description>
+					Port on which ActiveMQ broker accepts stomp messages.
+					</description>
+				</parameter>
+				<parameter name="username" type="string" default="your-ActiveMQ-username">
+					<description>
+					Username with which messages are sent.
+					</description>
+				</parameter>
+				<parameter name="password" type="string" default="your-ActiveMQ-password">
+					<description>
+					Password with which messages are sent.
+					</description>
+				</parameter>
+				<parameter name="topic" type="string" default="/topic/your-topic-for-alerts">
+					<description>
+					ActiveMQ broker topic to send alerts to.
+					</description>
+				</parameter>
+				<parameter name="hbtopic" type="string" default="/topic/your-topic-for-heart-beats">
+					<description>
+					ActiveMQ broker topic to send heart beats to.
+					</description>
+				</parameter>
+			</group>
+			
 		</configuration>
 		<command-line>
 			<group name="Generic">
@@ -123,6 +154,11 @@
 			<group name="Reports">
 				<option long-flag="savedir" argument="path">
 					<description>Directory to save reports to.</description>
+				</option>
+			</group>
+			<group name="Mode">
+				<option long-flag="playback">
+					<description>Disable database connection.</description>
 				</option>
 			</group>
 		</command-line>

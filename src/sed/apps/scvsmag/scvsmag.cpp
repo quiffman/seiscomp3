@@ -48,13 +48,13 @@ VsMagnitude::VsMagnitude(int argc, char **argv) :
 	// to the primary message group (PICK), but connection->send("LOCATION", msg)
 	// sends a message to the passed group name (LOCATION).
 	setMessagingEnabled(true);
-	setPrimaryMessagingGroup("MAGNITUDEVS");
+	setPrimaryMessagingGroup("MAGNITUDE");
 
 	// Listen for events, origins, picks (caching) and
 	// envelopes (circular buffer)
-	addMessagingSubscription("LOCATIONVS");
-	addMessagingSubscription("EVENTVS");
-	addMessagingSubscription("PICKVS");
+	addMessagingSubscription("LOCATION");
+	addMessagingSubscription("EVENT");
+	addMessagingSubscription("PICK");
 	addMessagingSubscription("VS");
 
 	// Setting default values:
@@ -313,6 +313,10 @@ bool VsMagnitude::init() {
 
 	// set the timespan of the cache
 	_cache.setTimeSpan(TimeSpan(_timeout));
+
+	// get objects from the database if they are not in the cache
+	if ( isDatabaseEnabled() )
+		_cache.setDatabaseArchive(query());
 
 	// initialize the circular buffer
 	_timeline.init(_backSlots, _headSlots, _clipTimeout);
@@ -641,6 +645,10 @@ void VsMagnitude::handleEvent(Event *event) {
 	for ( size_t i = 0; i < org->arrivalCount(); i++ ) {
 		Arrival *arr = org->arrival(i);
 		PickPtr pick = _cache.get<Pick>(arr->pickID());
+		if ( !pick ) {
+			SEISCOMP_DEBUG("cache.get<Pick>(\"%s\") failed to return pick", arr->pickID().c_str());
+			continue;
+		}
 		Timeline::StationID id(pick->waveformID().networkCode(),
 				pick->waveformID().stationCode());
 		if ( pick && arr->distance() < dthresh ) { // if the

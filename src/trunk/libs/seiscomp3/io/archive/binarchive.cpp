@@ -492,18 +492,6 @@ inline int BinaryArchive::writeBytes(const void* buf, int size) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-template<typename T>
-int BinaryArchive::writeScalar(const T& v) {
-	if ( !_buf ) return;
-	int temp = Convert(v);
-	writeBytes(&temp, sizeof(T));
-}
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 void BinaryArchive::write(int value) {
 	if ( !_buf ) return;
 	writeBytes(&value, sizeof(int));

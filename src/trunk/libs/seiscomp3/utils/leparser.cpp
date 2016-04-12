@@ -80,7 +80,7 @@ void LeTokenizer::init()
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool LeTokenizer::tokenize()
 {
-	unsigned int parenthesesCounter = 0;
+	int parenthesesCounter = 0;
 
 	std::string::const_iterator previous = _expr.begin();
 	std::string::const_iterator current  = _expr.begin();

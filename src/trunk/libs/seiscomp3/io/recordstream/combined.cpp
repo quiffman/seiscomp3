@@ -167,7 +167,7 @@ bool CombinedConnection::setSource(std::string serverloc) {
 
 bool CombinedConnection::addStream(std::string net, std::string sta,
                                    std::string loc, std::string cha) {
-	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (ulong) _nStream, net.c_str(),
+	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (unsigned long) _nStream, net.c_str(),
 	               sta.c_str(), loc.c_str(), cha.c_str());
 	// Streams without a time span are inserted into a temporary list
 	// and will be resolved when the data is requested the first time
@@ -180,7 +180,7 @@ bool CombinedConnection::addStream(std::string net, std::string sta,
                                    std::string loc, std::string cha,
                                    const Seiscomp::Core::Time &stime,
                                    const Seiscomp::Core::Time &etime) {
-	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (ulong) _nStream, net.c_str(),
+	SEISCOMP_DEBUG("add stream %lu %s.%s.%s.%s", (unsigned long) _nStream, net.c_str(),
 	               sta.c_str(), loc.c_str(), cha.c_str());
 
 	if ( stime.valid() && stime < _archiveEndTime ) {
@@ -243,9 +243,9 @@ std::istream& CombinedConnection::stream() {
 		_tmpStreams.clear();
 
 		if ( _nArchive > 0 )
-			SEISCOMP_DEBUG("start %lu archive requests", (ulong) _nArchive);
+			SEISCOMP_DEBUG("start %lu archive requests", (unsigned long) _nArchive);
 		else
-			SEISCOMP_DEBUG("start %lu realtime requests", (ulong) _nRealtime);
+			SEISCOMP_DEBUG("start %lu realtime requests", (unsigned long) _nRealtime);
 	}
 
 	if ( _nArchive > 0 ) {
@@ -255,7 +255,7 @@ std::istream& CombinedConnection::stream() {
 		else {
 			_archive->close();
 			_nArchive = 0;
-			SEISCOMP_DEBUG("start %lu realtime requests", (ulong) _nRealtime);
+			SEISCOMP_DEBUG("start %lu realtime requests", (unsigned long) _nRealtime);
 		}
 
 		return _realtime->stream();

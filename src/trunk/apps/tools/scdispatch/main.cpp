@@ -149,7 +149,7 @@ class ObjectWriter : protected DataModel::Visitor {
 			DataModel::NotifierMessage notifierMessage;
 			notifierMessage.attach(new DataModel::Notifier(_parentID, _operation, object));
 
-			uint counter = 0;
+			unsigned int counter = 0;
 			while ( counter <= 4 ) {
 				if ( _connection->send(targetIt->second, &notifierMessage) ) {
 					if ( _count % 100 == 0 ) SCCoreApp->sync();

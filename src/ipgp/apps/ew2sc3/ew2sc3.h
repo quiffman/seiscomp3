@@ -13,7 +13,7 @@
  * GNU General Public License for more details.                         *
  *                                                                      *
  * This program is part of 'Projet TSUAREG - INTERREG IV Caraïbes'.     *
- * It has been co-financed by the European Union and le Minitère de     *
+ * It has been co-financed by the European Union and le Ministère de    *
  * l'Ecologie, du Développement Durable, des Transports et du Logement. *
  *                                                                      *
  ************************************************************************/
@@ -24,6 +24,7 @@
 
 
 #include <string>
+#include <vector>
 #include <netdb.h>
 #include <seiscomp3/core/datamessage.h>
 #include <seiscomp3/client/application.h>
@@ -38,7 +39,6 @@
 #include <seiscomp3/datamodel/utils.h>
 #include <seiscomp3/datamodel/publicobjectcache.h>
 #include <seiscomp3/seismology/locatorinterface.h>
-#include <vector>
 
 
 namespace Seiscomp {
@@ -56,9 +56,8 @@ class EW2SC3 : public Seiscomp::Client::Application {
 		// ------------------------------------------------------------------
 		//  Instruction
 		// ------------------------------------------------------------------
-		EW2SC3(int argc, char **argv);
-		virtual ~EW2SC3();
-
+		explicit EW2SC3(int argc, char** argv);
+		~EW2SC3();
 
 	protected:
 		// ------------------------------------------------------------------
@@ -72,15 +71,16 @@ class EW2SC3 : public Seiscomp::Client::Application {
 		//  Private interface
 		// ------------------------------------------------------------------
 		/**
-		 * Initializes connection to Earthworm socket
+		 * @brief  Initializes connection to Earthworm socket
 		 * @return EXIT_SUCCESS
 		 */
 		int ew_connect();
 
 		/**
 		 * Launched into boost thread!\n
-		 * It endlessly listen to the socket in order to catch incoming transmission\n
-		 * and after verification, send them to extractOrigin().
+		 * @brief  It endlessly listen to the socket in order to catch
+		 *         incoming transmissions and after verifications, uses
+		 *         extractOrigin() method to create a new origin.
 		 * @return EXIT_SUCCESS
 		 */
 		int ew_read();
@@ -93,40 +93,43 @@ class EW2SC3 : public Seiscomp::Client::Application {
 		 * @param msg the message
 		 * @return 0/1 pending on writing success
 		 */
-		int ew_write(int sock, char *msg);
+		int ew_write(int sock, char* msg);
 
 		/**
-		 * Initializes the application variables by reading values from configuration file.
+		 * @brief  Initializes the application variables by reading values
+		 *         from configuration file.
 		 * @return true/false pending on operation success
 		 */
 		bool config();
 
 		/**
-		 * Launched into boost thread!\n
-		 * Sends heartbeat to Earthworm server to let him know we (as a client) are alive.
+		 * @brief  Sends heartbeat to Earthworm server to let him know we
+		 *         (as a client) are alive.
+		 * @note   This method should be launched into a boost thread.
 		 * @return EXIT_SUCCESS
 		 */
 		int sendHeartbeat();
 
 		/**
-		 * Filters the input message to extract the origin, the phases and the others informations.
-		 * @param msg message to filter
+		 * @brief  Filters the input message to extract the origin, the phases
+		 *         and the others informations.
+		 * @param  msg message to filter
 		 * @return EXIT_SUCCESS
 		 */
 		int extractOrigin(char* msg);
 
 		/**
-		 * Actually sends a message into a socket.
-		 * @param sock the socket descriptor
-		 * @param buf message
-		 * @param buflen message length
-		 * @param flags message flag
-		 * @param timeout_msecs socket timeout
+		 * @brief  Sends a message into a socket.
+		 * @param  sock the socket descriptor
+		 * @param  buf message
+		 * @param  buflen message length
+		 * @param  flags message flag
+		 * @param  timeout_msecs socket timeout
 		 * @return number integer value of sent bytes
 		 */
-		int sendMessage(int sock, char *buf, int buflen, int flags, int timeout_msecs);
+		int sendMessage(int sock, char* buf, int buflen, int flags, int timeout_msecs);
 
-		double getResidual(std::string& res);
+		double getResidual(const std::string& res);
 
 		void runListenerThread();
 		void runHeartbeatThread();
@@ -138,60 +141,62 @@ class EW2SC3 : public Seiscomp::Client::Application {
 		//  Private methods
 		// ------------------------------------------------------------------
 		/**
-		 * Converts std::string to double value
-		 * @param value std::string to convert
+		 * @brief  Converts std::string to double value
+		 * @param  value std::string to convert
 		 * @return double value of std::string
 		 */
-		double to_double(const std::string& value);
+		const double to_double(const std::string& value);
 
 		/**
-		 * Converts std::string number to integer value
-		 * @param value std::string to convert
+		 * @brief  Converts std::string number to integer value
+		 * @param  value std::string to convert
 		 * @return integer value of std::string input
 		 */
-		int to_int(const std::string& value);
+		const int to_int(const std::string& value);
 
 		/**
-		 * Replaces blank character into std::string by other std::string character
-		 * @param str reference std::string
-		 * @param str1 character of substitution
-		 * @return std::string with replaces characters
+		 * @brief  Replaces blank character into a string by another
+		 *         string character
+		 * @param  str reference string
+		 * @param  str1 character of substitution
+		 * @return string with replaces characters
 		 */
 		std::string blank_replace(std::string& str, std::string& str1);
 
 		/**
-		 * Converts sexagesimal value into decimal std::string
-		 * @param deg degree value
-		 * @param min minute value
-		 * @param pol polarity (S/W)
+		 * @brief  Converts sexagesimal value into decimal string
+		 * @param  deg degree value
+		 * @param  min minute value
+		 * @param  pol polarity (S/W)
 		 * @return decimal value of sexagesimal input
 		 */
-		std::string sexagesimal_to_decimal(double deg, double min, std::string pol);
+		const std::string sexagesimal_to_decimal(const double& deg,
+		                                         const double& min,
+		                                         const std::string& pol);
 
 		/**
-		 * Removes spaces from input std::string value
-		 * @param str input std::string
-		 * @return space stripped value of input string
+		 * @brief  Removes spaces from input string value
+		 * @param  str input string
+		 * @return spaces stripped value of input string
 		 */
 		std::string strip_space(std::string& str);
 
 		/**
-		 * Converts input value into std::string
-		 * @return std::string value of input value
+		 * @brief  Converts input value into a string
+		 * @return string value of input value
 		 */
 		template<typename T> std::string to_string(const T& value);
 
-		double getSeiscompUncertainty(double value);
+		const double getSeiscompUncertainty(const double& value);
 
 		void strExplode(const std::string& s, char c, std::vector<std::string>& v);
-
 
 	private:
 		// ------------------------------------------------------------------
 		//  Private members
 		// ------------------------------------------------------------------
 		struct sockaddr_in serv_addr;
-		struct hostent *server;
+		struct hostent* server;
 
 		int socketDescriptor;
 		int senderPort;
@@ -201,36 +206,32 @@ class EW2SC3 : public Seiscomp::Client::Application {
 		int maxMsgSize;
 		int myAliveInt;
 
-		char *msgBuffer;
+		char* msgBuffer;
 		char senderHeartText[256];
 		char myAliveString[256];
 
-		bool connected;
+		bool _connected;
 		bool _archive;
 		bool _enableUncertainties;
 
-		int instId; //! Earthworm institudeID
-		int modId;  //! Earthworm moduleID
-		int msgId;  //! Earthworm messageID
+		int _instID;
+		int _modID;
 
 		std::string _configPath;
-		std::string instName;
-		std::string instAuthor;
-		std::string senderHostName;
-		std::string defaultLatitude;
-		std::string defaultLongitude;
+		std::string _instAuthor;
+		std::string _senderHostName;
+		std::string _defaultLatitude;
+		std::string _defaultLongitude;
 		std::string _locProfile;
-
-		time_t lastServerBeat;
-		time_t lastSocketBeat;
-
+		std::string _customAgencyID;
 		std::string _myAliveString;
 		std::string _senderAliveString;
 
+		time_t _lastServerBeat;
+		time_t _lastSocketBeat;
+
 		double _uncertaintyMax;
 		std::vector<double> _uncertainties;
-
-		std::vector<Seiscomp::DataModel::PickPtr> PickList;
 
 		Seiscomp::Logging::Channel* _infoChannel;
 		Seiscomp::Logging::Output* _infoOutput;

@@ -11,6 +11,9 @@ import xml.etree.ElementTree as ET
 import cStringIO
 import datetime
 import time
+import seiscomp3
+
+class UDException(Exception): pass
 
 class UDConnection:
 
@@ -18,13 +21,31 @@ class UDConnection:
                  password=None):
         try:
             self.topic = topic
-            self.stomp = Client(host=host, port=port)
-            self.stomp.connect(username=username, password=password)
+            self.username = username
+            self.password = password
+            self.host = host
+            self.port = port
+            self.stomp = Client(host=self.host, port=self.port)
+            self.stomp.connect(username=self.username, password=self.password)
         except Exception, e:
-            raise Exception('Cannot connect to message broker: %s.' % e)
+            raise UDException('Cannot connect to message broker (%s@%s:%d): %s.'\
+                               % (username, host, port, e))
 
     def send(self, msg):
-        self.stomp.put(msg, destination=self.topic)
+        try:
+            self.stomp.put(msg, destination=self.topic)
+        except Exception, e:
+            seiscomp3.Logging.error("ActiveMQ connection lost.")
+            # Wait for a bit in case the ActiveMQ broker is restarting
+            time.sleep(10)
+            try:
+                del self.stomp
+                self.stomp = Client(host=self.host, port=self.port)
+                self.stomp.connect(username=self.username, password=self.password)
+            except Exception, e:
+                raise UDException('Cannot reconnect to server: %s' % e)
+            seiscomp3.Logging.info('Connection re-established.')
+
 
 class HeartBeat(UDConnection):
 

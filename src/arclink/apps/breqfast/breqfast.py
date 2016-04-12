@@ -73,7 +73,7 @@ LABEL = "breq_req"
 FORMAIL_BIN = "/usr/bin/formail"
 SENDMAIL_BIN = "/usr/sbin/sendmail"
 
-VERSION = "0.11 (2013.086)"
+VERSION = "0.12 (2014.015)"
 
 class BreqParser(object):
 	"""
@@ -595,16 +595,16 @@ def check_request(fname, basename, parser):
 		linestr = " ".join((reqline[0],reqline[1],reqline[2],reqline[3],
 							reqline[4].strftime("%Y,%m,%d,%H,%M,%S"),reqline[5].strftime("%Y,%m,%d,%H,%M,%S")))
 		# check the access rights #
-		if not _check_access(emailaddr,reqline[0],"net"):
-			noctext = "%s%s\n" % (noctext,linestr)
-			check = 1
-		if not check and not _check_access(emailaddr,reqline[1],"stat"):
-			noctext = "%s%s\n" % (noctext,linestr)
-			check = 1
+		#if not _check_access(emailaddr,reqline[0],"net"):
+		#	noctext = "%s%s\n" % (noctext,linestr)
+		#	check = 1
+		#if not check and not _check_access(emailaddr,reqline[1],"stat"):
+		#	noctext = "%s%s\n" % (noctext,linestr)
+		#	check = 1
 		# check the time validity
-		if not check and not _check_time(reqline[4],reqline[5]):
-			badtext = "%s%s\n" %(badtext,linestr)
-			check = 1
+		#if not check and not _check_time(reqline[4],reqline[5]):
+		#	badtext = "%s%s\n" %(badtext,linestr)
+		#	check = 1
 		## check the availability #
 		#if not check and not _check_availability(reqline):
 		#	nodtext = "%s%s\n" % (nodtext,linestr)
@@ -617,7 +617,7 @@ def check_request(fname, basename, parser):
 	
 	sys.stderr.write( "--> Estimated total size of request: %f MByte\n" % (requestSize / 1024.0**2))
 	gigabyte = 1024.0**3
-	maxRequestSize = 5.0 * gigabyte
+	maxRequestSize = 3.0 * gigabyte
 	if len(parser.reqlist) > MAX_LINES:
 		sys.stderr.write( "--> this request is too large!!\n")
 		msg = _toolarge + "\n----> reason for refusal: too many lines (after wildcard expansion)"

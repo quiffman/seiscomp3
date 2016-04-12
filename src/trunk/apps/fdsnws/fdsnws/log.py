@@ -7,7 +7,7 @@
 # Email:   herrnkind@gempa.de
 ################################################################################
 
-import calendar, os, Queue, sys, time, threading
+import os, Queue, sys, time, threading
 
 #-------------------------------------------------------------------------------
 def _worker(log):
@@ -77,10 +77,10 @@ class Log:
 			now = time.localtime()
 			if self._fd is None:
 				if self._basePath and not os.path.exists(self._basePath):
-					os.path.mkdirs(self._basePath)
+					os.makedirs(self._basePath)
 				self._fd = open(self._filePath, 'a')
 			elif self._archiveSize > 0 and self._lastLogTime is not None and \
-			     (self._lastLogTime.tm_yday != now.tm_yday or \
+			     (self._lastLogTime.tm_yday != now.tm_yday or
 			      self._lastLogTime.tm_year != now.tm_year):
 				self._rotate()
 

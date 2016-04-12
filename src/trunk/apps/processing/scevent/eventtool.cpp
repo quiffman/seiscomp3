@@ -273,6 +273,12 @@ bool EventTool::initConfiguration() {
 	try { _config.delayPrefFocMech = configGetInt("eventAssociation.delayPrefFocMech"); } catch (...) {}
 	try { _config.ignoreMTDerivedOrigins = configGetBool("eventAssociation.ignoreFMDerivedOrigins"); } catch (...) {}
 
+	try {
+		Config::StringList blIDs = configGetStrings("processing.blacklist.eventIDs");
+		_config.blacklistIDs.insert(blIDs.begin(), blIDs.end());
+	}
+	catch ( ... ) {}
+
 	return true;
 }
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -2056,7 +2062,7 @@ EventTool::MatchResult EventTool::compare(EventInformation *info,
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 EventInformationPtr EventTool::createEvent(Origin *origin) {
 	string eventID = allocateEventID(query(), origin, _config.eventIDPrefix,
-	                                 _config.eventIDPattern);
+	                                 _config.eventIDPattern, &_config.blacklistIDs);
 
 	if ( eventID.empty() ) {
 		SEISCOMP_ERROR("Unable to allocate a new eventID, skipping origin %s\n"

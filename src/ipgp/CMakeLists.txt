@@ -1,6 +1,6 @@
 SC_BEGIN_PACKAGE(IPGP)
 
-OPTION(SC_IPGP_HYPO71 "Build Hypo71 which required a fortran compiler" OFF)
+OPTION(SC_IPGP_HYPO71 "Build Hypo71 which requires a fortran compiler" ON)
 
 SET(SC3_TRUNK_SRC_DIR ${CMAKE_SOURCE_DIR}/src/trunk)
 

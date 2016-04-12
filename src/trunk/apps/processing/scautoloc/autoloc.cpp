@@ -23,7 +23,6 @@
 #include "autoloc.h"
 
 using namespace std;
-
 namespace Autoloc {
 
 static bool valid(const Pick *pick)
@@ -489,7 +488,8 @@ bool Autoloc3::feed(Origin *origin)
 
 		// TODO: consider making this relocation optional
 		if (origin->depthType == Origin::DepthManuallyFixed) {
-			_relocator.useFixedDepth(fixed);
+			bool fixedDepth = true;
+			_relocator.useFixedDepth(fixedDepth);
 		}
 
 		OriginPtr relo = _relocator.relocate(found);
@@ -801,7 +801,7 @@ OriginPtr Autoloc3::_xxlPreliminaryOrigin(const Pick *newPick)
 
 	OriginPtr newOrigin = 0;
 
-	std::vector<const Pick*> xxlpicks;
+	vector<const Pick*> xxlpicks;
 	const Pick *earliest = newPick;
 	xxlpicks.push_back(newPick);
 	for (PickMap::const_iterator
@@ -832,7 +832,7 @@ OriginPtr Autoloc3::_xxlPreliminaryOrigin(const Pick *newPick)
 
 		// make sure we don't have two picks of the same station
 		bool duplicate_station = false;
-		for (std::vector<const Pick*>::const_iterator
+		for (vector<const Pick*>::const_iterator
 			it = xxlpicks.begin(); it != xxlpicks.end(); ++it) {
 			if ((*it)->station() == oldPick->station()) {
 				duplicate_station = true;
@@ -858,7 +858,7 @@ OriginPtr Autoloc3::_xxlPreliminaryOrigin(const Pick *newPick)
 	double dep;
 
 	// loop over several trial depths, which are multiples of the default depth
-	std::vector<double> trialDepths;
+	vector<double> trialDepths;
 	for (int i=0; dep <= _config.xxlMaxDepth; i++) {
 		dep = _config.defaultDepth*(1+i);
 		trialDepths.push_back(dep);
@@ -872,7 +872,7 @@ OriginPtr Autoloc3::_xxlPreliminaryOrigin(const Pick *newPick)
 		dep = trialDepths[i];
 		OriginPtr origin = new Origin(lat, lon, dep, tim);
 
-		for(std::vector<const Pick*>::iterator it=xxlpicks.begin(); it!=xxlpicks.end(); ++it) {
+		for(vector<const Pick*>::iterator it=xxlpicks.begin(); it!=xxlpicks.end(); ++it) {
 			const Pick *pick = *it;
 			double delta, az, baz;
 			Arrival arr(pick);
@@ -1902,7 +1902,7 @@ bool Autoloc3::_store(Origin *origin)
 
 // TODO:
 // Einfach an _associate einen Arrival uebergeben, denn der hat ja alles schon an Bord.
-bool Autoloc3::_associate(Origin *origin, const Pick *pick, const std::string &phase)
+bool Autoloc3::_associate(Origin *origin, const Pick *pick, const string &phase)
 {
 	// first crude check
 	if ( ! mightBeAssociated(pick, origin))
@@ -2117,7 +2117,7 @@ bool Autoloc3::_associate(Origin *origin, const Pick *pick, const std::string &p
 bool Autoloc3::_addMorePicks(Origin *origin, bool keepDepth)
 // associate all matching picks
 {
-	std::set<std::string> have;
+	set<string> have;
 	int arrivalCount = origin->arrivals.size();
 	for (int i=0; i<arrivalCount; i++) {
 
@@ -2128,7 +2128,7 @@ bool Autoloc3::_addMorePicks(Origin *origin, bool keepDepth)
 		const Pick *pick = arr.pick.get();
 		if ( ! pick->station() )
 			continue;
-		std::string x = pick->station()->net + "." + pick->station()->code + ":" + arr.phase;
+		string x = pick->station()->net + "." + pick->station()->code + ":" + arr.phase;
 		have.insert(x);
 	}
 
@@ -2149,7 +2149,7 @@ bool Autoloc3::_addMorePicks(Origin *origin, bool keepDepth)
 			continue;
 
 		// check if for that station we already have a P/PKP pick
-		std::string x = pick->station()->net + "." + pick->station()->code + ":";
+		string x = pick->station()->net + "." + pick->station()->code + ":";
 		if (have.count(x+"P") || have.count(x+"PKP"))
 			continue;
 
@@ -2735,9 +2735,9 @@ bool Autoloc3::_trimResiduals(Origin *origin)
 }
 
 
-void Autoloc3::setStations(StationDB *stations)
+bool Autoloc3::setStations(StationDB *stations)
 {
-	if (_stations == stations) return;
+	if (_stations == stations) return true;
 
 	if (_stations) delete _stations;
 	_stations = stations;
@@ -2749,7 +2749,8 @@ void Autoloc3::setStations(StationDB *stations)
 		SEISCOMP_DEBUG_S("Reading station configs from file '"+ _config.staConfFile +"'");
 
 		StationConfig cfg;
-		cfg.read(_config.staConfFile);
+		if ( ! cfg.read(_config.staConfFile) )
+		    return false;
 
 		for (StationDB::iterator
 			it = _stations->begin(); it !=_stations->end(); ++it) {
@@ -2765,20 +2766,23 @@ void Autoloc3::setStations(StationDB *stations)
 
 	_nucleator.setStations(_stations);
 	_relocator.setStations(_stations);
+	return true;
 }
 
 
-void Autoloc3::setLocatorProfile(const std::string &profile) {
+void Autoloc3::setLocatorProfile(const string &profile) {
 	_config.locatorProfile = profile;
 	_nucleator.setLocatorProfile(profile);
 	_relocator.setProfile(profile);
 }
 
 
-void Autoloc3::setGridFile(const string &gridfile)
+bool Autoloc3::setGridFile(const string &gridfile)
 {
-	_nucleator.setGridFile(gridfile);
+	if ( ! _nucleator.setGridFile(gridfile))
+		return false;
 	_nucleator._config.maxRadiusFactor = _config.maxRadiusFactor;
+	return true;
 }
 
 void Autoloc3::setPickLogFilePrefix(const string &fname)

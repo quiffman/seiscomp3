@@ -23,7 +23,8 @@ _RECLEN_EXP = 12
 def _min_data_gap(fsamp):
     return datetime.timedelta(microseconds=1000000/(fsamp * 10))
 
-_min_ts_gap = datetime.timedelta(minutes=1)
+#_min_ts_gap = datetime.timedelta(minutes=1)
+_min_ts_gap = datetime.timedelta(days=3650)
 
 class SEEDError(Exception):
     pass
@@ -1215,7 +1216,7 @@ class _Response4xFactory(object):
             
                 b1 = _Blockette43(key = k1,
                     name = "RS" + name,
-                    type = "A",
+                    type = resp.type,
                     input_units = input_units,
                     output_units = self.__unit_dict.lookup("V"),
                     norm_fac = resp.normalizationFactor,
@@ -1303,7 +1304,7 @@ class _Response4xFactory(object):
 
         b1 = _Blockette43(key = k1,
             name = "RA" + name,
-            type = "A",
+            type = resp_paz.type,
             input_units = self.__unit_dict.lookup("V"),
             output_units = self.__unit_dict.lookup("V"),
             norm_fac = resp_paz.normalizationFactor,
@@ -1566,7 +1567,7 @@ class _Response5xFactory(object):
             if resp.type != "A" and resp.type != "B":
                 raise SEEDError, "invalid PAZ response type of " + resp.name
         
-            b1 = _Blockette53(type = "A",
+            b1 = _Blockette53(type = resp.type,
                 input_units = input_units,
                 output_units = self.__unit_dict.lookup("V"),
                 norm_fac = resp.normalizationFactor,
@@ -1619,7 +1620,7 @@ class _Response5xFactory(object):
         if resp_paz.type != "A" and resp_paz.type != "B":
             raise SEEDError, "invalid PAZ response type of " + resp_paz.name
         
-        b1 = _Blockette53(type = "A",
+        b1 = _Blockette53(type = resp_paz.type,
             input_units = self.__unit_dict.lookup("V"),
             output_units = self.__unit_dict.lookup("V"),
             norm_fac = resp_paz.normalizationFactor,
@@ -1812,7 +1813,7 @@ class _Channel(object):
             instr_id = gen_dict.lookup_sensor(strmcfg.sensor),
             comment = "",
             signal_units = signal_units,
-            calibration_units = unit_dict.lookup("A"),    # check!
+            calibration_units = 0,
             latitude = loccfg.latitude,
             longitude = loccfg.longitude,
             elevation = loccfg.elevation,
@@ -1903,11 +1904,18 @@ class _Station(object):
         self.__channel = {}
         self.__comment_blk = []
 
+        site_name = statcfg.description
+        if not site_name:
+            if statcfg.place and statcfg.country:
+                site_name = statcfg.place + ", " + statcfg.country
+            else:
+                site_name = statcfg.code
+
         self.__stat_blk = _Blockette50(stat_code = statcfg.code,
             latitude = statcfg.latitude,
             longitude = statcfg.longitude,
             elevation = statcfg.elevation,
-            site_name = statcfg.description,
+            site_name = site_name,
             net_id = gen_dict.lookup_network(statcfg.myNetwork.code,
               statcfg.myNetwork.start),
             net_code = statcfg.myNetwork.code,
@@ -2200,7 +2208,7 @@ class SEEDVolume(object):
     def __init__(self, inventory, organization, label, resp_dict=True):
         self.__inventory = inventory
         self.__organization = organization
-        self.__label = label
+        self.__label = label or ""
         self.__vol_start_time = datetime.datetime(2100,1,1,0,0,0)
         self.__vol_end_time = datetime.datetime(1971,1,1,0,0,0)
         self.__format_dict = _FormatDict()

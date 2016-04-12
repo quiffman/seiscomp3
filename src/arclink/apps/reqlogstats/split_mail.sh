@@ -1,41 +1,24 @@
-#!/usr/bin/python
+#!/bin/bash
+#
+# Specific to GEOFON (geofon-open*); could be merged into reqlogstats.sh?
+#
+# Begun by Peter L. Evans, 2013-2014
+# <pevans@gfz-potsdam.de>
+# 
+# ----------------------------------------------------------------------
 
-import sys
+set -u
 
-if (len(sys.argv) > 1):
-    base=sys.argv[1]
-else:
-    base='msg'
+start=$(date +%d-%b-%Y -d "14 days ago")
+latest=var/recent.mail
+rm -f ${latest}
+echo "copy (sentsince ${start}) ${latest}" \
+    | mailx -n -N -f $HOME/mail/eida_log
+python split_mail.py < ${latest}
+rm -f ${latest}
 
-# Usage: split_mail {basename} < mailfile
+# Special hack for GFZ mail, Jan 2014!
+#for f in eida_stats/2014/01/msg-sysop_gfz-potsdam_de-2014-* ; do
+#   sed -e '/<\/html>/,//d' -e 's/<\/body>/<\/body><\/html>/' $f > tmp ; mv tmp $f ;
+#done
 
-months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-count = 0
-count_lines = 0
-
-fname = '/dev/null'
-fid = open(fname, 'w')
-
-for line in sys.stdin.readlines():
-  count_lines += 1
-  if line.startswith("From "):
-      count += 1
-
-      words = line.split();
-      date = "%d %s %02d" % ( int(words[6]), words[3], int(words[4]) )
-      print date
-      try:
-          mm = months.index(words[3])+1
-      except ValueError:
-          mm = 0
-      day = "%02d-%02d" % (mm, int(words[4]))
-
-      fid.close()
-      print "Wrote", count_lines, "lines to", fname
-      fname = base + "." + day
-      fid = open(fname, "w")
-
-  print >>fid, line,
-
-print count, "messages written to %s.nn" % base

@@ -149,9 +149,6 @@ class SC_SYSTEM_CORE_API BinaryArchive : public Seiscomp::Core::Archive {
 		//! Implements derived virtual method
 		void serialize(SerializeDispatcher&);
 
-		template<typename T>
-		int writeScalar(const T& v);
-
 		int writeBytes(const void*, int);
 
 

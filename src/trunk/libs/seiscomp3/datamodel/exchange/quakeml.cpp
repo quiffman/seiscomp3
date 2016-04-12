@@ -105,7 +105,7 @@ struct MaxLenFormatter : Formatter {
 		if ( v.length() > maxLen ) {
 			v.resize(maxLen);
 			SEISCOMP_WARNING("max length constraint exceeded cutting string to "
-			                 "%lu bytes: %s", (ulong) maxLen, v.c_str());
+			                 "%lu bytes: %s", (unsigned long) maxLen, v.c_str());
 		}
 	}
 };

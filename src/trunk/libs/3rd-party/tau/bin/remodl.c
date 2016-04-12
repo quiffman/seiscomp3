@@ -5,7 +5,7 @@
 
 #include <libtau/limits.h>
 
-static void rough(float dr, int *nr, int *ncr, char *modnam);
+static int rough(float dr, int *nr, int *ncr, char *modnam, char *path);
 static void findcp(int ncr);
 static void crtpt(int k, int nph);
 static void pgrid(int nph, int *n0, float xtol);
@@ -22,8 +22,8 @@ static void efec(int n, char **a);
 void
 tauint(double ptk, double ptj, double pti, double zj, double zi, double *tau, double *x);
 
-/* extern */ void emdlv(float r, float *, float *);
-/* extern */ int  emdld(int*, float*, char*);
+/* extern */ int emdlv(float r, float *, float *);
+/* extern */ int emdld(int*, float*, char*,char*);
 
 /*
 static void	rough();
@@ -73,8 +73,8 @@ static FILE *fp10, *fpout;
  *
  *  calls emdld and emdlv 
  */
-static void
-rough(float dr, int *nr, int *ncr, char *modnam)
+static int
+rough(float dr, int *nr, int *ncr, char *modnam, char *path)
 {
 	static float rd[30];
 	static float tol = 1.e-6, vtol = 2.e-5;
@@ -84,7 +84,9 @@ rough(float dr, int *nr, int *ncr, char *modnam)
 	/* Get the radii of model discontinuities.
 	 * np = number of discontinuities, rd = radii(km).
 	 */
-	emdld(&np, rd, modnam);
+	if ( emdld(&np, rd, modnam, path) ) {
+		return 1;
+	}
 	/*
 	 * Save the radii of the inner core-outer core and core-mantle
 	 * boundaries respectively.
@@ -158,6 +160,8 @@ rough(float dr, int *nr, int *ncr, char *modnam)
 		if(i == 1) *ncr = m;
 	}
 	*nr = m+1;
+
+	return 0;
 }
 
 /*	crtpt()
@@ -282,217 +286,222 @@ pgrid(int nph, int *n0, float xtol)
 	static float tol = 1.e-5;
 
 	a0 = 1./xn;
-	for(i = 0; i < nc; i++)
-	{
+	for ( i = 0; i < nc; i++ ) {
 		if(fabs(v[nph].u[0] - ucrt[i]) <= tol) break;
 	}
+
 	ic = i;
 
 	n = 0;
 	j = ic + 1;
-	for(i = ic; i < nc; i++)
-	{
-	    fprintf(fp10, "i %d %12.6f %12.6f\n", i, ucrt[i], ucrt[j]);
+	for(i = ic; i < nc; i++) {
+		fprintf(fp10, "i %d %12.6f %12.6f\n", i, ucrt[i], ucrt[j]);
+		ifl = 1;
+		ps[0] = ucrt[i];
+		xs[0] = xmod(ucrt[i], nph, 1, &nr, &r0);
+		x0 = xmod(ucrt[j], nph, -1, &nr, &r1);
+		l = (int)(fabs(x0-xs[0])/delx[nph] + .8);
 
-	    ifl = 1;
-            ps[0] = ucrt[i];
-    	    xs[0] = xmod(ucrt[i], nph, 1, &nr, &r0);
-    	    x0 = xmod(ucrt[j], nph, -1, &nr, &r1);
-	    l = (int)(fabs(x0-xs[0])/delx[nph] + .8);
-	    if(l < 1) l = 1;
-	    du = (ps[0] - ucrt[j])/(l*l);
-fprintf(fp10, "overflow??? x0 x1 l du nr r1 %e %e %d %e %d %e\n",
-xs[0],x0,l+1,du,nr,r1);
-	    l--;
-	    for(k = 1; k <= l; k++)
-	    {
+		if(l < 1) l = 1;
+
+		du = (ps[0] - ucrt[j])/(l*l);
+		fprintf(fp10, "overflow??? x0 x1 l du nr r1 %e %e %d %e %d %e\n",
+		        xs[0],x0,l+1,du,nr,r1);
+		l--;
+
+		for ( k = 1; k <= l; k++ ) {
 			ps[k] = ps[0] - k*k*du;
 			xs[k] = xmod(ps[k], nph, 1, &nr, &r2);
-	    }
-	    l += 2;
-	    ps[l-1] = ucrt[j];
-	    xs[l-1] = x0;
-	    do
-	    {
-     		x0 = xs[1] - xs[0];
-    		for(k = 2; k < l; k++)
-    		{
-    			if((xs[k] - xs[k-1])*x0 <= 0.) break;
-    		}
-    		if(k < l)
-    		{
-    			ifl++;
-    			r2 = r1;
-    			fprintf(fp10, "caustic\n");
-    			k--;
-    			kk = k-2;
-    			for(m = 0; m < 3; m++)
-    			{
-    				kk++;
-    				pb[m] = ps[kk];
-    				xb[m] = xs[kk];
-    			}
-    			sgn = (.5*(xb[0]+xb[2]) - xb[1] >= 0.) ? 1. : -1.;
-    			do
-    			{
-    				u0 = .5*(pb[0] + pb[1]);
-    				x0 = xmod(u0, nph, 1, &nr, &r1);
-    				if(sgn*(xb[1] - x0) >= 0.)
-    				{
-    					pb[2] = pb[1];
-    					xb[2] = xb[1];
-    					pb[1] = u0;
-    					xb[1] = x0;
-    				}
-    				else
-    				{
-    					pb[0] = u0;
-    					xb[0] = x0;
-    					u0 = .5*(pb[1] + pb[2]);
-    					x0 = xmod(u0, nph, 1, &nr, &r1);
-    					if(sgn*(xb[1] - x0) >= 0.)
-    					{
-    						pb[0] = pb[1];
-    						xb[0] = xb[1];
-    						pb[1] = u0;
-    						xb[1] = x0;
-    					}
-    					else
-    					{
-    						pb[2] = u0;
-    						xb[2] = x0;
-    					}
-    				}
-    			} while(fabs(xb[2]-xb[0]) > xtol);
-    			ps[k] = pb[1];
-    			xs[k] = xb[1];
-    			lsav = l;
-    			l = k+1; /*** ?????? ***/
-    		}
-    		if(i == ic)
-    		{
-    			v[nph].pp[n] = ps[0];
-    			v[nph].xx[n] = xs[0];
-    			v[nph].rr[n] = r0;
-    			fprintf(fp10, "first %d %10.6f %10.6f %9.2f\n",
-    				n,v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
-    			n++;
-    		}
-    		k = (int)(fabs(xs[l-1]-xs[0])/delx[nph] + .8);
-    		if(k < 1) k = 1;
-    		dx = (xs[l-1] - xs[0])/k;
-    		x0 = xs[0];
-    		rsav = r0;
-    		mm = 1;
-    		do
-    		{
-    			x0 = x0 + dx;
-    			if(fabs(x0 - xs[l-1]) <= tol)
-    			{
-    				v[nph].pp[n] = ps[l-1];
-    				v[nph].xx[n] = xs[l-1];
-    				v[nph].rr[n] = r1;
-    			}
-    			else
-    			{
-    				for(kk = mm; kk < l-1; kk++)
-    				{
-    					if((x0-xs[kk])*(x0-xs[kk-1]) <= 0.)
-    						break;
-    				}
-    				mm = kk;
-				finrng(x0, nph, n, ps[kk], ps[kk-1], xs[kk],
-    					xs[kk-1], xtol, &nr);
-    				fprintf(fp10, "sol %d %10.6f %10.6f %9.2f ", n,
-					v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
-    				fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
-    					nr, v[nph].pp[n-1]-v[nph].pp[n],
-    					a0*(v[nph].xx[n]-v[nph].xx[n-1]),
-    					rsav-v[nph].rr[n]);
-    			}
-    			if(fabs(v[nph].pp[n]-v[nph].pp[n-1]) > dpmax[nph])
-    			{
-    				ll = (int)(fabs(ps[l-1]-v[nph].pp[n-1])/
-    						dpmax[nph] + .99);
-    				if(ll < 1) ll = 1;
-    				v[nph].pp[n] = v[nph].pp[n-1] +
-    						(ps[l-1] - v[nph].pp[n-1])/ll;
-    				v[nph].xx[n] = xmod(v[nph].pp[n], nph, 1,
-    							&nr, &v[nph].rr[n]);
-    				fprintf(fp10, "dpmax %d %10.6f %10.6f %9.2f ",n,
-					v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
-    				fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
-    					nr, v[nph].pp[n-1] - v[nph].pp[n],
-    					a0*(v[nph].xx[n] - v[nph].xx[n-1]),
-    					rsav - v[nph].rr[n]);
-    			
-    				k = (int)(fabs(xs[l-1] - v[nph].xx[n])/
-    						delx[nph] + .8);
-    				if(k < 1) k = 1;
-    				dx = (xs[l-1] - v[nph].xx[n])/k;
-    				x0 = v[nph].xx[n];
-    				mm = 1;
-    			}
-    			if(fabs(v[nph].rr[n] - rsav) > drmax[nph])
-    			{
-    				rnew = rsav - drmax[nph];
-    				while(rnew > r[nr]) nr--;
-    				if(nr < nk-1)
-    				{
-    					ex = log(v[nph].u[nr+1]/v[nph].u[nr])/
-    						log(r[nr+1]/r[nr]);
-    					du = fabs(v[nph].pp[n-1] -
-					    v[nph].u[nr]*pow(rnew/r[nr], ex));
-				}
-				else
+		}
+
+		l += 2;
+		ps[l-1] = ucrt[j];
+		xs[l-1] = x0;
+
+		do {
+			x0 = xs[1] - xs[0];
+			for ( k = 2; k < l; k++ ) {
+				if((xs[k] - xs[k-1])*x0 <= 0.) break;
+			}
+
+			if ( k < l ) {
+				ifl++;
+				r2 = r1;
+				fprintf(fp10, "caustic\n");
+				k--;
+				kk = k-2;
+
+				for(m = 0; m < 3; m++)
 				{
-					du = fabs(v[nph].pp[n-1] -
-						v[nph].u[nk-1]*rnew/r[nk-1]);
+					kk++;
+					pb[m] = ps[kk];
+					xb[m] = xs[kk];
 				}
-				ll = (int)(fabs(ps[l-1]-v[nph].pp[n-1])/du+.99);
-				if(ll < 1) ll = 1;
-				v[nph].pp[n] = v[nph].pp[n-1] +
-						(ps[l-1]-v[nph].pp[n-1])/ll;
-				v[nph].xx[n] = xmod(v[nph].pp[n],
-						nph, 1, &nr, &v[nph].rr[n]);
-    				fprintf(fp10, "drmax %d %10.6f %10.6f %9.2f ",
-    				    n, v[nph].pp[n], v[nph].xx[n],
-    				    v[nph].rr[n]);
-    				fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
-    				   nr, v[nph].pp[n-1]-v[nph].pp[n],
-    				   a0*(v[nph].xx[n]-v[nph].xx[n-1]),
-    				   rsav-v[nph].rr[n]);
-    				k = (int)(fabs(xs[l-1] - v[nph].xx[n])/
-    						delx[nph] + .8);
-    				if(k < 1) k = 1;
-    				dx = (xs[l-1] - v[nph].xx[n])/k;
-    				x0 = v[nph].xx[n];
-    				mm = 1;
-    			}
-    			rsav = v[nph].rr[n];
-    			n++;
-    		} while(fabs(x0 - xs[l-1]) > tol);
-    		fprintf(fp10, "end  %d %10.6f %10.6f %9.2f ",
-    		    n-1, v[nph].pp[n-1], v[nph].xx[n-1], v[nph].rr[n-1]);
-    		fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
-    		    nr, v[nph].pp[n-2]-v[nph].pp[n-1],
-    		    a0*(v[nph].xx[n-1]-v[nph].xx[n-2]),
-    		    v[nph].rr[n-2]-v[nph].rr[n-1]);
-    		ifl--;
-    		if(ifl > 0)
-    		{
-    			for(m = l-1, k = 0; m < lsav; m++, k++)
-    			{
-    				ps[k] = ps[m];
-    				xs[k] = xs[m];
-    			}
-    			l = lsav - l + 1;
-    			r0 = r1;
-    			r1 = r2;
-    		}
-	    } while(ifl > 0);
-	    j++;
+
+				sgn = (.5*(xb[0]+xb[2]) - xb[1] >= 0.) ? 1. : -1.;
+
+				do
+				{
+					u0 = .5*(pb[0] + pb[1]);
+					x0 = xmod(u0, nph, 1, &nr, &r1);
+					if(sgn*(xb[1] - x0) >= 0.)
+					{
+						pb[2] = pb[1];
+						xb[2] = xb[1];
+						pb[1] = u0;
+						xb[1] = x0;
+					}
+					else
+					{
+						pb[0] = u0;
+						xb[0] = x0;
+						u0 = .5*(pb[1] + pb[2]);
+						x0 = xmod(u0, nph, 1, &nr, &r1);
+						if(sgn*(xb[1] - x0) >= 0.)
+						{
+							pb[0] = pb[1];
+							xb[0] = xb[1];
+							pb[1] = u0;
+							xb[1] = x0;
+						}
+						else
+						{
+							pb[2] = u0;
+							xb[2] = x0;
+						}
+					}
+				}
+				while ( fabs(xb[2]-xb[0]) > xtol );
+
+				ps[k] = pb[1];
+				xs[k] = xb[1];
+				lsav = l;
+				l = k+1; /*** ?????? ***/
+			}
+
+			if ( i == ic ) {
+				v[nph].pp[n] = ps[0];
+				v[nph].xx[n] = xs[0];
+				v[nph].rr[n] = r0;
+				fprintf(fp10, "first %d %10.6f %10.6f %9.2f\n",
+					n,v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
+				n++;
+			}
+
+			k = (int)(fabs(xs[l-1]-xs[0])/delx[nph] + .8);
+			if(k < 1) k = 1;
+			dx = (xs[l-1] - xs[0])/k;
+			x0 = xs[0];
+			rsav = r0;
+			mm = 1;
+
+			do
+			{
+				x0 = x0 + dx;
+				if ( fabs(x0 - xs[l-1]) <= tol ) {
+					v[nph].pp[n] = ps[l-1];
+					v[nph].xx[n] = xs[l-1];
+					v[nph].rr[n] = r1;
+				}
+				else {
+					for ( kk = mm; kk < l-1; kk++ ) {
+						if((x0-xs[kk])*(x0-xs[kk-1]) <= 0.)
+							break;
+					}
+					mm = kk;
+					finrng(x0, nph, n, ps[kk], ps[kk-1], xs[kk],
+					       xs[kk-1], xtol, &nr);
+
+					fprintf(fp10, "sol %d %10.6f %10.6f %9.2f ", n,
+					        v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
+					fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
+					        nr, v[nph].pp[n-1]-v[nph].pp[n],
+					        a0*(v[nph].xx[n]-v[nph].xx[n-1]),
+					        rsav-v[nph].rr[n]);
+				}
+
+				if ( fabs(v[nph].pp[n]-v[nph].pp[n-1]) > dpmax[nph] ) {
+					ll = (int)(fabs(ps[l-1]-v[nph].pp[n-1])/dpmax[nph] + .99);
+
+					if ( ll < 1 ) ll = 1;
+					v[nph].pp[n] = v[nph].pp[n-1] + (ps[l-1] - v[nph].pp[n-1])/ll;
+					v[nph].xx[n] = xmod(v[nph].pp[n], nph, 1, &nr, &v[nph].rr[n]);
+					fprintf(fp10, "dpmax %d %10.6f %10.6f %9.2f ",n,
+					v[nph].pp[n],v[nph].xx[n],v[nph].rr[n]);
+					fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
+					        nr, v[nph].pp[n-1] - v[nph].pp[n],
+					        a0*(v[nph].xx[n] - v[nph].xx[n-1]),
+					        rsav - v[nph].rr[n]);
+
+					k = (int)(fabs(xs[l-1] - v[nph].xx[n])/delx[nph] + .8);
+
+					if ( k < 1 ) k = 1;
+					dx = (xs[l-1] - v[nph].xx[n])/k;
+					x0 = v[nph].xx[n];
+					mm = 1;
+				}
+
+				if ( fabs(v[nph].rr[n] - rsav) > drmax[nph] ) {
+					rnew = rsav - drmax[nph];
+					while ( rnew > r[nr] ) nr--;
+					if ( nr < nk-1 ) {
+						ex = log(v[nph].u[nr+1]/v[nph].u[nr])/log(r[nr+1]/r[nr]);
+						du = fabs(v[nph].pp[n-1] -
+						v[nph].u[nr]*pow(rnew/r[nr], ex));
+					}
+					else {
+						du = fabs(v[nph].pp[n-1] - v[nph].u[nk-1]*rnew/r[nk-1]);
+					}
+
+					ll = (int)(fabs(ps[l-1]-v[nph].pp[n-1])/du+.99);
+					if ( ll < 1 ) ll = 1;
+
+					v[nph].pp[n] = v[nph].pp[n-1] + (ps[l-1]-v[nph].pp[n-1])/ll;
+					v[nph].xx[n] = xmod(v[nph].pp[n], nph, 1, &nr, &v[nph].rr[n]);
+					fprintf(fp10, "drmax %d %10.6f %10.6f %9.2f ",
+					        n, v[nph].pp[n], v[nph].xx[n], v[nph].rr[n]);
+
+					fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
+					        nr, v[nph].pp[n-1]-v[nph].pp[n],
+					        a0*(v[nph].xx[n]-v[nph].xx[n-1]),
+					        rsav-v[nph].rr[n]);
+
+					k = (int)(fabs(xs[l-1] - v[nph].xx[n])/delx[nph] + .8);
+					if ( k < 1 ) k = 1;
+
+					dx = (xs[l-1] - v[nph].xx[n])/k;
+					x0 = v[nph].xx[n];
+					mm = 1;
+				}
+				rsav = v[nph].rr[n];
+				n++;
+			}
+			while ( fabs(x0 - xs[l-1]) > tol );
+
+			fprintf(fp10, "end  %d %10.6f %10.6f %9.2f ",
+			        n-1, v[nph].pp[n-1], v[nph].xx[n-1], v[nph].rr[n-1]);
+			fprintf(fp10, "%d %10.6f %9.2f %9.2f\n",
+			        nr, v[nph].pp[n-2]-v[nph].pp[n-1],
+			        a0*(v[nph].xx[n-1]-v[nph].xx[n-2]),
+			        v[nph].rr[n-2]-v[nph].rr[n-1]);
+			ifl--;
+
+			if ( ifl > 0 ) {
+				for( m = l-1, k = 0; m < lsav; m++, k++ ) {
+					ps[k] = ps[m];
+					xs[k] = xs[m];
+				}
+
+				l = lsav - l + 1;
+				r0 = r1;
+				r1 = r2;
+			}
+		}
+		while ( ifl > 0 );
+
+		j++;
 	}
+
 	*n0 = n;
 }
 
@@ -502,7 +511,7 @@ xmod(float pk, int nph, int ipart, int *nr, float *rb)
 	/* partial tau integrals.
 	 */
 	int i, j;
-	float x, p2, p, zb;
+	float x, p, zb;
 
 	if(pk <= 0.)
 	{
@@ -511,9 +520,10 @@ xmod(float pk, int nph, int ipart, int *nr, float *rb)
 		*rb = 0.;
 		return( -2.*x );
 	}
-	p2 = pk*pk;
+
 	x = 0.;
 	j = 0;
+
 	for(i = 1; i < nk; i++)
 	{
 		if(pk > v[nph].u[i])
@@ -567,7 +577,7 @@ static void
 finrng(float xg, int nph, int n, float p0, float p1, float x0, float x1, float xtol, int *nr)
 {
 	int j, m;
-	float ps0, xs0, ps1, xs1, xi, yi, r0;
+	float ps0, ps1, xi, yi, r0;
 	static float x[20], y[20];
 
 	m = 0;
@@ -605,16 +615,12 @@ finrng(float xg, int nph, int n, float p0, float p1, float x0, float x1, float x
 	if(y[0] <= yi)
 	{
 		ps0 = p0;
-		xs0 = y[0];
 		ps1 = p1;
-		xs1 = yi;
 	}
 	else
 	{
 		ps0 = p1;
-		xs0 = yi;
 		ps1 = p0;
-		xs1 = y[0];
 	}
 	xi = (p0*yi - p1*y[0])/(yi - y[0]);
 	/*
@@ -644,12 +650,10 @@ finrng(float xg, int nph, int n, float p0, float p1, float x0, float x1, float x
 			if(yi <= 0.)
 			{
 				ps0 = xi;
-				xs0 = yi;
 			}
 			else
 			{
 				ps1 = xi;
-				xs1 = yi;
 			}
 			for(j = 0; j < m; j++)
 			{
@@ -1170,7 +1174,10 @@ efec(int n, char **a)
  */
 int main(int argc, char **argv)
 {
+	char filespec[100];
 	char modnam[21] = "iasp91";
+	char datapath[1024];
+
 	int i, j, k, l, j1, k1, /* k2, */ ncr, n1, n2, lz, mm, nrec, nph, ndasr;
 	int mt[2], kb[2], lt[2];
 	float a0, rn;
@@ -1181,7 +1188,25 @@ int main(int argc, char **argv)
 	} t[2];
 	double ttau, tx, pmj, pmi, zmj, zmi, zlim, zmax, plim, zic, zoc;
 	static double tol = 1.e-6, dtol = 1.e-6, xtol = 1., dmax = 800.;
-		
+
+	if ( (argc > 1) && (strcmp(argv[1], "-h") == 0) ) {
+		printf("Usage: tau_remodl [model] [path]\n\n");
+		printf("The default model is 'iasp91'. The file extensions '.tvel' is automatically\n"
+		       "appended and the file is expected to be found in the current working directory.\n\n"
+		       "An alternative input path can be passed with [path] as second argument.\n");
+		return 0;
+	}
+
+	if ( argc > 1 )
+		strncpy(modnam, argv[1], sizeof(modnam)-1);
+
+	if ( argc > 2 )
+		strncpy(datapath, argv[2], sizeof(datapath)-1);
+	else
+		datapath[0] = '\0';
+
+	printf("libtau: model: %s, path: %s\n", modnam, datapath);
+
 	for(i = 0; i < nbr1; i++)
 	{
 		v[0].code[i] = (char *)malloc(10);
@@ -1192,15 +1217,19 @@ int main(int argc, char **argv)
 	 * nk = number of model radii, ncr = index of core-mantle radius, and
 	 * modnam = model name.
 	 */
-	rough(50., &nk, &ncr, modnam);
+	if ( rough(50., &nk, &ncr, modnam, datapath) ) {
+		fprintf(stderr, "ERROR: input not read\n");
+		return 1;
+	}
+
 	a0 = r[0];
+
 	fp10 = fopen("remodl1.lis", "w"); 
 	fprintf(fp10, "\n %d %d %10.2f\n", nk, ncr, a0);
 	for(i = 0; i < nk; i++)
 	{
 		fprintf(fp10,"%d %10.2f %10.4f %10.4f\n",i,r[i],vp[i],vs[i]);
 	}
-	
 	pn = vs[0];
 	xn = 1/r[0];
 	tn = pn*xn;
@@ -1219,7 +1248,6 @@ int main(int argc, char **argv)
 				(float)dpmax[1]);
 	fprintf(fp10, "drmax = %12.6f %12.6f\n", (float)drmax[0],
 				(float)drmax[1]);
-	
 	delx[0] = xn*delx[0];
 	delx[1] = xn*delx[1];
 	xtol = xtol/a0;
@@ -1251,7 +1279,9 @@ int main(int argc, char **argv)
 		}
 		if(j-j1 <= k-k1)
 		{
-			for(l = k1; l <= k; l++) pb[n++] = v[1].pp[l];
+			for(l = k1; l <= k; l++) {
+				pb[n++] = v[1].pp[l];
+			}
 		}
 		else
 		{
@@ -1333,8 +1363,9 @@ int main(int argc, char **argv)
 
 	ndasr = 8*(1 + 2*kb[1]) + 4;
 
-	fpout = fopen("remodl.tbl", "wb");
-	
+	snprintf(filespec, sizeof(filespec)-1, "remodl_%s.tbl", modnam);
+	fpout = fopen(filespec, "wb");
+
 	fprintf(fp10, "reclength for dasign: %d\n", ndasr);
 
 	zmax = log((a0-dmax)*xn);
@@ -1386,9 +1417,9 @@ int main(int argc, char **argv)
 						n = k;
 						break;
 					}
-// XXX XXX XXX				fprintf(stderr,"tauint k=%d pb[k]=%E %E %E %E %E\n", k, pb[k], pmj,pmi,zmj,zmi);
+/* XXX XXX XXX				fprintf(stderr,"tauint k=%d pb[k]=%E %E %E %E %E\n", k, pb[k], pmj,pmi,zmj,zmi); */
 					tauint(pb[k],pmj,pmi,zmj,zmi,&ttau,&tx);
-      					t[nph].taup[k] += ttau;
+					t[nph].taup[k] += ttau;
 					t[nph].xp[k] += tx;
 				}
 				if(n > 1)
@@ -1498,7 +1529,8 @@ int main(int argc, char **argv)
 	}
 	fclose(fpout);
 
-	fpout = fopen("remodl.hed", "wb");
+	snprintf(filespec, sizeof(filespec)-1, "remodl_%s.hed", modnam);
+	fpout = fopen(filespec, "wb");
 	fwrite(&ndasr, 4, 1, fpout);
 	fwrite(modnam, 1, 20, fpout);
 	fwrite(&zmax, 8, 1, fpout);

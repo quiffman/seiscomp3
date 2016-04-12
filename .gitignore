@@ -1,0 +1,178 @@
+
+# /
+/build*
+/latex
+/xml
+/html
+/seiscomp3.tag
+/*.kdev4
+/*.config
+/*.creator
+/*.files
+/*.includes
+/*.user
+
+# /doc/
+/doc/base/api-python.rst
+
+# /src/arclink/apps/misc/
+/src/arclink/apps/misc/.pydevproject
+/src/arclink/apps/misc/.project
+
+# /src/arclink/libs/codegen/
+/src/arclink/libs/codegen/*.pyc
+/src/arclink/libs/codegen/*.pyc
+
+# /src/arclink/libs/python/seiscomp/db/generic/
+/src/arclink/libs/python/seiscomp/db/generic/inventory.py
+/src/arclink/libs/python/seiscomp/db/generic/genwrap.py
+/src/arclink/libs/python/seiscomp/db/generic/qc.py
+/src/arclink/libs/python/seiscomp/db/generic/routing.py
+
+# /src/arclink/libs/python/seiscomp/db/seiscomp3/
+/src/arclink/libs/python/seiscomp/db/seiscomp3/sc3wrap.py
+
+# /src/arclink/libs/python/seiscomp/db/xmlio/
+/src/arclink/libs/python/seiscomp/db/xmlio/xmlwrap.py
+
+# /src/seedlink/plugins/ISI_Toolkit_1_3_0/lib/
+/src/seedlink/plugins/ISI_Toolkit_1_3_0/lib/makestamp
+
+# /src/seedlink/plugins/ISI_Toolkit_1_3_0/lib/
+/src/seedlink/plugins/ISI_Toolkit_1_3_0/lib/*.a
+
+# /src/seedlink/plugins/libgcf2-2.3.2/
+/src/seedlink/plugins/libgcf2-2.3.2/config.log
+/src/seedlink/plugins/libgcf2-2.3.2/libgcf2-config.src
+/src/seedlink/plugins/libgcf2-2.3.2/Makefile
+/src/seedlink/plugins/libgcf2-2.3.2/config.status
+/src/seedlink/plugins/libgcf2-2.3.2/libtool
+/src/seedlink/plugins/libgcf2-2.3.2/*.cache
+
+# /src/seedlink/plugins/libgcf2-2.3.2/examples/
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2net
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2block
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2time
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2serialp
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2serialcli
+/src/seedlink/plugins/libgcf2-2.3.2/examples/application
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2ints
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2file
+/src/seedlink/plugins/libgcf2-2.3.2/examples/.deps
+/src/seedlink/plugins/libgcf2-2.3.2/examples/Makefile
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2misc
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2cmos
+/src/seedlink/plugins/libgcf2-2.3.2/examples/g2serial
+/src/seedlink/plugins/libgcf2-2.3.2/examples/.libs
+/src/seedlink/plugins/libgcf2-2.3.2/examples/*.o
+
+# /src/seedlink/plugins/libgcf2-2.3.2/gcftool/
+/src/seedlink/plugins/libgcf2-2.3.2/gcftool/svn-prop.tmp
+/src/seedlink/plugins/libgcf2-2.3.2/gcftool/.deps
+/src/seedlink/plugins/libgcf2-2.3.2/gcftool/gcftool
+/src/seedlink/plugins/libgcf2-2.3.2/gcftool/Makefile
+/src/seedlink/plugins/libgcf2-2.3.2/gcftool/*.o
+
+# /src/seedlink/plugins/libgcf2-2.3.2/src/
+/src/seedlink/plugins/libgcf2-2.3.2/src/config.h
+/src/seedlink/plugins/libgcf2-2.3.2/src/.deps
+/src/seedlink/plugins/libgcf2-2.3.2/src/Makefile
+/src/seedlink/plugins/libgcf2-2.3.2/src/gcf2.h
+/src/seedlink/plugins/libgcf2-2.3.2/src/stamp-h1
+/src/seedlink/plugins/libgcf2-2.3.2/src/*.a
+/src/seedlink/plugins/libgcf2-2.3.2/src/*.la
+/src/seedlink/plugins/libgcf2-2.3.2/src/.libs
+/src/seedlink/plugins/libgcf2-2.3.2/src/*.lo
+/src/seedlink/plugins/libgcf2-2.3.2/src/*.o
+
+# /src/seedlink/plugins/reftek_libs/reftek/
+/src/seedlink/plugins/reftek_libs/reftek/*.a
+/src/seedlink/plugins/reftek_libs/reftek/*.o
+
+# /src/seedlink/plugins/reftek_libs/rtp/
+/src/seedlink/plugins/reftek_libs/rtp/*.a
+/src/seedlink/plugins/reftek_libs/rtp/*.o
+
+# /src/seedlink/plugins/reftek_libs/util/
+/src/seedlink/plugins/reftek_libs/util/*.a
+/src/seedlink/plugins/reftek_libs/util/*.o
+
+# /src/trunk/libs/3rd-party/spread/
+/src/trunk/libs/3rd-party/spread/config.log
+/src/trunk/libs/3rd-party/spread/config.status
+/src/trunk/libs/3rd-party/spread/Makefile
+
+# /src/trunk/libs/3rd-party/spread/daemon/
+/src/trunk/libs/3rd-party/spread/daemon/config.h
+/src/trunk/libs/3rd-party/spread/daemon/Makefile
+/src/trunk/libs/3rd-party/spread/daemon/spmonitor
+/src/trunk/libs/3rd-party/spread/daemon/spread
+/src/trunk/libs/3rd-party/spread/daemon/*.o
+
+# /src/trunk/libs/3rd-party/spread/docs/
+/src/trunk/libs/3rd-party/spread/docs/*.out
+/src/trunk/libs/3rd-party/spread/docs/Makefile
+
+# /src/trunk/libs/3rd-party/spread/examples/
+/src/trunk/libs/3rd-party/spread/examples/flush_user
+/src/trunk/libs/3rd-party/spread/examples/fl_user.to
+/src/trunk/libs/3rd-party/spread/examples/spuser
+/src/trunk/libs/3rd-party/spread/examples/spflooder
+/src/trunk/libs/3rd-party/spread/examples/user.to
+/src/trunk/libs/3rd-party/spread/examples/sptuser
+/src/trunk/libs/3rd-party/spread/examples/Makefile
+/src/trunk/libs/3rd-party/spread/examples/*.o
+
+# /src/trunk/libs/3rd-party/spread/libspread/
+/src/trunk/libs/3rd-party/spread/libspread/*.to
+/src/trunk/libs/3rd-party/spread/libspread/*.tlo
+/src/trunk/libs/3rd-party/spread/libspread/Makefile
+/src/trunk/libs/3rd-party/spread/libspread/*.a
+/src/trunk/libs/3rd-party/spread/libspread/*.lo
+/src/trunk/libs/3rd-party/spread/libspread/*.o
+/src/trunk/libs/3rd-party/spread/libspread/*.so
+
+# /src/trunk/libs/3rd-party/spread/stdutil/
+/src/trunk/libs/3rd-party/spread/stdutil/config.log
+/src/trunk/libs/3rd-party/spread/stdutil/config.status
+/src/trunk/libs/3rd-party/spread/stdutil/lib
+
+# /src/trunk/libs/3rd-party/spread/stdutil/src/
+/src/trunk/libs/3rd-party/spread/stdutil/src/*.to
+/src/trunk/libs/3rd-party/spread/stdutil/src/*.lto
+/src/trunk/libs/3rd-party/spread/stdutil/src/Makefile
+
+# /src/trunk/libs/3rd-party/spread/stdutil/src/stdutil/
+/src/trunk/libs/3rd-party/spread/stdutil/src/stdutil/
+
+# /src/trunk/libs/3rd-party/spread/stdutil/src/stdutil/private/
+/src/trunk/libs/3rd-party/spread/stdutil/src/stdutil/private/stdarch_autoconf.h
+
+# /src/trunk/libs/codegen/
+/src/trunk/libs/codegen/*.pyc
+
+# /src/trunk/libs/seiscomp3/datamodel/
+/src/trunk/libs/seiscomp3/datamodel/*.cpp
+/src/trunk/libs/seiscomp3/datamodel/*.h
+/src/trunk/libs/seiscomp3/datamodel/CMakeLists.generated
+
+# /src/trunk/libs/seiscomp3/datamodel/share/
+/src/trunk/libs/seiscomp3/datamodel/share/*.sql
+
+# /src/trunk/libs/swig/
+/src/trunk/libs/swig/DataModel.i
+
+# Enable only known src subdirectories
+/src/*/
+!/src
+!/src/arclink/
+!/src/CMakeLists.txt/
+!/src/gfz/
+!/src/gui-qt4/
+!/src/ipgp/
+!/src/nettab/
+!/src/sed/
+!/src/seedlink/
+!/src/system/
+!/src/trunk/
+!/src/utils/

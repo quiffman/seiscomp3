@@ -49,6 +49,7 @@ using namespace Seiscomp::Processing;
 
 
 #define MESSAGE_LIMIT 500
+#define LOG_PICKS
 
 
 namespace {
@@ -826,7 +827,7 @@ void App::processorFinished(const Record *rec, WaveformProcessor *wp) {
 	else
 		ss << "OK";
 
-	SEISCOMP_INFO("%s:%s: %s", rec != NULL?rec->streamID().c_str():"-",
+	SEISCOMP_DEBUG("%s:%s: %s", rec != NULL?rec->streamID().c_str():"-",
 	                           wp->className(),
 	                           ss.str().c_str());
 
@@ -1158,6 +1159,7 @@ void App::emitPPick(const Processing::Picker *proc,
 		amp->setAmplitude(DataModel::RealQuantity(res.snr));
 	}
 
+#ifdef LOG_PICKS
 	if ( !isMessagingEnabled() ) {
 		printf("%s %-2s %-6s %-3s %-2s %6.1f %10.3f %4.1f %c %s\n",
 		       res.time.toString("%Y-%m-%d %H:%M:%S.%1f").c_str(),
@@ -1166,6 +1168,7 @@ void App::emitPPick(const Processing::Picker *proc,
 		       res.record->locationCode().empty()?"__":res.record->locationCode().c_str(),
 		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
 	}
+#endif
 
 	SEISCOMP_DEBUG("%s: emit P pick %s", res.record->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
@@ -1271,6 +1274,7 @@ void App::emitSPick(const Processing::SecondaryPicker *proc,
 		"")
 	);
 
+#ifdef LOG_PICKS
 	if ( !isMessagingEnabled() ) {
 		printf("%s %-2s %-6s %-3s %-2s %6.1f %10.3f %4.1f %c %s\n",
 		       res.time.toString("%Y-%m-%d %H:%M:%S.%1f").c_str(),
@@ -1279,6 +1283,7 @@ void App::emitSPick(const Processing::SecondaryPicker *proc,
 		       res.record->locationCode().empty()?"__":res.record->locationCode().c_str(),
 		       res.snr, -1.0, -1.0, 'A', pick->publicID().c_str());
 	}
+#endif
 
 	SEISCOMP_DEBUG("%s: emit S pick %s", res.record->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
@@ -1350,6 +1355,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 
 	static_cast<const Detector*>(proc)->setPickID(pick->publicID());
 
+#ifdef LOG_PICKS
 	if ( !isMessagingEnabled() ) {
 		//cout << pick.get();
 		printf("%s %-2s %-6s %-3s %-2s %6.1f %10.3f %4.1f %c %s\n",
@@ -1360,6 +1366,7 @@ void App::emitDetection(const Processing::Detector *proc, const Record *rec, con
 		       -1.0, -1.0, -1.0, statusFlag(pick.get()),
 		       pick->publicID().c_str());
 	}
+#endif
 
 	SEISCOMP_DEBUG("%s: emit detection %s", rec->streamID().c_str(), pick->publicID().c_str());
 	logObject(_logPicks, now);
@@ -1468,6 +1475,7 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 		)
 	);
 
+#ifdef LOG_PICKS
 	if ( !isMessagingEnabled() ) {
 		//cout << amp.get();
 		if ( amp->type() == "snr" || amp->type() == "mb" ) {
@@ -1481,6 +1489,7 @@ void App::emitAmplitude(const AmplitudeProcessor *ampProc,
 			       amp->pickID().c_str());
 		}
 	}
+#endif
 
 	SEISCOMP_DEBUG("Emit amplitude %s, proc = %ld, %s", amp->publicID().c_str(), (long int)ampProc, ampProc->type().c_str());
 	logObject(_logAmps, now);

@@ -52,7 +52,7 @@ static  char	SccsId[] = "@(#)distaz2_.c	40.1	11/15/90";
 #define RAD_TO_DEG	57.2957795
 #define DEG_TO_RAD	1.0/RAD_TO_DEG
 
-distaz2_ (alat1, alon1, alat2, alon2, delta, azi, baz)
+void distaz2_ (alat1, alon1, alat2, alon2, delta, azi, baz)
 
 double	*alat1, *alon1, *alat2, *alon2;
 double	*azi, *baz, *delta;

@@ -295,7 +295,11 @@ Core::GreensFunction* HelmbergerArchive::get() {
 		int iDepth = (int)req.depth;
 
 		ModelMap::iterator mit = _models.find(req.model);
-		if ( mit == _models.end() ) continue;
+		if ( mit == _models.end() ) {
+			SEISCOMP_DEBUG("helmberger: req dropped, model %s not available",
+			                req.model.c_str());
+			continue;
+		}
 
 		DoubleList::iterator lbdist = mit->second.distances.lower_bound(distKm);
 		DoubleList::iterator ubdist = lbdist--;
@@ -313,7 +317,7 @@ Core::GreensFunction* HelmbergerArchive::get() {
 
 			double maxDistError = dist2 - dist1;
 			if ( dist1 - distKm > maxDistError ) {
-				//SEISCOMP_DEBUG("Distance too low: %d km", distKm);
+				SEISCOMP_DEBUG("helmberger: distance too low: %d km", distKm);
 				continue;
 			}
 
@@ -327,7 +331,7 @@ Core::GreensFunction* HelmbergerArchive::get() {
 
 			double maxDistError = dist2 - dist1;
 			if ( distKm - dist2 > maxDistError ) {
-				//SEISCOMP_DEBUG("Distance too high: %d km", distKm);
+				SEISCOMP_DEBUG("helmberger: distance too high: %d km", distKm);
 				continue;
 			}
 
@@ -348,7 +352,7 @@ Core::GreensFunction* HelmbergerArchive::get() {
 
 			double maxDepError = dep2 - dep1;
 			if ( dep1 - iDepth > maxDepError ) {
-				//SEISCOMP_DEBUG("Depth too low: %d km", iDepth);
+				SEISCOMP_DEBUG("helmberger: depth too low: %d km", iDepth);
 				continue;
 			}
 
@@ -363,7 +367,7 @@ Core::GreensFunction* HelmbergerArchive::get() {
 
 			double maxDepError = dep2 - dep1;
 			if ( iDepth - dep2 > maxDepError ) {
-				//SEISCOMP_DEBUG("Depth too high: %d km", iDepth);
+				SEISCOMP_DEBUG("helmberger: depth too high: %d km", iDepth);
 				continue;
 			}
 
@@ -392,9 +396,6 @@ Core::GreensFunction* HelmbergerArchive::get() {
 		if ( fabs(depError) > maxDepError || fabs(distError) > maxDistError ) {
 		}
 		*/
-
-		//SEISCOMP_DEBUG("Handle request: distance: %.2f, %.2f  depth: %.2f, %.2f",
-		//               dist, distError, dep, depError);
 
 		Core::TimeSpan ts = _defaultTimespan;
 		if ( req.timeSpan ) ts = req.timeSpan;
@@ -457,7 +458,8 @@ Core::GreensFunction* HelmbergerArchive::get() {
 Core::GreensFunction* HelmbergerArchive::read(const std::string &file,
                                               const Core::TimeSpan &ts,
                                               double timeOfs) {
-	if ( timeOfs >= (double)ts ) return NULL;
+	if ( timeOfs >= (double)ts )
+		return NULL;
 
 	std::ifstream ifs(file.c_str());
 	if ( !ifs.good() ) {
@@ -527,6 +529,8 @@ Core::GreensFunction* HelmbergerArchive::read(const std::string &file,
 		std::getline(ifs, tmp);
 		ifs >> numSamples >> samplingFrequency;
 		std::getline(ifs, tmp);
+
+		samplingFrequency = 1.0/samplingFrequency;
 
 		//std::cout << "number of samples: " << numSamples << std::endl;
 		//std::cout << "sampling frequency: " << samplingFrequency << std::endl;

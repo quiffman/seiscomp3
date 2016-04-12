@@ -3,102 +3,54 @@
 #include <string.h>
 #include <math.h>
 
-#include "ttlim.h"
-
-typedef struct { double c1, c2, c3, c4; } c1c2c3c4;
-
-static void	depcor(int);
-static void make_tau(int nph, int mu, double umin, double dtol, double *tauus1, double *tauus2, double *xus1, double *xus2);
-static void findtt(int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *dddp, float *ray_p, char **phnm);
-static void pdecu(int i1, int i2, double x0, double x1, double xmin, int intt, int *len);
-static void r4sort(int n, float *rkey, int *iptr);
-static void fitspl(int i1, int i2, c1c2c3c4 *tau, double x1, double xn, double *c1, double *c2, double *c3, double *c4, double *c5);
-static double umod(double zs, int *src, int nph);
-static double zmod(double uend, int js, int nph);
-static char *xindex(char *a, char *b);
-static void spfit(int jb, int intt);
-void tauint(double, double, double, double, double, double*, double*);
-void tauspl(int, int, double*, double*, double*, double*, double*, double*); 
+#include "tau.h"
 
 #define True	1
 #define False	0
 #define mod(i,j) (i-(int)((i)/(j))*(j))
 
-static struct 
-{
-	int	ndex[jsrc], indx[jseg], kndx[jseg], loc[jsrc];
-	double	pu[jtsm0], px[jbrn], xt[jbrn], pux[jxsm], pm[jsrc], zm[jsrc],
-		tp[jbrnu];
-} v[2];
 
-static struct s_struct
-{
-	int nafl[jseg];
-	float fcs[jseg];
-} s[3];
+static void	depcor(libtau *h, int);
+static void make_tau(libtau *h, int nph, int mu, double umin, double dtol, double *tauus1, double *tauus2, double *xus1, double *xus2);
+static void findtt(libtau *h, int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *dddp, float *ray_p, char **phnm);
+static void pdecu(libtau *h, int i1, int i2, double x0, double x1, double xmin, int intt, int *len);
+static void r4sort(int n, float *rkey, int *iptr);
+static void fitspl(int i1, int i2, c1c2c3c4 *tau, double x1, double xn, double *c1, double *c2, double *c3, double *c4, double *c5);
+static double umod(libtau *h, double zs, int *src, int nph);
+static double zmod(libtau *h, double uend, int js, int nph);
+static char *xindex(char *a, char *b);
+static void spfit(libtau *h, int jb, int intt);
+void tauint(double, double, double, double, double, double*, double*);
+void tauspl(int, int, double*, double*, double*, double*, double*, double*);
+int emdld(int*, float*, const char*, const char*);
 
-static int mt[2], km[2], ku[2], jidx[jbrn];
-static int nseg, nbrn, ka = 4;
-static double taut[jout];
-static double c1[jout], c2[jout], c3[jout], c4[jout], c5[jout];
 
-static float xn, pn, tn, dn;
-static float deplim = 1.1;
-static char segmsk[jseg];
-
-static FILE *fpin;
-
-static FILE *fp10;
-
-static struct Depth
-{
-	char phcd_buf[jbrn*10];
-	char *phcd[jbrn];
-	struct 
-	{
-		int	jndx[jbrn];
-		double	xu[jxsm], tauu[jtsm], dbrn[jbrn];
-	} w[2];
-
-	double pt[jout], tauc[jrec], xc[jxsm];
-	struct
-	{
-		int idel[jbrn];
-		double xbrn[jbrn];
-	} t[3];
-
-	c1c2c3c4 tau[jout];
-
-	int int0[2], isrc[2], msrc[2], kk[jseg], iidx[jseg];
-	int ki, mbr1, mbr2, nph0;
-	double us[2], pk[jseg], xlim1[jout], xlim2[jout];
-	double zs;
-	float hn, odep;
-	double ua[5][2], taua[5][2];
-} depths[2];
-
-static int D = 0; /* depth index */
-
-int
-tabin(char *model)
-{
+int tabin(libtau *h, const char *model) {
 	int i, j, k, l, ind, nasgr, nl, len2;
 	char *modl;
 	char phdif[6][10];
 /*
 fp10 = fopen("ttim1.lis", "wb");
 */
+
+	/* Init handle */
+	h->allocated = 0;
+	h->ka = 4;
+	h->deplim = 1.1;
+	h->D = 0;
+	h->fpin = NULL;
+
 	if(model == NULL)
 	{
 		return(-3);
 	}
 	modl = (char *)malloc(strlen(model) + 5);
 
-	for(i = 0; i < jbrn; i++) depths[0].phcd[i] = depths[0].phcd_buf+i*10;
-	for(i = 0; i < jtsm; i++) depths[0].tauc[i] = 0.;
-	for(i = 0; i < jxsm; i++) depths[0].xc[i] = 0.;
-	depths[0].nph0 = -1;
-	for(i = 0; i < jseg; i++) segmsk[i] = True;
+	for(i = 0; i < jbrn; i++) h->depths[0].phcd[i] = h->depths[0].phcd_buf+i*10;
+	for(i = 0; i < jtsm; i++) h->depths[0].tauc[i] = 0.;
+	for(i = 0; i < jxsm; i++) h->depths[0].xc[i] = 0.;
+	h->depths[0].nph0 = -1;
+	for(i = 0; i < jseg; i++) h->segmsk[i] = True;
 
 	strcpy(&phdif[0][0], "P");
 	strcpy(&phdif[1][0], "S");
@@ -109,53 +61,53 @@ fp10 = fopen("ttim1.lis", "wb");
 
 	strcpy(modl, model);
 	strcat(modl, ".hed");
-	if((fpin = fopen(modl, "rb")) == NULL) /* iasp91.hed */
+	if((h->fpin = fopen(modl, "rb")) == NULL) /* iasp91.hed */
 	{
 		free(modl);
 		return(-1);
 	}
 	
-	fread(&nasgr, 4, 1, fpin); fread(&nl, 4, 1, fpin);
-	fread(&len2, 4, 1, fpin); fread(&xn, 4, 1, fpin);
-	fread(&pn, 4, 1, fpin); fread(&tn, 4, 1, fpin);
-	fread(mt, 4, 2, fpin); fread(&nseg, 4, 1, fpin);
-	fread(&nbrn, 4, 1, fpin); fread(ku, 4, 2, fpin);
-	fread(km, 4, 2, fpin); fread(s, sizeof(struct s_struct), 3, fpin);
-	fread(v[0].indx, 4, 30, fpin); fread(v[1].indx, 4, 30, fpin);
-	fread(v[0].kndx, 4, 30, fpin); fread(v[1].kndx, 4, 30, fpin);
-	fread(v[0].pm, 8, 150, fpin); fread(v[1].pm, 8, 150, fpin);
-	fread(v[0].zm, 8, 150, fpin); fread(v[1].zm, 8, 150, fpin);
-	fread(v[0].ndex, 4, 150, fpin); fread(v[1].ndex, 4, 150, fpin);
-	fread(v[0].loc, 4, 150, fpin); fread(v[1].loc, 4, 150, fpin);
-	fread(v[0].pu, 8, 351, fpin); fread(v[1].pu, 8, 351, fpin);
-	fread(v[0].pux, 8, jbrn, fpin); fread(v[1].pux, 8, jbrn, fpin);
+	fread(&nasgr, 4, 1, h->fpin); fread(&nl, 4, 1, h->fpin);
+	fread(&len2, 4, 1, h->fpin); fread(&h->xn, 4, 1, h->fpin);
+	fread(&h->pn, 4, 1, h->fpin); fread(&h->tn, 4, 1, h->fpin);
+	fread(h->mt, 4, 2, h->fpin); fread(&h->nseg, 4, 1, h->fpin);
+	fread(&h->nbrn, 4, 1, h->fpin); fread(h->ku, 4, 2, h->fpin);
+	fread(h->km, 4, 2, h->fpin); fread(h->s, sizeof(struct s_struct), 3, h->fpin);
+	fread(h->v[0].indx, 4, jseg, h->fpin); fread(h->v[1].indx, 4, jseg, h->fpin);
+	fread(h->v[0].kndx, 4, jseg, h->fpin); fread(h->v[1].kndx, 4, jseg, h->fpin);
+	fread(h->v[0].pm, 8, jsrc, h->fpin); fread(h->v[1].pm, 8, jsrc, h->fpin);
+	fread(h->v[0].zm, 8, jsrc, h->fpin); fread(h->v[1].zm, 8, jsrc, h->fpin);
+	fread(h->v[0].ndex, 4, jsrc, h->fpin); fread(h->v[1].ndex, 4, jsrc, h->fpin);
+	fread(h->v[0].loc, 4, jsrc, h->fpin); fread(h->v[1].loc, 4, jsrc, h->fpin);
+	fread(h->v[0].pu, 8, jtsm0, h->fpin); fread(h->v[1].pu, 8, jtsm0, h->fpin);
+	fread(h->v[0].pux, 8, jbrn, h->fpin); fread(h->v[1].pux, 8, jbrn, h->fpin);
 
 	for(i = 0; i < jbrn; i++)
 	{
-		fread(depths[0].phcd[i], 8, 1, fpin);
-		//strcpy(depths[1].phcd, depths[0].phcd[i]);
+		fread(h->depths[0].phcd[i], 8, 1, h->fpin);
+		/*strcpy(depths[1].phcd, depths[0].phcd[i]);*/
 	}
-	fread(v[0].px, 8, jbrn, fpin); fread(v[1].px, 8, jbrn, fpin);
-	fread(v[0].xt, 8, jbrn, fpin); fread(v[1].xt, 8, jbrn, fpin);
-	fread(depths[0].w[0].jndx, 4, jbrn, fpin);
-	fread(depths[0].w[1].jndx, 4, jbrn, fpin);
-	fread(depths[0].pt, 8, jout, fpin);
-	fread(taut, 8, jout, fpin);
-	fread(c1, 8, jout, fpin); fread(c2, 8, jout, fpin);
-	fread(c3, 8, jout, fpin); fread(c4, 8, jout, fpin);
-	fread(c5, 8, jout, fpin);
-	fclose(fpin);
+	fread(h->v[0].px, 8, jbrn, h->fpin); fread(h->v[1].px, 8, jbrn, h->fpin);
+	fread(h->v[0].xt, 8, jbrn, h->fpin); fread(h->v[1].xt, 8, jbrn, h->fpin);
+	fread(h->depths[0].w[0].jndx, 4, jbrn, h->fpin);
+	fread(h->depths[0].w[1].jndx, 4, jbrn, h->fpin);
+	fread(h->depths[0].pt, 8, jout, h->fpin);
+	fread(h->taut, 8, jout, h->fpin);
+	fread(h->c1, 8, jout, h->fpin); fread(h->c2, 8, jout, h->fpin);
+	fread(h->c3, 8, jout, h->fpin); fread(h->c4, 8, jout, h->fpin);
+	fread(h->c5, 8, jout, h->fpin);
+	fclose(h->fpin);
 
 	strcpy(modl, model);
 	strcat(modl, ".tbl");
-	if((fpin = fopen(modl, "rb")) == NULL) /* iasp91.tbl */
+	if((h->fpin = fopen(modl, "rb")) == NULL) /* iasp91.tbl */
 	{
 		free(modl);
 		return(-2);
 	}
 
-	v[0].pu[ku[0]] = v[0].pm[0];
-	v[1].pu[ku[1]] = v[1].pm[0];
+	h->v[0].pu[h->ku[0]] = h->v[0].pm[0];
+	h->v[1].pu[h->ku[1]] = h->v[1].pm[0];
 
 /*
 	fprintf(fp10, "nasgr nl len2 %d %d %d\n",nasgr,nl,len2);
@@ -196,54 +148,67 @@ fp10 = fopen("ttim1.lis", "wb");
 			c3[i], c4[i], c5[i]);
 */
 	
-	tn = 1./tn;
-	dn =M_PI/(180.*pn*xn);
-	depths[0].odep = -1.;
-	depths[0].ki = -1;
-	depths[0].msrc[0] = -1;
-	depths[0].msrc[1] = -1;
+	h->tn = 1./h->tn;
+	h->dn =M_PI/(180.*h->pn*h->xn);
+	h->depths[0].odep = -1.;
+	h->depths[0].ki = -1;
+	h->depths[0].msrc[0] = -1;
+	h->depths[0].msrc[1] = -1;
 
-	for(i = k = 0; i < nbrn; i++)
+	for(i = k = 0; i < h->nbrn; i++)
 	{
-		jidx[i] = depths[0].w[1].jndx[i];
-		depths[0].w[0].dbrn[i] = -1.;
-		depths[0].w[1].dbrn[i] = -1.;
-		while(depths[0].w[1].jndx[i] > v[1].indx[k]) k++;
-		if(s[1].nafl[k] == 0)
+		h->jidx[i] = h->depths[0].w[1].jndx[i];
+		h->depths[0].w[0].dbrn[i] = -1.;
+		h->depths[0].w[1].dbrn[i] = -1.;
+		while(h->depths[0].w[1].jndx[i] > h->v[1].indx[k]) k++;
+		if(h->s[1].nafl[k] == 0)
 		{
-			ind = s[0].nafl[k]-1;
-			for(j = depths[0].w[0].jndx[i], l=0;
-				j <= depths[0].w[1].jndx[i]; j++, l++)
-					v[ind].tp[l] = depths[0].pt[j];
+			ind = h->s[0].nafl[k]-1;
+			for(j = h->depths[0].w[0].jndx[i], l=0;
+				j <= h->depths[0].w[1].jndx[i]; j++, l++)
+					h->v[ind].tp[l] = h->depths[0].pt[j];
 		}
-		if(s[0].nafl[k] <= 0 || (depths[0].phcd[i][0]!='P' &&
-			depths[0].phcd[i][0]!='S'))
+		if(h->s[0].nafl[k] <= 0 || (h->depths[0].phcd[i][0]!='P' &&
+			h->depths[0].phcd[i][0]!='S'))
 		{
 			for(j = 0; j < 6; j++)
-				if(!strcmp(depths[0].phcd[i], &phdif[j][0]))
+				if(!strcmp(h->depths[0].phcd[i], &phdif[j][0]))
 			{
- 				depths[0].w[0].dbrn[i] = 1.0;
+ 				h->depths[0].w[0].dbrn[i] = 1.0;
 				phdif[j][0] = '\0';
 				break;
 			}
 
 		}
 	}
+
+	/* depth[1] is used as backup when setting a new depth to be copied back
+	   to depth[0] */
+	memcpy(&h->depths[1], &h->depths[0], sizeof(struct Depth));
+
 	free(modl);
 
-	memcpy(&depths[1], &depths[0], sizeof(struct Depth));
-	for(i = 0; i < jbrn; i++) depths[1].phcd[i] = depths[1].phcd_buf+i*10;
+	emdld(&h->np, h->rd, model, "");
+
 	return(0);
 }
 
-int
-tabout()
-{
-	if(fpin)
-		return fclose(fpin);
+int tabout(libtau *h) {
+	int i;
+
+	if ( !h->allocated ) {
+		for ( i = 0; i < jseg; i++ ) free(h->phlst[i]);
+		for ( i = 0; i < jbrn; i++ ) free(h->segcd[i]);
+		h->allocated = 0;
+	}
+
+	if(h->fpin)
+		return fclose(h->fpin);
+
+	return 0;
 }
 
-void brnset(char *branch)
+void brnset(libtau *h, const char *branch)
 {
 /* Brnset takes character array pcntl[nn] as a list of nn tokens to be
  * used to select desired generic branches.  Prflg[3] is the old
@@ -262,15 +227,13 @@ void brnset(char *branch)
  */
 
 	int i, j, k, l, no, j1, j2, kseg;
-	static int ncmd = 4 /*, lcmd = 16 */;
+	static const int ncmd = 4 /*, lcmd = 16 */;
 	char fnd, all;
-	static char *phlst[jseg], *segcd[jbrn], phtmp[10];
-	static int allocated = 0;
 	int nsgpt[jbrn];
-	static char *cmdlst[] = {"P", "PKiKP", "PcP", "pP", "pPKiKP", "sP", 
+	static const char *cmdlst[] = {"P", "PKiKP", "PcP", "pP", "pPKiKP", "sP",
 		"sPKiKP", "ScP", "SKP", "PKKP", "SKKP", "PP", "S", "ScS",
 		"sS", "pS"};
-	static char *cmdcd[] = {"P", "P+", "basic", "S+"};
+	static const char *cmdcd[] = {"P", "P+", "basic", "S+"};
 	/*
 	 * The keywords do the following:
 	 * P      gives P-up, P, Pdiff, PKP, and PKiKP
@@ -283,14 +246,13 @@ void brnset(char *branch)
 	 * Note that generic S gives S-up, Sdiff, and SKS already and so
 	 * doesn't require a keyword.
 	 */
-	static int ncmpt1[] = {0, 0, 0, 12};
-	static int ncmpt2[] = {1, 6, 12, 15};
+	static const int ncmpt1[] = {0, 0, 0, 12};
+	static const int ncmpt2[] = {1, 6, 12, 15};
 
-	if(!allocated)
-	{
-		for(i = 0; i < jseg; i++) phlst[i] = (char *)malloc(10);
-		for(i = 0; i < jbrn; i++) segcd[i] = (char *)malloc(10);
-		allocated = 1;
+	if ( !h->allocated ) {
+		for ( i = 0; i < jseg; i++ ) h->phlst[i] = (char *)malloc(10);
+		for ( i = 0; i < jbrn; i++ ) h->segcd[i] = (char *)malloc(10);
+		h->allocated = 1;
 	}
 
 	/* In query mode, get the tokens interactively into local storage.
@@ -304,14 +266,14 @@ void brnset(char *branch)
 /*
 	scanf("%s", phlst[0]); no = 1;
 */
-	strncpy(phlst[0], branch, 8); no = 1;
+	strncpy(h->phlst[0], branch, 8); no = 1;
 	/* Terminate the list of tokens with a blank entry.
 	 */
-	phlst[no][0] = '\0';
+	h->phlst[no][0] = '\0';
 	/* An 'all' keyword is easy as this is already the default.
 	 */
 	all = False;
-	if(no == 1 && !strcmp(phlst[0], "all")) all = True;
+	if(no == 1 && !strcmp(h->phlst[0], "all")) all = True;
 	if(all) return;
 	/*
 	 * Make one or two generic branch names for each segment.  For example,
@@ -320,49 +282,48 @@ void brnset(char *branch)
 	 * 
 	 * Loop over the segments.
 	 */
-	for(i = j = kseg = 0; i < nseg; i++)
+	for(i = j = kseg = 0; i < h->nseg; i++)
 	{
-		if(!all) segmsk[i] = False;
+		if(!all) h->segmsk[i] = False;
 		/*
 		 * For each segment, loop over associated branches.
 		 */
 		do
 		{
-			strcpy(phtmp, depths[D].phcd[j]);
+			strcpy(h->phtmp, h->depths[h->D].phcd[j]);
 			/*
 			 * Turn the specific branch name into a generic name
 			 * by stripping out the crustal branch and core phase
 			 * branch identifiers.
 			 */
-			for(l = k = 0; phtmp[l] != '\0'; )
+			for(l = k = 0; h->phtmp[l] != '\0'; )
 			{
-				if(	!strcmp(phtmp+l, "ab") ||
-					!strcmp(phtmp+l, "ac") ||
-					!strcmp(phtmp+l, "df")	  )
+				if(	!strcmp(h->phtmp+l, "ab") ||
+					!strcmp(h->phtmp+l, "ac") ||
+					!strcmp(h->phtmp+l, "df")	  )
 				{
 					l += 2;
 				}
-				else if(phtmp[l] != 'g' && phtmp[l] != 'b' &&
-				   phtmp[l] != 'n')
+				else if(h->phtmp[l] != 'g' && h->phtmp[l] != 'b' &&
+				   h->phtmp[l] != 'n')
 				{
-					phtmp[k++] = phtmp[l++];
+					h->phtmp[k++] = h->phtmp[l++];
 				}
 				else l++;
 			}
-			phtmp[k] = '\0';
-/*printf("j phcd phtmp = %d %s %s\n",j, depths[D].phcd[j], phtmp); */
+			h->phtmp[k] = '\0';
+/*printf("j phcd phtmp = %d %s %s\n",j, h->depths[h->D].phcd[j], phtmp); */
 			/*
 			 * Make sure generic names are unique within a segment.
 			 */
-			if(kseg == 0 || strcmp(phtmp, segcd[kseg-1]))
+			if(kseg == 0 || strcmp(h->phtmp, h->segcd[kseg-1]))
 			{
-				strcpy(segcd[kseg], phtmp);
+				strcpy(h->segcd[kseg], h->phtmp);
 				nsgpt[kseg] = i;
 				kseg++;
 			}
-		} while(jidx[j++] < v[1].indx[i]);
+		} while(h->jidx[j++] < h->v[1].indx[i]);
 	}
-// XXX printf("kseg = %d\n",kseg);
 
 	if(!all)
 	{
@@ -373,8 +334,7 @@ void brnset(char *branch)
 			/* Try for a keyword first.
 			 */
 			for(j = 0; j < ncmd; j++)
-				if(!strcmp(phlst[i], cmdcd[j])) break;
-// XXX printf("j = %d\n", j);
+				if(!strcmp(h->phlst[i], cmdcd[j])) break;
 
 			if(j == ncmd)
 			{
@@ -383,12 +343,11 @@ void brnset(char *branch)
 				 */
 				fnd = False;
 				for(k = 0; k < kseg; k++)
-					if(!strcmp(phlst[i], segcd[k]))
+					if(!strcmp(h->phlst[i], h->segcd[k]))
 				{
 					fnd = True;
 					l = nsgpt[k];
-					segmsk[l] = True;
-// XXX printf("Brnset: phase found - i k l segcd = %d %d %d %s\n", i, k, l, segcd[k]);
+					h->segmsk[l] = True;
 				}
 				if(!fnd)
 				{
@@ -396,7 +355,7 @@ void brnset(char *branch)
 					 * the caller.
 					 */
 					fprintf(stderr,"Brnset: %s not found\n",
-						phlst[i]);
+						h->phlst[i]);
 					continue;
 				}
 			}
@@ -409,13 +368,10 @@ void brnset(char *branch)
 				j2 = ncmpt2[j];
 				for(j = j1; j <= j2; j++)
 				{
-					for(k = 0; k < nseg; k++)
+					for(k = 0; k < h->nseg; k++)
 					{
-						if(!strcmp(cmdlst[j], segcd[k]))
-{
-							segmsk[nsgpt[k]] = True;
-// XXX printf("Brnset: cmdlst found - j k l segcd = %d %d %d %s\n", j, k, nsgpt[k], segcd[k]);
-}
+						if(!strcmp(cmdlst[j], h->segcd[k]))
+							h->segmsk[nsgpt[k]] = True;
 					}
 				}
 			}
@@ -427,7 +383,7 @@ void brnset(char *branch)
 	j2 = -1;
 	/* Loop over segments.
 	 */
-	for(i = 0; i < nseg; i++) if(segmsk[i])
+	for(i = 0; i < h->nseg; i++) if(h->segmsk[i])
 	{
 		/* If selected, find the associated generic branch names.
 		 */
@@ -445,63 +401,54 @@ void brnset(char *branch)
 			/* Print the result.
 			 */
 			j2--;
-// XXX			if(!fnd) printf("Brnset: selected phases:\n\n");
 			fnd = True;
-// XXX 			for(j = j1, k = 0; j <= j2; j++)
-// XXX 			{
-// XXX				printf("%s ", segcd[j]);
-// XXX 				if(++k == 5) printf("\n");
-// XXX 			}
-// XXX 			printf("\n");
 		}
 	}
 }
 
-static void
-depcor(int nph)
-{
+static void depcor(libtau *h, int nph) {
 	int i, j, k, l, k1, k2, ks, ms, mu, is, iph, lp; 
 	char noend, noext, do_integral, shallow;
 	float ztol;
 	double *tup, tauus1[2], tauus2[2], xus1[2], xus2[2],
 		ttau, tx, sgn, umin, u0, u1, z0, z1, du;
-	static double dtol = 1.e-6;
-	static float tol = .01;
-	static int lpower = 7;
+	static const double dtol = 1.e-6;
+	static const float tol = .01;
+	static const int lpower = 7;
 
 /*
-	fprintf(fp10, "depcor:  nph nph0 %d %d\n", nph, depths[D].nph0);
+	fprintf(fp10, "depcor:  nph nph0 %d %d\n", nph, h->depths[h->D].nph0);
 */
-	tup = depths[D].tauc;
-	if(nph == depths[D].nph0)
+	tup = h->depths[h->D].tauc;
+	if(nph == h->depths[h->D].nph0)
 	{
 		mu++;
-		make_tau(nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
+		make_tau(h, nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
 		return;
 	}
-	depths[D].nph0 = nph;
-	depths[D].us[nph] = umod(depths[D].zs, depths[D].isrc, nph);
+	h->depths[h->D].nph0 = nph;
+	h->depths[h->D].us[nph] = umod(h, h->depths[h->D].zs, h->depths[h->D].isrc, nph);
 	/* If we are in a high slowness zone, find the slowness of
 	 * the lid.
 	 */
-	umin = depths[D].us[nph];
-	ks = depths[D].isrc[nph];
+	umin = h->depths[h->D].us[nph];
+	ks = h->depths[h->D].isrc[nph];
 /*
 	fprintf(fp10, "ks us %d %f\n", ks, (float)umin);
 */
 	for(i = 0; i <= ks; i++)
 	{
-		if(v[nph].pm[i] <= umin) umin = v[nph].pm[i];
+		if(h->v[nph].pm[i] <= umin) umin = h->v[nph].pm[i];
 	}
 	/* Find where the source slowness falls in the ray parameter
 	 * array.
  	 */
-	for(k2 = 1; k2 <= ku[nph]; k2++) if(v[nph].pu[k2] > umin) break;
-	if(k2 > ku[nph])
+	for(k2 = 1; k2 <= h->ku[nph]; k2++) if(h->v[nph].pu[k2] > umin) break;
+	if(k2 > h->ku[nph])
 	{
-		if(v[nph].pu[ku[nph]] == umin)
+		if(h->v[nph].pu[h->ku[nph]] == umin)
 		{
-			k2 = ku[nph];
+			k2 = h->ku[nph];
 		}
 		else
 		{
@@ -516,42 +463,42 @@ depcor(int nph)
 	 */
 	noext = False;
 	sgn = 1.;
-	if(depths[D].msrc[nph] == -1) depths[D].msrc[nph] = 0;
+	if(h->depths[h->D].msrc[nph] == -1) h->depths[h->D].msrc[nph] = 0;
 	/* See if the source depth coincides with a model samples.
 	 */
-	ztol = xn*tol/(1. - xn*depths[D].odep);
-	if(fabs(depths[D].zs - v[nph].zm[ks+1]) <= ztol ||
-		fabs(depths[D].zs - v[nph].zm[ks]) <= ztol)
+	ztol = h->xn*tol/(1. - h->xn*h->depths[h->D].odep);
+	if(fabs(h->depths[h->D].zs - h->v[nph].zm[ks+1]) <= ztol ||
+		fabs(h->depths[h->D].zs - h->v[nph].zm[ks]) <= ztol)
 	{
-		if(fabs(depths[D].zs - v[nph].zm[ks+1]) <= ztol) ks++;
+		if(fabs(h->depths[h->D].zs - h->v[nph].zm[ks+1]) <= ztol) ks++;
 		/*
 		 * If so flag the fact and make sure that the right
 		 * integrals are available.
 		 */
 		noext = True;
-		if(depths[D].msrc[nph] != ks)
+		if(h->depths[h->D].msrc[nph] != ks)
 		{
 /*
 fprintf(fp10, "first read ks= %d\n", ks);
 printf("loc = %d\n",v[nph].loc[ks]);
 */
-			fseek(fpin, v[nph].loc[ks], 0);
-			fread(tup, 8, ku[nph]+km[nph], fpin);
+			fseek(h->fpin, h->v[nph].loc[ks], 0);
+			fread(tup, 8, h->ku[nph]+h->km[nph], h->fpin);
 			/* 
 			 * Move the depth correction values to a less
 			 * temporary area.
 			 */
-			for(i = 0; i < ku[nph]; i++)
-				depths[D].w[nph].tauu[i] = tup[i];
-			for(i = 0, k = ku[nph]; i < km[nph]; i++, k++)
+			for(i = 0; i < h->ku[nph]; i++)
+				h->depths[h->D].w[nph].tauu[i] = tup[i];
+			for(i = 0, k = h->ku[nph]; i < h->km[nph]; i++, k++)
 			{
-				depths[D].xc[i] = tup[k];
-				depths[D].w[nph].xu[i] = tup[k];
+				h->depths[h->D].xc[i] = tup[k];
+				h->depths[h->D].w[nph].xu[i] = tup[k];
 			}
 /*
 		 	fprintf(fp10, "bkin %d %e %e %e\n", ks, (float)sgn,
-				(float)depths[D].w[nph].tauu[0],
-				(float)depths[D].w[nph].xu[0]);
+				(float)h->depths[h->D].w[nph].tauu[0],
+				(float)h->depths[h->D].w[nph].xu[0]);
 */
 		}
 	}
@@ -560,18 +507,18 @@ printf("loc = %d\n",v[nph].loc[ks]);
 		/* If it is necessary to interpolate, see if the
 		 * appropriate integrals have already been read in.
 		 */
-		if(depths[D].msrc[nph] == ks+1)
+		if(h->depths[h->D].msrc[nph] == ks+1)
 		{
 			ks++;
 			sgn = -1.;
 		}
-		else if(depths[D].msrc[nph] != ks)
+		else if(h->depths[h->D].msrc[nph] != ks)
 		{
 			/* If not, read in integrals for the model
 			 * depth nearest the source depth.
 			 */
-			if(fabs(v[nph].zm[ks]-depths[D].zs) >
-				fabs(v[nph].zm[ks+1]-depths[D].zs))
+			if(fabs(h->v[nph].zm[ks]-h->depths[h->D].zs) >
+				fabs(h->v[nph].zm[ks+1]-h->depths[h->D].zs))
 			{
 				ks++;
 				sgn = -1.;
@@ -579,37 +526,37 @@ printf("loc = %d\n",v[nph].loc[ks]);
 /*
 fprintf(fp10, "second read ks= %d\n", ks);
 */
-			fseek(fpin, v[nph].loc[ks], 0);
-			fread(tup, 8, ku[nph]+km[nph], fpin);
+			fseek(h->fpin, h->v[nph].loc[ks], 0);
+			fread(tup, 8, h->ku[nph]+h->km[nph], h->fpin);
 			/* 
 			 * Move the depth correction values to a less
 			 * temporary area.
 			 */
-			for(i = 0; i < ku[nph]; i++)
-				depths[D].w[nph].tauu[i] = tup[i];
-			for(i = 0, k = ku[nph]; i < km[nph]; i++, k++)
+			for(i = 0; i < h->ku[nph]; i++)
+				h->depths[h->D].w[nph].tauu[i] = tup[i];
+			for(i = 0, k = h->ku[nph]; i < h->km[nph]; i++, k++)
 			{
-				depths[D].xc[i] = tup[k];
-				depths[D].w[nph].xu[i] = tup[k];
+				h->depths[h->D].xc[i] = tup[k];
+				h->depths[h->D].w[nph].xu[i] = tup[k];
 			}
 /*
 		 	fprintf(fp10, "bkin %d %e %e %e\n", ks, (float)sgn,
-				(float)depths[D].w[nph].tauu[0],
-				(float)depths[D].w[nph].xu[0]);
+				(float)h->depths[h->D].w[nph].tauu[0],
+				(float)h->depths[h->D].w[nph].xu[0]);
 */
 		}
 	}
 	/* 
 	 * Fiddle pointers.
 	 */
-	depths[D].msrc[nph] = ks;
+	h->depths[h->D].msrc[nph] = ks;
 /*
-	fprintf(fp10, "msrc sgn %d %e\n", depths[D].msrc[nph], (float)sgn);
+	fprintf(fp10, "msrc sgn %d %e\n", h->depths[h->D].msrc[nph], (float)sgn);
 */
 	noend = False;
-	if(fabs(umin-v[nph].pu[k2-1]) <= dtol*umin) k2--;
-	if(fabs(umin-v[nph].pu[k2]) <= dtol*umin) noend = True;
-	if(depths[D].msrc[nph] <= 0 && noext) depths[D].msrc[nph] = -1;
+	if(fabs(umin-h->v[nph].pu[k2-1]) <= dtol*umin) k2--;
+	if(fabs(umin-h->v[nph].pu[k2]) <= dtol*umin) noend = True;
+	if(h->depths[h->D].msrc[nph] <= 0 && noext) h->depths[h->D].msrc[nph] = -1;
 	k1 = k2 - 1;
 	if(noend) k1 = k2;
 /*
@@ -620,20 +567,20 @@ fprintf(fp10, "second read ks= %d\n", ks);
 	{
 		/* Correct the integrals for the depth interval (zm[msrc],zs).
 		 */
-		ms = depths[D].msrc[nph];
+		ms = h->depths[h->D].msrc[nph];
 		if(sgn >= 0)
 		{
-			u0 = v[nph].pm[ms];
-			z0 = v[nph].zm[ms];
-			u1 = depths[D].us[nph];
-			z1 = depths[D].zs;
+			u0 = h->v[nph].pm[ms];
+			z0 = h->v[nph].zm[ms];
+			u1 = h->depths[h->D].us[nph];
+			z1 = h->depths[h->D].zs;
 		}
 		else
 		{
-			u0 = depths[D].us[nph];
-			z0 = depths[D].zs;
-			u1 = v[nph].pm[ms];
-			z1 = v[nph].zm[ms];
+			u0 = h->depths[h->D].us[nph];
+			z0 = h->depths[h->D].zs;
+			u1 = h->v[nph].pm[ms];
+			z1 = h->v[nph].zm[ms];
 		}
 /*
 		fprintf(fp10, "u0 z0 %e %e\n", (float)u0, (float)z0);
@@ -642,15 +589,15 @@ fprintf(fp10, "k1 = %d\n", k1);
 */
 		for(k = mu = 0; k <= k1; k++)
 		{
-			tauint(v[nph].pu[k], u0, u1, z0, z1, &ttau, &tx);
-			depths[D].tauc[k] = depths[D].w[nph].tauu[k] + sgn*ttau;
-			if(fabs(v[nph].pu[k]-v[nph].pux[mu]) <= dtol)
+			tauint(h->v[nph].pu[k], u0, u1, z0, z1, &ttau, &tx);
+			h->depths[h->D].tauc[k] = h->depths[h->D].w[nph].tauu[k] + sgn*ttau;
+			if(fabs(h->v[nph].pu[k]-h->v[nph].pux[mu]) <= dtol)
 			{
-				depths[D].xc[mu]=depths[D].w[nph].xu[mu]+sgn*tx;
+				h->depths[h->D].xc[mu]=h->depths[h->D].w[nph].xu[mu]+sgn*tx;
 /*
 				fprintf(fp10, "up first x: k mu %d %d %e %e\n",
-					k, mu, (float)depths[D].w[nph].xu[mu],
-					(float)depths[D].xc[mu]);
+					k, mu, (float)h->depths[h->D].w[nph].xu[mu],
+					(float)h->depths[h->D].xc[mu]);
 */
 				mu++;
 			}
@@ -663,14 +610,14 @@ fprintf(fp10, "k1 = %d\n", k1);
 		 */
 		for(k = mu = 0; k <= k1; k++)
 		{
-			depths[D].tauc[k] = depths[D].w[nph].tauu[k];
-			if(fabs(v[nph].pu[k]-v[nph].pux[mu]) <= dtol)
+			h->depths[h->D].tauc[k] = h->depths[h->D].w[nph].tauu[k];
+			if(fabs(h->v[nph].pu[k]-h->v[nph].pux[mu]) <= dtol)
 			{
-				depths[D].xc[mu] = depths[D].w[nph].xu[mu];
+				h->depths[h->D].xc[mu] = h->depths[h->D].w[nph].xu[mu];
 /*
 				fprintf(fp10, "up second x: k mu %d %d %e %e\n",
-					k, mu, (float)depths[D].w[nph].xu[mu],
-					(float)depths[D].xc[mu]);
+					k, mu, (float)h->depths[h->D].w[nph].xu[mu],
+					(float)h->depths[h->D].xc[mu]);
 */
 				mu++;
 			}
@@ -682,27 +629,27 @@ fprintf(fp10, "k1 = %d\n", k1);
 	xus1[nph] = 0.;
 	xus2[nph] = 0.;
 	mu--;
-	if(fabs(umin-depths[D].us[nph]) > dtol &&
-		fabs(umin-v[nph].pux[mu]) <= dtol) mu--;
+	if(fabs(umin-h->depths[h->D].us[nph]) > dtol &&
+		fabs(umin-h->v[nph].pux[mu]) <= dtol) mu--;
 	/*
 	 * This loop may be skipped only for surface focus as range is not
 	 * available for all ray parameters.
 	 */
-	if(depths[D].msrc[nph] < 0)
+	if(h->depths[h->D].msrc[nph] < 0)
 	{
 		mu++;
-		make_tau(nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
+		make_tau(h, nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
 	}
-	is = depths[D].isrc[nph];
+	is = h->depths[h->D].isrc[nph];
 	tauus2[nph] = 0.;
-	if(fabs(v[nph].pux[mu]-umin) <= dtol &&
-		fabs(depths[D].us[nph]-umin) <= dtol)
+	if(fabs(h->v[nph].pux[mu]-umin) <= dtol &&
+		fabs(h->depths[h->D].us[nph]-umin) <= dtol)
 	{
 		/* If we happen to be right at a discontinuity,
 		 * range is available.
 		 */
-		tauus1[nph] = depths[D].tauc[k1];
-		xus1[nph] = depths[D].xc[mu];
+		tauus1[nph] = h->depths[h->D].tauc[k1];
+		xus1[nph] = h->depths[h->D].xc[mu];
 /*
 		fprintf(fp10, "1: is ks tauus1 xus1 %d %d %e %e  *\n",
 			is, ks, (float)tauus1[nph], (float)xus1[nph]);
@@ -715,8 +662,8 @@ fprintf(fp10, "k1 = %d\n", k1);
 		tauus1[nph] = 0.;
 		for(i = 1; i <= is; i++)
 		{
-			tauint(umin, v[nph].pm[i-1], v[nph].pm[i],
-				v[nph].zm[i-1],v[nph].zm[i],&ttau,&tx);
+			tauint(umin, h->v[nph].pm[i-1], h->v[nph].pm[i],
+				h->v[nph].zm[i-1],h->v[nph].zm[i],&ttau,&tx);
 			tauus1[nph] += ttau;
 			xus1[nph] += tx;
 		}
@@ -724,14 +671,14 @@ fprintf(fp10, "k1 = %d\n", k1);
 		if(is>=1)fprintf(fp10, "2: is ks tauus1 xus1 %d %d %e %e\n",
 			is, ks, (float)tauus1[nph], (float)xus1[nph]);
 */
-		if(fabs(v[nph].zm[is]-depths[D].zs) > dtol)
+		if(fabs(h->v[nph].zm[is]-h->depths[h->D].zs) > dtol)
 		{
 			/* Unless the source is right on a sample
 			 * slowness, one more partial integral is
 			 * needed.
 			 */
-			tauint(umin, v[nph].pm[is], depths[D].us[nph], 
-				v[nph].zm[is], depths[D].zs, &ttau, &tx);
+			tauint(umin, h->v[nph].pm[is], h->depths[h->D].us[nph],
+				h->v[nph].zm[is], h->depths[h->D].zs, &ttau, &tx);
 			tauus1[nph] += ttau;
 			xus1[nph] += tx;
 /*
@@ -740,20 +687,20 @@ fprintf(fp10, "k1 = %d\n", k1);
 */
 		}
 	}
-	if(v[nph].pm[is+1] >= umin)
+	if(h->v[nph].pm[is+1] >= umin)
 	{
 		/* If we are in a high slowness zone, we will also
 		 * need to integrate down to the turning point of the
 		 * shallowest down-going ray.
 		 */
-		u1 = depths[D].us[nph];
-		z1 = depths[D].zs;
-		for(i = is+1; i < mt[nph]; i++)
+		u1 = h->depths[h->D].us[nph];
+		z1 = h->depths[h->D].zs;
+		for(i = is+1; i < h->mt[nph]; i++)
 		{
 			u0 = u1;
 			z0 = z1;
-			u1 = v[nph].pm[i];
-			z1 = v[nph].zm[i];
+			u1 = h->v[nph].pm[i];
+			z1 = h->v[nph].zm[i];
 			if(u1 < umin) break;
 			tauint(umin, u0, u1, z0, z1, &ttau, &tx);
 			tauus2[nph] += ttau;
@@ -763,7 +710,7 @@ fprintf(fp10, "k1 = %d\n", k1);
 		fprintf(fp10, "is ks tauus2 xus2 %d %d %e %e  *\n",
 			is, ks, (float)tauus2[nph], (float)xus2[nph]);
 */
-		z1 = zmod(umin, i-1, nph);
+		z1 = zmod(h, umin, i-1, nph);
 		if(fabs(z0-z1) > dtol)
 		{
 			/* Unless the turning point is right on a
@@ -789,7 +736,7 @@ fprintf(fp10, "k1 = %d\n", k1);
 	do_integral = False;
 	if(nph == 1)
 	{
-		if(umin <= v[0].pu[ku[0]])
+		if(umin <= h->v[0].pu[h->ku[0]])
 		{
 			/* If we are doing an S-wave depth correction,
 			 * we may need range and tau for the P-wave
@@ -797,15 +744,15 @@ fprintf(fp10, "k1 = %d\n", k1);
 			 * This would bd needed for sPg and SPg when
 			 * the source is in the deep mantle.
 			 */
-			for(j = 0; j < nbrn; j++) if( v[1].px[j] > 0.
-				 && (!strncmp(depths[D].phcd[j],"sP",2) ||
-				     !strncmp(depths[D].phcd[j],"SP",2)) )
+			for(j = 0; j < h->nbrn; j++) if( h->v[1].px[j] > 0.
+				 && (!strncmp(h->depths[h->D].phcd[j],"sP",2) ||
+				     !strncmp(h->depths[h->D].phcd[j],"SP",2)) )
 			{
 /*
-	fprintf(fp10, "Depcor: j depths[D].phcd px umin = %d %s %E %E %E\n",
-		j, depths[D].phcd[j], v[0].px[j], v[1].px[j], umin);
+	fprintf(fp10, "Depcor: j h->depths[h->D].phcd px umin = %d %s %E %E %E\n",
+		j, h->depths[h->D].phcd[j], v[0].px[j], v[1].px[j], umin);
 */
-				if(umin >= v[0].px[j] && umin < v[1].px[j])
+				if(umin >= h->v[0].px[j] && umin < h->v[1].px[j])
 				{
 					do_integral = True;
 					break;
@@ -820,15 +767,15 @@ fprintf(fp10, "k1 = %d\n", k1);
 		 * the P-wave source slowness.  This would be needed
 		 * for pS and PS.
 		 */
-		for(j = 0; j < nbrn; j++) if( v[1].px[j] > 0. &&
-			(!strncmp(depths[D].phcd[j], "pS", 2) ||
-			 !strncmp(depths[D].phcd[j], "PS", 2)) )
+		for(j = 0; j < h->nbrn; j++) if( h->v[1].px[j] > 0. &&
+			(!strncmp(h->depths[h->D].phcd[j], "pS", 2) ||
+			 !strncmp(h->depths[h->D].phcd[j], "PS", 2)) )
 		{
 /*
 	fprintf(fp10, "Depcor: j phcd px umin = %d %s %E %E %E\n",
-		j, depths[D].phcd[j], v[0].px[j], v[1].px[j], umin);
+		j, h->depths[h->D].phcd[j], v[0].px[j], v[1].px[j], umin);
 */
-			if(umin >= v[0].px[j] && umin < v[1].px[j])
+			if(umin >= h->v[0].px[j] && umin < h->v[1].px[j])
 			{
 				do_integral = True;
 				break;
@@ -842,23 +789,23 @@ fprintf(fp10, "k1 = %d\n", k1);
 /*
 		fprintf(fp10, "Depcor: do pS or sP integral - iph = %d\n",iph);
 */
-		for(i = 1; i < mt[iph]; i++)
+		for(i = 1; i < h->mt[iph]; i++)
 		{
-			if(umin >= v[iph].pm[i]) break;
-			tauint(umin, v[iph].pm[i-1], v[iph].pm[i],
-				v[iph].zm[i-1],v[iph].zm[i],&ttau,&tx);
+			if(umin >= h->v[iph].pm[i]) break;
+			tauint(umin, h->v[iph].pm[i-1], h->v[iph].pm[i],
+				h->v[iph].zm[i-1],h->v[iph].zm[i],&ttau,&tx);
 			tauus1[iph] += ttau;
 			xus1[iph] += tx;
 		}
-		z1 = zmod(umin, i-1, iph);
-		if(fabs(v[iph].zm[i-1]-z1) > dtol)
+		z1 = zmod(h, umin, i-1, iph);
+		if(fabs(h->v[iph].zm[i-1]-z1) > dtol)
 		{
 			/* Unless the turning point is right on a
 			 * sample slowness, one more partial integral
 			 * is needed.
 			 */
-			tauint(umin, v[iph].pm[i-1], umin,
-				v[iph].zm[i-1], z1, &ttau, &tx);
+			tauint(umin, h->v[iph].pm[i-1], umin,
+				h->v[iph].zm[i-1], z1, &ttau, &tx);
 			tauus1[iph] += ttau;
 			xus1[iph] += tx;
 /*
@@ -867,14 +814,14 @@ fprintf(fp10, "k1 = %d\n", k1);
 */
 		}
 	}
-	depths[D].ua[0][nph] = -1.;
+	h->depths[h->D].ua[0][nph] = -1.;
 	shallow = False;
-	if(depths[D].odep < deplim)
+	if(h->depths[h->D].odep < h->deplim)
 	{
-		for(i = 0; i < nseg; i++) if(segmsk[i])
+		for(i = 0; i < h->nseg; i++) if(h->segmsk[i])
 		{
-			if(s[0].nafl[i] == nph+1 && s[1].nafl[i] == 0
-				&& depths[D].iidx[i] < 0)
+			if(h->s[0].nafl[i] == nph+1 && h->s[1].nafl[i] == 0
+				&& h->depths[h->D].iidx[i] < 0)
 			{
 				shallow = True;
 				break;
@@ -887,56 +834,56 @@ fprintf(fp10, "k1 = %d\n", k1);
 		 * insert some extra ray parameter samples into the
 		 * up-going branches.
 		 */
-		du = 1.e-5 + (depths[D].odep-.4)*2.e-5;
+		du = 1.e-5 + (h->depths[h->D].odep-.4)*2.e-5;
 		if(du > 1.e-5) du = 1.e-5;
 /*
 		fprintf(fp10, "Add: nph is ka odep du us = %d %d %d %e %e %e\n",
-			nph, is, ka, depths[D].odep, (float)du,
-			(float)depths[D].us[nph]);
+			nph, is, ka, h->depths[h->D].odep, (float)du,
+			(float)h->depths[h->D].us[nph]);
 */
 		lp = lpower;
-		for(l = ka-1, k = 0; l >= 0; l--, k++)
+		for(l = h->ka-1, k = 0; l >= 0; l--, k++)
 		{
-			depths[D].ua[k][nph] = depths[D].us[nph] - du *
+			h->depths[h->D].ua[k][nph] = h->depths[h->D].us[nph] - du *
 					pow((double)(l+1), (double)lp);
 			lp--;
-			depths[D].taua[k][nph] = 0.;
+			h->depths[h->D].taua[k][nph] = 0.;
 			for(i = 1; i <= is; i++)
 			{
-				tauint(depths[D].ua[k][nph], v[nph].pm[i-1],
-					v[nph].pm[i], v[nph].zm[i-1],
-					v[nph].zm[i], &ttau, &tx);
-				depths[D].taua[k][nph] += ttau;
+				tauint(h->depths[h->D].ua[k][nph], h->v[nph].pm[i-1],
+					h->v[nph].pm[i], h->v[nph].zm[i-1],
+					h->v[nph].zm[i], &ttau, &tx);
+				h->depths[h->D].taua[k][nph] += ttau;
 			}
 /*
 			if(is >= 1) fprintf(fp10, "l k ua taua %d %d %e %e\n",
-				l, k, (float)depths[D].ua[k][nph],
-				(float)depths[D].taua[k][nph]);
+				l, k, (float)h->depths[h->D].ua[k][nph],
+				(float)h->depths[h->D].taua[k][nph]);
 */
-			if(fabs(v[nph].zm[is]-depths[D].zs) > dtol)
+			if(fabs(h->v[nph].zm[is]-h->depths[h->D].zs) > dtol)
 			{
 				/* Unless the source is right on a
 				 * sample slowness, one more partial
 				 * integral is needed.
 				 */
-				tauint(depths[D].ua[k][nph], v[nph].pm[is],
-					depths[D].us[nph], v[nph].zm[is],
-					depths[D].zs,&ttau,&tx);
-				depths[D].taua[k][nph] += ttau;
+				tauint(h->depths[h->D].ua[k][nph], h->v[nph].pm[is],
+					h->depths[h->D].us[nph], h->v[nph].zm[is],
+					h->depths[h->D].zs,&ttau,&tx);
+				h->depths[h->D].taua[k][nph] += ttau;
 /*
 			fprintf(fp10, "l k ua taua %d %d %e %e\n", l, k, 
-				(float)depths[D].ua[k][nph],
-				(float)depths[D].taua[k][nph]);
+				(float)h->depths[h->D].ua[k][nph],
+				(float)h->depths[h->D].taua[k][nph]);
 */
 			}
 		}
 	}
 
-	make_tau(nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
+	make_tau(h, nph, mu, umin, dtol, tauus1, tauus2, xus1, xus2);
 }
 
 static void
-make_tau(int nph, int mu, double umin, double dtol, double *tauus1, double *tauus2, double *xus1, double *xus2)
+make_tau(libtau *h, int nph, int mu, double umin, double dtol, double *tauus1, double *tauus2, double *xus1, double *xus2)
 {
 	int i, j, k, l, m, iph, kph, i1, i2;
 	double sgn, fac;
@@ -946,33 +893,33 @@ make_tau(int nph, int mu, double umin, double dtol, double *tauus1, double *tauu
 /*
 fprintf(fp10, "mu = %d\nkiller loop:\n", mu);
 */
-    for(i = j = 0; i < nseg; i++)
+    for(i = j = 0; i < h->nseg; i++)
     {
 /*
 if(segmsk[i]) fprintf(fp10,"i iidx nafl nph %d %d %d %d\n", i,
-		depths[D].iidx[i], s[0].nafl[i], nph);
+		h->depths[h->D].iidx[i], s[0].nafl[i], nph);
 */
-	if(segmsk[i] && depths[D].iidx[i] < 0 &&
-		abs(s[0].nafl[i])-1 == nph &&
-		(depths[D].msrc[nph] > -1 || s[0].nafl[i] <= 0))
+	if(h->segmsk[i] && h->depths[h->D].iidx[i] < 0 &&
+		abs(h->s[0].nafl[i])-1 == nph &&
+		(h->depths[h->D].msrc[nph] > -1 || h->s[0].nafl[i] <= 0))
 	{
-		iph = s[1].nafl[i]-1;
-		kph = s[2].nafl[i]-1;
+		iph = h->s[1].nafl[i]-1;
+		kph = h->s[2].nafl[i]-1;
 		/* Handle up-going P and S.
 		 */
 		if(iph < 0) iph = nph;
 		if(kph < 0) kph = nph;
-		sgn = (s[0].nafl[i] >= 0) ? 1 : -1;
-		i1 = v[0].indx[i];
-		i2 = v[1].indx[i];
+		sgn = (h->s[0].nafl[i] >= 0) ? 1 : -1;
+		i1 = h->v[0].indx[i];
+		i2 = h->v[1].indx[i];
 /*
 fprintf(fp10, "i1 i2 sgn iph %d %d %e %d\n", i1, i2, (float)sgn, iph);
 */
 		for(k = i1, m = 0; k <= i2; k++)
 		{
-			if(depths[D].pt[k] > umin) break;
-			while(fabs(depths[D].pt[k]-v[nph].pu[m]) > dtol) m++;
-			depths[D].tau[k].c1 = taut[k] + sgn*depths[D].tauc[m];
+			if(h->depths[h->D].pt[k] > umin) break;
+			while(fabs(h->depths[h->D].pt[k]-h->v[nph].pu[m]) > dtol) m++;
+			h->depths[h->D].tau[k].c1 = h->taut[k] + sgn*h->depths[h->D].tauc[m];
 		}
 		if(k > i2)
 		{
@@ -986,73 +933,73 @@ fprintf(fp10, "k m %d %d\n", k, m);
 /*
 fprintf(fp10, "k m %d %d\n", k, m);
 */
-			if(fabs(depths[D].pt[k-1]-umin) <= dtol) k--;
-			depths[D].ki++;
-			depths[D].kk[depths[D].ki] = k;
-			depths[D].pk[depths[D].ki] = depths[D].pt[k];
-			depths[D].pt[k] = umin;
-			fac = s[0].fcs[i];
+			if(fabs(h->depths[h->D].pt[k-1]-umin) <= dtol) k--;
+			h->depths[h->D].ki++;
+			h->depths[h->D].kk[h->depths[h->D].ki] = k;
+			h->depths[h->D].pk[h->depths[h->D].ki] = h->depths[h->D].pt[k];
+			h->depths[h->D].pt[k] = umin;
+			fac = h->s[0].fcs[i];
 /*
-fprintf(fp10, "ki fac %d %e\n", depths[D].ki, (float)fac);
+fprintf(fp10, "ki fac %d %e\n", h->depths[h->D].ki, (float)fac);
 */
-			depths[D].tau[k].c1 = fac*(tauus1[iph] + tauus2[iph] +
+			h->depths[h->D].tau[k].c1 = fac*(tauus1[iph] + tauus2[iph] +
 				tauus1[kph] + tauus2[kph])+ sgn*tauus1[nph];
 /*
 fprintf(fp10, "&&&&& nph iph kph tauus1 tauus2 tau = %d %d %d %e %e %e %e %e\n",
 	nph, iph, kph, (float)tauus1[0], (float)tauus1[1], (float)tauus2[0],
-	(float)tauus2[1], (float)depths[D].tau[k].c1);
+	(float)tauus2[1], (float)h->depths[h->D].tau[k].c1);
 */
 		}
 		m = 0;
-		while(depths[D].w[0].jndx[j] < v[0].indx[i]) j++;
+		while(h->depths[h->D].w[0].jndx[j] < h->v[0].indx[i]) j++;
 
-/*		while(j < nbrn && depths[D].w[0].jndx[j] < depths[D].w[1].jndx[j])
+/*		while(j < nbrn && h->depths[h->D].w[0].jndx[j] < h->depths[h->D].w[1].jndx[j])
 		{
 */
 		do
 		{
-			depths[D].w[1].jndx[j] = (jidx[j] < k) ? jidx[j] : k;
-			if(depths[D].w[0].jndx[j] >= depths[D].w[1].jndx[j])
+			h->depths[h->D].w[1].jndx[j] = (h->jidx[j] < k) ? h->jidx[j] : k;
+			if(h->depths[h->D].w[0].jndx[j] >= h->depths[h->D].w[1].jndx[j])
 			{
-				depths[D].w[1].jndx[j] = -1;
+				h->depths[h->D].w[1].jndx[j] = -1;
 				break;
 			}
 
 /*
-fprintf(fp10, "j jndx jidx %d %d %d %d %s\n", j, depths[D].w[0].jndx[j], w[1].jndx[j],
-jidx[j], depths[D].phcd[j]);
+fprintf(fp10, "j jndx jidx %d %d %d %d %s\n", j, h->depths[h->D].w[0].jndx[j], w[1].jndx[j],
+jidx[j], h->depths[h->D].phcd[j]);
 */
 			for(l = 0; l < 2; l++)
 			{
 				for(; m <= mu; m++)
 				{
-					if(fabs(v[nph].pux[m]-v[l].px[j])
+					if(fabs(h->v[nph].pux[m]-h->v[l].px[j])
 							<= dtol) break;
 				}
 				if(m <= mu)
 				{
-					depths[D].t[l].xbrn[j] = v[l].xt[j] +
-							sgn*depths[D].xc[m];
+					h->depths[h->D].t[l].xbrn[j] = h->v[l].xt[j] +
+							sgn*h->depths[h->D].xc[m];
 /*
 fprintf(fp10, "x up: j l m %d %d %d\n", j, l, m);
 */
 				}
 				else
 				{
-					depths[D].t[l].xbrn[j] = fac*(xus1[iph]
+					h->depths[h->D].t[l].xbrn[j] = fac*(xus1[iph]
 						+ xus2[iph] + xus1[kph]
 						+ xus2[kph]) + sgn*xus1[nph];
 /*
 fprintf(fp10, "x up: j l end %d %d\n", j, l);
 fprintf(fp10, " nph iph kph xusr1 xusr2 xbrn = %d %d %d %e %e %e %e %e\n",
 nph, iph, kph, (float)xus1[0], (float)xus1[1], (float)xus2[0],
-(float)xus2[1], (float)depths[D].t[l].xbrn[j]);
+(float)xus2[1], (float)h->depths[h->D].t[l].xbrn[j]);
 */
 				}
 			}
-			if(j+1 >= nbrn) break;
+			if(j+1 >= h->nbrn) break;
 			j++;
-		} while(depths[D].w[0].jndx[j] <= k);
+		} while(h->depths[h->D].w[0].jndx[j] <= k);
 	}
     }
 }
@@ -1060,167 +1007,157 @@ nph, iph, kph, (float)xus1[0], (float)xus1[1], (float)xus2[0],
 #define amax1(a,b)  (((a) > (b)) ? a : b)
 #define amin1(a,b)  (((a) < (b)) ? a : b)
 
-void DepSet(float dep);
+void DepSet(libtau *h, float dep);
 
-void depset1(float dep)
+void depset(libtau *h, float dep)
 {
-	D = 0;
-	DepSet(dep);
+	h->D = 0;
+	DepSet(h, dep);
 }
 
-void depset2(float dep)
-{
-	D = 1;
-	DepSet(dep);
-}
-
-void depset(float dep)
-{
-	D = 0;
-	DepSet(dep);
-}
-
-void DepSet(float dep)
+void DepSet(libtau *h, float dep)
 {
 	char dop, dos;
 	int i, ind, j, k, intt;
 	float rdep /*, xnl */;
 
-	if(amax1(dep, .011) == depths[D].odep)
+	/* Reset all depth structures */
+	memcpy(&h->depths[0], &h->depths[1], sizeof(struct Depth));
+
+	if(amax1(dep, .011) == h->depths[h->D].odep)
 	{
 		dop = False;
 		dos = False;
-		for(i = 0; i < nseg; i++) if(segmsk[i] && depths[D].iidx[i] < 0)
+		for(i = 0; i < h->nseg; i++) if(h->segmsk[i] && h->depths[h->D].iidx[i] < 0)
 		{
-			if(abs(s[0].nafl[i]) <= 1) dop = True;
+			if(abs(h->s[0].nafl[i]) <= 1) dop = True;
 			else dos = True;
 		}
 		if(!dop && !dos) return;
 	}
 	else
 	{
-		depths[D].nph0 = -1;
-		depths[D].int0[0] = 0;
-		depths[D].int0[1] = 0;
-		depths[D].mbr1 = nbrn+1;
-		depths[D].mbr2 = 0;
+		h->depths[h->D].nph0 = -1;
+		h->depths[h->D].int0[0] = 0;
+		h->depths[h->D].int0[1] = 0;
+		h->depths[h->D].mbr1 = h->nbrn+1;
+		h->depths[h->D].mbr2 = 0;
 		dop = False;
 		dos = False;
-		for(i = 0; i < nseg; i++) if(segmsk[i])
+		for(i = 0; i < h->nseg; i++) if(h->segmsk[i])
 		{
-			if(abs(s[0].nafl[i]) <= 1) dop = True;
+			if(abs(h->s[0].nafl[i]) <= 1) dop = True;
 			else dos = True;
 		}
-		for(i = 0; i < nseg; i++)
+		for(i = 0; i < h->nseg; i++)
 		{
-			if(s[1].nafl[i] <= 0 && depths[D].odep >= 0.)
+			if(h->s[1].nafl[i] <= 0 && h->depths[h->D].odep >= 0.)
 			{
-				ind = s[0].nafl[i]-1;
-				for(j = v[0].indx[i], k=0; j <= v[1].indx[i];
-								j++, k++)
+				ind = h->s[0].nafl[i]-1;
+				for(j = h->v[0].indx[i], k=0; j <= h->v[1].indx[i]; j++, k++)
 				{
-					depths[D].pt[j] = v[ind].tp[k];
+					h->depths[h->D].pt[j] = h->v[ind].tp[k];
 				}
 			}
-			depths[D].iidx[i] = -1;
+			h->depths[h->D].iidx[i] = -1;
 		}
-		for(i = 0; i < nbrn; i++) depths[D].w[1].jndx[i] = -1;
+		for(i = 0; i < h->nbrn; i++) h->depths[h->D].w[1].jndx[i] = -1;
 
-		for(i = 0; i <= depths[D].ki; i++)
-			depths[D].pt[depths[D].kk[i]] = depths[D].pk[i];
+		for(i = 0; i <= h->depths[h->D].ki; i++)
+			h->depths[h->D].pt[h->depths[h->D].kk[i]] = h->depths[h->D].pk[i];
 
-		depths[D].ki = -1;
+		h->depths[h->D].ki = -1;
 		/* 
 		 * Sample the model at the source depth.;
 		 */
-		depths[D].odep = amax1(dep, .011);
+		h->depths[h->D].odep = amax1(dep, .011);
 		rdep = dep;
 		if(rdep < .011) rdep = 0.;
-		depths[D].zs = 1. - rdep*xn;
-		if(depths[D].zs < 1.e-30) depths[D].zs = 1.e-30;
-		depths[D].zs = log(depths[D].zs);
-		if(depths[D].zs > 0.) depths[D].zs = 0.;
-		depths[D].hn = 1./(pn*(1. - rdep*xn));
+		h->depths[h->D].zs = 1. - rdep*h->xn;
+		if(h->depths[h->D].zs < 1.e-30) h->depths[h->D].zs = 1.e-30;
+		h->depths[h->D].zs = log(h->depths[h->D].zs);
+		if(h->depths[h->D].zs > 0.) h->depths[h->D].zs = 0.;
+		h->depths[h->D].hn = 1./(h->pn*(1. - rdep*h->xn));
 	}
-	if(depths[D].nph0 <= 0)
+	if(h->depths[h->D].nph0 <= 0)
 	{
-		if(dop) depcor(0);
-		if(dos) depcor(1);
+		if(dop) depcor(h, 0);
+		if(dos) depcor(h, 1);
 	}
 	else
 	{
-		if(dos) depcor(1);
-		if(dop) depcor(0);
+		if(dos) depcor(h, 1);
+		if(dop) depcor(h, 0);
 	}
 	/*
 	 * Interpolate all tau branches.
 	 */
-	for(i = j = 0; i < nseg; i++) if(segmsk[i] && depths[D].iidx[i] < 0 &&
-		(depths[D].msrc[abs(s[0].nafl[i])-1] >= 0 || s[0].nafl[i] <= 0))
+	for(i = j = 0; i < h->nseg; i++) if(h->segmsk[i] && h->depths[h->D].iidx[i] < 0 &&
+		(h->depths[h->D].msrc[abs(h->s[0].nafl[i])-1] >= 0 || h->s[0].nafl[i] <= 0))
 	{
-		depths[D].iidx[i] = 1;
-		if(s[1].nafl[i] <= 0) intt = s[0].nafl[i];
-		else if(s[1].nafl[i] == abs(s[0].nafl[i]))
-			intt = s[1].nafl[i] + 2;
-		else intt = abs(s[0].nafl[i]) + 4;
-		if(s[1].nafl[i] > 0 && s[1].nafl[i] != s[2].nafl[i])
-			intt = s[1].nafl[i] + 6;
+		h->depths[h->D].iidx[i] = 1;
+		if(h->s[1].nafl[i] <= 0) intt = h->s[0].nafl[i];
+		else if(h->s[1].nafl[i] == abs(h->s[0].nafl[i]))
+			intt = h->s[1].nafl[i] + 2;
+		else intt = abs(h->s[0].nafl[i]) + 4;
+		if(h->s[1].nafl[i] > 0 && h->s[1].nafl[i] != h->s[2].nafl[i])
+			intt = h->s[1].nafl[i] + 6;
 
-		while(depths[D].w[0].jndx[j] < v[0].indx[i]) j++;
+		while(h->depths[h->D].w[0].jndx[j] < h->v[0].indx[i]) j++;
 		do
 		{
-			depths[D].t[2].idel[j] = s[0].nafl[i];
-			spfit(j, intt);
-			if(depths[D].mbr1 > j) depths[D].mbr1 = j;
-			if(depths[D].mbr2 < j) depths[D].mbr2 = j;
-		} while(++j < nbrn && jidx[j] <= v[1].indx[i] &&
-				depths[D].w[1].jndx[j] >= 0);
+			h->depths[h->D].t[2].idel[j] = h->s[0].nafl[i];
+			spfit(h, j, intt);
+			if(h->depths[h->D].mbr1 > j) h->depths[h->D].mbr1 = j;
+			if(h->depths[h->D].mbr2 < j) h->depths[h->D].mbr2 = j;
+		} while(++j < h->nbrn && h->jidx[j] <= h->v[1].indx[i] &&
+				h->depths[h->D].w[1].jndx[j] >= 0);
 	}
 /*
-fprintf(fp10, "mbr1 mbr2 %d %d\n", depths[D].mbr1, depths[D].mbr2);
+fprintf(fp10, "mbr1 mbr2 %d %d\n", h->depths[h->D].mbr1, h->depths[h->D].mbr2);
 fprintf(fp10, "msrc isrc odep zs us %d %d %d %d %e %e %e %e\n",
-depths[D].msrc[0], depths[D].msrc[1], depths[D].isrc[0], depths[D].isrc[1],
-depths[D].odep, (float)depths[D].zs, (float)depths[D].us[0],
-(float)depths[D].us[1]);
-fprintf(fp10, "\n          %5d\n", depths[D].ki);
+h->depths[h->D].msrc[0], h->depths[h->D].msrc[1], h->depths[h->D].isrc[0], h->depths[h->D].isrc[1],
+h->depths[h->D].odep, (float)h->depths[h->D].zs, (float)h->depths[h->D].us[0],
+(float)h->depths[h->D].us[1]);
+fprintf(fp10, "\n          %5d\n", h->depths[h->D].ki);
 for(i = 0; i < nseg; i++)
-	fprintf(fp10, " %5d%5d%5d%12.6f\n", i, depths[D].iidx[i],
-		depths[D].kk[i], (float)depths[D].pk[i]);
+	fprintf(fp10, " %5d%5d%5d%12.6f\n", i, h->depths[h->D].iidx[i],
+		h->depths[h->D].kk[i], (float)h->depths[h->D].pk[i]);
 */
 }
 
 static void
-findtt(int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *dddp, float *ray_p, char **phnm)
+findtt(libtau *h, int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *dddp, float *ray_p, char **phnm)
 {
 	int i, j, n, nph, ij, ie;
 	char *s;
 	float hsgn, dsgn, dpn;
 	double x, p0, p1, arg, dp, dps, dp0, delp, ps;
-	static double tol = 3.e-6, deps = 1.e-10;
+	static const double tol = 3.e-6, deps = 1.e-10;
 
 	n = *pn;
-	nph = abs(depths[D].t[2].idel[jb]) - 1;
-	hsgn = (depths[D].t[2].idel[jb] >= 0) ? depths[D].hn : -depths[D].hn;
-	dsgn = pow(-1., (double)depths[D].t[0].idel[jb]) * dn;
-	dpn = -1./tn;
-	for(ij = depths[D].t[0].idel[jb]; ij <= depths[D].t[1].idel[jb]; ij++)
+	nph = abs(h->depths[h->D].t[2].idel[jb]) - 1;
+	hsgn = (h->depths[h->D].t[2].idel[jb] >= 0) ? h->depths[h->D].hn : -h->depths[h->D].hn;
+	dsgn = pow(-1., (double)h->depths[h->D].t[0].idel[jb]) * h->dn;
+	dpn = -1./h->tn;
+	for(ij = h->depths[h->D].t[0].idel[jb]; ij <= h->depths[h->D].t[1].idel[jb]; ij++)
 	{
 	    x = x0[ij-1];
 	    dsgn = -dsgn;
-	    if(x >= depths[D].t[0].xbrn[jb] && x <= depths[D].t[1].xbrn[jb])
+	    if(x >= h->depths[h->D].t[0].xbrn[jb] && x <= h->depths[h->D].t[1].xbrn[jb])
 	    {
-		ie = depths[D].w[1].jndx[jb];
-		for(i = depths[D].w[0].jndx[jb]+1; i <= ie; i++)
-			if(x> depths[D].xlim1[i-1] && x <= depths[D].xlim2[i-1])
+		ie = h->depths[h->D].w[1].jndx[jb];
+		for(i = h->depths[h->D].w[0].jndx[jb]+1; i <= ie; i++)
+			if(x> h->depths[h->D].xlim1[i-1] && x <= h->depths[h->D].xlim2[i-1])
 		{
 		    j = i - 1;
-		    p0 = depths[D].pt[ie] - depths[D].pt[j];
-		    p1 = depths[D].pt[ie] - depths[D].pt[i];
-		    delp = tol*(depths[D].pt[i] - depths[D].pt[j]);
+		    p0 = h->depths[h->D].pt[ie] - h->depths[h->D].pt[j];
+		    p1 = h->depths[h->D].pt[ie] - h->depths[h->D].pt[i];
+		    delp = tol*(h->depths[h->D].pt[i] - h->depths[h->D].pt[j]);
 		    if(delp < 1.e-3) delp = 1.e-3;
-		    if(fabs(depths[D].tau[j].c3) <= 1e-30)
+		    if(fabs(h->depths[h->D].tau[j].c3) <= 1e-30)
 		    {
-			dps=(x - depths[D].tau[j].c2)/(1.5*depths[D].tau[j].c4);
+			dps=(x - h->depths[h->D].tau[j].c2)/(1.5*h->depths[h->D].tau[j].c4);
 			dp = dps*dps;
 			if(dps < 0.) dp = -dp;
 			dp0 = dp;
@@ -1228,100 +1165,100 @@ findtt(int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *
 			{
 			    fprintf(stderr,
 			     "findtt failed on: %s %8.1f%7.4f%7.4f%7.4f%7.4f\n",
-				depths[D].phcd[jb], x, dp0, dp, p1, p0);
+				h->depths[h->D].phcd[jb], x, dp0, dp, p1, p0);
 			    continue;
 			}
-			ps = depths[D].pt[ie] - dp;
-			ray_p[n] = tn*ps;
-			tt[n] = tn*(depths[D].tau[j].c1 +dp*(depths[D].tau[j].c2
-					 + dps*depths[D].tau[j].c4) + ps*x);
+			ps = h->depths[h->D].pt[ie] - dp;
+			ray_p[n] = h->tn*ps;
+			tt[n] = h->tn*(h->depths[h->D].tau[j].c1 +dp*(h->depths[h->D].tau[j].c2
+					 + dps*h->depths[h->D].tau[j].c4) + ps*x);
 			dtdd[n] = dsgn*ps;
-			dtdh[n] = hsgn*sqrt(fabs(depths[D].us[nph]*
-					depths[D].us[nph] - ps*ps));
-			dddp[n] = dpn*.75*depths[D].tau[j].c4/
+			dtdh[n] = hsgn*sqrt(fabs(h->depths[h->D].us[nph]*
+					h->depths[h->D].us[nph] - ps*ps));
+			dddp[n] = dpn*.75*h->depths[h->D].tau[j].c4/
 					amax1(fabs(dps),deps);
-			strcpy(phnm[n], depths[D].phcd[jb]);
+			strcpy(phnm[n], h->depths[h->D].phcd[jb]);
 			if((s=xindex(phnm[n], "ab")) != NULL)
 			{
-			    if(ps <= depths[D].t[2].xbrn[jb]) strcpy(s, "bc");
+			    if(ps <= h->depths[h->D].t[2].xbrn[jb]) strcpy(s, "bc");
 			}
 			n++;
 		    }
 		    else
 		    {
-			arg = 9.*depths[D].tau[j].c4*depths[D].tau[j].c4 +
-				32.*depths[D].tau[j].c3*(x-depths[D].tau[j].c2);
+			arg = 9.*h->depths[h->D].tau[j].c4*h->depths[h->D].tau[j].c4 +
+				32.*h->depths[h->D].tau[j].c3*(x-h->depths[h->D].tau[j].c2);
 			if(arg < 0.) fprintf(stderr, "findtt: bad sqrt arg.\n");
 			dps = sqrt(fabs(arg));
-			if(depths[D].tau[j].c4 < 0.) dps = -dps;
-			dps = -(3.*depths[D].tau[j].c4 + dps)/
-					(8.*depths[D].tau[j].c3);
+			if(h->depths[h->D].tau[j].c4 < 0.) dps = -dps;
+			dps = -(3.*h->depths[h->D].tau[j].c4 + dps)/
+					(8.*h->depths[h->D].tau[j].c3);
 			dp = (dps >= 0.) ? dps*dps : -dps*dps;
 			dp0 = dp;
 			if(dp >= p1-delp && dp <= p0+delp)
 			{
-			    ps = depths[D].pt[ie] - dp;
-			    ray_p[n] = tn*ps;
-			    tt[n] = tn*(depths[D].tau[j].c1 + dp*
-					(depths[D].tau[j].c2 +
-					 dp*depths[D].tau[j].c3 +
-					 dps*depths[D].tau[j].c4) + ps*x);
+			    ps = h->depths[h->D].pt[ie] - dp;
+			    ray_p[n] = h->tn*ps;
+			    tt[n] = h->tn*(h->depths[h->D].tau[j].c1 + dp*
+					(h->depths[h->D].tau[j].c2 +
+					 dp*h->depths[h->D].tau[j].c3 +
+					 dps*h->depths[h->D].tau[j].c4) + ps*x);
 			    dtdd[n] = dsgn*ps;
-			    dtdh[n] = hsgn*sqrt(fabs(depths[D].us[nph]*
-					depths[D].us[nph] -ps*ps));
-			    dddp[n] = dpn*(2.*depths[D].tau[j].c3 +
-					.75*depths[D].tau[j].c4/
+			    dtdh[n] = hsgn*sqrt(fabs(h->depths[h->D].us[nph]*
+					h->depths[h->D].us[nph] -ps*ps));
+			    dddp[n] = dpn*(2.*h->depths[h->D].tau[j].c3 +
+					.75*h->depths[h->D].tau[j].c4/
 					amax1(fabs(dps),deps));
-			    strcpy(phnm[n], depths[D].phcd[jb]);
+			    strcpy(phnm[n], h->depths[h->D].phcd[jb]);
 			    if((s=xindex(phnm[n], "ab")) != NULL)
 			    {
-				if(ps <= depths[D].t[2].xbrn[jb])strcpy(s,"bc");
+				if(ps <= h->depths[h->D].t[2].xbrn[jb])strcpy(s,"bc");
 			    }
 			    n++;
 			}
-			dps = (depths[D].tau[j].c2-x)/
-					(2.*depths[D].tau[j].c3*dps);
+			dps = (h->depths[h->D].tau[j].c2-x)/
+					(2.*h->depths[h->D].tau[j].c3*dps);
 			dp = (dps >= 0.) ? dps*dps : -dps*dps;
 			if(dp >= p1-delp && dp <= p0+delp)
 			{
-			    ps = depths[D].pt[ie] - dp;
-			    ray_p[n] = tn*ps;
-			    tt[n] = tn*(depths[D].tau[j].c1 +
-					dp*(depths[D].tau[j].c2 +
-					dp*depths[D].tau[j].c3 +
-					dps*depths[D].tau[j].c4) + ps*x);
+			    ps = h->depths[h->D].pt[ie] - dp;
+			    ray_p[n] = h->tn*ps;
+			    tt[n] = h->tn*(h->depths[h->D].tau[j].c1 +
+					dp*(h->depths[h->D].tau[j].c2 +
+					dp*h->depths[h->D].tau[j].c3 +
+					dps*h->depths[h->D].tau[j].c4) + ps*x);
 			    dtdd[n] = dsgn*ps;
-			    dtdh[n] = hsgn*sqrt(fabs(depths[D].us[nph]*
-					depths[D].us[nph] -ps*ps));
-			    dddp[n] = dpn*(2.*depths[D].tau[j].c3 +
-					.75*depths[D].tau[j].c4/
+			    dtdh[n] = hsgn*sqrt(fabs(h->depths[h->D].us[nph]*
+					h->depths[h->D].us[nph] -ps*ps));
+			    dddp[n] = dpn*(2.*h->depths[h->D].tau[j].c3 +
+					.75*h->depths[h->D].tau[j].c4/
 					amax1(fabs(dps),deps));
-			    strcpy(phnm[n], depths[D].phcd[jb]);
+			    strcpy(phnm[n], h->depths[h->D].phcd[jb]);
 			    if((s=xindex(phnm[n], "ab")) != NULL)
 			    {
-				if(ps <= depths[D].t[2].xbrn[jb])strcpy(s,"bc");
+				if(ps <= h->depths[h->D].t[2].xbrn[jb])strcpy(s,"bc");
 			    }
 			    n++;
 			}
 		    }
 		}
 	    }
-	    if(x >= depths[D].w[0].dbrn[jb] && x <= depths[D].w[1].dbrn[jb])
+	    if(x >= h->depths[h->D].w[0].dbrn[jb] && x <= h->depths[h->D].w[1].dbrn[jb])
 	    {
-		    j = depths[D].w[0].jndx[jb];
-		    i = depths[D].w[1].jndx[jb];
-		    dp = depths[D].pt[i] - depths[D].pt[j];
+		    j = h->depths[h->D].w[0].jndx[jb];
+		    i = h->depths[h->D].w[1].jndx[jb];
+		    dp = h->depths[h->D].pt[i] - h->depths[h->D].pt[j];
 		    dps = sqrt(fabs(dp));
-		    ray_p[n] = tn*depths[D].pt[j];
-		    tt[n] = tn*(depths[D].tau[j].c1 + dp*(depths[D].tau[j].c2
-				+ dp*depths[D].tau[j].c3
-				+ dps*depths[D].tau[j].c4) + depths[D].pt[j]*x);
-		    dtdd[n] = dsgn*depths[D].pt[j];
-		    dtdh[n] = hsgn*sqrt(fabs(depths[D].us[nph]*depths[D].us[nph]
-				- depths[D].pt[j]*depths[D].pt[j]));
-		    dddp[n] = dpn*(2.*depths[D].tau[j].c3 +
-				.75*depths[D].tau[j].c4/amax1(dps,deps));
-		    strcpy(phnm[n], depths[D].phcd[jb]);
+		    ray_p[n] = h->tn*h->depths[h->D].pt[j];
+		    tt[n] = h->tn*(h->depths[h->D].tau[j].c1 + dp*(h->depths[h->D].tau[j].c2
+				+ dp*h->depths[h->D].tau[j].c3
+				+ dps*h->depths[h->D].tau[j].c4) + h->depths[h->D].pt[j]*x);
+		    dtdd[n] = dsgn*h->depths[h->D].pt[j];
+		    dtdh[n] = hsgn*sqrt(fabs(h->depths[h->D].us[nph]*h->depths[h->D].us[nph]
+				- h->depths[h->D].pt[j]*h->depths[h->D].pt[j]));
+		    dddp[n] = dpn*(2.*h->depths[h->D].tau[j].c3 +
+				.75*h->depths[h->D].tau[j].c4/amax1(dps,deps));
+		    strcpy(phnm[n], h->depths[h->D].phcd[jb]);
 		    strcat(phnm[n], "diff");
 		    n++;
 	    }
@@ -1330,32 +1267,32 @@ findtt(int jb, double *x0, int *pn, float *tt, float *dtdd, float *dtdh, float *
 }
 
 static void
-pdecu(int i1, int i2, double x0, double x1, double xmin, int intt, int *len)
+pdecu(libtau *h, int i1, int i2, double x0, double x1, double xmin, int intt, int *len)
 {
 	int i, j, k, is, ie, n, m;
 	double dx, dx2, sgn, rnd, xm, axm, x, h1, h2, hh, xs;
 
 /*
-fprintf(fp10, "Pdecu: us = %e\n",(float)depths[D].ua[0][intt-1]);
+fprintf(fp10, "Pdecu: us = %e\n",(float)h->depths[h->D].ua[0][intt-1]);
 */
-	if(depths[D].ua[0][intt-1] > 0.)
+	if(h->depths[h->D].ua[0][intt-1] > 0.)
 	{
 /*
 fprintf(fp10, "Pdecu: fill in new grid\n");
 */
-		for(i = 0, k = i1+1; i < ka; i++, k++)
+		for(i = 0, k = i1+1; i < h->ka; i++, k++)
 		{
-			depths[D].pt[k] = depths[D].ua[i][intt-1];
-			depths[D].tau[k].c1 = depths[D].taua[i][intt-1];
+			h->depths[h->D].pt[k] = h->depths[h->D].ua[i][intt-1];
+			h->depths[h->D].tau[k].c1 = h->depths[h->D].taua[i][intt-1];
 		}
-		depths[D].pt[k] = depths[D].pt[i2];
-		depths[D].tau[k].c1 = depths[D].tau[i2].c1;
+		h->depths[h->D].pt[k] = h->depths[h->D].pt[i2];
+		h->depths[h->D].tau[k].c1 = h->depths[h->D].tau[i2].c1;
 		*len = k;
 /*
 fprintf(fp10, "\n");
 for(i = i1; i <= *len; i++)
 fprintf(fp10, " %5d %12.6f %15.4f\n",
-i, (float)depths[D].pt[i], (float)depths[D].tau[i].c1);
+i, (float)h->depths[h->D].pt[i], (float)h->depths[h->D].tau[i].c1);
 */
 		return;
 	}
@@ -1371,14 +1308,14 @@ i, (float)depths[D].pt[i], (float)depths[D].tau[i].c1);
 		}
 		else
 		{
-			h1 = depths[D].pt[i-1] - depths[D].pt[i];
-			h2 = depths[D].pt[i+1] - depths[D].pt[i];
+			h1 = h->depths[h->D].pt[i-1] - h->depths[h->D].pt[i];
+			h2 = h->depths[h->D].pt[i+1] - h->depths[h->D].pt[i];
 			hh = h1*h2*(h1-h2);
 			h1 = h1*h1;
 			h2 = -h2*h2;
-			xs = -(h2*depths[D].tau[i-1].c1
-					- (h2+h1)*depths[D].tau[i].c1
-					+ h1*depths[D].tau[i+1].c1)/hh;
+			xs = -(h2*h->depths[h->D].tau[i-1].c1
+					- (h2+h1)*h->depths[h->D].tau[i].c1
+					+ h1*h->depths[h->D].tau[i+1].c1)/hh;
 		}
 		if(fabs(x-xs) <= xmin) break;
 	}
@@ -1412,18 +1349,18 @@ i, (float)depths[D].pt[i], (float)depths[D].tau[i].c1);
 		}
 		else
 		{
-			h1 = depths[D].pt[i-1] - depths[D].pt[i];
-			h2 = depths[D].pt[i+1] - depths[D].pt[i];
+			h1 = h->depths[h->D].pt[i-1] - h->depths[h->D].pt[i];
+			h2 = h->depths[h->D].pt[i+1] - h->depths[h->D].pt[i];
 			hh = h1*h2*(h1-h2);
 			h1 = h1*h1;
 			h2 = -h2*h2;
-			x = -(h2*depths[D].tau[i-1].c1
-					- (h2+h1)*depths[D].tau[i].c1
-					+ h1*depths[D].tau[i+1].c1)/hh;
+			x = -(h2*h->depths[h->D].tau[i-1].c1
+					- (h2+h1)*h->depths[h->D].tau[i].c1
+					+ h1*h->depths[h->D].tau[i+1].c1)/hh;
 		}
 		if(sgn*(x-xm) > dx2)
 		{
-			for(j = m; j <= k; j++) depths[D].pt[j] = -1.;
+			for(j = m; j <= k; j++) h->depths[h->D].pt[j] = -1.;
 			m = k + 2;
 			k = i-1;
 			axm = 1.e+10;
@@ -1435,19 +1372,19 @@ i, (float)depths[D].pt[i], (float)depths[D].tau[i].c1);
 			k = i-1;
 		}
 	}
-	for(j = m; j <= k; j++) depths[D].pt[j] = -1.;
-	for(i = is, k = i1; i <= i2; i++) if(depths[D].pt[i] >= 0.)
+	for(j = m; j <= k; j++) h->depths[h->D].pt[j] = -1.;
+	for(i = is, k = i1; i <= i2; i++) if(h->depths[h->D].pt[i] >= 0.)
 	{
 		k++;
-		depths[D].pt[k] = depths[D].pt[i];
-		depths[D].tau[k].c1 = depths[D].tau[i].c1;
+		h->depths[h->D].pt[k] = h->depths[h->D].pt[i];
+		h->depths[h->D].tau[k].c1 = h->depths[h->D].tau[i].c1;
 	}
 	*len = k;
 /*
 fprintf(fp10, "\n");
 for(i = i1; i <= *len; i++)
 fprintf(fp10, " %5d %12.6f %15.4f\n",
-i, (float)depths[D].pt[i], (float)depths[D].tau[i].c1);
+i, (float)h->depths[h->D].pt[i], (float)h->depths[h->D].tau[i].c1);
 */
 }
 
@@ -1599,106 +1536,107 @@ r4sort(int n, float *rkey, int *iptr)
 }
 
 static void
-spfit(int jb, int intt)
+spfit(libtau *h, int jb, int intt)
 {
 	char disc[5];
 	char newgrd, makgrd;
 	int i, j, k, i1, i2, nn, mxcnt, mncnt;
 	double pmn, dmn, dmx, hm, shm, thm, p0, p1, tau0, tau1, x0, x1, pe,
 		pe0, spe0, scpe0, pe1, spe1, scpe1, dpe, dtau;
-	static double dbrnch = 2.5307274 /*, cn = 57.295779 */, x180 =M_PI,
-		x360 = 6.283185, xmin = 3.92403e-3, dtol = 1.e-6,
+	static const double dbrnch = 2.5307274 /*, cn = 57.295779 */, x180 =M_PI,
+		x360 = 6.283185, dtol = 1.e-6,
 		ptol = 2.e-6;
 	double a1[jbrna], a2[jbrna], a3[jbrna],a4[jbrna], a5[jbrna];
 	double b1[jbrna], b2[jbrna], b3[jbrna],b4[jbrna], b5[jbrna];
+	double xmin;
 
-	i1 = depths[D].w[0].jndx[jb];
-	i2 = depths[D].w[1].jndx[jb];
+	i1 = h->depths[h->D].w[0].jndx[jb];
+	i2 = h->depths[h->D].w[1].jndx[jb];
 /*
 fprintf(fp10, "Spfit: jb i1 i2 pt = %d %d %d %e %e\n", jb, i1, i2,
-			(float)depths[D].pt[i1], (float)depths[D].pt[i2]);
+			(float)h->depths[h->D].pt[i1], (float)h->depths[h->D].pt[i2]);
 */
-	if(i2 - i1 <= 1 && fabs(depths[D].pt[i2] - depths[D].pt[i1]) <= ptol)
+	if(i2 - i1 <= 1 && fabs(h->depths[h->D].pt[i2] - h->depths[h->D].pt[i1]) <= ptol)
 	{
-		depths[D].w[1].jndx[jb] = -1;
+		h->depths[h->D].w[1].jndx[jb] = -1;
 		return;
 	}
 	newgrd = False;
 	makgrd = False;
-	if(fabs(v[1].px[jb] - depths[D].pt[i2]) > dtol) newgrd = True;
+	if(fabs(h->v[1].px[jb] - h->depths[h->D].pt[i2]) > dtol) newgrd = True;
 /*
 fprintf(fp10, "Spfit: px newgrd = %f %d\n", (float)v[1].px[jb], (int)newgrd);
 */
 	if(newgrd)
 	{
 		k = mod(intt-1,2);
-		if(intt != depths[D].int0[k]) makgrd = True;
+		if(intt != h->depths[h->D].int0[k]) makgrd = True;
 /*
 fprintf(fp10, "Spfit: int k int0 makgrd = %d %d %d %d\n",
-intt, k, depths[D].int0[k], 
+intt, k, h->depths[h->D].int0[k],
 (int)makgrd);
 */
 		if(intt <= 2)
 		{
-			xmin = amax1(2.*depths[D].odep, 2.);
-			xmin = (xmin < 25.) ? xn*xmin : xn*25.;
+			xmin = amax1(2.*h->depths[h->D].odep, 2.);
+			xmin = (xmin < 25.) ? h->xn*xmin : h->xn*25.;
 /*
 fprintf(fp10, "Spfit: xmin = %e %e\n", (float)xmin, (float)(xmin/xn));
 */
-			pdecu(i1, i2, depths[D].t[0].xbrn[jb],
-				depths[D].t[1].xbrn[jb], xmin, intt, &i2);
-			depths[D].w[1].jndx[jb] = i2;
+			pdecu(h, i1, i2, h->depths[h->D].t[0].xbrn[jb],
+			      h->depths[h->D].t[1].xbrn[jb], xmin, intt, &i2);
+			h->depths[h->D].w[1].jndx[jb] = i2;
 		}
 		nn = i2 - i1;
 		if(makgrd)
 		{
-			if(!k) tauspl(0, nn, depths[D].pt+i1, a1, a2, a3,a4,a5);
-			else   tauspl(0, nn, depths[D].pt+i1, b1, b2, b3,b4,b5);
+			if(!k) tauspl(0, nn, h->depths[h->D].pt+i1, a1, a2, a3,a4,a5);
+			else   tauspl(0, nn, h->depths[h->D].pt+i1, b1, b2, b3,b4,b5);
 		}
 /*
 fprintf(fp10, " %3d%3d%3d%3d%2d%2d%12.8f%12.8f\n", jb, k, nn+1, intt,
-(int)newgrd,(int)makgrd, (float)depths[D].t[0].xbrn[jb],
-	(float)depths[D].t[1].xbrn[jb]);
+(int)newgrd,(int)makgrd, (float)h->depths[h->D].t[0].xbrn[jb],
+	(float)h->depths[h->D].t[1].xbrn[jb]);
 for(i = 0; i <= nn; i++)
 if(!k)fprintf(fp10, "%5d%12.8f%12.8f%10.2E%10.2E%10.2E%10.2E%10.2E\n", i,
-	(float)depths[D].pt[i1+i], depths[D].tau[i1+i].c1,
+	(float)h->depths[h->D].pt[i1+i], h->depths[h->D].tau[i1+i].c1,
 	a1[i],a2[i],a3[i],a4[i],a5[i]);
 else fprintf(fp10, "%5d%12.8f%12.8f%10.2E%10.2E%10.2E%10.2E%10.2E\n", i,
-	(float)depths[D].pt[i1+i], depths[D].tau[i1+i].c1,
+	(float)h->depths[h->D].pt[i1+i], h->depths[h->D].tau[i1+i].c1,
 	b1[i],b2[i],b3[i],b4[i],b5[i]);
 */
 
-		if(!k) fitspl(0, nn, depths[D].tau+i1, depths[D].t[0].xbrn[jb],
-				depths[D].t[1].xbrn[jb], a1, a2, a3, a4, a5);
-		else   fitspl(0, nn, depths[D].tau+i1, depths[D].t[0].xbrn[jb],
-				depths[D].t[1].xbrn[jb], b1, b2, b3, b4, b5);
-		depths[D].int0[k] = intt;
+		if(!k) fitspl(0, nn, h->depths[h->D].tau+i1, h->depths[h->D].t[0].xbrn[jb],
+				h->depths[h->D].t[1].xbrn[jb], a1, a2, a3, a4, a5);
+		else   fitspl(0, nn, h->depths[h->D].tau+i1, h->depths[h->D].t[0].xbrn[jb],
+				h->depths[h->D].t[1].xbrn[jb], b1, b2, b3, b4, b5);
+		h->depths[h->D].int0[k] = intt;
 	}
 	else
 	{
-		fitspl(i1, i2, depths[D].tau, depths[D].t[0].xbrn[jb],
-				depths[D].t[1].xbrn[jb], c1, c2, c3, c4, c5);
+		fitspl(i1, i2, h->depths[h->D].tau, h->depths[h->D].t[0].xbrn[jb],
+				h->depths[h->D].t[1].xbrn[jb], h->c1, h->c2, h->c3, h->c4, h->c5);
 	}
-	pmn = depths[D].pt[i1];
-	dmn = depths[D].t[0].xbrn[jb];
+	pmn = h->depths[h->D].pt[i1];
+	dmn = h->depths[h->D].t[0].xbrn[jb];
 	dmx = dmn;
 	mxcnt = 0;
 	mncnt = 0;
-	pe = depths[D].pt[i2];
-	p1 = depths[D].pt[i1];
-	tau1 = depths[D].tau[i1].c1;
-	x1 = depths[D].tau[i1].c2;
+	pe = h->depths[h->D].pt[i2];
+	p1 = h->depths[h->D].pt[i1];
+	tau1 = h->depths[h->D].tau[i1].c1;
+	x1 = h->depths[h->D].tau[i1].c2;
 	pe1 = pe - p1;
 	spe1 = sqrt(fabs(pe1));
 	scpe1 = pe1*spe1;
 	for(i = i1+1; i <= i2; i++)
 	{
 		p0 = p1;
-		p1 = depths[D].pt[i];
+		p1 = h->depths[h->D].pt[i];
 		tau0 = tau1;
-		tau1 = depths[D].tau[i].c1;
+		tau1 = h->depths[h->D].tau[i].c1;
 		x0 = x1;
-		x1 = depths[D].tau[i].c2;
+		x1 = h->depths[h->D].tau[i].c2;
 		dpe = p0-p1;
 		dtau = tau1-tau0;
 		pe0 = pe1;
@@ -1707,44 +1645,44 @@ else fprintf(fp10, "%5d%12.8f%12.8f%10.2E%10.2E%10.2E%10.2E%10.2E\n", i,
 		spe1 = sqrt(fabs(pe1));
 		scpe0 = scpe1;
 		scpe1 = pe1*spe1;
-		depths[D].tau[i-1].c4 = (2.*dtau - dpe*(x1+x0))/
+		h->depths[h->D].tau[i-1].c4 = (2.*dtau - dpe*(x1+x0))/
 			(.5*(scpe1-scpe0)-1.5*spe1*spe0*(spe1-spe0));
-		depths[D].tau[i-1].c3 = (dtau - dpe*x0 - (scpe1 + .5*scpe0
-				-1.5*pe1*spe0)*depths[D].tau[i-1].c4)/(dpe*dpe);
-		depths[D].tau[i-1].c2 = (dtau -(pe1*pe1 - pe0*pe0)*
-				depths[D].tau[i-1].c3
-				- (scpe1-scpe0)*depths[D].tau[i-1].c4)/dpe;
-		depths[D].tau[i-1].c1 = tau0 - scpe0*depths[D].tau[i-1].c4
-				- pe0*(pe0*depths[D].tau[i-1].c3
-				+ depths[D].tau[i-1].c2);
-		depths[D].xlim1[i-1] = (x0 < x1) ? x0 : x1;
-		depths[D].xlim2[i-1] = (x0 > x1) ? x0 : x1;
-		if(depths[D].xlim1[i-1] < dmn)
+		h->depths[h->D].tau[i-1].c3 = (dtau - dpe*x0 - (scpe1 + .5*scpe0
+				-1.5*pe1*spe0)*h->depths[h->D].tau[i-1].c4)/(dpe*dpe);
+		h->depths[h->D].tau[i-1].c2 = (dtau -(pe1*pe1 - pe0*pe0)*
+				h->depths[h->D].tau[i-1].c3
+				- (scpe1-scpe0)*h->depths[h->D].tau[i-1].c4)/dpe;
+		h->depths[h->D].tau[i-1].c1 = tau0 - scpe0*h->depths[h->D].tau[i-1].c4
+				- pe0*(pe0*h->depths[h->D].tau[i-1].c3
+				+ h->depths[h->D].tau[i-1].c2);
+		h->depths[h->D].xlim1[i-1] = (x0 < x1) ? x0 : x1;
+		h->depths[h->D].xlim2[i-1] = (x0 > x1) ? x0 : x1;
+		if(h->depths[h->D].xlim1[i-1] < dmn)
 		{
-			dmn = depths[D].xlim1[i-1];
-			pmn = depths[D].pt[i-1];
-			if(x1 < x0) pmn = depths[D].pt[i];
+			dmn = h->depths[h->D].xlim1[i-1];
+			pmn = h->depths[h->D].pt[i-1];
+			if(x1 < x0) pmn = h->depths[h->D].pt[i];
 		}
 		disc[0] = '\0';
-		if(fabs(depths[D].tau[i-1].c3) > 1.e-30)
+		if(fabs(h->depths[h->D].tau[i-1].c3) > 1.e-30)
 		{
-			shm = -.375*depths[D].tau[i-1].c4/depths[D].tau[i-1].c3;
+			shm = -.375*h->depths[h->D].tau[i-1].c4/h->depths[h->D].tau[i-1].c3;
 			hm = shm*shm;
 			if(shm > 0. && hm > pe1 && hm < pe0)
 			{
-				thm = depths[D].tau[i-1].c2
-					+ shm*(2.*shm*depths[D].tau[i-1].c3
-					+ 1.5*depths[D].tau[i-1].c4);
-				if(depths[D].xlim1[i-1] > thm)
-					depths[D].xlim1[i-1] = thm;
-				if(depths[D].xlim2[i-1] < thm)
-					depths[D].xlim2[i-1] = thm;
+				thm = h->depths[h->D].tau[i-1].c2
+					+ shm*(2.*shm*h->depths[h->D].tau[i-1].c3
+					+ 1.5*h->depths[h->D].tau[i-1].c4);
+				if(h->depths[h->D].xlim1[i-1] > thm)
+					h->depths[h->D].xlim1[i-1] = thm;
+				if(h->depths[h->D].xlim2[i-1] < thm)
+					h->depths[h->D].xlim2[i-1] = thm;
 				if(thm < dmn)
 				{
 					dmn = thm;
 					pmn = pe - hm;
 				}
-				if(depths[D].tau[i-1].c4 >= 0.)
+				if(h->depths[h->D].tau[i-1].c4 >= 0.)
 				{
 					strcpy(disc, "max");
 					mxcnt++;
@@ -1756,51 +1694,51 @@ else fprintf(fp10, "%5d%12.8f%12.8f%10.2E%10.2E%10.2E%10.2E%10.2E\n", i,
 				}
 			}
 		}
-		if(dmx < depths[D].xlim2[i-1]) dmx = depths[D].xlim2[i-1];
+		if(dmx < h->depths[h->D].xlim2[i-1]) dmx = h->depths[h->D].xlim2[i-1];
 	}
-	depths[D].t[0].xbrn[jb] = dmn;
-	depths[D].t[1].xbrn[jb] = dmx;
-	depths[D].t[2].xbrn[jb] = pmn;
-	depths[D].t[0].idel[jb] = 1;
-	depths[D].t[1].idel[jb] = 1;
-	if(depths[D].t[0].xbrn[jb] > x180) depths[D].t[0].idel[jb] = 2;
-	if(depths[D].t[1].xbrn[jb] > x180) depths[D].t[1].idel[jb] = 2;
-	if(depths[D].t[0].xbrn[jb] > x360) depths[D].t[0].idel[jb] = 3;
-	if(depths[D].t[1].xbrn[jb] > x360) depths[D].t[1].idel[jb] = 3;
+	h->depths[h->D].t[0].xbrn[jb] = dmn;
+	h->depths[h->D].t[1].xbrn[jb] = dmx;
+	h->depths[h->D].t[2].xbrn[jb] = pmn;
+	h->depths[h->D].t[0].idel[jb] = 1;
+	h->depths[h->D].t[1].idel[jb] = 1;
+	if(h->depths[h->D].t[0].xbrn[jb] > x180) h->depths[h->D].t[0].idel[jb] = 2;
+	if(h->depths[h->D].t[1].xbrn[jb] > x180) h->depths[h->D].t[1].idel[jb] = 2;
+	if(h->depths[h->D].t[0].xbrn[jb] > x360) h->depths[h->D].t[0].idel[jb] = 3;
+	if(h->depths[h->D].t[1].xbrn[jb] > x360) h->depths[h->D].t[1].idel[jb] = 3;
 	if(intt <= 2)
 	{
-		depths[D].phcd[jb][1] = '\0';
+		h->depths[h->D].phcd[jb][1] = '\0';
 		i = jb;
-		for(j = 0; j < nbrn; j++)
+		for(j = 0; j < h->nbrn; j++)
 		{
-			i = mod(i+1, nbrn);
-			if(depths[D].phcd[i][0] == depths[D].phcd[jb][0]
-				&& depths[D].phcd[i][1] != 'P'
-				&& (pe >= v[0].px[i] && pe <= v[1].px[i]))
+			i = mod(i+1, h->nbrn);
+			if(h->depths[h->D].phcd[i][0] == h->depths[h->D].phcd[jb][0]
+				&& h->depths[h->D].phcd[i][1] != 'P'
+				&& (pe >= h->v[0].px[i] && pe <= h->v[1].px[i]))
 			{
-				strcpy(depths[D].phcd[jb] ,depths[D].phcd[i]);
-				if(fabs(depths[D].pt[i2] -
-				  depths[D].pt[depths[D].w[0].jndx[i]]) <= dtol)
+				strcpy(h->depths[h->D].phcd[jb] ,h->depths[h->D].phcd[i]);
+				if(fabs(h->depths[h->D].pt[i2] -
+				  h->depths[h->D].pt[h->depths[h->D].w[0].jndx[i]]) <= dtol)
 				{
-					strcpy(depths[D].phcd[jb],
-						depths[D].phcd[i-1]);
+					strcpy(h->depths[h->D].phcd[jb],
+						h->depths[h->D].phcd[i-1]);
 				}
 				break;
 			}
 		}
 	}
-	if(depths[D].w[0].dbrn[jb] > 0.)
+	if(h->depths[h->D].w[0].dbrn[jb] > 0.)
 	{
-		depths[D].w[0].dbrn[jb] = dmx;
-		depths[D].w[1].dbrn[jb] = dbrnch;
+		h->depths[h->D].w[0].dbrn[jb] = dmx;
+		h->depths[h->D].w[1].dbrn[jb] = dbrnch;
 	}
 	if(mxcnt > mncnt || mncnt > mxcnt+1)
 	{
 		fprintf(stderr, "spfit: Bad interpolation on %s\n",
-				depths[D].phcd[jb]);
+				h->depths[h->D].phcd[jb]);
 /*
 		fprintf(fp10, "spfit: Bad interpolation on %s\n",
-				depths[D].phcd[jb]);
+				h->depths[h->D].phcd[jb]);
 */
 	}
 }
@@ -1828,7 +1766,7 @@ fitspl(int i1, int i2,
  * R. Buland.  (Translated to C by I. Henson, Jan. 1991).
  */
 	int i, j, n;
-	double a1[200], a2[200], ap[3], b[200], alr, g1, gn;
+	double a1[200], a2[200], ap[3], b[200], alr, gn;
 
 	if(i2 < i1) return;
 	if(i2 == i1)
@@ -1878,8 +1816,6 @@ fitspl(int i1, int i2,
 
 	for(i = n-2; i >= 0; i--) b[i] = (b[i] - b[i+1]*a2[i])/a1[i];
 
-	g1 = (x1 - c4[i1]*b[0] - c5[i1]*b[1])/c3[i1];
-
 	tau[i1].c2 = x1;
 
 	for(i = i1+1, j = 1; i < i2; i++, j++)
@@ -1888,38 +1824,39 @@ fitspl(int i1, int i2,
 	tau[i2].c2 = xn;
 }
 
-void Trtm(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm);
+void Trtm(libtau *h, float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm);
 
-void trtm(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
+void trtm(libtau *h, float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
 {
-	D = 0;
-	Trtm(delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
+	h->D = 0;
+	Trtm(h, delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
 }
 
-void trtm1(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
+void trtm1(libtau *h, float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
 {
-	D = 0;
-	Trtm(delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
+	h->D = 0;
+	Trtm(h, delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
 }
 
-void trtm2(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
+void trtm2(libtau *h, float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
 {
-	D = 1;
-	Trtm(delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
+	h->D = 1;
+	Trtm(h, delta, pn, tt, ray_p, dtdd, dtdh, dddp, phnm);
 }
 
-void Trtm(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
+void Trtm(libtau *h, float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtdh, float *dddp, char **phnm)
 {
 	float tmp1[200], tmp2[200], tmp3[200], tmp4[200], tmp5[200];
 	int i, j, k, n, iptr[200];
 	char *ctmp[200], cbuf[2000];
-	static float atol = .005;
-	static double x[3], cn = .017453292519943296, dtol = 1.e-6,
+	double x[3];
+	static const float atol = .005;
+	static const double cn = .017453292519943296, dtol = 1.e-6,
 		pi = 3.1415926535897932, pi2 = 6.2831853071795865;
 
 	for(i = 0; i < 200; i++) ctmp[i] = cbuf+i*10;
 	*pn = n = 0;
-	if(depths[D].mbr2 < 0) return;
+	if(h->depths[h->D].mbr2 < 0) return;
 	x[0] = mod(fabs(cn*delta), pi2);
 	if(x[0] > pi) x[0] = pi2 - x[0];
 	x[1] = pi2 - x[0];
@@ -1934,10 +1871,10 @@ void Trtm(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtd
 		x[0] = pi - dtol;
 		x[1] = -10.;
 	}
-	for(j = depths[D].mbr1; j <= depths[D].mbr2; j++)
-		if(depths[D].w[1].jndx[j] >= 0)
+	for(j = h->depths[h->D].mbr1; j <= h->depths[h->D].mbr2; j++)
+		if(h->depths[h->D].w[1].jndx[j] >= 0)
 	{
-		findtt(j, x, &n, tmp1, tmp2, tmp3, tmp4, tmp5, ctmp);
+		findtt(h, j, x, &n, tmp1, tmp2, tmp3, tmp4, tmp5, ctmp);
 	}
 	if(n <= 0)
 	{
@@ -1973,7 +1910,7 @@ void Trtm(float delta, int *pn, float *tt, float *ray_p, float *dtdd, float *dtd
 #define MAX_BRANCH 10
 
 void
-get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_branch)
+get_seg(libtau *h, char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_branch)
 {
 	char *ctmp[200], cbuf[2000];
 	float del, tmp1[20], tmp2[20], tmp3[20], tmp4[20], tmp5[20];
@@ -1986,15 +1923,16 @@ get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_br
 	char ph[10];
 	int i, j, k, n, nbr;
 	int jndex[jbrn], nj;
-	static double x[3], cn = .017453292519943296, dtol = 1.e-6,
+	double x[3];
+	static const double cn = .017453292519943296, dtol = 1.e-6,
 		pi = 3.1415926535897932, pi2 = 6.2831853071795865;
 
-	D = 0;
+	h->D = 0;
 	for(i = 0; i < 200; i++) ctmp[i] = cbuf+i*10;
 	*npts = 0;
 	*n_branch = 0;
 
-	if(depths[D].mbr2 < 0) return;
+	if(h->depths[h->D].mbr2 < 0) return;
 
 	strcpy(ph, phase);
 	if((n=strlen(ph)) >= 2 && !strcmp(ph+n-2, "bc"))
@@ -2006,8 +1944,8 @@ get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_br
 		ph[n-4] = '\0';
 	}
 		
-	for(j = depths[D].mbr1, nj = 0; j <= depths[D].mbr2; j++)
-		if(depths[D].w[1].jndx[j] >= 0 && !strcmp(ph,depths[D].phcd[j]))
+	for(j = h->depths[h->D].mbr1, nj = 0; j <= h->depths[h->D].mbr2; j++)
+		if(h->depths[h->D].w[1].jndx[j] >= 0 && !strcmp(ph,h->depths[h->D].phcd[j]))
 	{
 		jndex[nj++] = j;
 	}
@@ -2035,7 +1973,7 @@ get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_br
 		for(k = n = 0; k < nj; k++)
 		{
 			j = jndex[k];
-			findtt(j, x, &n, tmp1, tmp2, tmp3, tmp4, tmp5, ctmp);
+			findtt(h, j, x, &n, tmp1, tmp2, tmp3, tmp4, tmp5, ctmp);
 		}
 		if(n > MAX_BRANCH)
 		{
@@ -2064,8 +2002,8 @@ get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_br
 			 * set delta = NaN to denote a break
 			 * in the branch.
 			 */
-			// set_fnan(delta[*npts]);
-			delta[*npts] = -1; // XXX
+			/* set_fnan(delta[*npts]); */
+			delta[*npts] = -1; /* XXX */
 			*npts += 1;
 		}
 		for(i = 0; i < b[k].n; i++)
@@ -2080,41 +2018,41 @@ get_seg(char *phase, int *npts, float *tt, float *delta, float *ray_p, int *n_br
 }
 
 static double
-umod(double zs, int *src, int nph)
+umod(libtau *h, double zs, int *src, int nph)
 {
 	int i;
-	static double dtol = 1.e-6;
+	static const double dtol = 1.e-6;
 	float dep;
 
-	for(i = 1; i < mt[nph]; i++) if(v[nph].zm[i] <= zs) break;
-	if(i == mt[nph])
+	for(i = 1; i < h->mt[nph]; i++) if(h->v[nph].zm[i] <= zs) break;
+	if(i == h->mt[nph])
 	{
-		dep = (1.0 - exp(zs))/xn;
+		dep = (1.0 - exp(zs))/h->xn;
 		fprintf(stderr, "Source depth: %6.1f is too deep.\n", dep);
 		exit(1);
 	}
-	if(fabs(zs - v[nph].zm[i]) > dtol || 
-		fabs(v[nph].zm[i] - v[nph].zm[i+1]) > dtol)
+	if(fabs(zs - h->v[nph].zm[i]) > dtol ||
+		fabs(h->v[nph].zm[i] - h->v[nph].zm[i+1]) > dtol)
 	{
 		src[nph] = i-1;
-		return( v[nph].pm[i-1] +
-		    (v[nph].pm[i]-v[nph].pm[i-1])*(exp(zs-v[nph].zm[i-1])-1.)/
-			(exp(v[nph].zm[i]-v[nph].zm[i-1]) - 1.) );
+		return( h->v[nph].pm[i-1] +
+		    (h->v[nph].pm[i]-h->v[nph].pm[i-1])*(exp(zs-h->v[nph].zm[i-1])-1.)/
+			(exp(h->v[nph].zm[i]-h->v[nph].zm[i-1]) - 1.) );
 	}
 	src[nph] = i;
-	return(v[nph].pm[i+1]);
+	return(h->v[nph].pm[i+1]);
 }
 
 static double
-zmod(double uend, int js, int nph)
+zmod(libtau *h, double uend, int js, int nph)
 {
 	double d;
 
-	d = (uend - v[nph].pm[js]) * (exp(v[nph].zm[js+1]-v[nph].zm[js]) - 1.)/
-		(v[nph].pm[js+1]-v[nph].pm[js]) + 1.;
+	d = (uend - h->v[nph].pm[js]) * (exp(h->v[nph].zm[js+1]-h->v[nph].zm[js]) - 1.)/
+		(h->v[nph].pm[js+1]-h->v[nph].pm[js]) + 1.;
 	if(d < 1.e-30) d = 1.e-30;
 
-	return(v[nph].zm[js] + log(d));
+	return(h->v[nph].zm[js] + log(d));
 }
 
 static char *

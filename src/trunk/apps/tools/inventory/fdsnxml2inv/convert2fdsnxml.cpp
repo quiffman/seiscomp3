@@ -373,7 +373,7 @@ bool Convert2FDSNStaXML::push(const DataModel::Inventory *inv) {
 		}
 	}
 
-	_inv = false;
+	_inv = NULL;
 
 	return !_interrupted;
 }

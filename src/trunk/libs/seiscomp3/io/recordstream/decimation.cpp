@@ -534,11 +534,8 @@ Record *Decimation::resample(ResampleStage *stage, Record *rec) {
 	if ( stage->lastEndTime.valid() ) {
 		double diff = rec->startTime() - stage->lastEndTime;
 		if ( fabs(diff) > stage->dt*0.5 ) {
-			/*
-			SEISCOMP_DEBUG("[dec] %s: gap/overlap of %f secs -> reset processing",
-			               rec->streamID().c_str(), diff);
-			*/
-			stage->reset();
+			// Ignore overlap
+			return NULL;
 		}
 	}
 

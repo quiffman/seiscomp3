@@ -46,18 +46,17 @@ std::string encode(uint64_t x, const char *sym, int numsym, int len,
 std::string encodeChar(uint64_t x, int len, uint64_t *width = NULL);
 std::string encodeInt(uint64_t x, int len, uint64_t *width = NULL);
 std::string encodeHex(uint64_t x, int len, uint64_t *width = NULL);
-std::string allocateEventID(DataModel::DatabaseArchive *,
-                            const DataModel::Origin *origin,
-                            const std::string &prefix);
-
 std::string generateEventID(int year, uint64_t x,
                             const std::string &prefix,
                             const std::string &pattern,
+                            std::string &textBlock,
                             uint64_t *width = NULL);
+
 std::string allocateEventID(DataModel::DatabaseArchive *,
                             const DataModel::Origin *origin,
                             const std::string &prefix,
-                            const std::string &pattern);
+                            const std::string &pattern,
+                            const Client::Config::StringSet *blackList = NULL);
 
 std::string region(const DataModel::Origin *origin);
 

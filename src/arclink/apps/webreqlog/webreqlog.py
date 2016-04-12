@@ -26,7 +26,7 @@ import uuid
 import smtplib
 from email.MIMEText import MIMEText
 
-VERSION = "0.0 (2010.125)"
+VERSION = "1.0 (2014.038)"
 
 EMAIL_FROM = "sysop@gfz-potsdam.de"
 #EMAIL_FROM = os.getenv('USER') + "@" + socket.getfqdn()
@@ -115,6 +115,23 @@ def date2str(date, mode='date time'):
 	if mode == 'time': return date.toString("%H:%M:%S")
 #----------------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------------
+html_escape_table = {
+	"&": "&amp;",
+	'"': "&quot;",
+	"'": "&apos;",
+	">": "&gt;",
+	"<": "&lt;",
+	}
+
+def html_escape(text):
+	"""Produce a string with entities which can be safely included in a valid HTML document.
+	May be problems for already-escaped input text e.g. "&lt;" -> "&amp;lt;"
+	See <https://wiki.python.org/moin/EscapingHtml> for some better(?) ways.
+	"""
+	return "".join(html_escape_table.get(c,c) for c in text)
+
+#----------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------
 def dummy_start_response(status, header):
@@ -226,7 +243,7 @@ class WebReqLog(Client.Application):
 		Client.Application.createCommandLineDescription(self)
 		
 		self.commandline().addGroup("WebServer")
-		self.commandline().addStringOption("WebServer", "host", "serve on ip address; default: all interfaces", "")
+		self.commandline().addStringOption("WebServer", "host", "serve on IP address; default: all interfaces", "")
 		self.commandline().addIntOption("WebServer", "port", "listen on port; default: 8000", 8000)
 
 		self.commandline().addGroup("Export")
@@ -962,6 +979,7 @@ $(document).ready(function() {
 		for request in requests:
 			user = request.userID()
 			netcounts = {}
+			volume_error = {}
 
 			if request.arclinkStatusLineCount() == 0:
 				self.query().loadArclinkStatusLines(request)
@@ -970,10 +988,19 @@ $(document).ready(function() {
 				if sline.status() == 'OK': err = 0
 				else: err = 1
 				volume = sline.volumeID()
-				(count, error, size) = volumes.setdefault(volume, (0, 0, 0))
-				volumes[volume] = (count+1, error+err, size+sline.size())
-				(count, lines, error, size) = users.setdefault(user, (0, 0, 0, 0))
-				users[user] = (count, lines, error, size+sline.size())
+
+				if sline.status() == 'ERROR':
+					volume_error[volume] = True
+					size = 0
+
+				else:
+					volume_error[volume] = False
+					size = sline.size()
+
+				(count, error, s) = volumes.setdefault(volume, (0, 0, 0))
+				volumes[volume] = (count+1, error+err, s+size)
+				(count, lines, error, s) = users.setdefault(user, (0, 0, 0, 0))
+				users[user] = (count, lines, error, s+size)
 				message = sline.message()
 				messages.setdefault(message, 0)
 				messages[message] +=1
@@ -985,22 +1012,31 @@ $(document).ready(function() {
 	
 				stream = line.streamID().networkCode()+"."+line.streamID().stationCode()
 				message = line.status().message()
-				size = line.status().size()
 				timeWindow = (line.end() - line.start()).seconds()
 				if timeWindow < 0: timeWindow = 0
 
-				if line.status().status() == 'OK':
-					status = 0
-					error = 0
-					nodata = 0
-				elif line.status().status() == 'NODATA':
-					status = 1
-					error = 0
-					nodata = 1
-				else:
-					status = 1
+				if line.status().status() == 'ERROR':
 					error = 1
 					nodata = 0
+					size = 0
+
+				elif line.status().status() == 'NODATA':
+					error = 0
+					nodata = 1
+					size = 0
+
+				else:
+					error = 0
+					nodata = 0
+
+					try:
+						if volume_error[line.status().volumeID()]:
+							size = 0
+						else:
+							size = line.status().size()
+
+					except KeyError: # should not happen
+						size = line.status().size()
 
 				(lines, nodataCount, errorCount, s, tw) = streams.setdefault(stream, (0, 0, 0, 0, 0))
 				streams[stream] = (lines+1, nodataCount+nodata, errorCount+error, s+size, tw+timeWindow)
@@ -1102,6 +1138,7 @@ $(document).ready(function() {
 		print >> out,  "Users:\t\t%d" % len(users)
 		print >> out,  "Total Lines:\t%d" % sum([l for c,l,e,s in users.values()])
 		print >> out,  "Total Size:\t%s" % byte2h(sum([s for c,e,s in volumes.values()]), self.bytes)
+
 		if len(streams): print >> out,  "Stations:\t%d" % len(streams)
 
 		print >> out, ""
@@ -1190,8 +1227,8 @@ $(document).ready(function() {
 			for k,c in sorted(messages.items()):
 				if len(k) > 0:
 					args = dict(session.args)
-					args["message"] = k.replace(" ", "%20")
-					kl = self.link("requests", "%-30s"%k, args)
+					args["message"] = html_escape(k).replace(" ", "%20")
+					kl = self.link("requests", "%-30s" % html_escape(k), args)
 					print >> out,  '<tr><td class="left">%d</td><td>%s</td></tr>' % (c,kl)
 			print >> out,  "</tbody></table>"
 
@@ -1232,8 +1269,9 @@ $(document).ready(function() {
 			print >> out,  "</tbody></table>"
 
 		print >> out,  "</pre>"
-		print >> out, "<hr><address>"
+		print >> out, "<hr /><address>"
 		print >> out,  os.getenv('USER') + "@" + socket.getfqdn() + "> "+" ".join(sys.argv)
+		print >> out, "<br />Version:", VERSION
 		print >> out, "</address>"
 
 

@@ -45,6 +45,7 @@ class NCompsOperator : public WaveformOperator {
 		NCompsOperator(const PROC &proc) : _proc(proc) {}
 
 		WaveformProcessor::Status feed(const Record *record);
+		void reset();
 
 	protected:
 		WaveformProcessor::Status process(int comp, const Record *rec);

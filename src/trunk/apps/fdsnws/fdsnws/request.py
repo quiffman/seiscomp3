@@ -7,7 +7,7 @@
 # Email:   herrnkind@gempa.de
 ################################################################################
 
-import fnmatch, math, re, string, sys
+import fnmatch, math, re
 from twisted.web import http
 
 from seiscomp3.Core import Time
@@ -20,6 +20,7 @@ class RequestOptions:
 	# search() method in combination with a negated pattern instead
 	FloatChars         = re.compile(r'[^-0-9.]').search
 	ChannelChars       = re.compile(r'[^A-Z0-9*?]').search
+	ChannelExtChars    = re.compile(r'[^A-Z0-9*?+\-_]').search
 	TimeFormats        = [ '%FT%T.%f',    # YYYY-MM-DDThh:mm:ss.ssssss
 	                       '%Y-%jT%T.%f', # YYYY-DDDThh:mm:ss.ssssss
 	                       '%FT%T',       # YYYY-MM-DDThh:mm:ss
@@ -245,6 +246,8 @@ class RequestOptions:
 			for key in args.keys():
 				self._args[key.lower()] = args[key]
 
+		self.streams = [] # 1 entry for GET, multipl
+
 
 	#---------------------------------------------------------------------------
 	def parseOutput(self):
@@ -273,7 +276,7 @@ class RequestOptions:
 	def parseChannel(self):
 		c = RequestOptions.Channel()
 
-		c.net = self.parseChannelChars(self.PNet)
+		c.net = self.parseChannelChars(self.PNet, False, True)
 		c.sta = self.parseChannelChars(self.PSta)
 		c.loc = self.parseChannelChars(self.PLoc, True)
 		c.cha = self.parseChannelChars(self.PCha)
@@ -319,7 +322,6 @@ class RequestOptions:
 	#---------------------------------------------------------------------------
 	def parseGeo(self):
 		# bounding box (optional)
-		hasBBoxParam = False
 		b = RequestOptions.Geo.BBox()
 		b.minLat = self.parseFloat(self.PMinLat, -90, 90)
 		b.maxLat = self.parseFloat(self.PMaxLat, -90, 90)
@@ -470,8 +472,8 @@ class RequestOptions:
 
 
 	#---------------------------------------------------------------------------
-	def parseChannelChars(self, keys, allowEmpty=False):
-		# channel parameters may be specified as a comma separated list or may
+	def parseChannelChars(self, keys, allowEmpty=False, useExtChars=False):
+		# channel parameters may be specified as a comma separated list and may
 		# be repeated several times
 		values = None
 		for vList in self.getValues(keys):
@@ -483,9 +485,10 @@ class RequestOptions:
 					values.append('--')
 					continue
 
-				if self.ChannelChars(v):
+				if (useExtChars and self.ChannelExtChars(v)) or \
+				   (not useExtChars and self.ChannelChars(v)):
 					raise ValueError, "invalid characters in parameter: " \
-					                  "%s" % key
+					                  "%s" % keys[0]
 				values.append(v)
 
 		return values
@@ -494,7 +497,6 @@ class RequestOptions:
 	#---------------------------------------------------------------------------
 	def parsePOST(self, content):
 		nLine = 0
-		value = None
 
 		for line in content:
 			nLine += 1

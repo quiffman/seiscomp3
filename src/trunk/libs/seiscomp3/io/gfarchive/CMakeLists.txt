@@ -1,13 +1,13 @@
 SET(GFARCHIVE_SOURCES
 	helmberger.cpp
 	arclink.cpp
-	saul.cpp
+	sc3gf1d.cpp
 )
 
 SET(GFARCHIVE_HEADERS
 	helmberger.h
 	arclink.h
-	saul.h
+	sc3gf1d.h
 )
 
 SC_SETUP_LIB_SUBDIR(GFARCHIVE)

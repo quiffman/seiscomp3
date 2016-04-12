@@ -225,7 +225,7 @@ bool Detector::emitPick(const Record* rec, const Core::Time& t) {
 			_currentPick = t;
 			_currentPickRecord = rec;
 
-			SEISCOMP_INFO("Defer pick, minimum amplitude to reach is %.2f", *_minAmplitude);
+			SEISCOMP_DEBUG("Defer pick, minimum amplitude to reach is %.2f", *_minAmplitude);
 			return false;
 		}
 
@@ -349,7 +349,7 @@ void Detector::sendMaxAmplitude(const Record *record) {
 	}
 
 	if ( _minAmplitude && *_lastAmplitude < *_minAmplitude ) {
-		SEISCOMP_INFO("Skipping pick, minimum amplitude not reached: %.2f < %.2f", *_lastAmplitude, *_minAmplitude);
+		SEISCOMP_DEBUG("Skipping pick, minimum amplitude not reached: %.2f < %.2f", *_lastAmplitude, *_minAmplitude);
 		return;
 	}
 
@@ -361,7 +361,7 @@ void Detector::sendMaxAmplitude(const Record *record) {
 
 	if ( _amplPublish && isEnabled() ) {
 		if ( _pickID.empty() ) {
-			SEISCOMP_INFO("No valid pickID set (pick has not been sent), cancel sending 'snr' amplitude");
+			SEISCOMP_DEBUG("No valid pickID set (pick has not been sent), cancel sending 'snr' amplitude");
 			return;
 		}
 

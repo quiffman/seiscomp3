@@ -136,8 +136,6 @@ class SC_SYSTEM_CORE_API Time : public TimeSpan {
 	// ----------------------------------------------------------------------
 	public:
 		//! Conversion
-		operator TimeSpan&();
-		operator const TimeSpan&() const;
 		operator bool() const;
 		operator time_t() const;
 

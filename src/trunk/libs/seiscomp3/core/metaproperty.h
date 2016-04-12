@@ -137,7 +137,7 @@ class MetaClassProperty : public MetaProperty {
 		                  bool  isIndex,
 		                  bool  isOptional)
 		: MetaProperty(name, type, isArray, true, isIndex,
-		               isOptional, false, NULL) {}
+		               isOptional, false, false, NULL) {}
 
 
 	public:

@@ -1369,6 +1369,15 @@ void Application::configSetStrings(const std::string& query,
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Application::configUnset(const std::string& query) {
+	_configuration.remove(query);
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool Application::saveConfiguration() {
 	return _configuration.writeConfig(Environment::Instance()->configFileName(name()), true);
 }

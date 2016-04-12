@@ -307,7 +307,7 @@ void AmplitudeProcessor::process(const Record *record) {
 	int ni2 = int(dtn2*_stream.fsamp+0.5);
 
 	if ( ni1 < 0 || ni2 < 0 ) {
-		SEISCOMP_INFO("Noise data not available -> abort");
+		SEISCOMP_DEBUG("Noise data not available -> abort");
 		setStatus(Error, 1);
 		return;
 	}
@@ -355,7 +355,7 @@ void AmplitudeProcessor::process(const Record *record) {
 			double off = 0., amp = 0.;
 
 			if ( !computeNoise(_data, ni1, ni2, &off, &amp) ) {
-				SEISCOMP_INFO("Noise computation failed -> abort");
+				SEISCOMP_DEBUG("Noise computation failed -> abort");
 				setStatus(Error, 2);
 				return;
 			}
@@ -407,10 +407,10 @@ void AmplitudeProcessor::process(const Record *record) {
 		                       &index, &res.amplitude, &res.period, &res.snr) ) {
 			if ( progress >= 100 ) {
 				if ( status() == LowSNR )
-					SEISCOMP_INFO("Amplitude %s computation for stream %s failed because of low SNR (%.2f < %.2f)",
+					SEISCOMP_DEBUG("Amplitude %s computation for stream %s failed because of low SNR (%.2f < %.2f)",
 					              _type.c_str(), record->streamID().c_str(), res.snr, _config.snrMin);
 				else {
-					SEISCOMP_INFO("Amplitude %s computation for stream %s failed -> abort",
+					SEISCOMP_DEBUG("Amplitude %s computation for stream %s failed -> abort",
 					              _type.c_str(), record->streamID().c_str());
 					setStatus(Error, 3);
 				}
@@ -572,7 +572,7 @@ bool AmplitudeProcessor::deconvolveData(Response *resp, DoubleArray &data,
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool AmplitudeProcessor::computeNoise(const DoubleArray &data, size_t i1, size_t i2, double *offset, double *amplitude) {
+bool AmplitudeProcessor::computeNoise(const DoubleArray &data, int i1, int i2, double *offset, double *amplitude) {
 	// compute offset and rms within the time window
 	if(i1<0) i1=0;
 	if(i2<0) return false;

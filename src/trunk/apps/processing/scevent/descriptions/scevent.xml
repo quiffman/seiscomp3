@@ -27,6 +27,20 @@
 					[w] is an optional width parameter.
 				</description>
 			</parameter>
+			<group name="processing">
+				<group name="blacklist">
+					<parameter name="eventIDs" type="list:string">
+						<description>
+						Defines a blacklist of event ids. The items of this list
+						are only matches against %c, %C, %d, %x and %X of the
+						eventIDPattern description. Year (%Y) and prefix (%p) are
+						not matched. The match is case-sensitive, so blacklisting
+						e.g. abcd would only match in combination with %c. If %C
+						is used ABCD has to be blacklisted.
+						</description>
+					</parameter>
+				</group>
+			</group>
 			<group name="eventAssociation">
 				<group name="region">
 					<parameter name="rect" type = "string" >

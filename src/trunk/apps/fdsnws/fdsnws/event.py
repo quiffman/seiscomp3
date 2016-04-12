@@ -30,10 +30,10 @@ from twisted.web import http, resource, server
 
 from seiscomp3 import DataModel, Logging
 from seiscomp3.Client import Application
-from seiscomp3.Core import Time, ValueException
+from seiscomp3.Core import ValueException
 from seiscomp3.IO import Exporter
 
-from http import HTTP, NoResource
+from http import HTTP
 from request import RequestOptions
 import utils
 
@@ -73,7 +73,7 @@ class _EventRequestOptions(RequestOptions):
 	PCatalog       = [ 'catalog' ]
 	PUpdateAfter   = [ 'updateafter' ]
 
-	# non standard par ameters
+	# non standard parameters
 	PPicks         = [ 'includepicks', 'picks' ]
 	PComments      = [ 'includecomments', 'comments' ]
 	PFormatted     = [ 'formatted' ]
@@ -188,10 +188,9 @@ class _EventRequestOptions(RequestOptions):
 		# eventID, MUST NOT be combined with above parameters
 		if filterParams and self.eventIDs:
 			raise ValueError, "invalid mixture of parameters, the parameter " \
-			      "'%s' may only be combined with: includeallorigins, " \
-			      "includeallmagnitudes, includearrival and includecomments" % (
+			      "'%s' may only be combined with: %s, %s, %s, %s, %s" % (
 			      self.PEventID[0], self.PAllOrigins[0], self.PAllMags[0],
-			      self.PArrivals[0], self.PPicks)
+			      self.PArrivals[0], self.PPicks[0], self.PComments[0])
 
 		# include comments
 		self.comments = self.parseBool(self.PComments)
@@ -219,7 +218,7 @@ class FDSNEvent(resource.Resource):
 			msg = "no matching events found"
 			return HTTP.renderErrorPage(req, http.NO_CONTENT, msg, ro)
 
-        # updateafter not implemented
+		# updateafter not implemented
 		if ro.updatedAfter:
 			msg = "filtering based on update time not supported"
 			return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
@@ -233,7 +232,7 @@ class FDSNEvent(resource.Resource):
 				exp.setFormattedOutput(ro.formatted)
 			else:
 				msg = "output format '%s' no available, export module '%s' could " \
-				      "not be loaded." % (ro.output, ro.Exporters[ro.output])
+				      "not be loaded." % (ro.format, ro.Exporters[ro.format])
 				return HTTP.renderErrorPage(req, http.SERVICE_UNAVAILABLE, msg, ro)
 
 		# Create database query
@@ -266,7 +265,6 @@ class FDSNEvent(resource.Resource):
 		for iEvent in xrange(ep.eventCount()):
 			if req._disconnected: return False
 			e = ep.event(iEvent)
-			eID = e.publicID()
 
 			# eventDescriptions and comments
 			objCount += dbq.loadEventDescriptions(e)
@@ -376,7 +374,7 @@ class FDSNEvent(resource.Resource):
 			                    e.preferredOriginID())
 			o = DataModel.Origin.Cast(obj)
 			if o is None:
-				Logging.warning("preferred origin of event '%s' not found" % (
+				Logging.warning("preferred origin of event '%s' not found: %s" % (
 				                eID, e.preferredOriginID()))
 				continue
 

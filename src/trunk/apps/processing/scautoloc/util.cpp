@@ -257,7 +257,7 @@ std::string printOrigin(const Origin *origin, bool oneliner)
 			const Arrival &arr = origin->arrivals[i];
 			const Pick* pick = arr.pick.get();
 
-			string excludedFlag;
+			std::string excludedFlag;
 			switch(arr.excluded) {
 			case Arrival::NotExcluded:          excludedFlag = "  "; break;
 			case Arrival::LargeResidual:        excludedFlag = "Xr"; break;
@@ -351,69 +351,6 @@ StationDB *readStationLocations(const std::string &fname)
 	return stations;
 }
 
-
-/*
-struct _StationConfig {
-	bool used;
-	float maxnucdist, maxlocdist;
-};
-
-bool readStationConfig(StationDB *stations, const std::string &fname)
-{
-	if (fname.size() == 0)
-		return false;
-
-	std::string code, net;
-	int usage;
-	float maxnucdist;
-	float maxlocdist=180; // TODO: make this configurable (not urgent)
-	std::ifstream ifile(fname.c_str());
-	if ( ! ifile.good()) {
-		SEISCOMP_ERROR("Failed to open station config file '%s'",
-			       fname.c_str());
-		return false;
-	}
-
-	std::map<std::string, _StationConfig> config;
-
-	// TODO: This file format should support comments
-        while (ifile >> net >> code >> usage >> maxnucdist) {
-
-		_StationConfig c = { usage>0, maxnucdist, maxlocdist };
-		config[net + " " + code] = c;
-        }
-
-	for (StationDB::iterator
-	     it = stations->begin(); it !=stations->end(); ++it) {
-
-		Station *station = (*it).second;
-
-		std::vector<std::string> patterns;
-		patterns.push_back(station->net + " " + station->code);
-		patterns.push_back(station->net + " *");
-		patterns.push_back("* " + station->code);
-		patterns.push_back("* *");
-
-		for (std::vector<std::string>::iterator
-		     it = patterns.begin(); it != patterns.end(); ++it) {
-
-			const std::string &pattern = *it;
-			if (config.find(pattern) == config.end())
-				continue;
-
-			station->maxNucDist = config[pattern].maxnucdist;
-			station->maxLocDist = config[pattern].maxlocdist;
-			station->used = config[pattern].used;
-			SEISCOMP_DEBUG("Station %-8s pattern %-8s config: usage=%d maxnucdist=%g",
-					(station->net + " " + station->code).c_str(),
-					pattern.c_str(), station->used, station->maxNucDist);
-			break;
-		}
-	}
-
-        return true;
-}
-*/
 
 Pick* readPickLine()
 {

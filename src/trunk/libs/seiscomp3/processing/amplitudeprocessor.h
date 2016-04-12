@@ -313,7 +313,7 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor : public TimeWindowProcessor {
 		//! the amplitude in 'offset' and 'amplitude'
 		//! The default implementation takes the median of the data as offset and
 		//! twice the rms regarding the offset as amplitude
-		virtual bool computeNoise(const DoubleArray &data, size_t i1, size_t i2, double *offset, double *amplitude);
+		virtual bool computeNoise(const DoubleArray &data, int i1, int i2, double *offset, double *amplitude);
 
 		//! Computes the timewindow length when a distance hint has been set.
 		//! The default implementation return _config.signalEnd

@@ -1,1 +1,1 @@
-SUBDIRS(libtau data)
+SUBDIRS(libtau bin data)

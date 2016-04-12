@@ -176,6 +176,7 @@ class MagTool {
 		MagnitudeTypes    _magTypes;
 		ProcessorList     _processors;
 		ParameterMap      _parameters;
+		Core::TimeSpan    _cacheSize;
 
 		double            _minimumArrivalWeight;
 		bool              _summaryMagnitudeEnabled;

@@ -40,6 +40,7 @@ class SC_SYSTEM_CLIENT_API SecondaryPicker : public TimeWindowProcessor {
 		//! Configuration structure to store processing dependent
 		//! settings
 		struct Config {
+			double noiseBegin;  // start of the noise window to initialize filters
 			double signalBegin; // start time relative to P pick
 			double signalEnd;   // end time relative to P pick
 		};
@@ -92,11 +93,17 @@ class SC_SYSTEM_CLIENT_API SecondaryPicker : public TimeWindowProcessor {
 		//! the secondary pick.
 		virtual const std::string &methodID() const = 0;
 
+		//! Set the start of the noise window relative to the trigger
+		void setNoiseStart(double start) { _config.noiseBegin = start; }
+
 		//! Set the start of the signal window relative to the trigger.
 		void setSignalStart(double start)  { _config.signalBegin = start; }
 
 		//! Set the end of the signal window relative to the trigger.
 		void setSignalEnd(double end)  { _config.signalEnd = end; }
+
+		//! Returns the current configuration
+		const Config &config() const { return _config; }
 
 		//! This method has to be called when all configuration
 		//! settings has been set to calculate the timewindow.
@@ -113,6 +120,7 @@ class SC_SYSTEM_CLIENT_API SecondaryPicker : public TimeWindowProcessor {
 		//! the amplitude.
 		//! Once a trigger has been set all succeeding calls will fail.
 		void setTrigger(const Trigger& trigger) throw(Core::ValueException);
+		const Trigger &trigger() const { return _trigger; }
 
 		void setPublishFunction(const PublishFunc& func);
 

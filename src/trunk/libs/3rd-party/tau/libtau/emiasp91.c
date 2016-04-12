@@ -27,7 +27,7 @@ emdlv(float r, float *vp, float *vs)
 }
 
 void
-emdld(int *n, float *cpr, char *name)
+emdld(int *n, float *cpr, char *name, char *path)
 {
 	int i;
 

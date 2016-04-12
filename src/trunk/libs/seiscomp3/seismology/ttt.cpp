@@ -74,8 +74,8 @@ bool ellipcorr(const std::string &phase, double lat1, double lon1, double lat2, 
 TravelTime::TravelTime() {}
 
 TravelTime::TravelTime(const std::string &_phase,
-		       double _time, double _dtdd, double _dtdh, double _dddp,
-		       double _takeoff)
+                       double _time, double _dtdd, double _dtdh, double _dddp,
+                       double _takeoff)
 {
 	phase   = _phase;
 	time    = _time;

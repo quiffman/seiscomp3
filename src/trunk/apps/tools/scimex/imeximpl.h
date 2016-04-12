@@ -209,7 +209,7 @@ class ImExImpl {
 
 		RoutingTable _routingTable;
 
-		bool   _isRunning;
+		volatile bool _isRunning;
 		size_t _maxQueueSize;
 		Client::ThreadedQueue<NetworkMessageWrapper> _messageQueue;
 

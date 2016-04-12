@@ -18,29 +18,24 @@
 				</parameter>
 				<parameter name="modID" type="int">
 					<description>
-					Expected Earthworm Module ID (ew2sc3 will read the message only if its ModID is correct)
+					Expected Earthworm Module ID (ew2sc3 will read the message only if its ModID is correct).
+					Set to 0 (MOD_WILDCARD) to accept any Earthworm Module ID.
 					</description>
 				</parameter>
 				<parameter name="instID" type="int">
 					<description>
 					Expected Earthworm Institute ID (ew2sc3 will read the message only if its InstID is correct)
+					Set to 0 (INST_WILDCARD) to accept any Earthworm Institute ID.
 					</description>
 				</parameter>
-				<parameter name="msgID" type="int">
+				<parameter name="customAgencyID" type="string">
 					<description>
-					Expected Earthworm Message ID (ew2sc3 will read the message only if its MessageID is correct)
-					This SHOULD be a TYPE_HYP2000ARC message (14) as this is the only message type parsed by ew2sc3.
-					</description>
-				</parameter>
-				<parameter name="name" type="string">
-					<description>
-					Institute name to use when sending origin to SeisComP3
-					</description>
+                                        Institute name to use when storing origin into database.
+                                        If blank, the origin will have the system AgencyID. If specified, the origin will have the given AgencyID.
+                                        </description>
 				</parameter>
 				<parameter name="author" type="string">
-					<description>
-					Author name to use when sending origin to SeisComP3
-					</description>
+					<description>Author name to use when storing origin into database.</description>
 				</parameter>
 				<parameter name="hostname" type="string">
 					<description>

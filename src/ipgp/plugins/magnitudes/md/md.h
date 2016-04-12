@@ -13,7 +13,7 @@
  * GNU General Public License for more details.                         *
  *                                                                      *
  * This program is part of 'Projet TSUAREG - INTERREG IV Caraïbes'.     *
- * It has been co-financed by the European Union and le Minitère de     *
+ * It has been co-financed by the European Union and le Ministère de    *
  * l'Ecologie, du Développement Durable, des Transports et du Logement. *
  *                                                                      *
  ************************************************************************/
@@ -33,14 +33,19 @@ using namespace Seiscomp::Processing;
 
 class SC_SYSTEM_CLIENT_API AmplitudeProcessor_Md : public AmplitudeProcessor {
 
-	DECLARE_SC_CLASS(AmplitudeProcessor_Md)
-		;
+	DECLARE_SC_CLASS(AmplitudeProcessor_Md);
 
 	public:
+		// ------------------------------------------------------------------
+		//  Instruction
+		// ------------------------------------------------------------------
 		AmplitudeProcessor_Md();
 		AmplitudeProcessor_Md(const Core::Time& trigger);
 
 	public:
+		// ------------------------------------------------------------------
+		//  Public interface
+		// ------------------------------------------------------------------
 		virtual void initFilter(double fsamp);
 		virtual bool setup(const Settings& settings);
 		virtual int capabilities() const;
@@ -48,6 +53,9 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor_Md : public AmplitudeProcessor {
 		virtual bool setParameter(Capability cap, const std::string& value);
 
 	protected:
+		// ------------------------------------------------------------------
+		//  Protected interface
+		// ------------------------------------------------------------------
 		bool deconvolveData(Response* resp, DoubleArray& data,
 		                    int numberOfIntegrations);
 
@@ -79,24 +87,35 @@ class SC_SYSTEM_CLIENT_API AmplitudeProcessor_Md : public AmplitudeProcessor {
 		double timeWindowLength(double distance) const;
 
 	private:
+		// ------------------------------------------------------------------
+		//  Members
+		// ------------------------------------------------------------------
 		bool _computeAbsMax;
 		bool _isInitialized;
 };
 
 class SC_SYSTEM_CLIENT_API MagnitudeProcessor_Md : public MagnitudeProcessor {
 
-	DECLARE_SC_CLASS(MagnitudeProcessor_Md)
-		;
+	DECLARE_SC_CLASS(MagnitudeProcessor_Md);
 
 	public:
+		// ------------------------------------------------------------------
+		//  Instruction
+		// ------------------------------------------------------------------
 		MagnitudeProcessor_Md();
 
 	public:
+		// ------------------------------------------------------------------
+		//  Public interface
+		// ------------------------------------------------------------------
 		bool setup(const Settings& settings);
 		Status computeMagnitude(double amplitude, double period,
-		                        double delta, double depth, double &value);
+		                        double delta, double depth, double& value);
 
 	private:
+		// ------------------------------------------------------------------
+		//  Members
+		// ------------------------------------------------------------------
 		double _linearCorrection;
 		double _constantCorrection;
 };

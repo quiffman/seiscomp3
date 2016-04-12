@@ -427,9 +427,9 @@ xdr_Header(XDR *xdrs, AHRecord *rec, int &ndata, int &dtype)
 
 	if (xdrs->x_op == XDR_DECODE) {
 		// ensure properly aligned station and channel codes
-		sta[CODESIZE+1] ='\0'; strnorm(sta); rec->setStationCode(sta);
-		cha[CHANSIZE+1] ='\0'; strnorm(cha); rec->setChannelCode(cha);
-		typ[STYPESIZE+1]='\0'; strnorm(typ); rec->setNetworkCode(typ);
+		sta[CODESIZE] ='\0'; strnorm(sta); rec->setStationCode(sta);
+		cha[CHANSIZE] ='\0'; strnorm(cha); rec->setChannelCode(cha);
+		typ[STYPESIZE]='\0'; strnorm(typ); rec->setNetworkCode(typ);
 
 		rec->slat = lat;
 		rec->slon = lon;

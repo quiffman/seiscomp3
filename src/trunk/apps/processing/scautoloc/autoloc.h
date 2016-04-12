@@ -231,10 +231,10 @@ class Autoloc3 {
 		void setConfig(const Config &config) { _config = config; }
 		const Config &config() const { return _config; }
 
-		void setGridFile(const std::string &);
+		bool setGridFile(const std::string &);
 		void setPickLogFilePrefix(const std::string &);
 		void setPickLogFileName(const std::string &);
-		void setStations(StationDB *);
+		bool setStations(StationDB *);
 		void setLocatorProfile(const std::string &);
 
 		bool init();

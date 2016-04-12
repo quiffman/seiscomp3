@@ -293,15 +293,9 @@ class SC_SYSTEM_CLIENT_API WaveformProcessor : public Processor {
 		                       size_t missingSamples);
 
 		virtual void fill(size_t n, double *samples);
+		virtual bool store(const Record *rec);
 
 		void setStatus(Status status, double value);
-
-
-	// ----------------------------------------------------------------------
-	//  Private interface
-	// ----------------------------------------------------------------------
-	private:
-		bool store(const Record *rec);
 
 
 	// ----------------------------------------------------------------------

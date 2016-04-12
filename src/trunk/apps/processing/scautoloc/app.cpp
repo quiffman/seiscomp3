@@ -307,10 +307,13 @@ bool App::init() {
 
 	SEISCOMP_INFO("Starting Autoloc");
 	dumpConfig();
-	setGridFile(_gridConfigFile);
-	setPickLogFilePrefix(_config.pickLogFile);
+	if ( ! setGridFile(_gridConfigFile) )
+		return false;
 
-	if ( ! initStations() ) return false;
+	if ( ! initStations() )
+		return false;
+
+	setPickLogFilePrefix(_config.pickLogFile);
 
 	if ( _config.playback ) {
 		// XML playback, set timer to 1 sec
@@ -399,11 +402,12 @@ bool App::initStations() {
 		}
 		else {
 			SEISCOMP_ERROR("Unable to read inventory");
-			return  false;
+			return false;
 		}
 	}
 
-	setStations(stations);
+	if ( ! setStations(stations))
+		return false;
 
 	return true;
 }
